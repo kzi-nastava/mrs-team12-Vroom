@@ -1,0 +1,99 @@
+ <div class="container">
+        <h1>Create account</h1>
+        
+        <div class="form-box">
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First name</label>
+                        <div class="input-wrapper user-wrapper">
+                            <input type="text" id="firstName" name="firstName" [(ngModel)]="firstName">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last name</label>
+                        <div class="input-wrapper user-wrapper">
+                            <input type="text" id="lastName" name="lastName" [(ngModel)]="lastName">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="country" name="country" [(ngModel)]="country">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="city" name="city" [(ngModel)]="city">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="street">Street</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="street" name="street" [(ngModel)]="street">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gender-group">
+                    <div class="gender-option">
+                        <input type="radio" id="male" name="gender" value="male"  [(ngModel)]="gender" [value]="'male'">
+                        <label for="male">Male</label>
+                    </div>
+                    <div class="gender-option">
+                        <input type="radio" id="female" name="gender" value="female" [(ngModel)]="gender" [value]="'female'">
+                        <label for="female">Female</label>
+                    </div>
+                    <div class="gender-option">
+                        <input type="radio" id="other" name="gender" value="other" [(ngModel)]="gender" [value]="'other'">
+                        <label for="other">Other</label>
+                    </div>
+                </div>
+
+                <div class="profile-upload">
+                    <label>Profile picture</label>
+                    <label for="profilePic" class="upload-btn">Select image</label>
+                    <input type="file" id="profilePic" name="profilePic" accept=".jpg,.jpeg,.png" (change)="onFileChange($event)">
+                    <label *ngIf="profilePic">{{profilePic.name}}</label>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <div class="input-wrapper email-wrapper">
+                            <input type="email" id="email" name="email" [(ngModel)]="email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone number</label>
+                        <div class="input-wrapper phone-wrapper">
+                            <input type="tel" id="phone" name="phone" [(ngModel)]="phoneNumber">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper password-wrapper">
+                            <input type="password" id="password" name="password" [(ngModel)]="password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reenterPassword">Reenter Password</label>
+                        <div class="input-wrapper password-wrapper">
+                            <input type="password" id="reenterPassword" name="rePassword" [(ngModel)]="rePassword">
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="error-message">{{error}}</h2>
+            </form>
+        </div>
+
+        <button type="submit" class="login-btn" (click)="onSubmit()">Login</button>
+    </div>
