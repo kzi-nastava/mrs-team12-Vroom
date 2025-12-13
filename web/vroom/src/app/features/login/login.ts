@@ -18,7 +18,7 @@ export class Login {
     console.log(this.email)
   }
 
-  onLogin(): void{
+  async onLogin(): Promise<void>{
     console.log(this.email, this.password)
   }
 }
