@@ -1,0 +1,28 @@
+<div class="login-container">
+
+    <h1>Login</h1>
+
+    <div class="login-page">
+        <section class="login-section">
+
+            <form class="login-form" onsubmit="event.preventDefault();">
+                <label>Email</label>
+                <div class="input-wrapper email-wrapper">
+                    <input name="email" type="email" placeholder="Enter your email" [(ngModel)]="email"/>
+                </div>
+                <label>Password</label>
+                <div class="input-wrapper password-wrapper">
+                    <input name="password" type="password" placeholder="Enter your password" [(ngModel)]="password"/>
+                </div>
+            </form>
+
+            <h2 class="error-message">{{error}}</h2>
+        </section>
+
+        <section class="forgot-password-section">
+            <button (click)="onForgotPassword()">Forgot password</button>
+        </section>
+        
+        <button class="login-button" (click)="onLogin()">Login</button>
+    </div>
+</div>
