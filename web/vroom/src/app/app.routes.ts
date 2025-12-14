@@ -1,8 +1,10 @@
 import { Routes } from '@angular/router';
+import {Register} from './features/register/register'
 import {Login} from './features/login/login'
 import { Profile } from './features/profile/profile';
 
 export const routes: Routes = [
     {path: 'login', component: Login},
-    { path: 'profile', component: Profile }
+    { path: 'profile', component: Profile },
+    {path: 'register', component: Register}
 ];
