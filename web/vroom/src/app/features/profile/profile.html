@@ -1,0 +1,87 @@
+<div class="profile-container">
+
+  <h1>Profile</h1>
+
+  <!-- BASIC PROFILE -->
+  <div class="profile-page">
+    <section class="profile-section">
+
+      <div class="avatar-wrapper">
+        <div class="avatar-placeholder">
+          Profile image
+        </div>
+      </div>
+
+      <form class="profile-form" onsubmit="event.preventDefault();">
+
+        <label>First Name</label>
+        <div class="input-wrapper">
+          <input type="text" placeholder="Enter first name"
+                 [(ngModel)]="firstName" name="firstName">
+        </div>
+
+        <label>Last Name</label>
+        <div class="input-wrapper">
+          <input type="text" placeholder="Enter last name"
+                 [(ngModel)]="lastName" name="lastName">
+        </div>
+
+        <label>Address</label>
+        <div class="input-wrapper">
+          <input type="text" placeholder="Enter address"
+                 [(ngModel)]="address" name="address">
+        </div>
+
+        <label>Phone Number</label>
+        <div class="input-wrapper">
+          <input type="tel" placeholder="Enter phone number"
+                 [(ngModel)]="phone" name="phone">
+        </div>
+
+        <label>Email Address</label>
+        <div class="input-wrapper">
+          <input type="email" placeholder="Enter email"
+                 [(ngModel)]="email" name="email">
+        </div>
+
+      </form>
+    </section>
+
+    <button class="change-button" (click)="onChange()">
+      Change
+    </button>
+  </div>
+
+  <!-- DRIVER INFO -->
+  <div class="driver-wrapper" *ngIf="userRole === 'DRIVER'">
+
+    <section class="profile-section">
+      <h2>Driver Activity</h2>
+      <p>
+        Active in last 24h:
+        <strong>{{ activeHoursLast24h }} hours</strong>
+      </p>
+    </section>
+
+    <section class="profile-section">
+      <h2>Vehicle Information</h2>
+
+      <p><strong>Brand:</strong> {{ vehicle.brand }}</p>
+      <p><strong>Model:</strong> {{ vehicle.model }}</p>
+      <p><strong>Number of seats:</strong> {{ vehicle.numberOfSeats }}</p>
+      <p><strong>License plate:</strong> {{ vehicle.licensePlate }}</p>
+
+      <p>
+        <strong>Babies allowed:</strong>
+        {{ vehicle.babiesAllowed ? 'Yes' : 'No' }}
+      </p>
+
+      <p>
+        <strong>Pets allowed:</strong>
+        {{ vehicle.petsAllowed ? 'Yes' : 'No' }}
+      </p>
+    </section>
+
+  </div>
+
+</div>
