@@ -4,7 +4,7 @@
     margin: 0 auto;
     width: 100%;
     max-width: 70%;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;;
+    font-family: 'IBM Plex Sans';
 }
 
 h1 {
@@ -144,7 +144,7 @@ input[type="file"] {
     display: none;
 }
 
-.login-btn {
+.register-btn {
     width: 100%;
     background-color: #8fb88f;
     color: white;
@@ -155,6 +155,7 @@ input[type="file"] {
     cursor: pointer;
     margin-top: 1%;
     font-weight: 500;
+    margin-bottom: 2%;
 }
 
 .error-message{
