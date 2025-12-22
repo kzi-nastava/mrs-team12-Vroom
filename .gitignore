@@ -1,0 +1,4 @@
+*.bin
+*.lock
+/mobile/.idea/caches
+mobile/local.properties
