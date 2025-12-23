@@ -1,6 +1,5 @@
 package com.example.vroom.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,18 +13,19 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.vroom.R;
 
-public class LoginActivity extends AppCompatActivity {
+public class ForgotPasswordActivity extends AppCompatActivity {
     private EditText emailInput;
+    private EditText codeInput;
     private EditText passInput;
-    private Button forgotPassBtn;
-    private Button loginBtn;
+    private EditText rePassInput;
+    private Button submitBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_forgot_password);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -34,44 +34,27 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         emailInput = findViewById(R.id.emailInput);
+        codeInput = findViewById(R.id.codeInput);
         passInput = findViewById(R.id.passwordInput);
+        rePassInput = findViewById(R.id.confirmPasswordInput);
 
-        forgotPassBtn = findViewById(R.id.forgotPasswordButton);
-        forgotPassBtn.setOnClickListener(v -> this.forgotPassReq());
+        submitBtn = findViewById(R.id.submitButton);
 
-        loginBtn = findViewById(R.id.loginButton);
-        loginBtn.setOnClickListener(v -> this.loginReq());
+        submitBtn.setOnClickListener(v -> resetPass());
     }
 
-    private void forgotPassReq(){
+    private void resetPass(){
         try{
             String email = emailInput.getText().toString().trim();
+            String code = codeInput.getText().toString().trim();
+            String pass = passInput.getText().toString().trim();
+            String rePass = rePassInput.getText().toString().trim();
 
-            if (email.isEmpty())
-                throw new Exception("Email is missing");
-
-
-            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
-            startActivity(intent);
-        }catch(Exception e){
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void loginReq(){
-        try{
-            String email = emailInput.getText().toString().trim();
-            String password = passInput.getText().toString().trim();
-
-            if (email.isEmpty())
-                throw new Exception("Email is missing");
-
-            if (password.isEmpty())
-                throw new Exception("Password is missing");
+            if (email.isEmpty() || code.isEmpty() || pass.isEmpty() || rePass.isEmpty())
+                throw new Exception("Fields are missing");
 
         }catch(Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-
 }
