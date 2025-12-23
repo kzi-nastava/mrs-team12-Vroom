@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.LoginActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:fontFamily="sans-serif"
+        android:text="Login"
+        android:textColor="#000000"
+        android:textSize="48sp"
+        tools:layout_editor_absoluteX="146dp"
+        tools:layout_editor_absoluteY="45dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        android:textColor="#000000"
+        android:textSize="36dp"
+        tools:layout_editor_absoluteX="14dp"
+        tools:layout_editor_absoluteY="229dp" />
+
+    <EditText
+        android:id="@+id/emailInput"
+        android:layout_width="375dp"
+        android:layout_height="55dp"
+        android:drawablePadding="12dp"
+        android:hint=""
+        android:inputType="textEmailAddress"
+        android:padding="16dp"
+        android:background="@drawable/corner_round_txt_input_field"
+        android:drawableLeft="@drawable/email_icon"
+        tools:layout_editor_absoluteX="14dp"
+        tools:layout_editor_absoluteY="288dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Password"
+        android:textColor="#000000"
+        android:textSize="36dp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="352dp" />
+
+    <EditText
+        android:id="@+id/passwordInput"
+        android:layout_width="375dp"
+        android:layout_height="55dp"
+        android:background="@drawable/corner_round_txt_input_field"
+        android:drawablePadding="12dp"
+        android:hint=""
+        android:inputType="textPassword"
+        android:padding="16dp"
+        android:drawableLeft="@drawable/password_icon"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="407dp" />
+
+    <Button
+        android:id="@+id/forgotPasswordButton"
+        android:layout_width="150dp"
+        android:layout_height="45dp"
+        android:backgroundTint="#C5EADC"
+        android:paddingHorizontal="10dp"
+        android:text="Forgot Password"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="14dp"
+        app:cornerRadius="10dp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="491dp" />
+
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="350dp"
+        android:layout_height="55dp"
+        android:backgroundTint="#99C2A2"
+        android:text="Login"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:cornerRadius="10dp"
+        tools:layout_editor_absoluteX="30dp"
+        tools:layout_editor_absoluteY="646dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
