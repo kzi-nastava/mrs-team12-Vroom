@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".activities.RegisterActivity">
+
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="Register"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="45dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+
+        <TextView
+            android:id="@+id/firstNameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="First name"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titleText" />
+
+        <EditText
+            android:id="@+id/firstNameInput"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:drawableLeft="@drawable/ic_person"
+            android:drawablePadding="12dp"
+            android:hint=""
+            android:inputType="text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/firstNameLabel" />
+
+        <TextView
+            android:id="@+id/lastNameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last name"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/firstNameInput" />
+
+        <EditText
+            android:id="@+id/lastNameInput"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:drawableLeft="@drawable/ic_person"
+            android:drawablePadding="12dp"
+            android:hint=""
+            android:inputType="text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lastNameLabel" />
+
+        <TextView
+            android:id="@+id/emailLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lastNameInput" />
+
+        <EditText
+            android:id="@+id/emailInput"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:drawableLeft="@drawable/ic_email"
+            android:drawablePadding="12dp"
+            android:hint=""
+            android:inputType="textEmailAddress"
+            android:padding="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/emailLabel" />
+
+        <TextView
+            android:id="@+id/phoneNumLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone number"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/emailInput" />
+
+        <EditText
+            android:id="@+id/phoneNumInput"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:drawableLeft="@drawable/ic_phone"
+            android:drawablePadding="12dp"
+            android:hint=""
+            android:inputType="phone"
+            android:padding="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phoneNumLabel" />
+
+        <TextView
+            android:id="@+id/countryLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Country"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phoneNumInput" />
+
+        <Spinner
+            android:id="@+id/countrySpinner"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_spinner_dropdown"
+            android:padding="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/countryLabel" />
+
+        <TextView
+            android:id="@+id/cityLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="City"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/countrySpinner" />
+
+        <EditText
+            android:id="@+id/cityInput"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:drawablePadding="12dp"
+            android:hint=""
+            android:inputType="text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cityLabel" />
+
+        <TextView
+            android:id="@+id/streetLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Street"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cityInput" />
+
+        <EditText
+            android:id="@+id/streetInput"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:drawablePadding="12dp"
+            android:hint=""
+            android:inputType="text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/streetLabel" />
+
+
+        <TextView
+            android:id="@+id/genderLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gender"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/streetInput" />
+
+        <RadioGroup
+            android:id="@+id/genderRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/genderLabel">
+
+            <RadioButton
+                android:id="@+id/maleRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Male"
+                android:textSize="24sp"/>
+
+            <RadioButton
+                android:id="@+id/femaleRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Female"
+                android:textSize="24sp"/>
+
+            <RadioButton
+                android:id="@+id/otherRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Other"
+                android:textSize="24sp"/>
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/passwordLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Password"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/genderRadioGroup" />
+
+        <EditText
+            android:id="@+id/passwordInput"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:drawableLeft="@drawable/ic_password"
+            android:drawablePadding="12dp"
+            android:hint=""
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/passwordLabel" />
+
+        <TextView
+            android:id="@+id/confirmPasswordLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirm Password"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/passwordInput" />
+
+        <EditText
+            android:id="@+id/confirmPasswordInput"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:drawableLeft="@drawable/ic_password"
+            android:drawablePadding="12dp"
+            android:hint=""
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/confirmPasswordLabel" />
+
+        <ImageView
+            android:id="@+id/profileImage"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="48dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_user"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/confirmPasswordInput" />
+
+        <Button
+            android:id="@+id/uploadImageBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#DCEED3"
+            android:text="Upload Photo"
+            android:textColor="#000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profileImage" />
+
+        <Button
+            android:id="@+id/registerButton"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:backgroundTint="#99C2A2"
+            android:text="Register"
+            android:textAllCaps="false"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="32dp"
+            app:cornerRadius="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/uploadImageBtn"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -53,6 +53,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             if (email.isEmpty() || code.isEmpty() || pass.isEmpty() || rePass.isEmpty())
                 throw new Exception("Fields are missing");
 
+            if(!pass.equals(rePass))
+                throw new Exception("Password must match");
+
         }catch(Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
