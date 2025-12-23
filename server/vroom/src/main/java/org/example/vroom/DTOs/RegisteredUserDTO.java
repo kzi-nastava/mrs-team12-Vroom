@@ -1,5 +1,7 @@
 package org.example.vroom.DTOs;
 
+import org.example.vroom.enums.UserStatus;
+
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -8,6 +10,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class RegisteredUserDTO extends UserDTO {
-    private String status; // change with user status enum
+    private UserStatus status;
 
 }
