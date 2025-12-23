@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_txt_input_rounded" />
+
+    <item
+        android:drawable="@drawable/ic_drop"
+        android:gravity="end|center_vertical"
+        android:right="16dp" />
+</layer-list>

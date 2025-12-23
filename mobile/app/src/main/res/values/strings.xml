@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">Vroom</string>
     <string name="title_activity_login">LoginActivity</string>
+
+    <string-array name="countries_array">
+        <item>Serbia</item>
+        <item>Bosnia and Herzegovina</item>
+        <item>Croatia</item>
+        <item>Montenegro</item>
+        <item>Macedonia</item>
+        <item>Hungary</item>
+        <item>Bulgaria</item>
+        <item>Romania</item>
+    </string-array>
 </resources>
