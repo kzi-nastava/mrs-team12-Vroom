@@ -2,6 +2,7 @@ package org.example.vroom.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name="users")
@@ -10,6 +11,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +33,9 @@ public abstract class User {
     private String address;
 
     @Column(nullable = false)
+    private String gender;
+
+    @Column(nullable = false)
     private String phoneNumber;
 
     @Lob
@@ -39,27 +44,5 @@ public abstract class User {
 
     @Column(nullable = true)
     private String blockedReason;
-
-
-    protected User(
-            String email,
-            String password,
-            String firstName,
-            String lastName,
-            String address,
-            String phoneNumber,
-            byte[] profilePhoto,
-            String blockedReason
-    ) {
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
-        this.profilePhoto = profilePhoto;
-        this.blockedReason = blockedReason;
-    }
-
 
 }
