@@ -1,5 +1,6 @@
 package org.example.vroom.entities;
 import jakarta.persistence.*;
+import lombok.experimental.SuperBuilder;
 import lombok.*;
 
 @Entity
@@ -7,11 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class Admin extends User{
     
-	protected Admin(String email, String password, String firstName, String lastName, String address,
-			String phoneNumber, byte[] profilePhoto, String blockedReason, int id) {
-		super(email, password, firstName, lastName, address, phoneNumber, profilePhoto, blockedReason);
-	}
-
 }
