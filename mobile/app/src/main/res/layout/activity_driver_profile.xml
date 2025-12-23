@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/ProfileLabel"
+        android:layout_width="121dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="45dp"
+        android:text="Profile"
+        android:textSize="40sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/profileBackground"
+        android:layout_width="330dp"
+        android:layout_height="420dp"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="45dp"
+        android:background="@drawable/bg_txt_input_rounded"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ProfileLabel" />
+
+    <TextView
+        android:id="@+id/AddressInfo"
+        android:layout_width="270dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="31dp"
+        android:layout_marginBottom="10dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/PhoneNumberLabel"
+        app:layout_constraintEnd_toEndOf="@+id/profileBackground"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toBottomOf="@+id/AddressLabel" />
+
+    <TextView
+        android:id="@+id/LastNameInfo"
+        android:layout_width="270dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="31dp"
+        android:layout_marginBottom="10dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/AddressLabel"
+        app:layout_constraintEnd_toEndOf="@+id/profileBackground"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toBottomOf="@+id/LastNameLabel" />
+
+    <Button
+        android:id="@+id/profileChangeButton"
+        android:layout_width="167dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="159dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="159dp"
+        android:backgroundTint="#99C2A2"
+        android:text="Change"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profileBackground" />
+
+    <TextView
+        android:id="@+id/FirstNameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="70dp"
+        android:text="First Name"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toTopOf="@+id/profileBackground" />
+
+    <TextView
+        android:id="@+id/LastNameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="45dp"
+        android:text="Last Name"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toBottomOf="@+id/FirstNameLabel" />
+
+    <TextView
+        android:id="@+id/AddressLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="45dp"
+        android:text="Address"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toBottomOf="@+id/LastNameLabel" />
+
+    <TextView
+        android:id="@+id/PhoneNumberLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="45dp"
+        android:text="Phone Number"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toBottomOf="@+id/AddressLabel" />
+
+    <TextView
+        android:id="@+id/EmailLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="45dp"
+        android:text="Email Address"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toBottomOf="@+id/PhoneNumberLabel" />
+
+    <ImageView
+        android:id="@+id/profilePicture"
+        android:layout_width="69dp"
+        android:layout_height="58dp"
+        android:layout_marginStart="125dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="125dp"
+        app:layout_constraintEnd_toEndOf="@+id/profileBackground"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toTopOf="@+id/profileBackground"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/FirstNameInfo"
+        android:layout_width="270dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="31dp"
+        android:layout_marginBottom="10dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/LastNameLabel"
+        app:layout_constraintEnd_toEndOf="@+id/profileBackground"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toBottomOf="@+id/FirstNameLabel"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/EmailInfo"
+        android:layout_width="270dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="31dp"
+        android:background="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="@+id/profileBackground"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toBottomOf="@+id/EmailLabel" />
+
+    <TextView
+        android:id="@+id/PhoneNumberInfo"
+        android:layout_width="270dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="31dp"
+        android:layout_marginBottom="10dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/EmailLabel"
+        app:layout_constraintEnd_toEndOf="@+id/profileBackground"
+        app:layout_constraintStart_toStartOf="@+id/profileBackground"
+        app:layout_constraintTop_toBottomOf="@+id/PhoneNumberLabel" />
+
+    <TextView
+        android:id="@+id/DriverInfo"
+        android:layout_width="329dp"
+        android:layout_height="143dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_txt_input_rounded"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profileChangeButton" />
+
+    <TextView
+        android:id="@+id/LicensePlateInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:text="NS-123-AB"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/LicensePlateLabel"
+        app:layout_constraintTop_toBottomOf="@+id/NumberOfSeatsInfo" />
+
+    <TextView
+        android:id="@+id/PetsInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:text="No"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/PetsLabel"
+        app:layout_constraintTop_toBottomOf="@+id/BabiesInfo" />
+
+    <TextView
+        android:id="@+id/DriverActivityLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="5dp"
+        android:text="Driver Activity:"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/DriverInfo"
+        app:layout_constraintTop_toTopOf="@+id/DriverInfo" />
+
+    <TextView
+        android:id="@+id/VehicleInfoLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Vehicle Information"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/DriverInfo"
+        app:layout_constraintTop_toBottomOf="@+id/DriverActivityLabel" />
+
+    <TextView
+        android:id="@+id/BrandLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Brand:"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/DriverInfo"
+        app:layout_constraintTop_toBottomOf="@+id/VehicleInfoLabel" />
+
+    <TextView
+        android:id="@+id/ModelLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Model:"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/DriverInfo"
+        app:layout_constraintTop_toBottomOf="@+id/BrandLabel" />
+
+    <TextView
+        android:id="@+id/NumberOfSeatsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Number of seats:"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/DriverInfo"
+        app:layout_constraintTop_toBottomOf="@+id/ModelLabel" />
+
+    <TextView
+        android:id="@+id/LicensePlateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="License plate:"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/DriverInfo"
+        app:layout_constraintTop_toBottomOf="@+id/NumberOfSeatsLabel" />
+
+    <TextView
+        android:id="@+id/BabiesLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Babies allowed:"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/DriverInfo"
+        app:layout_constraintTop_toBottomOf="@+id/LicensePlateLabel" />
+
+    <TextView
+        android:id="@+id/PetsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="5dp"
+        android:text="Pets Allowed:"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/DriverInfo"
+        app:layout_constraintStart_toStartOf="@+id/DriverInfo"
+        app:layout_constraintTop_toBottomOf="@+id/BabiesLabel" />
+
+    <TextView
+        android:id="@+id/DriverActivityInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="5dp"
+        android:text="6.5 hours in last 24h"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/DriverActivityLabel"
+        app:layout_constraintTop_toTopOf="@+id/DriverInfo" />
+
+    <TextView
+        android:id="@+id/BrandInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:text="Corolla"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/BrandLabel"
+        app:layout_constraintTop_toBottomOf="@+id/VehicleInfoLabel" />
+
+    <TextView
+        android:id="@+id/ModelInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:text="Toyota"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/ModelLabel"
+        app:layout_constraintTop_toBottomOf="@+id/BrandInfo" />
+
+    <TextView
+        android:id="@+id/BabiesInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:text="Yes"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/BabiesLabel"
+        app:layout_constraintTop_toBottomOf="@+id/LicensePlateInfo" />
+
+    <TextView
+        android:id="@+id/NumberOfSeatsInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:text="4"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/NumberOfSeatsLabel"
+        app:layout_constraintTop_toBottomOf="@+id/ModelInfo" />
+</androidx.constraintlayout.widget.ConstraintLayout>
