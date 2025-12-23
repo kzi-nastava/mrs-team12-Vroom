@@ -16,7 +16,7 @@ h1 {
 }
 
 .login-section {
-    background: #d4e8d4;
+    background: #DCEED3;
     padding: 10%;
     border-radius: 12px;
     margin-bottom: 5%;
@@ -77,7 +77,7 @@ h1 {
     margin-bottom: 12.5%;
 }
 .forgot-password-section button {
-    background: #a8c9a8;
+    background: #DCEED3;
     border: none;
     padding: 12px 24px;
     border-radius: 8px;

@@ -12,16 +12,17 @@ public class RegisteredUserMapper {
         if(user == null)
             return null;
 
-        return new RegisteredUserDTO(
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                user.getAddress(),
-                user.getProfilePhoto(),
-                user.getBlockedReason(),
-                user.getStatus()
-        );
+        return RegisteredUserDTO.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .gender(user.getGender())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .profilePhoto(user.getProfilePhoto())
+                .blockedReason(user.getBlockedReason())
+                .status(user.getStatus())
+                .build();
     }
 
     public RegisteredUser toEntity(RegisteredUserDTO user, String password) {
@@ -32,9 +33,11 @@ public class RegisteredUserMapper {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
-                .password(password)
-                .address(user.getAddress())
+                .gender(user.getGender())
                 .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .profilePhoto(user.getProfilePhoto())
+                .blockedReason(user.getBlockedReason())
                 .status(user.getStatus())
                 .build();
     }
