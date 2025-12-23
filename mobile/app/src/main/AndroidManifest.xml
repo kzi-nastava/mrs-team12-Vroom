@@ -13,21 +13,23 @@
         android:theme="@style/Theme.Vroom">
 
         <activity
+            android:name=".activities.RegisterActivity"
+            android:exported="false"
+            android:label="RegisterActivity">
+        </activity>
+
+        <activity
             android:name=".activities.ForgotPasswordActivity"
             android:exported="false"
             android:label="ForgotPasswordActivity">
+
         </activity>
 
         <activity
             android:name=".activities.LoginActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_login">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
-
     </application>
 
 </manifest>
