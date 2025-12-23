@@ -8,37 +8,41 @@ import java.util.List;
 
 @Component
 public class AdminMapper {
+
     public AdminDTO toDTO(Admin admin) {
-        if(admin == null)
+        if (admin == null)
             return null;
 
-        return new AdminDTO(
-                admin.getFirstName(),
-                admin.getLastName(),
-                admin.getEmail(),
-                admin.getPhoneNumber(),
-                admin.getAddress(),
-                admin.getProfilePhoto(),
-                admin.getBlockedReason()
-        );
+        return AdminDTO.builder()
+                .firstName(admin.getFirstName())
+                .lastName(admin.getLastName())
+                .email(admin.getEmail())
+                .gender(admin.getGender())
+                .phoneNumber(admin.getPhoneNumber())
+                .address(admin.getAddress())
+                .profilePhoto(admin.getProfilePhoto())
+                .blockedReason(admin.getBlockedReason())
+                .build();
     }
 
     public Admin toEntity(AdminDTO admin, String password) {
-        if(admin == null)
+        if (admin == null)
             return null;
 
         return Admin.builder()
                 .firstName(admin.getFirstName())
                 .lastName(admin.getLastName())
                 .email(admin.getEmail())
-                .password(password)
-                .address(admin.getAddress())
+                .gender(admin.getGender())
                 .phoneNumber(admin.getPhoneNumber())
+                .address(admin.getAddress())
+                .profilePhoto(admin.getProfilePhoto())
+                .blockedReason(admin.getBlockedReason())
                 .build();
     }
 
-    public List<AdminDTO> toDTOList(List<Admin> admins){
-        if(admins == null)
+    public List<AdminDTO> toDTOList(List<Admin> admins) {
+        if (admins == null)
             return null;
 
         return admins.stream()
@@ -46,3 +50,4 @@ public class AdminMapper {
                 .toList();
     }
 }
+
