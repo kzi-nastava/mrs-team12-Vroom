@@ -1,0 +1,30 @@
+package org.example.vroom.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.example.vroom.enums.DriverStatus;
+
+@Entity
+@DiscriminatorValue("DRIVER")
+@Getter
+@Setter
+@NoArgsConstructor
+@SuperBuilder
+public class Driver extends User {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DriverStatus status;
+
+    @Column
+    @Builder.Default
+    private Long ratingCount = 0L;
+
+    @Column
+    @Builder.Default
+    private Long ratingSum = 0L;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="vehicle_id", nullable = false)
+    private Vehicle vehicle;
+}

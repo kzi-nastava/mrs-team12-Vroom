@@ -4,10 +4,10 @@ import lombok.experimental.SuperBuilder;
 import lombok.*;
 
 @Entity
-@DiscriminatorValue("REGISTERED_USER")
+@DiscriminatorValue("ADMIN")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @SuperBuilder
 public class Admin extends User{
     

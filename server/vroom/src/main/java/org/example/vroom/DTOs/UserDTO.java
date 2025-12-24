@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public abstract class UserDTO {
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;
@@ -16,5 +17,4 @@ public abstract class UserDTO {
     private String address;
     private byte[] profilePhoto;
     private String blockedReason;
-
 }

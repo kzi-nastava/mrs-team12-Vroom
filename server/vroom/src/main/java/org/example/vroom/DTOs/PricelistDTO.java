@@ -10,6 +10,7 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PricelistDTO {
 
     private Map<VehicleType, Float> typePrice;
