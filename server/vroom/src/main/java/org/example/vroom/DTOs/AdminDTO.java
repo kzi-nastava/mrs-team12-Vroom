@@ -9,6 +9,6 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class AdminDTO {
+public class AdminDTO extends UserDTO{
 
 }
