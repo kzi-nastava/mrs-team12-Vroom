@@ -11,7 +11,9 @@ import java.util.Map;
 @Table(name = "pricelists")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Pricelist {
 
     @Id
@@ -20,6 +22,7 @@ public class Pricelist {
 
     @ElementCollection
     @Column(nullable = false)
+    @Builder.Default
     private Map<VehicleType, Float> typePrice = new HashMap<>();
     
     @Column(nullable = false)

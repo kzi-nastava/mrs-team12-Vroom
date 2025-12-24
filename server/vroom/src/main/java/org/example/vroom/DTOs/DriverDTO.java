@@ -1,6 +1,5 @@
 package org.example.vroom.DTOs;
 
-import lombok.AllArgsConstructor;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.example.vroom.enums.DriverStatus;

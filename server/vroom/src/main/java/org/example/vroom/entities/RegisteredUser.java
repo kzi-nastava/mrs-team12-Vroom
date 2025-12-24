@@ -10,10 +10,10 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorValue("REGISTERED_USER")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @SuperBuilder
 public class RegisteredUser extends User{
-    //@Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;     
 

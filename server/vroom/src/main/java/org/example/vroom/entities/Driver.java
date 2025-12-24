@@ -9,19 +9,22 @@ import org.example.vroom.enums.DriverStatus;
 @DiscriminatorValue("DRIVER")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @SuperBuilder
 public class Driver extends User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DriverStatus status;
 
-
+    @Column
+    @Builder.Default
     private Long ratingCount = 0L;
+
+    @Column
+    @Builder.Default
     private Long ratingSum = 0L;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name="vehicle_id", nullable = false)
     private Vehicle vehicle;
-
 }
