@@ -26,10 +26,20 @@ public class Vehicle {
     @Column(nullable = false, unique = true)
     private String licenceNumber;
 
-
+    @Column
     private Integer numberOfSeats;
+
+    @Column
     private Boolean babiesAllowed;
+
+    @Column
     private Boolean petsAllowed;
+
+    @Column
+    @Builder.Default
     private Long ratingCount = 0L;
+
+    @Column
+    @Builder.Default
     private Long ratingSum = 0L;
 }
