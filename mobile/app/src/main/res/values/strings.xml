@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Vroom</string>
     <string name="title_activity_login">LoginActivity</string>
+    <string name="drivers_ride_history">Driver\'s Ride History</string>
+    <string name="arrow">↓</string>
+    <string name="datetime_title">Date &amp; Time</string>
+    <string name="price_title">Price</string>
 
     <string-array name="countries_array">
         <item>Serbia</item>
