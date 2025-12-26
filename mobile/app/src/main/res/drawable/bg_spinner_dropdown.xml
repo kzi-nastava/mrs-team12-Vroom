@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/bg_txt_input_rounded" />
-
-    <item
-        android:drawable="@drawable/ic_drop"
-        android:gravity="end|center_vertical"
-        android:right="16dp" />
-</layer-list>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="10dp"/>
+                    <solid android:color="@color/main_green"/>
+                </shape>
+            </item>
+            <item
+                android:width="15dp"
+                android:height="10dp"
+                android:drawable="@drawable/ic_drop"
+                android:gravity="end|center_vertical"
+                android:right="12dp"/>
+        </layer-list>
+    </item>
+</selector>
