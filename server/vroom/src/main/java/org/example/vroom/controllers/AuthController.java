@@ -25,7 +25,7 @@ public class AuthController {
                                             .expiresIn(1000L)
                                             .build();
 
-        return ResponseEntity.ok(res);
+        return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
     }
 
 }
