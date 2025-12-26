@@ -28,6 +28,7 @@
             android:name=".activities.LoginActivity"
             android:exported="false"
             android:label="@string/title_activity_login">
+
         </activity>
         <activity
         android:name=".activities.ProfileActivity"
