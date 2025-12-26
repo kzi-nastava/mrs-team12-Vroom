@@ -11,25 +11,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Vroom">
-
+        <activity
+            android:name=".activities.DriverRideHistoryActivity"
+            android:exported="false"/>
         <activity
             android:name=".activities.RegisterActivity"
             android:exported="false"
-            android:label="RegisterActivity">
-        </activity>
-
+            android:label="RegisterActivity"/>
         <activity
             android:name=".activities.ForgotPasswordActivity"
             android:exported="false"
-            android:label="ForgotPasswordActivity">
-
-        </activity>
-
+            android:label="ForgotPasswordActivity"/>
         <activity
             android:name=".activities.LoginActivity"
             android:exported="false"
-            android:label="@string/title_activity_login">
-        </activity>
+            android:label="@string/title_activity_login"/>
     </application>
 
 </manifest>
