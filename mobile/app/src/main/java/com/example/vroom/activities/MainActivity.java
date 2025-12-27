@@ -1,6 +1,7 @@
 package com.example.vroom.activities;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,13 +11,16 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.vroom.R;
 
-public class DriverRideHistoryActivity extends BaseActivity {
+public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_driver_ride_history);
+        setContentView(R.layout.activity_main);
     }
 
+    @Override
+    public void onLogoButtonClicked(){
+    }
 }
