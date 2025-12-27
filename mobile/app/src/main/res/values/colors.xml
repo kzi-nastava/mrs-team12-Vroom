@@ -11,4 +11,11 @@
     <color name="main_green">#DCEED3</color>
     <color name="accent_green">#99C2A2</color>
     <color name="brown_black">#2A2C24</color>
+    <color name="light_text">#5A5C54</color>
+    <color name="cancelled_text">#C41E3A</color>
+    <color name="cancelled_background">#FFD4D4</color>
+    <color name="safe_text">#2E7D32</color>
+    <color name="safe_background">#C8E6C9</color>
+    <color name="panic_text">#E64A19</color>
+    <color name="panic_background">#FFCCBC</color>
 </resources>
