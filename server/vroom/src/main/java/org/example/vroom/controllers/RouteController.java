@@ -14,11 +14,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 @RestController
-@RequestMapping("/api/route")
+@RequestMapping("/api/routes")
 public class RouteController {
 
     @GetMapping(path="/quote")
-    public ResponseEntity<?> getQuote(
+    public ResponseEntity<RouteQuoteResponseDTO> getQuote(
             @RequestParam String startLocation,
             @RequestParam String endLocation
     ) {
