@@ -1,6 +1,7 @@
 package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.VehicleDTO;
+import org.example.vroom.DTOs.requests.VehicleRequestDTO;
 import org.example.vroom.entities.Vehicle;
 import org.springframework.stereotype.Component;
 
@@ -51,5 +52,20 @@ public class VehicleMapper {
         return vehicles.stream()
                 .map(this::toDTO)
                 .toList();
+    }
+    
+    public Vehicle toEntity(VehicleRequestDTO vehicleRequestDTO) {
+        if (vehicleRequestDTO == null) {
+            return null;
+        }
+
+        return Vehicle.builder()
+                .model(vehicleRequestDTO.getModel())
+                .type(vehicleRequestDTO.getType())
+                .licenceNumber(vehicleRequestDTO.getLicenceNumber())
+                .numberOfSeats(vehicleRequestDTO.getNumberOfSeats())
+                .babiesAllowed(vehicleRequestDTO.getBabiesAllowed())
+                .petsAllowed(vehicleRequestDTO.getPetsAllowed())
+                .build();
     }
 }
