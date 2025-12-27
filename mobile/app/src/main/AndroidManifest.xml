@@ -21,11 +21,14 @@
         <activity
             android:name=".activities.ForgotPasswordActivity"
             android:exported="false"
-            android:label="ForgotPasswordActivity"/>
+            android:label="ForgotPasswordActivity">
+        </activity>
+
         <activity
             android:name=".activities.LoginActivity"
             android:exported="false"
-            android:label="@string/title_activity_login"/>
+            android:label="@string/title_activity_login">
+        </activity>
         <activity
         android:name=".activities.ProfileActivity"
         android:exported="false"
