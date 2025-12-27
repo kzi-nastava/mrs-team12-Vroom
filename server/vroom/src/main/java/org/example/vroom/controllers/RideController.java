@@ -10,15 +10,16 @@ import javax.swing.text.html.parser.Entity;
 
 
 @RestController
-@RequestMapping("/api/ride")
+@RequestMapping("/api/rides")
 public class RideController {
 
     @PutMapping(
-            path = "/cancel",
+            path = "/{rideID}/cancel",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<MessageResponseDTO> cancelRide(
+            @PathVariable Long rideID,
             @RequestBody CancelRideDTO data
     ){
         if(data==null) return new ResponseEntity<MessageResponseDTO>(

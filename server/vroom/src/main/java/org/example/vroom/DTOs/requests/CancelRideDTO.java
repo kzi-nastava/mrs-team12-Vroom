@@ -8,12 +8,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CancelRideDTO {
-    private Long rideID;
     private String type;
     private String reason;
 
-    public CancelRideDTO(Long rideID, String type) {
-        this.rideID = rideID;
+    public CancelRideDTO(String type) {
         this.type = type;
     }
 }
