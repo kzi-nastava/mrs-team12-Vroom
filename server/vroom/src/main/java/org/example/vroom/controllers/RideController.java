@@ -2,7 +2,9 @@ package org.example.vroom.controllers;
 
 import org.apache.coyote.Response;
 import org.example.vroom.DTOs.requests.CancelRideDTO;
+import org.example.vroom.DTOs.requests.StopRideDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
+import org.example.vroom.DTOs.responses.StoppedRideDTO;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,11 +15,7 @@ import javax.swing.text.html.parser.Entity;
 @RequestMapping("/api/rides")
 public class RideController {
 
-    @PutMapping(
-            path = "/{rideID}/cancel",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @PutMapping(path = "/{rideID}/cancel", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> cancelRide(
             @PathVariable Long rideID,
             @RequestBody CancelRideDTO data
@@ -39,4 +37,19 @@ public class RideController {
                 HttpStatus.OK
         );
     }
+
+    @PutMapping(path="/{rideID}/stop",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StoppedRideDTO> stopRide(
+            @PathVariable Long rideID,
+            @RequestBody StopRideDTO data
+    ){
+        if(data == null)
+            return new ResponseEntity<StoppedRideDTO>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<StoppedRideDTO>(
+                new StoppedRideDTO(),
+                HttpStatus.OK
+        );
+    }
+
 }
