@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Vroom</string>
     <string name="title_activity_login">LoginActivity</string>
+
     <string name="login_title">Login</string>
     <string name="register_title">Register</string>
     <string name="forgot_password_title">Forgot Password</string>
@@ -31,6 +32,12 @@
     <string name="phone_number_example_label">+381 ** *** ****</string>
     <string name="street_example_label">Street name, 01</string>
     <string name="city_example_label">City name</string>
+
+    <string name="drivers_ride_history">Driver\'s Ride History</string>
+    <string name="arrow">↓</string>
+    <string name="datetime_title">Date &amp; Time</string>
+    <string name="price_title">Price</string>
+
 
     <string-array name="countries_array">
         <item>Serbia</item>
