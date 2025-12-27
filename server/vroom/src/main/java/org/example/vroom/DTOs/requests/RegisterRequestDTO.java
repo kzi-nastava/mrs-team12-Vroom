@@ -1,6 +1,7 @@
 package org.example.vroom.DTOs.requests;
 
 import lombok.*;
+import org.example.vroom.enums.Gender;
 
 @Getter
 @Setter
@@ -13,7 +14,7 @@ public class RegisterRequestDTO {
     private String email;
     private String phoneNumber;
     private String address;
-    private String gender;
+    private Gender gender;
     private byte[] profilePhoto;
     private String password;
     private String type;
@@ -32,7 +33,7 @@ public class RegisterRequestDTO {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
-        this.gender = gender;
+        this.gender = Gender.valueOf(gender);
         this.password = password;
     }
 
@@ -51,7 +52,7 @@ public class RegisterRequestDTO {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
-        this.gender = gender;
+        this.gender = Gender.valueOf(gender);
         this.password = password;
         this.type = type;
     }

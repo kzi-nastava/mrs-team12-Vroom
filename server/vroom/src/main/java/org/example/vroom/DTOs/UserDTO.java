@@ -2,6 +2,7 @@ package org.example.vroom.DTOs;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.example.vroom.enums.Gender;
 
 @Getter
 @Setter
@@ -12,7 +13,7 @@ public abstract class UserDTO {
     private String firstName;
     private String lastName;
     private String email;
-    private String gender;
+    private Gender gender;
     private String phoneNumber;
     private String address;
     private byte[] profilePhoto;
