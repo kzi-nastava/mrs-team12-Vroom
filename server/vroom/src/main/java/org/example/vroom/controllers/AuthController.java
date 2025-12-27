@@ -20,6 +20,9 @@ public class AuthController {
 
     @Autowired
     RegisteredUserMapper registeredUserMapper;
+    @Autowired
+    private DriverRegisterMapper driverRegisterMapper;
+
 
     @PostMapping(
             path="/login",
@@ -107,4 +110,29 @@ public class AuthController {
                 .location(URI.create(targetUrl))
                 .build();
     }
+    
+    @PostMapping(
+            path = "/register/driver",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<RegisterResponseDTO> registerDriver(
+            @RequestBody DriverRegisterRequestDTO data
+    ) {
+        if (data == null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        Driver driver = driverRegisterMapper.toEntity(data);
+        // driverRepository.save(driver);
+
+        return new ResponseEntity<RegisterResponseDTO>(
+                new RegisterResponseDTO(
+                        1L,
+                        "Successfully created driver account, before login activate account"
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
 }
