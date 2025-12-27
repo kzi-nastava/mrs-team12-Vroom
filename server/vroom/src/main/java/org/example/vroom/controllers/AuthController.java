@@ -46,7 +46,7 @@ public class AuthController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> forgotPassword(@RequestBody ForgotPasswordRequestDTO data) {
         if(data==null)
-            return new  ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
 
         Token token = Token.builder()
                 .code("test123")
