@@ -5,8 +5,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginHorizontal="16dp"
-    tools:context=".activities.LoginActivity">
+    android:paddingHorizontal="16dp"
+    tools:context=".activities.LoginActivity"
+    android:background="@color/lime_white">
 
     <TextView
         android:id="@+id/titleText"
