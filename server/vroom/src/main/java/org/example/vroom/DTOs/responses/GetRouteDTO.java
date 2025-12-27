@@ -14,5 +14,5 @@ public class GetRouteDTO {
     Double startLocationLng;
     Double endLocationLat;
     Double endLocationLng;
-    List<RoutePointDTO> stops;
+    List<PointDTO> stops;
 }
