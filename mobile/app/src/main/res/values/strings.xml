@@ -1,10 +1,43 @@
 <resources>
     <string name="app_name">Vroom</string>
     <string name="title_activity_login">LoginActivity</string>
+
+    <string name="login_title">Login</string>
+    <string name="register_title">Register</string>
+    <string name="forgot_password_title">Forgot Password</string>
+
+    <string name="first_name_input_title">First name</string>
+    <string name="last_name_input_title">Last name</string>
+    <string name="email_input_title">Email</string>
+    <string name="password_input_title">Password</string>
+    <string name="confirm_password_input_title">Confirm Password</string>
+    <string name="gender_input_title">Gender</string>
+    <string name="street_input_title">Street</string>
+    <string name="city_input_title">City</string>
+    <string name="country_input_title">Country</string>
+    <string name="phone_input_title">Phone number</string>
+    <string name="code_input_title">Code</string>
+
+    <string name="gender_btn_male_title">Male</string>
+    <string name="gender_btn_female_title">Female</string>
+    <string name="gender_btn_other_title">Other</string>
+
+    <string name="register_btn_title">Register</string>
+    <string name="login_btn_title">Login</string>
+    <string name="forgot_password_btn_title">Forgot Password</string>
+    <string name="submit_btn_title">Submit</string>
+    <string name="upload_photo_btn_title">Upload Photo</string>
+
+    <string name="email_example_label">email@email.com</string>
+    <string name="phone_number_example_label">+381 ** *** ****</string>
+    <string name="street_example_label">Street name, 01</string>
+    <string name="city_example_label">City name</string>
+
     <string name="drivers_ride_history">Driver\'s Ride History</string>
     <string name="arrow">↓</string>
     <string name="datetime_title">Date &amp; Time</string>
     <string name="price_title">Price</string>
+
 
     <string-array name="countries_array">
         <item>Serbia</item>
