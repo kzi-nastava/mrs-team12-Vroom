@@ -1,13 +1,28 @@
 package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.RegisteredUserDTO;
+import org.example.vroom.DTOs.requests.RegisterRequestDTO;
 import org.example.vroom.entities.RegisteredUser;
+import org.example.vroom.enums.UserStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class RegisteredUserMapper {
+    public RegisteredUser createUser(RegisterRequestDTO user) {
+        return RegisteredUser.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .password(user.getPassword())
+                .address(user.getAddress())
+                .gender(user.getGender())
+                .status(UserStatus.INNACTIVE)
+                .build();
+    }
+
     public RegisteredUserDTO toDTO(RegisteredUser user) {
         if(user == null)
             return null;
