@@ -1,6 +1,6 @@
 package org.example.vroom.mappers;
 
-import java.sql.Driver;
+import org.example.vroom.entities.*;
 
 import org.apache.catalina.User;
 import org.example.vroom.DTOs.UserDTO;

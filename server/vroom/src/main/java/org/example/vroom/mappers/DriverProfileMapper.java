@@ -1,8 +1,9 @@
 package org.example.vroom.mappers;
 
-import java.sql.Driver;
 
-import org.example.vroom.DTOs.DriverDTO;
+import org.example.vroom.entities.*;
+
+import org.example.vroom.DTOs.*;
 import org.springframework.stereotype.Component;
 
 @Component
