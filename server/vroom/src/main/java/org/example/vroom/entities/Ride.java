@@ -22,12 +22,17 @@ public class Ride {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id", nullable = false)
+    @JoinColumn(name = "driver_id", nullable = false)
     private Driver driver;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "passenger_id", nullable = false)
+    private RegisteredUser passenger;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "routes_id", nullable = false)
     private Route route;
+
 
     @Column(nullable = true)
     private LocalDateTime startTime;

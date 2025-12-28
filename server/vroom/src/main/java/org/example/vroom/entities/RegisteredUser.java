@@ -15,6 +15,6 @@ import lombok.experimental.SuperBuilder;
 public class RegisteredUser extends User{
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserStatus status;     
+    private UserStatus status;
 
 }
