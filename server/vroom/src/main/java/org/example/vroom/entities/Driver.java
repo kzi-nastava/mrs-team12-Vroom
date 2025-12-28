@@ -27,4 +27,5 @@ public class Driver extends User {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name="vehicle_id", nullable = false)
     private Vehicle vehicle;
+
 }

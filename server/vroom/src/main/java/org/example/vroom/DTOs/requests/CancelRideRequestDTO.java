@@ -7,11 +7,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CancelRideDTO {
+public class CancelRideRequestDTO {
     private String type;
     private String reason;
 
-    public CancelRideDTO(String type) {
+    public CancelRideRequestDTO(String type) {
         this.type = type;
     }
 }

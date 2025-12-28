@@ -1,6 +1,7 @@
 package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.DriverDTO;
+import org.example.vroom.DTOs.responses.DriverRideResponseDTO;
 import org.example.vroom.entities.Driver;
 import org.springframework.stereotype.Component;
 
@@ -57,6 +58,20 @@ public class DriverMapper {
                 .vehicle(vehicleMapper.toEntity(driverDTO.getVehicle()))
                 .build();
 
+    }
+
+    public DriverRideResponseDTO toDriverRideDTO(Driver driver){
+        if(driver == null) return null;
+
+        return DriverRideResponseDTO
+                .builder()
+                .firstName(driver.getFirstName())
+                .lastName(driver.getLastName())
+                .email(driver.getEmail())
+                .gender(driver.getGender())
+                .rating((double) driver.getRatingSum()/ driver.getRatingCount())
+                .vehicle(vehicleMapper.toVehicleRideDTO(driver.getVehicle()))
+                .build();
     }
 
     public List<DriverDTO> toDTOList(List<Driver> drivers){

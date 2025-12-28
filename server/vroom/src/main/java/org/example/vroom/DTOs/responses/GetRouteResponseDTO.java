@@ -9,10 +9,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GetRouteDTO {
+public class GetRouteResponseDTO {
     Double startLocationLat;
     Double startLocationLng;
     Double endLocationLat;
     Double endLocationLng;
-    List<PointDTO> stops;
+    List<PointResponseDTO> stops;
 }
