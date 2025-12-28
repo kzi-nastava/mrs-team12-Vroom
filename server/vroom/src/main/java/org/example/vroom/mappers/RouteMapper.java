@@ -1,7 +1,7 @@
 package org.example.vroom.mappers;
 
-import org.example.vroom.DTOs.responses.GetRouteDTO;
-import org.example.vroom.DTOs.responses.PointDTO;
+import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
+import org.example.vroom.DTOs.responses.PointResponseDTO;
 import org.example.vroom.entities.Point;
 import org.example.vroom.entities.Route;
 import org.springframework.stereotype.Component;
@@ -10,8 +10,8 @@ import java.util.List;
 
 @Component
 public class RouteMapper {
-    public GetRouteDTO getRouteDTO(Route route) {
-        return GetRouteDTO
+    public GetRouteResponseDTO getRouteDTO(Route route) {
+        return GetRouteResponseDTO
                 .builder()
                 .startLocationLat(route.getStartLocationLat())
                 .startLocationLng(route.getStartLocationLng())
@@ -21,17 +21,17 @@ public class RouteMapper {
                 .build();
     }
 
-    public PointDTO routeStopToDTO(Point point) {
+    public PointResponseDTO routeStopToDTO(Point point) {
         if(point == null) return null;
 
-        return PointDTO
+        return PointResponseDTO
                 .builder()
                 .lat(point.getLat())
                 .lng(point.getLng())
                 .build();
     }
 
-    public List<PointDTO> mapRoutePointsDTO(List<Point> points) {
+    public List<PointResponseDTO> mapRoutePointsDTO(List<Point> points) {
         if (points == null) {
             return null;
         }

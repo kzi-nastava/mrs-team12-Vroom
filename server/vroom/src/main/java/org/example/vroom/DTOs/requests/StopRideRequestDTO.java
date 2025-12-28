@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StopRideDTO {
+public class StopRideRequestDTO {
     private LocalDateTime endTime;
     private double stopLat;
     private double stopLng;

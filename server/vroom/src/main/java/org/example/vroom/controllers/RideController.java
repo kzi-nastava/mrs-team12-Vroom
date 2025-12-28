@@ -1,16 +1,13 @@
 package org.example.vroom.controllers;
 
-import org.apache.coyote.Response;
-import org.example.vroom.DTOs.DriverDTO;
-import org.example.vroom.DTOs.requests.CancelRideDTO;
-import org.example.vroom.DTOs.requests.StopRideDTO;
+import org.example.vroom.DTOs.requests.CancelRideRequestDTO;
+import org.example.vroom.DTOs.requests.StopRideRequestDTO;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.parser.Entity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +18,8 @@ import java.util.List;
 public class RideController {
 
     @GetMapping(path="/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GetRideDTO> getRide(@PathVariable Long rideID){
-        DriverRideDTO driver = DriverRideDTO.builder()
+    public ResponseEntity<GetRideResponseDTO> getRide(@PathVariable Long rideID){
+        DriverRideResponseDTO driver = DriverRideResponseDTO.builder()
                 .firstName("Marko")
                 .lastName("Markovic")
                 .email("marko@example.com")
@@ -30,7 +27,7 @@ public class RideController {
                 .vehicle(null)
                 .build();
 
-        GetRouteDTO route = GetRouteDTO
+        GetRouteResponseDTO route = GetRouteResponseDTO
                 .builder()
                 .startLocationLat(44.7866)
                 .startLocationLng(20.4489)
@@ -39,7 +36,7 @@ public class RideController {
                 .stops(List.of())
                 .build();
 
-        GetRideDTO ride = GetRideDTO
+        GetRideResponseDTO ride = GetRideResponseDTO
                 .builder()
                 .route(route)
                 .startTime(LocalDateTime.of(2025, 1, 10, 14, 32))
@@ -54,14 +51,14 @@ public class RideController {
                 .vehicleRating(4)
                 .build();
 
-        return new ResponseEntity<GetRideDTO>(ride, HttpStatus.OK);
+        return new ResponseEntity<GetRideResponseDTO>(ride, HttpStatus.OK);
     }
 
 
     @PutMapping(path = "/{rideID}/cancel", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> cancelRide(
             @PathVariable Long rideID,
-            @RequestBody CancelRideDTO data
+            @RequestBody CancelRideRequestDTO data
     ){
         if(data==null) return new ResponseEntity<MessageResponseDTO>(
                 new MessageResponseDTO("Data is missing"),
@@ -82,15 +79,15 @@ public class RideController {
     }
 
     @PutMapping(path="/{rideID}/stop",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StoppedRideDTO> stopRide(
+    public ResponseEntity<StoppedRideResponseDTO> stopRide(
             @PathVariable Long rideID,
-            @RequestBody StopRideDTO data
+            @RequestBody StopRideRequestDTO data
     ){
         if(data == null)
-            return new ResponseEntity<StoppedRideDTO>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<StoppedRideResponseDTO>(HttpStatus.NO_CONTENT);
 
-        return new ResponseEntity<StoppedRideDTO>(
-                new StoppedRideDTO(),
+        return new ResponseEntity<StoppedRideResponseDTO>(
+                new StoppedRideResponseDTO(),
                 HttpStatus.OK
         );
     }

@@ -1,7 +1,7 @@
 package org.example.vroom.controllers;
 
-import org.example.vroom.DTOs.responses.GetRouteDTO;
-import org.example.vroom.DTOs.responses.RideHistoryDTO;
+import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
+import org.example.vroom.DTOs.responses.RideHistoryResponseDTO;
 import org.example.vroom.enums.RideStatus;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -17,14 +17,14 @@ import java.util.List;
 public class AdminController {
 
     @GetMapping(path = "/users/{userID}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RideHistoryDTO>> getRides(
+    public ResponseEntity<Collection<RideHistoryResponseDTO>> getRides(
             @PathVariable Long userID,
             @RequestParam(required = false) LocalDateTime startDate,
             @RequestParam(required = false) LocalDateTime endDate,
             @RequestParam(required = false) String sort
     ) {
-        Collection<RideHistoryDTO> rides = new ArrayList<RideHistoryDTO>();
-        GetRouteDTO route1 = GetRouteDTO
+        Collection<RideHistoryResponseDTO> rides = new ArrayList<RideHistoryResponseDTO>();
+        GetRouteResponseDTO route1 = GetRouteResponseDTO
                 .builder()
                 .startLocationLat(44.7866)
                 .startLocationLng(20.4489)
@@ -33,7 +33,7 @@ public class AdminController {
                 .stops(List.of())
                 .build();
 
-        RideHistoryDTO ride1 = RideHistoryDTO
+        RideHistoryResponseDTO ride1 = RideHistoryResponseDTO
                 .builder()
                 .route(route1)
                 .startTime(LocalDateTime.of(2025, 1, 10, 14, 32))
@@ -45,7 +45,7 @@ public class AdminController {
 
         rides.add(ride1);
 
-        return new ResponseEntity<Collection<RideHistoryDTO>>(rides, HttpStatus.OK);
+        return new ResponseEntity<Collection<RideHistoryResponseDTO>>(rides, HttpStatus.OK);
     }
 
 

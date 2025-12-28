@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RideHistoryDTO {
-    private GetRouteDTO route;
+public class StoppedRideResponseDTO {
+    private Long driverID;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private RideStatus status;
     private double price;
-    private boolean panicActivated;
+    private GetRouteResponseDTO route;
 }
