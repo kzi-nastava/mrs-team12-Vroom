@@ -1,7 +1,6 @@
 package org.example.vroom.DTOs.responses;
 
 import lombok.*;
-import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.enums.RideStatus;
 
 import java.time.LocalDateTime;
@@ -12,9 +11,9 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GetRideDTO {
-    private DriverRideDTO driver;
-    private GetRouteDTO route;
+public class GetRideResponseDTO {
+    private DriverRideResponseDTO driver;
+    private GetRouteResponseDTO route;
 
     private ArrayList<String> passengers;
     private ArrayList<String> complaints;

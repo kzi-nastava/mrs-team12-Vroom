@@ -1,7 +1,6 @@
 package org.example.vroom.DTOs.responses;
 
 import lombok.*;
-import org.example.vroom.DTOs.VehicleDTO;
 import org.example.vroom.enums.Gender;
 
 @Getter
@@ -9,7 +8,7 @@ import org.example.vroom.enums.Gender;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DriverRideDTO {
+public class DriverRideResponseDTO {
     private String firstName;
     private String lastName;
     private String email;
@@ -18,5 +17,5 @@ public class DriverRideDTO {
     @Builder.Default
     private double rating = 0.0;
 
-    private VehicleRideDTO vehicle;
+    private VehicleRideResponseDTO vehicle;
 }
