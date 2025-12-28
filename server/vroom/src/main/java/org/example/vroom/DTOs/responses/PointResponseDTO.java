@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PointDTO {
+public class PointResponseDTO {
     private Double lat;
     private Double lng;
 }
