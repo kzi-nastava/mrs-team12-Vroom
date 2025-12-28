@@ -2,7 +2,7 @@ package org.example.vroom.DTOs;
 
 import lombok.*;
 
-import org.example.vroom.DTOs.responses.GetRouteDTO;
+import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
 import org.example.vroom.enums.RideStatus;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ public class RideDTO {
     private RideStatus status;
 
     private DriverDTO driver;
-    private GetRouteDTO route;
+    private GetRouteResponseDTO route;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;

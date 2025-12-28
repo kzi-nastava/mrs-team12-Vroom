@@ -1,6 +1,7 @@
 package org.example.vroom.DTOs.requests;
 
 import lombok.*;
+import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
 import org.example.vroom.enums.VehicleType;
 
 import java.time.LocalDateTime;
@@ -18,5 +19,6 @@ public class RideRequestDTO {
     private Boolean babiesAllowed;
     private Boolean petsAllowed;
     private Boolean scheduled;
-    private LocalDateTime scheduledTime; 
+    private LocalDateTime scheduledTime;
+    private GetRouteResponseDTO route;
 }
