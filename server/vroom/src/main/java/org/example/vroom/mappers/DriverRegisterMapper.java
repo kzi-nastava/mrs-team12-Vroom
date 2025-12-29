@@ -23,7 +23,7 @@ public class DriverRegisterMapper {
         driver.setFirstName(dto.getFirstName());
         driver.setLastName(dto.getLastName());
         driver.setPhoneNumber(dto.getPhoneNumber());
-        driver.setStatus(DriverStatus.INNACTIVE);
+        driver.setStatus(DriverStatus.INACTIVE);
 
         Vehicle vehicle = vehicleMapper.toEntity(dto.getVehicle());
         driver.setVehicle(vehicle);
