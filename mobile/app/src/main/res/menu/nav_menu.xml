@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:title="@string/login_title"
+        android:id="@+id/login_navbar_item"
+        android:icon="@drawable/ic_user_profile" />
+    <item
+        android:title="@string/register_title"
+        android:id="@+id/register_navbar_item"
+        android:icon="@drawable/ic_user_profile" />
+    <item
+        android:title="@string/drivers_ride_history"
+        android:icon="@drawable/ic_calendar"
+        android:id="@+id/driver_ride_history_item"/>
+
+</menu>
