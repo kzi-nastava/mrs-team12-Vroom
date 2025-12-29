@@ -4,5 +4,5 @@ public enum DriverStatus {
 	   BLOCKED,
 	    AVAILABLE,
 	    UNAVAILABLE,
-	    INNACTIVE
+	INACTIVE
 }
