@@ -3,10 +3,7 @@ package org.example.vroom.controllers;
 import org.apache.coyote.Response;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
 import org.example.vroom.DTOs.RideDTO;
-import org.example.vroom.DTOs.requests.CancelRideRequestDTO;
-import org.example.vroom.DTOs.requests.RideRequestDTO;
-import org.example.vroom.DTOs.requests.StartRideRequestDTO;
-import org.example.vroom.DTOs.requests.StopRideRequestDTO;
+import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.StoppedRideResponseDTO;
 import org.example.vroom.entities.Ride;
@@ -14,6 +11,7 @@ import org.example.vroom.entities.Route;
 import org.example.vroom.DTOs.requests.CancelRideRequestDTO;
 import org.example.vroom.DTOs.requests.StopRideRequestDTO;
 import org.example.vroom.DTOs.responses.*;
+import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.springframework.http.*;
@@ -65,6 +63,58 @@ public class RideController {
                 .build();
 
         return new ResponseEntity<GetRideResponseDTO>(ride, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/{rideID}/duration", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GetRideUpdatesResponseDTO> getRideUpdate(@PathVariable Long rideID){
+        GetRideUpdatesResponseDTO dto = new GetRideUpdatesResponseDTO();
+        dto.setPoint(new PointResponseDTO(48.45, 45.32));
+        dto.setTime(14.0);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    @PutMapping(path = "/{rideID}/duration", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponseDTO> updateRide(
+            @PathVariable Long rideID,
+            @RequestBody RideUpdateRequestDTO updatedData
+    ){
+        double time = updatedData.getTime();
+        PointResponseDTO point = updatedData.getPoint();
+        return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/{rideID}/complaint", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponseDTO> sendComplaint(
+            @PathVariable Long rideID,
+            @RequestBody ComplaintRequestDTO complaint
+    ){
+        Ride ride = new Ride();
+        ride.setId(rideID);
+        ride.setStatus(RideStatus.FINISHED);
+        ride.getDriver().setStatus(DriverStatus.AVAILABLE);
+        return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/{rideID}/review", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponseDTO> sendReview(
+            @PathVariable Long rideID,
+            @RequestBody LeaveReviewRequestDTO review
+    ){
+        Ride ride = new Ride();
+        ride.setId(rideID);
+        ride.setDriverRating(review.getDriverRating());
+        ride.setVehicleRating(review.getVehicleRating());
+        ride.setComment(review.getComment());
+        return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/{rideID}/finish")
+    public ResponseEntity<MessageResponseDTO> finishRide(
+            @PathVariable Long rideID
+    ){
+        // ridestatus = finished
+        // driverstatus = available
+        return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
 
