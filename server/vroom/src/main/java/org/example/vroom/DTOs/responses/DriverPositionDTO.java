@@ -9,7 +9,6 @@ import org.example.vroom.enums.DriverStatus;
 @NoArgsConstructor
 @Builder
 public class DriverPositionDTO {
-    private int driverId;
     private PointResponseDTO point;
     private DriverStatus status;
 }
