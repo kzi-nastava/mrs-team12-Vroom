@@ -1,0 +1,12 @@
+*.bin
+*.lock
+/mobile/.idea/caches
+mobile/local.properties
+mobile/.idea/misc.xml
+mobile/.idea/misc.xml
+mobile/app/build.gradle
+/mobile/.idea
+mobile/app/build.gradle
+mobile/.idea/misc.xml
+mobile/app/build.gradle
+mobile/.idea/misc.xml
