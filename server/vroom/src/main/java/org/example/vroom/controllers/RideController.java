@@ -6,6 +6,7 @@ import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.StoppedRideResponseDTO;
+import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.Route;
 import org.example.vroom.DTOs.requests.CancelRideRequestDTO;
@@ -89,8 +90,10 @@ public class RideController {
             @RequestBody ComplaintRequestDTO complaint
     ){
         Ride ride = new Ride();
+        Driver driver = new Driver();
         ride.setId(rideID);
         ride.setStatus(RideStatus.FINISHED);
+        ride.setDriver(driver);
         ride.getDriver().setStatus(DriverStatus.AVAILABLE);
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }

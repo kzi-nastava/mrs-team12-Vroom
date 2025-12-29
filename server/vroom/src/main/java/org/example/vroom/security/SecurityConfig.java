@@ -20,7 +20,11 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/admins/**",
                                 "/api/routes/**",
-                                "/api/rides/**"
+                                "/api/rides/**",
+                                "/api/main/**",
+                                "/api/profile/driver",
+                                "/api/profile/user",
+                                "/api/drivers/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
