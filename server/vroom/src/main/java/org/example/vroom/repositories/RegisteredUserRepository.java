@@ -14,4 +14,5 @@ public interface RegisteredUserRepository extends JpaRepository<RegisteredUser, 
     @Transactional
     @Query("update RegisteredUser u set u.userStatus='ACTIVE' where u.id = :id and u.userStatus='INACTIVE' ")
     int activateUserById(@Param("id") Long id);
+
 }

@@ -4,6 +4,7 @@ import org.aspectj.bridge.Message;
 import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.entities.*;
+import org.example.vroom.exceptions.UserAlreadyExistsException;
 import org.example.vroom.mappers.*;
 import org.example.vroom.services.RegisteredUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,10 +97,15 @@ public class AuthController {
                     new MessageResponseDTO("Successfully create user, activation link is sent to email"),
                     HttpStatus.CREATED
             );
-        }catch(RuntimeException e){
+        }catch(UserAlreadyExistsException e) {
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO(e.getMessage()),
-                    HttpStatus.INTERNAL_SERVER_ERROR
+                    HttpStatus.CONFLICT
+            );
+        } catch (RuntimeException e){
+            return new ResponseEntity<MessageResponseDTO>(
+                    new MessageResponseDTO(e.getMessage()),
+                    HttpStatus.SERVICE_UNAVAILABLE
             );
         }
 
