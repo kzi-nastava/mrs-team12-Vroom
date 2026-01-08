@@ -19,7 +19,6 @@ public class RegisteredUserService {
     @Autowired
     private EmailService emailService;
 
-    @Transactional
     public void createUser(RegisterRequestDTO req) {
         RegisteredUser user = registeredUserMapper.createUser(req);
         user = registeredUserRepository.saveAndFlush(user);
@@ -34,7 +33,6 @@ public class RegisteredUserService {
         }
     }
 
-    @Transactional
     public boolean activateUser(Long id) {
         return registeredUserRepository.findById(id).map(user -> {
             if(!user.getUserStatus().equals(UserStatus.INACTIVE))
