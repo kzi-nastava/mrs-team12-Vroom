@@ -10,7 +10,7 @@ public class RegisteredUserProfileMapper extends BaseProfileMapper {
     public RegisteredUserDTO toDTO(RegisteredUser user) {
         RegisteredUserDTO dto = RegisteredUserDTO.builder().build();
         mapBase(user, dto);
-        dto.setStatus(user.getStatus());
+        dto.setStatus(user.getUserStatus());
         return dto;
     }
 
