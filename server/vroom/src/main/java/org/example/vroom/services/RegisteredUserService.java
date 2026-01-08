@@ -22,7 +22,8 @@ public class RegisteredUserService {
     @Transactional
     public void createUser(RegisterRequestDTO req) {
         RegisteredUser user = registeredUserMapper.createUser(req);
-        registeredUserRepository.save(user);
+        user = registeredUserRepository.saveAndFlush(user);
+
         String userEmail = req.getEmail();
         String id = Long.toString(user.getId());
 
