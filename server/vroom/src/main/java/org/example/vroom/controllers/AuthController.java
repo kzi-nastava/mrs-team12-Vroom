@@ -5,6 +5,7 @@ import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.entities.*;
 import org.example.vroom.mappers.*;
+import org.example.vroom.services.RegisteredUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,8 @@ import java.time.temporal.ChronoUnit;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    @Autowired
+    private RegisteredUserService registeredUserService;
 
     @Autowired
     RegisteredUserMapper registeredUserMapper;
@@ -83,21 +86,28 @@ public class AuthController {
             path="/register",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterRequestDTO data){
+    public ResponseEntity<MessageResponseDTO> register(@RequestBody RegisterRequestDTO data){
         if(data == null)
-            return new ResponseEntity<RegisterResponseDTO>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
 
-        RegisteredUser user = this.registeredUserMapper.createUser(data); //move to service layer later on
+        try{
+            registeredUserService.createUser(data);
+            return new ResponseEntity<MessageResponseDTO>(
+                    new MessageResponseDTO("Successfully create user, activation link is sent to email"),
+                    HttpStatus.CREATED
+            );
+        }catch(RuntimeException e){
+            return new ResponseEntity<MessageResponseDTO>(
+                    new MessageResponseDTO(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
 
-        return new ResponseEntity<RegisterResponseDTO>(
-                new RegisterResponseDTO(1L,"Successfully created account, before login activate account"),
-                HttpStatus.OK
-        );
     }
 
     @GetMapping(path = "/activate-account/{userID}")
     public ResponseEntity<Void> activateAccount(@PathVariable Long userID){
-        boolean isActivated = true;
+        boolean isActivated = registeredUserService.activateUser(userID);
         String targetUrl="";
 
         if(isActivated)
