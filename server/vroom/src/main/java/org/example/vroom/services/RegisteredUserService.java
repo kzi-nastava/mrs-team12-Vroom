@@ -34,13 +34,6 @@ public class RegisteredUserService {
     }
 
     public boolean activateUser(Long id) {
-        return registeredUserRepository.findById(id).map(user -> {
-            if(!user.getUserStatus().equals(UserStatus.INACTIVE))
-                return false;
-
-            user.setUserStatus(UserStatus.ACTIVE);
-            registeredUserRepository.save(user);
-            return true;
-        }).orElse(false);
+        return registeredUserRepository.activateUserById(id) > 0;
     }
 }
