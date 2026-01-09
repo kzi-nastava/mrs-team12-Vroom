@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 public class EmailService {
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private JavaMailSender mailSender;
 
