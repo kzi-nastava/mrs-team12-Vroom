@@ -5,6 +5,7 @@ import org.example.vroom.entities.Admin;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.RegisteredUser;
 import org.example.vroom.entities.User;
+import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.UserStatus;
 import org.example.vroom.exceptions.AccountStatusException;
 import org.example.vroom.exceptions.PasswordNotMatchException;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class AuthService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -57,5 +58,17 @@ public class UserService {
                 .token(token)
                 .expiresIn(expiresIn)
                 .build();
+    }
+
+    public void logout(Long id, String type){
+        if(!type.equals("driver")) return;
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if(user instanceof Driver driver){
+            driver.setStatus(DriverStatus.INACTIVE);
+            userRepository.save(driver);
+        }
     }
 }
