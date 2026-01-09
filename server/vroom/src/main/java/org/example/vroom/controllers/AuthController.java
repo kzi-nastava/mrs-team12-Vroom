@@ -4,9 +4,13 @@ import org.aspectj.bridge.Message;
 import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.entities.*;
+import org.example.vroom.exceptions.AccountStatusException;
+import org.example.vroom.exceptions.PasswordNotMatchException;
 import org.example.vroom.exceptions.UserAlreadyExistsException;
+import org.example.vroom.exceptions.UserDoesntExistException;
 import org.example.vroom.mappers.*;
 import org.example.vroom.services.RegisteredUserService;
+import org.example.vroom.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -20,29 +24,31 @@ import java.time.temporal.ChronoUnit;
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
-    private RegisteredUserService registeredUserService;
-
+    private UserService userService;
     @Autowired
-    RegisteredUserMapper registeredUserMapper;
+    private RegisteredUserService registeredUserService;
     @Autowired
     private DriverRegisterMapper driverRegisterMapper;
-
 
     @PostMapping(
             path="/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO data) {
-        LoginResponseDTO res = LoginResponseDTO.builder()
-                                            .userID(1L)
-                                            .token("token_test")
-                                            .type("user")
-                                            .expiresIn(1000L)
-                                            .build();
         if(data==null)
-            return new  ResponseEntity<LoginResponseDTO>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<LoginResponseDTO>(HttpStatus.NO_CONTENT);
 
-        return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
+        try{
+            LoginResponseDTO res = userService.login(data.getEmail(), data.getPassword());
+            return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
+
+        }catch(UserDoesntExistException e){
+            return new ResponseEntity<LoginResponseDTO>(HttpStatus.NOT_FOUND);
+        }catch(PasswordNotMatchException e){
+            return new ResponseEntity<LoginResponseDTO>(HttpStatus.UNAUTHORIZED);
+        }catch(AccountStatusException e){
+            return new ResponseEntity<LoginResponseDTO>(HttpStatus.FORBIDDEN);
+        }
     }
 
 
