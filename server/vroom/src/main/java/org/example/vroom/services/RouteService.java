@@ -2,6 +2,10 @@ package org.example.vroom.services;
 
 import org.example.vroom.DTOs.responses.GeoapifyRouteResponseDTO;
 import org.example.vroom.DTOs.responses.RouteQuoteResponseDTO;
+import org.example.vroom.entities.Pricelist;
+import org.example.vroom.repositories.PriceListRepository;
+import org.example.vroom.repositories.RouteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
@@ -16,6 +20,12 @@ import java.net.URL;
 public class RouteService {
     @Value("${geoapify.api.key}")
     private String geoapifyApyKey;
+
+    @Autowired
+    private PriceListRepository priceListRepository;
+    @Autowired
+    private RouteRepository routeRepository;
+
 
     public RouteQuoteResponseDTO routeEstimation(String startLocation, String endLocation){
         String waypoints = startLocation+"|"+endLocation;
@@ -52,10 +62,9 @@ public class RouteService {
             double distanceKm = (double)route.getFeatures().get(0).getProperties().getDistance() / 1000.0;
             double time = (double)route.getFeatures().get(0).getProperties().getTime() / 60.0;
 
-            double pricePerKm = 5.0;
-            double price = distanceKm * pricePerKm;
+            float pricePerKm = priceListRepository.getPricePerKm();
+            double price = distanceKm * (double)pricePerKm;
 
-            // change pricing by using value from db
             return new RouteQuoteResponseDTO(price, time);
         }catch(Exception e){
             return null;
