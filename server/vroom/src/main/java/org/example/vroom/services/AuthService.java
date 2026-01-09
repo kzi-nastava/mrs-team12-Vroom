@@ -12,8 +12,11 @@ import org.example.vroom.exceptions.PasswordNotMatchException;
 import org.example.vroom.exceptions.UserDoesntExistException;
 import org.example.vroom.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -22,6 +25,8 @@ public class AuthService {
     private UserRepository userRepository;
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public LoginResponseDTO login(String email, String password) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -37,26 +42,26 @@ public class AuthService {
             throw new AccountStatusException("This account is inactive or blocked");
 
         String userPassword = user.get().getPassword();
-        if(!password.equals(userPassword)) {
+        if(!passwordEncoder.matches(password, userPassword)) {
             throw new PasswordNotMatchException("Passwords do not match");
         }
+
         String token = jwtService.generateToken(user.get());
         long expiresIn = jwtService.extractExpiration(token).getTime() - System.currentTimeMillis();
 
-        String type="";
-        if(user.get() instanceof RegisteredUser){
-            type="registeredUser";
-        }else if(user.get() instanceof Driver){
-            type="driver";
-        }else if(user.get() instanceof Admin){
-            type="admin";
-        }
+        String type = switch (user.get()) {
+            case RegisteredUser u -> "registeredUser";
+            case Driver d -> "driver";
+            case Admin a -> "admin";
+            default -> "unknown";
+        };
 
         return LoginResponseDTO.builder()
                 .userID(user.get().getId())
                 .type(type)
                 .token(token)
                 .expiresIn(expiresIn)
+                .expiresAt(System.currentTimeMillis() + expiresIn)
                 .build();
     }
 

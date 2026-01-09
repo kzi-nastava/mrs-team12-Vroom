@@ -18,8 +18,11 @@ import java.util.function.Function;
 
 @Component
 public class JwtService {
-    private final String secret = "Zm9vYmFyMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=";
-    private final long expiration = 365L * 24 * 60 * 60 * 1000;
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration}")
+    private long expiration;
 
     private Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
