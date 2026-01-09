@@ -1,6 +1,5 @@
 package org.example.vroom.controllers;
 
-import org.aspectj.bridge.Message;
 import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.entities.*;
@@ -10,12 +9,11 @@ import org.example.vroom.exceptions.UserAlreadyExistsException;
 import org.example.vroom.exceptions.UserDoesntExistException;
 import org.example.vroom.mappers.*;
 import org.example.vroom.services.RegisteredUserService;
-import org.example.vroom.services.UserService;
+import org.example.vroom.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import javax.print.attribute.standard.Media;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -24,7 +22,7 @@ import java.time.temporal.ChronoUnit;
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
-    private UserService userService;
+    private AuthService authService;
     @Autowired
     private RegisteredUserService registeredUserService;
     @Autowired
@@ -39,7 +37,7 @@ public class AuthController {
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.NO_CONTENT);
 
         try{
-            LoginResponseDTO res = userService.login(data.getEmail(), data.getPassword());
+            LoginResponseDTO res = authService.login(data.getEmail(), data.getPassword());
             return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
 
         }catch(UserDoesntExistException e){
@@ -157,4 +155,24 @@ public class AuthController {
         );
     }
 
+
+    @PostMapping(
+            path="/logout",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<MessageResponseDTO> logout(@RequestBody LogoutRequestDTO req) {
+        try{
+            authService.logout(Long.valueOf(req.getId()), req.getType());
+            return new ResponseEntity<MessageResponseDTO>(
+                    new MessageResponseDTO("Logout successful"),
+                    HttpStatus.OK
+            );
+        }catch(RuntimeException e){
+            return new ResponseEntity<MessageResponseDTO>(
+                new MessageResponseDTO(e.getMessage()),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+    }
 }
