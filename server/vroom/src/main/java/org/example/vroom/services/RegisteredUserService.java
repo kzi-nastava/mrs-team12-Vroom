@@ -3,18 +3,13 @@ package org.example.vroom.services;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.RegisterRequestDTO;
 import org.example.vroom.entities.RegisteredUser;
-import org.example.vroom.entities.User;
-import org.example.vroom.enums.UserStatus;
-import org.example.vroom.exceptions.UserAlreadyExistsException;
+import org.example.vroom.exceptions.user.UserAlreadyExistsException;
 import org.example.vroom.mappers.RegisteredUserMapper;
 import org.example.vroom.repositories.RegisteredUserRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class RegisteredUserService {

@@ -4,7 +4,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.entities.*;
-import org.example.vroom.exceptions.*;
+import org.example.vroom.exceptions.auth.InvalidLoginException;
+import org.example.vroom.exceptions.auth.InvalidTokenException;
+import org.example.vroom.exceptions.auth.TokenPresentException;
+import org.example.vroom.exceptions.user.AccountStatusException;
+import org.example.vroom.exceptions.user.UserAlreadyExistsException;
+import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.*;
 import org.example.vroom.services.RegisteredUserService;
 import org.example.vroom.services.AuthService;
@@ -13,8 +18,6 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @RestController
 @RequestMapping("/api/auth")
