@@ -7,22 +7,21 @@ import org.example.vroom.DTOs.responses.LoginResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.UserStatus;
-import org.example.vroom.exceptions.*;
+import org.example.vroom.exceptions.auth.InvalidLoginException;
+import org.example.vroom.exceptions.auth.InvalidTokenException;
+import org.example.vroom.exceptions.auth.TokenPresentException;
+import org.example.vroom.exceptions.user.AccountStatusException;
+import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.repositories.TokenRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.Charset;
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class AuthService {
