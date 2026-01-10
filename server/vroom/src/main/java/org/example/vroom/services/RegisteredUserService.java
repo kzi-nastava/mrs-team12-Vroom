@@ -10,6 +10,8 @@ import org.example.vroom.mappers.RegisteredUserMapper;
 import org.example.vroom.repositories.RegisteredUserRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,16 +23,18 @@ public class RegisteredUserService {
     private RegisteredUserRepository registeredUserRepository;
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private RegisteredUserMapper registeredUserMapper;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public void createUser(RegisterRequestDTO req) {
         if (userRepository.findByEmail(req.getEmail()).isPresent())
             throw new UserAlreadyExistsException("User with this email already exists");
 
+        req.setPassword(passwordEncoder.encode(req.getPassword()));
         RegisteredUser user = registeredUserMapper.createUser(req);
 
         user = registeredUserRepository.saveAndFlush(user);
