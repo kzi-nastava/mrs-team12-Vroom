@@ -2,6 +2,7 @@ package org.example.vroom.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.vroom.entities.User;
@@ -37,21 +38,35 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         Long id = null;
         String type = null;
 
-        if(authHeader != null && authHeader.startsWith("Bearer ")) {
+
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if(token == null && authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
+        }
+
+        if(token != null){
             email = jwtService.extractEmail(token);
             id = jwtService.extractUserId(token);
             type = jwtService.extractUserType(token);
         }
 
-        if(email != null && id != null && type != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userRepository.findByEmail(email).get();
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if(userOptional.isPresent() && email != null && id != null && type != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            User user = userOptional.get();
 
             if(jwtService.validateToken(token, user)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                   user,
                         null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + type.toUpperCase()))
+                        List.of(new SimpleGrantedAuthority("ROLE_" + type))
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -59,5 +74,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        // change this to ignore auth + main + route estimation endpoints
+        return path.startsWith("/api/auth/")
+                || path.startsWith("/api/admins/")
+                || path.startsWith("/api/rides/")
+                || path.startsWith("/api/routes/")
+                || path.startsWith("/api/main/")
+                || path.startsWith("/api/profile/driver")
+                || path.startsWith("/api/profile/user")
+                || path.startsWith("/api/drivers/");
     }
 }

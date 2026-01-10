@@ -1,5 +1,6 @@
 package org.example.vroom.controllers;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.entities.*;
@@ -32,12 +33,12 @@ public class AuthController {
             path="/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO data) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO data, HttpServletResponse response) {
         if(data==null)
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.NO_CONTENT);
 
         try{
-            LoginResponseDTO res = authService.login(data.getEmail(), data.getPassword());
+            LoginResponseDTO res = authService.login(data.getEmail(), data.getPassword(), response);
             return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
 
         }catch(UserDoesntExistException e){
@@ -161,9 +162,9 @@ public class AuthController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<MessageResponseDTO> logout(@RequestBody LogoutRequestDTO req) {
+    public ResponseEntity<MessageResponseDTO> logout(@RequestBody LogoutRequestDTO req, HttpServletResponse response) {
         try{
-            authService.logout(Long.valueOf(req.getId()), req.getType());
+            authService.logout(Long.valueOf(req.getId()), req.getType(), response);
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Logout successful"),
                     HttpStatus.OK
