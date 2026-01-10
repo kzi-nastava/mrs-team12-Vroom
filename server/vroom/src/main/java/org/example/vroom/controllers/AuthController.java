@@ -49,8 +49,7 @@ public class AuthController {
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.FORBIDDEN);
         }
     }
-
-
+    
     // init forget password process
     @PostMapping(
             path="/forgot-password",
@@ -60,17 +59,17 @@ public class AuthController {
         if(data==null)
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
 
-        Token token = Token.builder()
-                .code("test123")
-                .user(new RegisteredUser())
-                .issuedAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plus(15, ChronoUnit.MINUTES))
-                .build();
-        // save token and send code to email
-        return new ResponseEntity<MessageResponseDTO>(
-                new MessageResponseDTO("Check email for the code"),
-                HttpStatus.OK
-        );
+        try{
+            authService.forgotPassword(data.getEmail());
+            return new ResponseEntity<MessageResponseDTO>(
+                    new MessageResponseDTO("Check email for the code"),
+                    HttpStatus.OK
+            );
+        }catch(UserDoesntExistException e){
+            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NOT_FOUND);
+        } catch(Exception e){
+            return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // finish forget password process
