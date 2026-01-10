@@ -62,8 +62,8 @@ public class AuthController {
         try{
             authService.forgotPassword(data.getEmail());
             return new ResponseEntity<MessageResponseDTO>(
-                    new MessageResponseDTO("Check email for the code"),
-                    HttpStatus.OK
+                    new MessageResponseDTO("Check email for the code. Redirecting...."),
+                    HttpStatus.CREATED
             );
         }catch(UserNotFoundException e){
             return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.NOT_FOUND);
@@ -88,7 +88,7 @@ public class AuthController {
             authService.resetPassword(data.getEmail(), data.getCode(), data.getPassword());
 
             return new ResponseEntity<MessageResponseDTO>(
-                    new MessageResponseDTO("Successfully reset password"),
+                    new MessageResponseDTO("Successfully reseted password"),
                     HttpStatus.OK
             );
         }catch(InvalidTokenException e){

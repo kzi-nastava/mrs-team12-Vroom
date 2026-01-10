@@ -2,7 +2,7 @@
         <h1>Create account</h1>
         
         <div class="form-box">
-            <form>
+            <form (ngSubmit)="onSubmit()">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="firstName">First name</label>
@@ -41,15 +41,15 @@
 
                 <div class="gender-group">
                     <div class="gender-option">
-                        <input type="radio" id="male" name="gender" value="male"  [(ngModel)]="gender" [value]="'male'">
+                        <input type="radio" id="male" name="gender" value="MALE"  [(ngModel)]="gender" [value]="'MALE'">
                         <label for="male">Male</label>
                     </div>
                     <div class="gender-option">
-                        <input type="radio" id="female" name="gender" value="female" [(ngModel)]="gender" [value]="'female'">
+                        <input type="radio" id="female" name="gender" value="FEMALE" [(ngModel)]="gender" [value]="'FEMALE'">
                         <label for="female">Female</label>
                     </div>
                     <div class="gender-option">
-                        <input type="radio" id="other" name="gender" value="other" [(ngModel)]="gender" [value]="'other'">
+                        <input type="radio" id="other" name="gender" value="OTHER" [(ngModel)]="gender" [value]="'OTHER'">
                         <label for="other">Other</label>
                     </div>
                 </div>
@@ -92,8 +92,14 @@
                 </div>
 
                 <h2 class="error-message">{{error}}</h2>
+                <h2 class="sucess-message">{{success}}</h2>
+
+                <button type="button" class="register-btn" [disabled]="isLoading" (click)="onSubmit()">
+                    <span *ngIf="!isLoading">Register</span>
+                    <span *ngIf="isLoading" class="loader">Processing...</span>
+                </button>
             </form>
         </div>
 
-        <button type="submit" class="register-btn" (click)="onSubmit()">Register</button>
+        
     </div>
