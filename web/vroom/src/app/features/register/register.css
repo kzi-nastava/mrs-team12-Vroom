@@ -18,7 +18,7 @@ h1 {
 
 .form-box {
     background-color: #DCEED3;
-    padding: 5%;
+    padding: 3%;
     border-radius: 10px;
 }
 
@@ -155,12 +155,17 @@ input[type="file"] {
     cursor: pointer;
     margin-top: 1%;
     font-weight: 600;
-    margin-bottom: 2%;
+    /*margin-bottom: 2%;*/
+    margin: 0;
 }
 
 .error-message{
     font-size: 20px;
     color: red;
+}
+.success-message{
+    font-size: 20px;
+    color: green;
 }
 
 
@@ -169,6 +174,4 @@ input[type="file"] {
         flex-direction: column;
         gap: 1.5em;
     }
-
-    
 }
