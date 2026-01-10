@@ -5,7 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RegisterService } from './register.service';
 import { firstValueFrom } from 'rxjs';
 import { isHttpError } from '../../core/utils/http-error.guard';
-import { RegisterRequestDTO } from '../../core/models/register-request.dto';
+import { RegisterRequestDTO } from '../../core/models/auth/requests/register-request.dto';
 
 @Component({
   selector: 'app-register',
