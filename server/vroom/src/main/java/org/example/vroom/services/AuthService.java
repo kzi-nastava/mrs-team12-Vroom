@@ -1,5 +1,7 @@
 package org.example.vroom.services;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.example.vroom.DTOs.responses.LoginResponseDTO;
 import org.example.vroom.entities.Admin;
 import org.example.vroom.entities.Driver;
@@ -28,7 +30,7 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public LoginResponseDTO login(String email, String password) {
+    public LoginResponseDTO login(String email, String password, HttpServletResponse response) {
         Optional<User> user = userRepository.findByEmail(email);
         if(user.isEmpty()) {
             throw new UserDoesntExistException("This email is not registered with any account");
@@ -56,16 +58,29 @@ public class AuthService {
             default -> "unknown";
         };
 
+        Cookie cookie = new Cookie("jwt", token);
+        cookie.setMaxAge((int) expiresIn/1000);
+        cookie.setSecure(false);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+
         return LoginResponseDTO.builder()
                 .userID(user.get().getId())
                 .type(type)
-                .token(token)
-                .expiresIn(expiresIn)
-                .expiresAt(System.currentTimeMillis() + expiresIn)
                 .build();
     }
 
-    public void logout(Long id, String type){
+    public void logout(Long id, String type, HttpServletResponse response){
+        Cookie cookie = new Cookie("jwt", null);
+        cookie.setMaxAge(0);
+        cookie.setSecure(false);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+
         if(!type.equals("driver")) return;
 
         User user = userRepository.findById(id)
