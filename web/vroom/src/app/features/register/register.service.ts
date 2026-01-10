@@ -1,10 +1,16 @@
 import { Injectable } from "@angular/core"
+import { HttpClient } from '@angular/common/http';
+import { Observable } from "rxjs";
+import { MessageResponseDTO } from "../../core/models/message-response.dto";
 
 @Injectable({
   providedIn: 'root'  
 })
-
 export class RegisterService{
+    private apiUrl = 'http://localhost:8080/api/auth'
+    
+    constructor(private http: HttpClient) {}
+
     isPasswordValid(password: string): String | null{
         if(password.length < 8) return 'Password must be over 8 characters long'
         if(!/[0-9]/.test(password)) return 'Password must contain a number';
@@ -14,10 +20,33 @@ export class RegisterService{
         return null
     }
 
-    async fileToByteArray(file: File): Promise<number[]> {
-        const arrayBuffer = await file.arrayBuffer()
-        const uint8Array = new Uint8Array(arrayBuffer)
+    getFileValidationError(file: File): string | null {
+        if (!file.type.startsWith('image/')) {
+        return 'Please select a valid image file (png, jpg, etc.)';
+        }
 
-        return Array.from(uint8Array)
+        if (file.size > 2 * 1024 * 1024) {
+        return 'Image size must be less than 2MB';
+        }
+
+        return null;
+    }
+
+    async fileToBase64(file: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                const base64String = (reader.result as string).split(',')[1];
+                resolve(base64String);
+            };
+
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    createRequest(data: any): Observable<MessageResponseDTO> {
+        return this.http.post<MessageResponseDTO>(this.apiUrl+'/register', data)
     }
 }

@@ -2,6 +2,13 @@
 
     <h1>Login</h1>
 
+    <div *ngIf="status === 'activated'" class="status-message success">
+        Account activated
+    </div>
+    <div *ngIf="status === 'failed'" class="status-message error">
+        There has been an error with account activation
+    </div>
+
     <div class="login-page">
         <section class="login-section">
 
@@ -17,6 +24,7 @@
             </form>
 
             <h2 class="error-message">{{error}}</h2>
+            <h2 class="success-message">{{success}}</h2>
         </section>
 
         <section class="forgot-password-section">
