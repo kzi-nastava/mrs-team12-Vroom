@@ -94,6 +94,16 @@
             word-break: break-all;
             border-radius: 4px;
         }
+
+        .warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: left;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -105,7 +115,7 @@
 
     <div class="content">
         <h2>Welcome to Vroom!</h2>
-        <p>Thank you for signing up. To complete your registration, please verify your email address.</p>
+        <p>Thank you for signing up. To complete your registration, please verify your email address</p>
 
         <p>Click the button below to activate your account:</p>
 
@@ -119,11 +129,15 @@
         <div class="link-code">
             {{URL}}
         </div>
+
+        <div class="warning">
+            <strong>Security Note:</strong> If you did not create this account, please ignore this email
+        </div>
     </div>
 
     <div class="footer">
-        <p>© 2026 Vroom. All rights reserved.</p>
-        <p>This is an automated email, please do not reply.</p>
+        <p>© 2026 Vroom. All rights reserved</p>
+        <p>This is an automated email, please do not reply</p>
     </div>
 </div>
 </body>

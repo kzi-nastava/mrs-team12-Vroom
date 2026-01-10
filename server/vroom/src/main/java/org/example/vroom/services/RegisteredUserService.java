@@ -30,6 +30,7 @@ public class RegisteredUserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void createUser(RegisterRequestDTO req) {
         if (userRepository.findByEmail(req.getEmail()).isPresent())
             throw new UserAlreadyExistsException("User with this email already exists");

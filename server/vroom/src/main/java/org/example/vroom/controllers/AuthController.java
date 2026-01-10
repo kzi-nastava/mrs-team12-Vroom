@@ -4,10 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.entities.*;
-import org.example.vroom.exceptions.AccountStatusException;
-import org.example.vroom.exceptions.PasswordNotMatchException;
-import org.example.vroom.exceptions.UserAlreadyExistsException;
-import org.example.vroom.exceptions.UserDoesntExistException;
+import org.example.vroom.exceptions.*;
 import org.example.vroom.mappers.*;
 import org.example.vroom.services.RegisteredUserService;
 import org.example.vroom.services.AuthService;
@@ -41,15 +38,15 @@ public class AuthController {
             LoginResponseDTO res = authService.login(data.getEmail(), data.getPassword(), response);
             return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
 
-        }catch(UserDoesntExistException e){
+        }catch(InvalidLoginException e){
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.NOT_FOUND);
-        }catch(PasswordNotMatchException e){
-            return new ResponseEntity<LoginResponseDTO>(HttpStatus.UNAUTHORIZED);
         }catch(AccountStatusException e){
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.FORBIDDEN);
+        }catch(Exception e){
+            return new ResponseEntity<LoginResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // init forget password process
     @PostMapping(
             path="/forgot-password",
@@ -65,9 +62,13 @@ public class AuthController {
                     new MessageResponseDTO("Check email for the code"),
                     HttpStatus.OK
             );
-        }catch(UserDoesntExistException e){
-            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NOT_FOUND);
-        } catch(Exception e){
+        }catch(UserNotFoundException e){
+            return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.NOT_FOUND);
+        }catch(TokenPresentException e){
+            return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.CONFLICT);
+        } catch(RuntimeException e){
+            return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch(Exception e){
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -80,11 +81,19 @@ public class AuthController {
     public ResponseEntity<MessageResponseDTO> forgotPassword(@RequestBody ResetPasswordRequestDTO data){
         if(data==null)
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
+        try{
+            authService.resetPassword(data.getEmail(), data.getCode(), data.getPassword());
 
-        return new ResponseEntity<MessageResponseDTO>(
-                new MessageResponseDTO("Successfully reset password"),
-                HttpStatus.OK
-        );
+            return new ResponseEntity<MessageResponseDTO>(
+                    new MessageResponseDTO("Successfully reset password"),
+                    HttpStatus.OK
+            );
+        }catch(InvalidTokenException e){
+            return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }catch(Exception e){
+            return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @PostMapping(
@@ -98,19 +107,15 @@ public class AuthController {
         try{
             registeredUserService.createUser(data);
             return new ResponseEntity<MessageResponseDTO>(
-                    new MessageResponseDTO("Successfully create user, activation link is sent to email"),
+                    new MessageResponseDTO("Successfully created user, activation link is sent to email"),
                     HttpStatus.CREATED
             );
         }catch(UserAlreadyExistsException e) {
-            return new ResponseEntity<MessageResponseDTO>(
-                    new MessageResponseDTO(e.getMessage()),
-                    HttpStatus.CONFLICT
-            );
+            return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.CONFLICT);
         } catch (RuntimeException e){
-            return new ResponseEntity<MessageResponseDTO>(
-                    new MessageResponseDTO(e.getMessage()),
-                    HttpStatus.SERVICE_UNAVAILABLE
-            );
+            return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.SERVICE_UNAVAILABLE);
+        }catch(Exception e){
+            return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -168,11 +173,10 @@ public class AuthController {
                     new MessageResponseDTO("Logout successful"),
                     HttpStatus.OK
             );
-        }catch(RuntimeException e){
-            return new ResponseEntity<MessageResponseDTO>(
-                new MessageResponseDTO(e.getMessage()),
-                    HttpStatus.NOT_FOUND
-            );
+        }catch(UserNotFoundException e){
+            return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.NOT_FOUND);
+        }catch(Exception e){
+            return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
