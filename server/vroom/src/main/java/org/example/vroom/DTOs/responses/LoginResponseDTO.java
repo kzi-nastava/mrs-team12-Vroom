@@ -9,7 +9,5 @@ import lombok.*;
 @Builder
 public class LoginResponseDTO {
     private Long userID;
-    private String token;
     private String type;
-    private Long expiresIn;
 }
