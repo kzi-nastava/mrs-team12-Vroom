@@ -3,32 +3,41 @@ package org.example.vroom.services;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.vroom.DTOs.responses.LoginResponseDTO;
-import org.example.vroom.entities.Admin;
-import org.example.vroom.entities.Driver;
-import org.example.vroom.entities.RegisteredUser;
-import org.example.vroom.entities.User;
+import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.UserStatus;
 import org.example.vroom.exceptions.AccountStatusException;
 import org.example.vroom.exceptions.PasswordNotMatchException;
 import org.example.vroom.exceptions.UserDoesntExistException;
+import org.example.vroom.repositories.TokenRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.Charset;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private TokenRepository tokenRepository;
+
+    @Autowired
     private JwtService jwtService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private EmailService emailService;
 
     public LoginResponseDTO login(String email, String password, HttpServletResponse response) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -89,6 +98,33 @@ public class AuthService {
         if(user instanceof Driver driver){
             driver.setStatus(DriverStatus.INACTIVE);
             userRepository.save(driver);
+        }
+    }
+
+    public void forgotPassword(String email){
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isEmpty())
+            throw new UserDoesntExistException("This user does not exist");
+
+        String code = new Random().ints(12, 0, 36)
+                .mapToObj(i -> Integer.toString(i, 36))
+                .collect(Collectors.joining(""))
+                .toUpperCase();
+
+        Token token = Token.builder()
+                .user(user.get())
+                .code(code)
+                .issuedAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusHours(1))
+                .build();
+
+        tokenRepository.save(token);
+
+        try {
+            emailService.sendTokenMail(user.get().getEmail(), code);
+        } catch (Exception e) {
+            tokenRepository.delete(token);
+            throw new RuntimeException("Token created but email failed to send");
         }
     }
 }

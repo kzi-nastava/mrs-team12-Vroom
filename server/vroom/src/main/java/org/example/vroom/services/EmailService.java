@@ -31,8 +31,23 @@ public class EmailService {
         String verificationUrl = "http://localhost:8080/api/auth/activate-account/"+id;
         ClassPathResource resource = new ClassPathResource("templates/account-activation.html");
         String htmlContent = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8)
-                .replace("{{CODE}}", id)
                 .replace("{{URL}}", verificationUrl);
+
+        helper.setText(htmlContent, true);
+        mailSender.send(message);
+    }
+
+    public void sendTokenMail(String to, String code) throws MessagingException, IOException{
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setFrom("teodor.perun@gmail.com");
+        helper.setTo(to);
+        helper.setSubject("Reset Password Code");
+
+        ClassPathResource resource = new ClassPathResource("templates/reset-password-code.html");
+        String htmlContent = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8)
+                .replace("{{CODE}}", code);
 
         helper.setText(htmlContent, true);
         mailSender.send(message);
