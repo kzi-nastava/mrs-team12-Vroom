@@ -2,38 +2,45 @@ package org.example.vroom.services;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.responses.LoginResponseDTO;
-import org.example.vroom.entities.Admin;
-import org.example.vroom.entities.Driver;
-import org.example.vroom.entities.RegisteredUser;
-import org.example.vroom.entities.User;
+import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.UserStatus;
-import org.example.vroom.exceptions.AccountStatusException;
-import org.example.vroom.exceptions.PasswordNotMatchException;
-import org.example.vroom.exceptions.UserDoesntExistException;
+import org.example.vroom.exceptions.auth.InvalidLoginException;
+import org.example.vroom.exceptions.auth.InvalidTokenException;
+import org.example.vroom.exceptions.auth.TokenPresentException;
+import org.example.vroom.exceptions.user.AccountStatusException;
+import org.example.vroom.exceptions.user.UserNotFoundException;
+import org.example.vroom.repositories.TokenRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private TokenRepository tokenRepository;
+
+    @Autowired
     private JwtService jwtService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private EmailService emailService;
 
     public LoginResponseDTO login(String email, String password, HttpServletResponse response) {
         Optional<User> user = userRepository.findByEmail(email);
         if(user.isEmpty()) {
-            throw new UserDoesntExistException("This email is not registered with any account");
+            throw new InvalidLoginException("Email or password is wrong");
         }
 
         if(user.get() instanceof RegisteredUser && (
@@ -45,7 +52,7 @@ public class AuthService {
 
         String userPassword = user.get().getPassword();
         if(!passwordEncoder.matches(password, userPassword)) {
-            throw new PasswordNotMatchException("Passwords do not match");
+            throw new InvalidLoginException("Email or password is wrong");
         }
 
         String token = jwtService.generateToken(user.get());
@@ -84,11 +91,64 @@ public class AuthService {
         if(!type.equals("driver")) return;
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if(user instanceof Driver driver){
             driver.setStatus(DriverStatus.INACTIVE);
             userRepository.save(driver);
         }
+    }
+
+    @Transactional
+    public void forgotPassword(String email){
+        Optional<Token> tokenOptional = tokenRepository.findByUserEmail(email);
+        if(tokenOptional.isPresent() && !tokenOptional.get().isExpired()){
+            throw new TokenPresentException("Token is present, please check spam if you cannot find email in primary inbox");
+        }
+
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isEmpty())
+            throw new UserNotFoundException("User not found");
+
+
+        String code = new Random().ints(12, 0, 36)
+                .mapToObj(i -> Integer.toString(i, 36))
+                .collect(Collectors.joining(""))
+                .toUpperCase();
+
+        Token token = Token.builder()
+                .user(user.get())
+                .code(code)
+                .issuedAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusHours(1))
+                .build();
+
+        tokenRepository.save(token);
+
+        try {
+            emailService.sendTokenMail(user.get().getEmail(), code);
+        } catch (Exception e) {
+            tokenRepository.delete(token);
+            throw new RuntimeException("We encountered an issue sending the email. Please try again later");
+        }
+    }
+
+    public void resetPassword(String email, String code, String password){
+        Optional<Token> tokenOptional = tokenRepository.findByUserEmail(email);
+        if(tokenOptional.isEmpty())
+            throw new InvalidTokenException("Invalid or expired token");
+
+        Token token = tokenOptional.get();
+        if(!token.getCode().equals(code))
+            throw new InvalidTokenException("Invalid or expired token");
+
+        if(token.isExpired())
+            throw new InvalidTokenException("Invalid or expired token");
+
+        User user = token.getUser();
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.saveAndFlush(user);
+
+        tokenRepository.delete(token);
     }
 }
