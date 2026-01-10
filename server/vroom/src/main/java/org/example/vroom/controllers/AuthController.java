@@ -39,7 +39,7 @@ public class AuthController {
             return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
 
         }catch(InvalidLoginException e){
-            return new ResponseEntity<LoginResponseDTO>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<LoginResponseDTO>(HttpStatus.UNAUTHORIZED);
         }catch(AccountStatusException e){
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.FORBIDDEN);
         }catch(Exception e){
