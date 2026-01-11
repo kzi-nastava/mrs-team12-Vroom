@@ -1,8 +1,10 @@
 package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.DriverDTO;
+import org.example.vroom.DTOs.requests.DriverRegistrationRequestDTO;
 import org.example.vroom.DTOs.responses.DriverRideResponseDTO;
 import org.example.vroom.entities.Driver;
+import org.example.vroom.entities.Vehicle;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -74,6 +76,7 @@ public class DriverMapper {
                 .build();
     }
 
+
     public List<DriverDTO> toDTOList(List<Driver> drivers){
         if (drivers == null) {
             return null;
@@ -83,4 +86,28 @@ public class DriverMapper {
                 .map(this::toDTO)
                 .toList();
     }
+
+    public Driver toEntity(DriverRegistrationRequestDTO dto) {
+
+        Vehicle vehicle = Vehicle.builder()
+                .model(dto.getModel())
+                .type(dto.getType())
+                .licenceNumber(dto.getLicenceNumber())
+                .numberOfSeats(dto.getNumberOfSeats())
+                .babiesAllowed(dto.getBabiesAllowed())
+                .petsAllowed(dto.getPetsAllowed())
+                .build();
+
+        return Driver.builder()
+                .email(dto.getEmail())
+                .firstName(dto.getFirstName())
+                .lastName(dto.getLastName())
+                .address(dto.getAddress())
+                .gender(dto.getGender())
+                .phoneNumber(dto.getPhoneNumber())
+                .profilePhoto(dto.getProfilePhoto())
+                .vehicle(vehicle)
+                .build();
+    }
+
 }
