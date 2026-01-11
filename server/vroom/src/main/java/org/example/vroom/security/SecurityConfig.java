@@ -37,7 +37,8 @@ public class SecurityConfig {
                                 "/api/main/**",
                                 "/api/profile/driver",
                                 "/api/profile/user",
-                                "/api/drivers/**"
+                                "/api/drivers/**",
+                                "/api/geo/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
