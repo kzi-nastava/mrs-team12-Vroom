@@ -15,6 +15,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class RouteService {
@@ -27,8 +32,18 @@ public class RouteService {
     private RouteRepository routeRepository;
 
 
-    public RouteQuoteResponseDTO routeEstimation(String startLocation, String endLocation){
-        String waypoints = startLocation+"|"+endLocation;
+    public RouteQuoteResponseDTO routeEstimation(String startLocation, String endLocation, String stopLocations){
+        String waypoints = startLocation;
+
+        if(stopLocations != null){
+            List<String> stops = Arrays.asList(stopLocations.split(";"));
+            for (String stop : stops) {
+                waypoints += "|"+stop;
+            }
+        }
+
+        waypoints += "|"+endLocation;
+
         try{
             URL url = new URL("https://api.geoapify.com/v1/routing?" +
                     "waypoints=" + waypoints +
@@ -56,6 +71,7 @@ public class RouteService {
 
             String json = response.toString();
 
+
             ObjectMapper mapper = new ObjectMapper();
             GeoapifyRouteResponseDTO route = mapper.readValue(json, GeoapifyRouteResponseDTO.class);
 
@@ -67,7 +83,6 @@ public class RouteService {
 
             return new RouteQuoteResponseDTO(price, time);
         }catch(Exception e){
-            e.printStackTrace();
             return null;
         }
     }

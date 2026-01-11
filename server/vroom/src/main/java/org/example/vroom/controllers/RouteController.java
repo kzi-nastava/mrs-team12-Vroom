@@ -14,6 +14,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/routes")
@@ -24,24 +27,19 @@ public class RouteController {
     @GetMapping(path="/quote")
     public ResponseEntity<RouteQuoteResponseDTO> getQuote(
             @RequestParam String startLocation,
-            @RequestParam String endLocation
-    ) {
+            @RequestParam String endLocation,
+            @RequestParam(required = false) String stops
+            ) {
+        // call geoapify routing API in service layer to get km and time in order to calculate price
         try{
-            // call geoapify routing API in service layer to get km and time in order to calculate price
-            try{
-                RouteQuoteResponseDTO res = routeService.routeEstimation(startLocation, endLocation);
-                return new ResponseEntity<RouteQuoteResponseDTO>(
-                        res,
-                        HttpStatus.OK
-                );
-            }catch(Exception e){
-                return new ResponseEntity<RouteQuoteResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
+            RouteQuoteResponseDTO res = routeService.routeEstimation(startLocation, endLocation, stops);
+            return new ResponseEntity<RouteQuoteResponseDTO>(
+                    res,
+                    HttpStatus.OK
+            );
         }catch(Exception e){
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new RouteQuoteResponseDTO( 0, 0));
+            return new ResponseEntity<RouteQuoteResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
     }
 }

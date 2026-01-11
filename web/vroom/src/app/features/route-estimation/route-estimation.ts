@@ -8,6 +8,13 @@ import { HttpClient } from '@angular/common/http';
 import { RouteQuoteEstimationDTO } from '../../core/models/address/route-quote-estimation.dto';
 import { lastValueFrom } from 'rxjs';
 
+
+interface Stop {
+  id: number;
+  address: string;
+  coords: { lat: number; lng: number } | null;
+}
+
 @Component({
   selector: 'app-route-estimation',
   standalone: true,
@@ -18,6 +25,12 @@ import { lastValueFrom } from 'rxjs';
 export class RouteEstimation{
   startLocation: String = ''
   endLocation: String = ''
+  stopLocations: string[] = []
+
+  stopIdCounter = 0;
+  stops: Stop[] = [];
+  stopSuggestions: AddressSuggestionDTO[][] = [];
+  showStopSuggestions: boolean[] = [];
 
   price: String = ''
   time: String = ''
@@ -118,8 +131,27 @@ export class RouteEstimation{
     }
   }
 
+  private async tryStopGeocode(): Promise<boolean>{
+    for(let i = 0; i < this.stops.length; i++){
+      if (this.stops[i].coords) continue;
+      const query = `Novi Sad, ${this.stops[i].address}`;
+      try {
+          const data = await lastValueFrom(this.mapService.geocodeLocation(query));
+          if (data) {
+              this.stops[i].coords = {lat: data.lat, lng: data.lon}
+          }else
+            return false
+      } catch (error) {
+          return false
+      }
+    }
+
+    return true
+  }
+
 
   async onSubmit(): Promise<void>{
+    console.log(this.stops)
     console.log(this.startCoords)
     console.log(this.endCoords)
     this.calculating = true;
@@ -127,7 +159,9 @@ export class RouteEstimation{
     const startValid = this.startCoords || await this.tryGeocode('start');
     const endValid = this.endCoords || await this.tryGeocode('end');
 
-    if (!startValid || !endValid) {
+    const stopsValid = await this.tryStopGeocode()
+
+    if (!startValid || !endValid || !stopsValid) {
       this.calculating = false;
       this.error = 'Unable to get a quote for these locations, please try other ones or again later';
       this.cdr.detectChanges();
@@ -136,11 +170,20 @@ export class RouteEstimation{
 
     console.log(this.startCoords)
     console.log(this.endCoords)
+    console.log(this.stops)
 
     const start = this.startCoords?.lat+','+this.startCoords?.lng
     const end = this.endCoords?.lat+','+this.endCoords?.lng
 
-    this.mapService.routeQuote(start, end).subscribe({
+    const stops = this.stops.length > 0
+        ? this.stops
+            .filter(stop => stop.coords)
+            .map(stop => `${stop.coords!.lat},${stop.coords!.lng}`)
+            .join(';')
+      : undefined;
+
+
+    this.mapService.routeQuote(start, end, stops).subscribe({
       next: (data: RouteQuoteEstimationDTO) => {
         this.price = String(data.price)
         this.time = String(data.time)
@@ -162,4 +205,58 @@ export class RouteEstimation{
     })
   }
 
+  addStop() {
+    this.stops.push({
+      id: ++this.stopIdCounter,
+      address: '',
+      coords: null
+    });
+
+    this.stopSuggestions.push([]);
+    this.showStopSuggestions.push(false);
+  }
+
+
+  selectStop(i: number, location: AddressSuggestionDTO) {
+  this.stops[i].address = location.label;
+  this.stops[i].coords = { lat: location.lat, lng: location.lon };
+  this.showStopSuggestions[i] = false;
+}
+
+  updateStopLocation(index: number, value: string) {
+    this.stops[index].address = value;
+  }
+
+  searchStop(i: any){
+    const query = this.stops[i].address.trim();
+
+    if (!query || query.length < 3) {
+      this.stopSuggestions[i] = [];
+      this.showStopSuggestions[i] = false;
+      this.stops[i].coords = null;
+      return;
+    }
+
+    const location: string = `Novi Sad, ${query}`;
+
+    this.mapService.locationSuggestion(location).subscribe({
+      next: (data: AddressSuggestionDTO[]) => {
+        this.stopSuggestions[i] = data;
+        this.showStopSuggestions[i] = true;
+      },
+      error: (err) => {
+        this.endSuggestions = [];
+      }
+    })
+  }
+
+  removeStop(index: number) {
+  this.stops.splice(index, 1);
+  this.stopSuggestions.splice(index, 1);
+  this.showStopSuggestions.splice(index, 1);
+}
+
+  trackByStopId(index: number, stop: Stop): number {
+  return stop.id;
+}
 }
