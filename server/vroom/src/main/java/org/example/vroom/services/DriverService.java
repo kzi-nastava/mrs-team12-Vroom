@@ -10,6 +10,7 @@ import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
 import org.example.vroom.exceptions.user.DriverNotFoundException;
 import org.example.vroom.exceptions.user.DriverStatusChangeNotAllowedException;
 import org.example.vroom.mappers.DriverMapper;
+import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.repositories.DriverRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,14 @@ public class DriverService {
     private final DriverRepository driverRepository;
     private final DriverMapper driverMapper;
     private final PasswordEncoder passwordEncoder;
+    private final DriverProfileMapper driverProfileMapper;
 
     public DriverService(DriverRepository driverRepository,
-                         DriverMapper driverMapper, PasswordEncoder passwordEncoder) {
+                         DriverMapper driverMapper, PasswordEncoder passwordEncoder, DriverProfileMapper driverProfileMapper) {
         this.driverRepository = driverRepository;
         this.driverMapper = driverMapper;
         this.passwordEncoder = passwordEncoder;
+        this.driverProfileMapper = driverProfileMapper;
     }
 
     public DriverDTO getById(Long id) {
@@ -83,6 +86,29 @@ public class DriverService {
         Driver saved = driverRepository.saveAndFlush(driver);
 
         return driverMapper.toDTO(saved);
+    }
+
+    public DriverDTO getMyProfile(String email) {
+
+        Driver driver = driverRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new DriverNotFoundException("Driver not found"));
+
+        return driverProfileMapper.toDTO(driver);
+    }
+
+    @Transactional
+    public DriverDTO updateMyProfile(String email, DriverDTO dto) {
+
+        Driver driver = driverRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new DriverNotFoundException("Driver not found"));
+
+        driverProfileMapper.updateEntity(driver, dto);
+
+        return driverProfileMapper.toDTO(
+                driverRepository.save(driver)
+        );
     }
 
 }
