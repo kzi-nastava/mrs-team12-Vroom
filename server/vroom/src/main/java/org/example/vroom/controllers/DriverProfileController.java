@@ -1,7 +1,11 @@
 package org.example.vroom.controllers;
 
 import org.example.vroom.DTOs.DriverDTO;
+import org.example.vroom.services.DriverService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,17 +15,35 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/profile/driver")
 public class DriverProfileController {
+    private final DriverService driverService;
 
-	@GetMapping
-	public ResponseEntity<DriverDTO> getProfile() {
-	    DriverDTO dto = new DriverDTO(); 
-	    return ResponseEntity.ok(dto);
-	}
+    public DriverProfileController(DriverService driverService) {
+        this.driverService = driverService;
+    }
 
-    @PutMapping
-    public ResponseEntity<Void> updateProfile(
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<DriverDTO> getMyProfile(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(
+                driverService.getMyProfile(
+                        userDetails.getUsername()
+                )
+        );
+    }
+
+    @PutMapping("/me")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<DriverDTO> updateMyProfile(
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody DriverDTO dto
     ) {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+                driverService.updateMyProfile(
+                        userDetails.getUsername(),
+                        dto
+                )
+        );
     }
 }

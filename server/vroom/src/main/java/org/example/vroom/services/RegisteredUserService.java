@@ -1,10 +1,14 @@
 package org.example.vroom.services;
 
 import jakarta.transaction.Transactional;
+import org.example.vroom.DTOs.RegisteredUserDTO;
 import org.example.vroom.DTOs.requests.RegisterRequestDTO;
 import org.example.vroom.entities.RegisteredUser;
 import org.example.vroom.exceptions.user.UserAlreadyExistsException;
+import org.example.vroom.exceptions.user.UserNotFoundException;
+import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.RegisteredUserMapper;
+import org.example.vroom.mappers.RegisteredUserProfileMapper;
 import org.example.vroom.repositories.RegisteredUserRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,8 @@ public class RegisteredUserService {
     private EmailService emailService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RegisteredUserProfileMapper registeredUserProfileMapper;
 
     @Transactional
     public void createUser(RegisterRequestDTO req) {
@@ -47,5 +53,31 @@ public class RegisteredUserService {
 
     public boolean activateUser(Long id) {
         return registeredUserRepository.activateUserById(id) > 0;
+    }
+
+    public RegisteredUserDTO getMyProfile(String email) {
+
+        RegisteredUser user = registeredUserRepository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found"));
+        return registeredUserProfileMapper.toDTO(user);
+    }
+
+    @Transactional
+    public RegisteredUserDTO updateMyProfile(
+            String email,
+            RegisteredUserDTO dto
+    ) {
+        RegisteredUser user = registeredUserRepository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found"));
+
+        registeredUserProfileMapper.updateEntity(user, dto);
+
+        return registeredUserProfileMapper.toDTO(
+                registeredUserRepository.save(user)
+        );
     }
 }
