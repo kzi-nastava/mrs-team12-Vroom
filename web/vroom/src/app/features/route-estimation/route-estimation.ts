@@ -1,8 +1,8 @@
-import { Component, OnInit, ElementRef, HostListener, ViewChild, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ElementRef, HostListener, ViewChild, ChangeDetectorRef, Output, EventEmitter, NgModule } from '@angular/core';
 import * as L from 'leaflet'
 import { MapService } from '../../core/services/map.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgModel } from '@angular/forms';
 import { AddressSuggestionDTO } from '../../core/models/address/address-suggestion-response.dto';
 import { HttpClient } from '@angular/common/http';
 import { RouteQuoteEstimationDTO } from '../../core/models/address/route-quote-estimation.dto';
@@ -17,7 +17,7 @@ interface Stop {
 
 @Component({
   selector: 'app-route-estimation',
-  standalone: true,
+  standalone: true,  
   imports: [CommonModule, FormsModule],
   templateUrl: './route-estimation.html',
   styleUrl: './route-estimation.css',
@@ -56,13 +56,17 @@ export class RouteEstimation{
 
   @Output() startCoordsChange = new EventEmitter<{lat:number,lng:number}>();
   @Output() endCoordsChange = new EventEmitter<{lat:number,lng:number}>();
+  @Output() stopsCoordsChange = new EventEmitter<Array<{ lat: number; lng: number }>>();
 
   constructor(private mapService: MapService,private http: HttpClient, private eRef:ElementRef, private cdr: ChangeDetectorRef) {}
 
-  @HostListener('document:click', ['$event'])
+  @HostListener('document:mousedown', ['$event'])
   clickout(event: MouseEvent) {
-    this.showEndSuggestions = false
-    this.showStartSuggestions = false
+    if (!this.eRef.nativeElement.contains(event.target)) {
+      this.showEndSuggestions = false;
+      this.showStartSuggestions = false;
+      this.showStopSuggestions = this.showStopSuggestions.map(() => false);
+    }
   }
 
   async searchStart(): Promise<void>{
@@ -191,6 +195,11 @@ export class RouteEstimation{
         this.error = ''
         this.startCoordsChange.emit(this.startCoords)
         this.endCoordsChange.emit(this.endCoords)
+        this.stopsCoordsChange.emit(
+            this.stops
+                .filter(stop => stop.coords !== null)
+                .map(stop => stop.coords!)
+        );
         this.cdr.detectChanges();
       },
       error: (err: any) => {
@@ -251,12 +260,12 @@ export class RouteEstimation{
   }
 
   removeStop(index: number) {
-  this.stops.splice(index, 1);
-  this.stopSuggestions.splice(index, 1);
-  this.showStopSuggestions.splice(index, 1);
-}
+    this.stops.splice(index, 1);
+    this.stopSuggestions.splice(index, 1);
+    this.showStopSuggestions.splice(index, 1);
+  }
 
   trackByStopId(index: number, stop: Stop): number {
-  return stop.id;
-}
+    return stop.id;
+  }
 }
