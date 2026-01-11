@@ -21,35 +21,29 @@
                     </ul>
                 </div>
 
-                <div *ngFor="let stop of stops; let i = index; trackBy: trackByStopId"
-     class="form-group stop-address">
+                <div *ngFor="let stop of stops; let i = index; trackBy: trackByStopId"class="form-group stop-address">
+                    <label>Stop {{ i + 1 }}</label>
 
-  <label>Stop {{ i + 1 }}</label>
+                    <div class="input-container">
+                        <input
+                        type="text"
+                        [(ngModel)]="stop.address"
+                        name="stop-{{stop.id}}"
+                        (input)="searchStop(i)"
+                        placeholder="Street & Number"
+                        required
+                        />
 
-  <div class="input-container">
-    <input
-      type="text"
-      [(ngModel)]="stop.address"
-      name="stop-{{stop.id}}"
-      (input)="searchStop(i)"
-      placeholder="Street & Number"
-      required
-    />
+                        <button type="button" class="btn-remove" (click)="removeStop(i)">
+                        </button>
 
-    <button type="button"
-            class="btn-remove"
-            (click)="removeStop(i)">
-    </button>
-
-    <ul class="suggestions-list"
-        *ngIf="stopSuggestions[i]?.length && showStopSuggestions[i]">
-      <li *ngFor="let s of stopSuggestions[i]"
-          (click)="selectStop(i, s)">
-        {{ s.label }}
-      </li>
-    </ul>
-  </div>
-</div>
+                        <ul class="suggestions-list" *ngIf="stopSuggestions[i]?.length && showStopSuggestions[i]">
+                            <li *ngFor="let s of stopSuggestions[i]" (click)="selectStop(i, s) ; $event.stopPropagation()">
+                                {{ s.label }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
                 <div class="form-group to-address">
                     <label for="end-location">End location</label>
