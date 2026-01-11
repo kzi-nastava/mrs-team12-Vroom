@@ -26,8 +26,16 @@ export class MapService{
         }).addTo(map);
     }
 
-    routeQuote(startLocation: string, endLocation: string){
-        const params = new HttpParams().set('startLocation', startLocation).set('endLocation', endLocation);
+    routeQuote(startLocation: string, endLocation: string, stops: string | undefined){
+        let params
+        if(stops !== undefined){
+            console.log('AHAHAHAHAHAH')
+params = new HttpParams().set('startLocation', startLocation).set('endLocation', endLocation).set('stops', stops);
+        }
+            
+        else 
+            params = new HttpParams().set('startLocation', startLocation).set('endLocation', endLocation)
+
         return this.http.get<RouteQuoteEstimationDTO>(this.routeUrl+`/quote`, {params})
     }
 
