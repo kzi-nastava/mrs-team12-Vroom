@@ -62,11 +62,12 @@ public class RouteService {
             double distanceKm = (double)route.getFeatures().get(0).getProperties().getDistance() / 1000.0;
             double time = (double)route.getFeatures().get(0).getProperties().getTime() / 60.0;
 
-            float pricePerKm = priceListRepository.getPricePerKm();
+            float pricePerKm = 5;
             double price = distanceKm * (double)pricePerKm;
 
             return new RouteQuoteResponseDTO(price, time);
         }catch(Exception e){
+            e.printStackTrace();
             return null;
         }
     }

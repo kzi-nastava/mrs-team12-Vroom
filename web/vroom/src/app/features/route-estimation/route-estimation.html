@@ -1,0 +1,58 @@
+ <section class="route-estimation">
+        <div class="route-estimation-container">
+            <form (ngSubmit)="onSubmit(); $event.preventDefault()" id="route-form">
+                <div class="form-group from-address">
+                    <label for="start-location">Start location</label>
+                    <input
+                        type="text"
+                        id="start-location"
+                        [(ngModel)]="startLocation"
+                        (input)="searchStart()"
+                        #startInput
+                        name="start-location"
+                        placeholder="Street & Number"
+                        autocomplete="off"
+                        required
+                    />
+                    <ul class="suggestions-list" #startDropdown *ngIf="startSuggestions.length > 0 && showStartSuggestions">
+                        <li *ngFor="let s of startSuggestions" (click)="selectStart(s); $event.stopPropagation()">
+                            {{ s.label }}
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="form-group to-address">
+                    <label for="end-location">End location</label>
+                    <input
+                        type="text"
+                        id="end-location"
+                        name="end-location"
+                        [(ngModel)]="endLocation"
+                        (input)="searchEnd()"
+                        #endInput
+                        placeholder="Street & Number"
+                        autocomplete="off"
+                        required
+                    />
+                    <ul class="suggestions-list" #endDropdown *ngIf="endSuggestions.length > 0  && showEndSuggestions">
+                        <li *ngFor="let s of endSuggestions" (click)="selectEnd(s); $event.stopPropagation()">
+                            {{ s.label }}
+                        </li>
+                    </ul>
+                </div>
+
+                <div *ngIf="time && price" class="estimation-info">
+                    <span>Est Time: <strong>{{ time }} min</strong></span>
+                    <span>Est Price: <strong>{{ price }} RSD</strong></span>
+                </div>
+
+                <h2 class="error-message">{{error}}</h2>
+
+
+
+                <button type="submit" [disabled]="calculating">
+                    {{ calculating ? 'Calculating...' : 'Calculate' }}
+                </button>
+            </form>
+        </div>
+    </section>
