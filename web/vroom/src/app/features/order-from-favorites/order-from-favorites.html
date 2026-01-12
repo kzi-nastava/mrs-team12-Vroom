@@ -1,0 +1,33 @@
+<div class="container">
+  <h1>Favorite Routes</h1>
+
+  <div class="ride-card" *ngFor="let route of favoriteRoutes">
+
+    <div class="route">
+      <span class="location">{{ route.start }}</span>
+      <span class="arrow">→</span>
+      <span class="location">{{ route.end }}</span>
+    </div>
+
+    <div class="details">
+      <div class="detail-item">
+        <span class="detail-label">Route name</span>
+        <span class="detail-value">{{ route.name }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Estimated price</span>
+        <span class="detail-value">{{ route.price }} RSD</span>
+      </div>
+    </div>
+
+    <button class="more-info-btn" (click)="useRoute(route)">
+      Use this route
+    </button>
+
+    <button class="more-info-btn" (click)="removeFromFavorites(route)">
+      Remove from favorites
+    </button>
+
+  </div>
+</div>
