@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -132,37 +133,27 @@ public class RideService {
     }
 
     private double calculatePrice(Route route, VehicleType vehicleType) {
-        double totalDistance = 0.0;
-
+        // Ako ruta ima stopove, koristi ih, inače prazna lista
         List<Point> stops = route.getStops() != null ? route.getStops() : new ArrayList<>();
-        List<String> locations = new ArrayList<>();
 
-        locations.add(route.getStartLocationLat() + "," + route.getStartLocationLng());
-        for(Point stop : stops) {
-            locations.add(stop.getLat() + "," + stop.getLng());
-        }
-        locations.add(route.getEndLocationLat() + "," + route.getEndLocationLng());
+        // Napravi string stopLocations za Geoapify API
+        String stopLocations = stops.stream()
+                .map(stop -> stop.getLat() + "," + stop.getLng())
+                .collect(Collectors.joining(";"));
 
-        // saabiranje svih segmenata
-        for(int i = 0; i < locations.size() - 1; i++) {
-            String start = locations.get(i);
-            String end = locations.get(i + 1);
+        // Pozovi routeEstimation sa start, end i stopLocations
+        RouteQuoteResponseDTO quote = routeService.routeEstimation(
+                route.getStartLocationLat() + "," + route.getStartLocationLng(),
+                route.getEndLocationLat() + "," + route.getEndLocationLng(),
+                stopLocations
+        );
 
-            RouteQuoteResponseDTO quote = routeService.routeEstimation(start, end);
-            if(quote == null) {
-                throw new RuntimeException("Failed to estimate route price");
-            }
-            totalDistance += quote.getPrice();
+        if (quote == null) {
+            throw new RuntimeException("Failed to estimate route price");
         }
 
-        double basePrice;
-        switch (vehicleType) {
-            case STANDARD: basePrice = 200; break;
-            case LUXURY: basePrice = 400; break;
-            default: basePrice = 200;
-        }
-
-        return basePrice + totalDistance;
+        // Cena za celu rutu (uključujući sve stopove)
+        return quote.getPrice();
     }
 }
 
