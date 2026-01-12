@@ -7,13 +7,7 @@ import { AddressSuggestionDTO } from '../../core/models/address/address-suggesti
 import { HttpClient } from '@angular/common/http';
 import { RouteQuoteEstimationDTO } from '../../core/models/address/route-quote-estimation.dto';
 import { lastValueFrom } from 'rxjs';
-
-
-interface Stop {
-  id: number;
-  address: string;
-  coords: { lat: number; lng: number } | null;
-}
+import {Stop} from '../../core/models/address/stop-point.interface'
 
 @Component({
   selector: 'app-route-estimation',
