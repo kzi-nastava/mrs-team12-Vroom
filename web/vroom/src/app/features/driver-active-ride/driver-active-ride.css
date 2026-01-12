@@ -1,0 +1,89 @@
+.profile-container {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+h1 {
+    display: flex;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 600;
+}
+
+.profile-page {
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+}
+
+.driver-wrapper {
+  max-width: 800px;  
+  margin: 30px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-section {
+    background: #d4e8d4;
+    padding: 10%;
+    border-radius: 12px;
+    margin-bottom: 5%;
+}
+
+.avatar-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20%;
+}
+
+.avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #666;
+    border: 2px dashed #8db48d;
+}
+
+.profile-form label {
+    display: block;
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #1a1a1a;
+}
+
+.profile-form input {
+    width: 80%;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    background: white;
+    margin-bottom: 24px;
+    outline: none;
+}
+
+.input-wrapper {
+    margin-bottom: 7.5%;
+}
+
+.input-wrapper:last-child {
+    margin-bottom: 0;
+}
+
+.change-button {
+    width: 100%;
+    padding: 18px;
+    background: #8db48d;
+    border: none;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    cursor: pointer;
+}
