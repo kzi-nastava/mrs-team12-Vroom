@@ -1,0 +1,33 @@
+<section class="cancel-ride">
+    <div class="cancel-before-user" *ngIf="role === 'registeredUser' && !duringRide && showPopup">
+        <div class="cancel-before-user-container">
+            <h2>Are you sure you want to cancel ride?</h2>
+            <button class="confirm-cancellation" (click)="submitCancellation()">Confirm</button>
+            <button (click)="closePopup()" class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+
+    <div class="cancel-before-driver" *ngIf="role === 'driver' && !duringRide && showPopup">
+        <div class="cancel-before-driver-container">
+            <h2>Are you sure you want to cancel ride?</h2>
+            <form class="reason">
+                <input type="text" placeholder="Reason" name="reason" [(ngModel)]="reason" required/>
+                <button type="submit" (click)="submitCancellation()">Confirm</button>
+            </form>
+            <button (click)="closePopup()" class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+
+    <div class="cancel-during-driver" *ngIf="role === 'driver' && duringRide && showPopup">
+        <div class="cancel-during-driver-container">
+            <h2>Are you sure you want to stop ride?</h2>
+            <button class="confirm-cancellation" (click)="submitStop()">Confirm</button>
+            <button (click)="closePopup()" class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+
+
+    <button (click)="openPopup()" *ngIf="shouldShowButton()" class="main-cancel-btn">
+        {{ buttonLabel }}
+    </button>
+</section>
