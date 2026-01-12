@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as L from 'leaflet'
 import { HttpParams } from '@angular/common/http';
-import { AddressSuggestionDTO } from '../models/address/address-suggestion-response.dto';
-import { RouteQuoteEstimationDTO } from '../models/address/route-quote-estimation.dto';
+import { AddressSuggestionDTO } from '../models/address/response/address-suggestion-response.dto';
+import { RouteQuoteEstimationDTO } from '../models/address/response/route-quote-estimation.dto';
 
 @Injectable({
   providedIn: 'root'  

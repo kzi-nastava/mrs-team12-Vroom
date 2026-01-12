@@ -30,10 +30,10 @@ export class Login implements OnInit {
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private cdRef: ChangeDetectorRef, private loginService: LoginService){}
 
   ngOnInit(): void {
-  this.activatedRoute.queryParams.subscribe(params => {
-    this.status = params['status'] || '';
-  });
-}
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.status = params['status'] || '';
+    });
+  }
 
   async onForgotPassword(): Promise<void>{
     if(this.email === ''){
