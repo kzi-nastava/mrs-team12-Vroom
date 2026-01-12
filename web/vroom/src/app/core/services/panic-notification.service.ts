@@ -4,13 +4,14 @@ import { Subject } from "rxjs";
 import { AuthService } from "./auth.service";
 import { NgToastService, ToastType } from "ng-angular-popup";
 
+// uncomment everything when panic endpoints & websockets are implemented, this is for testing purposes only
 @Injectable({
     providedIn: 'root'
 })
 export class PanicNotificationService{
     private panicSubject = new Subject<any>()
     panic$ = this.panicSubject.asObservable()
-
+    
     //private socket = inject(Socket);
     //private authService = inject(AuthService);
 
@@ -35,7 +36,7 @@ export class PanicNotificationService{
         audio.play().catch(err => console.error('Audio playback failed:', err));
         
         this.toastService.danger(
-            'New PANIC activated, check your feed for more information', 
+            'New PANIC activated, check PANIC feed for more information', 
             'PANIC', 
             5000, 
             true, 

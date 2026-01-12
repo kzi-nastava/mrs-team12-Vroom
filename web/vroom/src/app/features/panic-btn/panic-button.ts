@@ -1,21 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RideService } from '../../core/services/ride.service';
 import { NgToastService } from 'ng-angular-popup';
 import { PanicNotificationService } from '../../core/services/panic-notification.service';
+import { PanicService } from '../../core/services/panic.service';
 
 @Component({
-  selector: 'app-panic',
+  selector: 'app-panic-btn',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './panic.html',
-  styleUrl: './panic.css',
+  templateUrl: './panic-button.html',
+  styleUrl: './panic-button.css',
 })
-export class Panic {
+export class PanicButton {
   showPanicPopup: boolean = false
   userType: string = '';
   
-  constructor(private rideService: RideService, private toastService: NgToastService, private pns: PanicNotificationService){
+  constructor(private panicService: PanicService, private toastService: NgToastService, private pns: PanicNotificationService){
     this.userType = localStorage.getItem('user_type') || '';
   }
 

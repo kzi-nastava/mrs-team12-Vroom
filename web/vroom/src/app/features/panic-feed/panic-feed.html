@@ -1,1 +1,33 @@
-<p>panic-feed works!</p>
+<div class="panic-list">
+    <h2>Active PANIC Notifications</h2>
+    <div class="panic-list-container">
+        <div class="panic-card" *ngFor="let alert of panicAlerts">
+            <div class="panic-header">
+                <span class="route-info">Ride ID: <strong>#{{alert.rideID}}</strong></span>
+            </div>
+
+            <div class="panic-body">
+                <div class="info-row">
+                    <div class="info-group">
+                        <label>Activated by:</label>
+                        <span class="data">{{alert.activatedBy}}</span>
+                    </div>
+                    
+                    <div class="info-group">
+                        <label>Time:</label>
+                        <span class="data">{{alert.time}}</span>
+                    </div>
+                </div>
+
+                <div class="panic-footer">
+                    <button class="map-redirect-btn" (click)="mapRedirect(alert.rideID)">
+                        Check on the map
+                    </button>
+                    <button class="panic-resolved-btn" (click)="onResolved(alert.rideID)">
+                        Resolved
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
