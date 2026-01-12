@@ -1,0 +1,12 @@
+<section class="panic">
+
+    <div class="panic-confirmation" *ngIf="showPanicPopup">
+        <div class="panic-confirmation-container">
+            <h2>Confirm you are in danger</h2>
+            <button class="confirm-panic" (click)="notifyPanic()">Confirm</button>
+            <button class="cancel-btn" (click)="closePanicPopup()">Cancel</button>
+        </div>
+    </div>
+
+    <button class="panic-btn" (click)="openPanicPopup()">PANIC</button>
+</section>
