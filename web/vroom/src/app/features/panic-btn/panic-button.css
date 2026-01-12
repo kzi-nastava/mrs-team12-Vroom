@@ -1,0 +1,112 @@
+:host {
+  display: block;
+  position: relative;
+}
+
+.panic {
+  position: relative;
+  font-family: 'IBM Plex Sans';;
+}
+.panic-confirmation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.panic-confirmation-container {
+  background: #DCEED3;
+  border-radius: 16px;
+  padding: 40px;
+  min-width: 350px;
+  max-width: 500px;
+  animation: slideUp 0.4s ease;
+  position: relative;
+}
+
+.panic-confirmation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panic-confirmation-container button {
+  width: 100%;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.confirm-panic{
+  background: #ff4d4d ; 
+  color: white ;
+}
+
+.confirm-cancellation:hover {
+  background: #ff3333;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 77, 77, 0.5);
+}
+
+.cancel-btn {
+  background: #99C2A2 ;
+  color: white;
+  margin-bottom: 0 ;
+}
+
+.cancel-btn:hover {
+  background: #88b392 ;
+  transform: translateY(-2px);
+}
+
+.panic-btn {
+  background-color: #99C2A2;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.panic-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+@media (max-width: 600px) {
+  .cancel-before-user-container,
+  .cancel-before-driver-container,
+  .cancel-during-driver-container {
+    min-width: 90%;
+    padding: 30px 20px;
+  }
+}

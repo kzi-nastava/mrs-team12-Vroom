@@ -3,11 +3,11 @@ import * as L from 'leaflet'
 import { MapService } from '../../core/services/map.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgModel } from '@angular/forms';
-import { AddressSuggestionDTO } from '../../core/models/address/address-suggestion-response.dto';
+import { AddressSuggestionDTO } from '../../core/models/address/response/address-suggestion-response.dto';
 import { HttpClient } from '@angular/common/http';
-import { RouteQuoteEstimationDTO } from '../../core/models/address/route-quote-estimation.dto';
+import { RouteQuoteEstimationDTO } from '../../core/models/address/response/route-quote-estimation.dto';
 import { lastValueFrom } from 'rxjs';
-import {Stop} from '../../core/models/address/stop-point.interface'
+import { Stop } from '../../core/models/address/interfaces/stop-point.interface';
 
 @Component({
   selector: 'app-route-estimation',
