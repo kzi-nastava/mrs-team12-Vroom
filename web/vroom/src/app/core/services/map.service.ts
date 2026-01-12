@@ -30,7 +30,7 @@ export class MapService{
         let params
         if(stops !== undefined){
             console.log('AHAHAHAHAHAH')
-params = new HttpParams().set('startLocation', startLocation).set('endLocation', endLocation).set('stops', stops);
+            params = new HttpParams().set('startLocation', startLocation).set('endLocation', endLocation).set('stops', stops);
         }
             
         else 
