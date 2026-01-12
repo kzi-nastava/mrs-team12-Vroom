@@ -20,4 +20,8 @@ export class RideService{
     stopRideRequest(rideID: string, data: StopRideRequestDTO){
         return this.http.put<MessageResponseDTO>(this.rideUrl+`/${rideID}`+'/stop', data);
     }
+
+    panicRequest(rideId: string, userID: string, userType: string, date: string){
+
+    }
 }

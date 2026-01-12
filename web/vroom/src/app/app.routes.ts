@@ -4,7 +4,8 @@ import {Login} from './features/login/login'
 import { ForgotPassword } from './features/forgot-password/forgot-password';
 import { Profile } from './features/profile/profile';
 import { DriverRideHistory } from './features/driver-ride-history/driver-ride-history';
-import { CancelStopRide } from './features/cancel-stop-ride/cancel-stop-ride';
+import { Panic } from './features/panic/panic';
+
 
 export const routes: Routes = [
     {path: 'login', component: Login},
@@ -12,5 +13,5 @@ export const routes: Routes = [
     { path: 'profile', component: Profile },
     {path: 'register', component: Register},
     {path: 'driver-ride-history', component: DriverRideHistory},
-    {path: 'cancel-ride', component:CancelStopRide}
+    {path: 'panic', component:Panic}
 ];
