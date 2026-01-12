@@ -6,6 +6,7 @@ import org.example.vroom.entities.Point;
 import org.example.vroom.entities.Route;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -39,5 +40,42 @@ public class RouteMapper {
         return points.stream()
                 .map(this::routeStopToDTO)
                 .toList();
+    }
+
+    public Route fromDTO(GetRouteResponseDTO dto) {
+        if(dto == null) return null;
+
+        Route route = new Route();
+        route.setStartLocationLat(dto.getStartLocationLat());
+        route.setStartLocationLng(dto.getStartLocationLng());
+        route.setEndLocationLat(dto.getEndLocationLat());
+        route.setEndLocationLng(dto.getEndLocationLng());
+
+        if(dto.getStops() != null) {
+            List<Point> points = dto.getStops().stream()
+                    .map(p -> {
+                        Point point = new Point();
+                        point.setLat(p.getLat());
+                        point.setLng(p.getLng());
+                        return point;
+                    })
+                    .toList();
+            route.setStops(points);
+        }
+
+        return route;
+    }
+
+    private List<Point> mapPointsFromDTO(List<PointResponseDTO> dtoPoints) {
+        if (dtoPoints == null) return new ArrayList<>();
+
+        List<Point> points = new ArrayList<>();
+        for (PointResponseDTO dto : dtoPoints) {
+            Point point = new Point();
+            point.setLat(dto.getLat());
+            point.setLng(dto.getLng());
+            points.add(point);
+        }
+        return points;
     }
 }

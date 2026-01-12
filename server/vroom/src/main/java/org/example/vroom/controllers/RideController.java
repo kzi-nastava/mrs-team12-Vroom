@@ -15,9 +15,12 @@ import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
+import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
+import org.example.vroom.services.RideService;
 import java.time.LocalDateTime;
 
 import javax.swing.text.html.parser.Entity;
@@ -28,6 +31,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/rides")
 public class RideController {
+    private final RideService rideService;
+
+    public RideController(RideService rideService) {
+        this.rideService = rideService;
+    }
 
     @GetMapping(path="/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GetRideResponseDTO> getRide(@PathVariable Long rideID){
@@ -157,28 +165,32 @@ public class RideController {
                 HttpStatus.OK
         );
     }
-    
-    
+
+
+   // @PreAuthorize("hasRole('USER')")
     @PostMapping(
-            path = "/order",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<RideDTO> orderRide(
+    public ResponseEntity<GetRideResponseDTO> orderRide(
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody RideRequestDTO request
     ) {
-        if (request == null || request.getRoute() == null) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        rideService.orderRide(
+                                userDetails.getUsername(),
+                                request
+                        )
+                );
+    }
 
-
-        RideDTO response = RideDTO.builder()
-                .id(1L)
-                .status(RideStatus.PENDING)
-                .price(1500.0)
-                .build();
-
-        return ResponseEntity.ok(response);
+    @ExceptionHandler(NoAvailableDriverException.class)
+    public ResponseEntity<MessageResponseDTO> handleNoDriver(NoAvailableDriverException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new MessageResponseDTO("Ride order declined: " + ex.getMessage()));
     }
     
     @PutMapping("/{rideId}/start")
