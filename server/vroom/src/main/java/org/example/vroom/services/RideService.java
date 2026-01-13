@@ -161,7 +161,7 @@ public class RideService {
             throw new RideNotFoundException("Ride not found");
         }
         Ride ride = rideOptional.get();
-        if (ride.getEndTime().plusDays(3).isAfter(LocalDateTime.now())) {
+        if (ride.getEndTime().plusDays(3).isBefore(LocalDateTime.now())) {
             throw new CantReviewRideException("Can't review because it's been 3 days since the ride ended.");
         }
         ride.setDriverRating(review.getDriverRating());
