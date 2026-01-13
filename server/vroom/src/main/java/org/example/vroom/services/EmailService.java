@@ -53,4 +53,14 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    public void sendRideEndMail(String to) throws MessagingException, IOException{
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom("teodor.perun@gmail.com");
+        helper.setTo(to);
+        helper.setSubject("Ride Finished");
+        helper.setText("Thank you for riding with Vroom! Please leave a review in our app :) ", false);
+        mailSender.send(message);
+    }
+
 }

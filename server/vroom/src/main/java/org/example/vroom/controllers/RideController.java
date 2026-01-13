@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -97,12 +98,6 @@ public class RideController {
             @PathVariable Long rideID,
             @RequestBody ComplaintRequestDTO complaint
     ){
-        Ride ride = new Ride();
-        Driver driver = new Driver();
-        ride.setId(rideID);
-        ride.setStatus(RideStatus.FINISHED);
-        ride.setDriver(driver);
-        ride.getDriver().setStatus(DriverStatus.AVAILABLE);
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
@@ -125,8 +120,11 @@ public class RideController {
     public ResponseEntity<MessageResponseDTO> finishRide(
             @PathVariable Long rideID
     ){
-        // ridestatus = finished
-        // driverstatus = available
+        try {
+            rideService.finishRide(rideID);
+        }catch (RideNotFoundException e){
+            return new ResponseEntity<>(new MessageResponseDTO("Ride not found"), HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
