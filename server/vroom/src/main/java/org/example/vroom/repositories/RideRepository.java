@@ -3,6 +3,7 @@ package org.example.vroom.repositories;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.RideStatus;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +21,19 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     List<Ride> findByDriverAndStartTimeAfter(Driver driver, LocalDateTime startTime);
 
     @Query("""
+        SELECT r
+        FROM Ride r
+        WHERE r.driver.id = :driverId
+          AND (:startDate IS NULL OR r.startTime >= :startDate)
+          AND (:endDate IS NULL OR r.startTime <= :endDate)
+    """)
+    List<Ride> findDriverRideHistory(
+            @Param("driverId") Long driverId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Sort sort
+    );
+
     SELECT r FROM Ride r
     WHERE r.driver = :driver
       AND r.isScheduled = true
