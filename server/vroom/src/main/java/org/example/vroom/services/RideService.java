@@ -1,5 +1,6 @@
 package org.example.vroom.services;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.LeaveReviewRequestDTO;
 import org.example.vroom.DTOs.requests.RideRequestDTO;
@@ -22,6 +23,7 @@ import org.example.vroom.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +48,8 @@ public class RideService {
     private RouteMapper routeMapper;
     @Autowired
     private RouteService routeService;
+    @Autowired
+    private EmailService emailService;
 
     @Transactional
     public GetRideResponseDTO orderRide(String userEmail, RideRequestDTO request) {
@@ -179,6 +183,32 @@ public class RideService {
         rideRepository.save(ride);
         driverRepository.save(driver);
         vehicleRepository.save(vehicle);
+    }
+
+    public void finishRide(Long RideID){
+        Optional<Ride> rideOptional = rideRepository.findById(RideID);
+        if (rideOptional.isEmpty()) {
+            throw new RideNotFoundException("Ride not found");
+        }
+        Ride ride = rideOptional.get();
+        ride.setEndTime(LocalDateTime.now());
+        ride.setStatus(RideStatus.FINISHED);
+        Driver driver = ride.getDriver();
+        driver.setStatus(DriverStatus.AVAILABLE);
+        rideRepository.save(ride);
+        driverRepository.save(driver);
+        try {
+            emailService.sendRideEndMail(ride.getPassenger().getEmail());
+        } catch (MessagingException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        for (String email : ride.getPassengers()) {
+            try {
+                emailService.sendRideEndMail(email);
+            }catch (MessagingException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
 
