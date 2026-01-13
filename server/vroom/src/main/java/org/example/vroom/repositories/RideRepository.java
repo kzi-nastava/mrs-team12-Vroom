@@ -34,6 +34,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             Sort sort
     );
 
+    @Query("""
     SELECT r FROM Ride r
     WHERE r.driver = :driver
       AND r.isScheduled = true
