@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ProfileService } from '../profile/profile.service'; // ← PUTANJA!
 
 @Component({
   selector: 'app-profile',
@@ -9,34 +10,61 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
-export class Profile {
+export class Profile implements OnInit {
 
-  userRole: 'DRIVER' | 'PASSENGER' = 'DRIVER';
+  userRole: 'DRIVER' | 'PASSENGER' = 'PASSENGER';
 
-  firstName: string = '';
-  lastName: string = '';
-  address: string = '';
-  phone: string = '';
-  email: string = '';
-  activeHoursLast24h: number = 6.5;
+  firstName = '';
+  lastName = '';
+  address = '';
+  phone = '';
+  email = '';
 
-  vehicle = {
-    brand: 'Toyota',
-    model: 'Corolla',
-    numberOfSeats: 4,
-    licensePlate: 'NS-123-AB',
-    babiesAllowed: true,
-    petsAllowed: false
+  vehicle: any;
+  activeHoursLast24h = 0;
+
+  constructor(private profileService: ProfileService) {}
+
+ngOnInit(): void {
+  this.profileService.getMyProfile().subscribe(profile => {
+
+    this.firstName = profile.firstName;
+    this.lastName = profile.lastName;
+    this.address = profile.address;
+    this.phone = profile.phoneNumber;
+    this.email = profile.email;
+
+    if (profile.vehicle) {
+      this.userRole = 'DRIVER';
+      this.vehicle = profile.vehicle;
+      this.activeHoursLast24h = profile.activeHoursLast24h ?? 0;
+    }
+  });
+}
+
+fillProfile(profile: any) {
+  this.firstName = profile.firstName;
+  this.lastName = profile.lastName;
+  this.address = profile.address;
+  this.phone = profile.phone;
+  this.email = profile.email;
+}
+
+onChange(): void {
+  const payload = {
+    firstName: this.firstName,
+    lastName: this.lastName,
+    address: this.address,
+    phoneNumber: this.phone, 
+    email: this.email
   };
 
-  onChange(): void {
-    console.log({
-      firstName: this.firstName,
-      lastName: this.lastName,
-      address: this.address,
-      phone: this.phone,
-      email: this.email
+  this.profileService.updateMyProfile(payload)
+    .subscribe({
+      next: updated => console.log('Updated profile', updated),
+      error: err => console.error('Update failed', err)
     });
-  }
 }
+}
+
 

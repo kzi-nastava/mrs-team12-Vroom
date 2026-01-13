@@ -38,10 +38,12 @@ public class SecurityConfig {
                                 "/api/profile/driver",
                                 "/api/profile/user",
                                 "/api/drivers/**",
-                                "/api/geo/**"
+                                "/api/geo/**",
+                                "/h2-console/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .sessionManagement(session ->
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
