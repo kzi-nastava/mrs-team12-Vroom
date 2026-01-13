@@ -1,6 +1,7 @@
 package org.example.vroom.services;
 
 import jakarta.transaction.Transactional;
+import org.example.vroom.DTOs.requests.LeaveReviewRequestDTO;
 import org.example.vroom.DTOs.requests.RideRequestDTO;
 import org.example.vroom.DTOs.responses.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.RouteQuoteResponseDTO;
@@ -8,6 +9,8 @@ import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.enums.VehicleType;
+import org.example.vroom.exceptions.ride.CantReviewRideException;
+import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
@@ -15,38 +18,34 @@ import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.repositories.RegisteredUserRepository;
+import org.example.vroom.repositories.VehicleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class RideService {
 
-    private final RideRepository rideRepository;
-    private final RegisteredUserRepository userRepository;
-    private final DriverRepository driverRepository;
-    private final RideMapper rideMapper;
-    private final RouteMapper routeMapper;
-    private final RouteService routeService;
-
-    public RideService(
-            RideRepository rideRepository,
-            RegisteredUserRepository userRepository,
-            DriverRepository driverRepository,
-            RideMapper rideMapper,
-            RouteMapper routeMapper, RouteService routeService
-    ) {
-        this.rideRepository = rideRepository;
-        this.userRepository = userRepository;
-        this.driverRepository = driverRepository;
-        this.rideMapper = rideMapper;
-        this.routeMapper = routeMapper;
-        this.routeService = routeService;
-    }
+    @Autowired
+    private RideRepository rideRepository;
+    @Autowired
+    private RegisteredUserRepository userRepository;
+    @Autowired
+    private DriverRepository driverRepository;
+    @Autowired
+    private VehicleRepository vehicleRepository;
+    @Autowired
+    private RideMapper rideMapper;
+    @Autowired
+    private RouteMapper routeMapper;
+    @Autowired
+    private RouteService routeService;
 
     @Transactional
     public GetRideResponseDTO orderRide(String userEmail, RideRequestDTO request) {
@@ -154,6 +153,32 @@ public class RideService {
 
         // Cena za celu rutu (uključujući sve stopove)
         return quote.getPrice();
+    }
+
+    public void leaveReview(Long rideId, LeaveReviewRequestDTO review){
+        Optional<Ride> rideOptional = rideRepository.findById(rideId);
+        if (rideOptional.isEmpty()) {
+            throw new RideNotFoundException("Ride not found");
+        }
+        Ride ride = rideOptional.get();
+        if (ride.getEndTime().plusDays(3).isBefore(LocalDateTime.now())) {
+            throw new CantReviewRideException("Can't review because it's been 3 days since the ride ended.");
+        }
+        ride.setDriverRating(review.getDriverRating());
+        ride.setVehicleRating(review.getVehicleRating());
+        ride.setComment(review.getComment());
+
+        Driver driver = ride.getDriver();
+        driver.setRatingCount(driver.getRatingCount() + 1);
+        driver.setRatingSum(driver.getRatingSum() + review.getDriverRating());
+
+        Vehicle vehicle = driver.getVehicle();
+        vehicle.setRatingCount(vehicle.getRatingCount() + 1);
+        vehicle.setRatingSum(vehicle.getRatingSum() + review.getVehicleRating());
+
+        rideRepository.save(ride);
+        driverRepository.save(driver);
+        vehicleRepository.save(vehicle);
     }
 }
 
