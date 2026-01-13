@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface RideRepository extends JpaRepository<Ride, Long> {
 
@@ -33,4 +34,14 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             Sort sort
     );
 
+    SELECT r FROM Ride r
+    WHERE r.driver = :driver
+      AND r.isScheduled = true
+      AND r.startTime BETWEEN :now AND :tenMinutesLater
+    """)
+    Optional<Ride> findUpcomingScheduledRides(
+            @Param("driver") Driver driver,
+            @Param("now") LocalDateTime now,
+            @Param("tenMinutesLater") LocalDateTime tenMinutesLater
+    );
 }
