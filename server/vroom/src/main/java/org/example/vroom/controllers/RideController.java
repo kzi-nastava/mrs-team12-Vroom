@@ -14,6 +14,8 @@ import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
+import org.example.vroom.exceptions.ride.CantReviewRideException;
+import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -109,7 +111,13 @@ public class RideController {
             @PathVariable Long rideID,
             @RequestBody LeaveReviewRequestDTO review
     ){
-        rideService.leaveReview(rideID, review);
+        try {
+            rideService.leaveReview(rideID, review);
+        }catch (RideNotFoundException e){
+            return new ResponseEntity<>(new MessageResponseDTO("Ride not found"), HttpStatus.NOT_FOUND);
+        }catch (CantReviewRideException e){
+            return new ResponseEntity<>(new MessageResponseDTO("Cant review ride"), HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
