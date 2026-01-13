@@ -4,36 +4,48 @@ import ch.qos.logback.classic.encoder.JsonEncoder;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.DriverRegistrationRequestDTO;
 import org.example.vroom.DTOs.requests.DriverUpdateRequestDTO;
+import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
+import org.example.vroom.DTOs.responses.RideHistoryResponseDTO;
 import org.example.vroom.entities.Driver;
+import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
 import org.example.vroom.exceptions.user.DriverNotFoundException;
 import org.example.vroom.exceptions.user.DriverStatusChangeNotAllowedException;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
+import org.example.vroom.mappers.RideMapper;
+import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.DriverRepository;
+import org.example.vroom.repositories.RideRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
 @Transactional
 public class DriverService {
 
-    private final DriverRepository driverRepository;
-    private final DriverMapper driverMapper;
-    private final PasswordEncoder passwordEncoder;
-    private final DriverProfileMapper driverProfileMapper;
-
-    public DriverService(DriverRepository driverRepository,
-                         DriverMapper driverMapper, PasswordEncoder passwordEncoder, DriverProfileMapper driverProfileMapper) {
-        this.driverRepository = driverRepository;
-        this.driverMapper = driverMapper;
-        this.passwordEncoder = passwordEncoder;
-        this.driverProfileMapper = driverProfileMapper;
-    }
+    @Autowired
+    private DriverRepository driverRepository;
+    @Autowired
+    private DriverMapper driverMapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private DriverProfileMapper driverProfileMapper;
+    @Autowired
+    private RideRepository rideRepository;
+    @Autowired
+    private RideMapper rideMapper;
 
     public DriverDTO getById(Long id) {
         Driver driver = driverRepository.findById(id)
@@ -109,6 +121,19 @@ public class DriverService {
         return driverProfileMapper.toDTO(
                 driverRepository.save(driver)
         );
+    }
+
+    public Collection<RideHistoryResponseDTO> getDriverRides(Long driverId,
+                                                             LocalDateTime startDate,
+                                                             LocalDateTime endDate,
+                                                             Sort sort)
+    {
+        List<Ride> rides = rideRepository.findDriverRideHistory(driverId, startDate, endDate, sort);
+        Collection<RideHistoryResponseDTO> rideHistoryResponseDTOs = new ArrayList<>();
+        for (Ride ride : rides) {
+            rideHistoryResponseDTOs.add(rideMapper.rideHistory(ride));
+        }
+        return rideHistoryResponseDTOs;
     }
 
 }
