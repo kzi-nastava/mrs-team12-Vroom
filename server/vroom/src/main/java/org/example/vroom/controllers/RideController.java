@@ -1,6 +1,5 @@
 package org.example.vroom.controllers;
 
-import org.apache.coyote.Response;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
 import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.*;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import org.example.vroom.services.RideService;
 import java.time.LocalDateTime;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,15 +105,11 @@ public class RideController {
     }
 
     @PostMapping(path = "/{rideID}/review", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponseDTO> sendReview(
+    public ResponseEntity<MessageResponseDTO> leaveReview(
             @PathVariable Long rideID,
             @RequestBody LeaveReviewRequestDTO review
     ){
-        Ride ride = new Ride();
-        ride.setId(rideID);
-        ride.setDriverRating(review.getDriverRating());
-        ride.setVehicleRating(review.getVehicleRating());
-        ride.setComment(review.getComment());
+        rideService.leaveReview(rideID, review);
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
