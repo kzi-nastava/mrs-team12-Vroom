@@ -4,9 +4,12 @@ import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.RideStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface RideRepository extends JpaRepository<Ride, Long> {
 
@@ -15,4 +18,16 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
      //List<Ride> findByPassengerEmail(String email);
      List<Ride> findByStatus(RideStatus status);
     List<Ride> findByDriverAndStartTimeAfter(Driver driver, LocalDateTime startTime);
+
+    @Query("""
+    SELECT r FROM Ride r
+    WHERE r.driver = :driver
+      AND r.isScheduled = true
+      AND r.startTime BETWEEN :now AND :tenMinutesLater
+    """)
+    Optional<Ride> findUpcomingScheduledRides(
+            @Param("driver") Driver driver,
+            @Param("now") LocalDateTime now,
+            @Param("tenMinutesLater") LocalDateTime tenMinutesLater
+    );
 }
