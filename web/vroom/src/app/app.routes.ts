@@ -9,6 +9,10 @@ import { DriverActiveRide} from './features/driver-active-ride/driver-active-rid
 import { OrderFromFavorites } from './features/order-from-favorites/order-from-favorites';
 import { OrderARide } from './features/order-a-ride/order-a-ride';
 import { CancelStopRide } from './features/cancel-stop-ride/cancel-stop-ride';
+import { RideDuration } from './features/ride-duration/ride-duration';
+import { MainView } from './features/main-view/main-view';
+import { RideReview } from './features/ride-review/ride-review';
+
 
 export const routes: Routes = [
     {path: 'login', component: Login},
@@ -18,6 +22,12 @@ export const routes: Routes = [
     {path: 'driver-ride-history', component: DriverRideHistory},
     {path: 'driver-active-ride', component: DriverActiveRide},
     {path: 'order-from-favorites', component: OrderFromFavorites},
-    {path: 'order-a-ride', component: OrderARide},
-    {path: 'cancel-ride', component:CancelStopRide}
+    {path: 'cancel-ride', component:CancelStopRide},
+    {path: '', component: MainView, 
+        children: [ 
+            {path: 'order-a-ride', component: OrderARide}, 
+            {path: 'ride-duration', component: RideDuration},
+            {path: 'ride-review', component: RideReview}
+        ]
+    }
 ];

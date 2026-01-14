@@ -1,0 +1,28 @@
+.map-layout {
+    padding-top: 200px;
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.overlay-content {
+    position: relative;
+    min-height: 100%;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.overlay-content > * {
+    pointer-events: auto;
+}
