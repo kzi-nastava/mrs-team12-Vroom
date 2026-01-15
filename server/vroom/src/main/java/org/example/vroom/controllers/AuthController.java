@@ -1,6 +1,8 @@
 package org.example.vroom.controllers;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.Authentication;
 import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.entities.*;
@@ -15,6 +17,7 @@ import org.example.vroom.services.RegisteredUserService;
 import org.example.vroom.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -28,6 +31,8 @@ public class AuthController {
     private RegisteredUserService registeredUserService;
     @Autowired
     private DriverRegisterMapper driverRegisterMapper;
+    @Autowired
+    private AuthenticationManager authManager;
 
     @PostMapping(
             path="/login",
@@ -38,14 +43,19 @@ public class AuthController {
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.NO_CONTENT);
 
         try{
-            LoginResponseDTO res = authService.login(data.getEmail(), data.getPassword(), response);
+            Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword()));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            LoginResponseDTO res = authService.login((User) authentication.getPrincipal(), response);
+
             return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
 
-        }catch(InvalidLoginException e){
+        }catch(BadCredentialsException | UserNotFoundException | InternalAuthenticationServiceException e){
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.UNAUTHORIZED);
-        }catch(AccountStatusException e){
+        }catch(AccountStatusException | DisabledException | LockedException e){
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.FORBIDDEN);
-        }catch(Exception e){
+        } catch(Exception e){
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

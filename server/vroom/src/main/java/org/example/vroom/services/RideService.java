@@ -20,6 +20,7 @@ import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.repositories.RegisteredUserRepository;
 import org.example.vroom.repositories.VehicleRepository;
+import org.example.vroom.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

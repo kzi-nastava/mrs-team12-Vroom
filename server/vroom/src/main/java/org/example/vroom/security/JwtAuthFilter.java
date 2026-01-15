@@ -5,27 +5,38 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.example.vroom.entities.User;
 import org.example.vroom.repositories.UserRepository;
-import org.example.vroom.services.JwtService;
+import org.example.vroom.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.ExpiredJwtException;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
-    @Autowired
     private JwtService jwtService;
-    @Autowired
-    private UserRepository userRepository;
+    private UserDetailsService userDetailsService;
+
+    protected final Log LOGGER = LogFactory.getLog(getClass());
+
+    public JwtAuthFilter(UserDetailsService userDetailsService, JwtService jwtService) {
+        this.userDetailsService = userDetailsService;
+        this.jwtService = jwtService;
+    }
+
+
 
     @Override
     protected void doFilterInternal(
@@ -37,45 +48,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token = null;
         String email = null;
-        Long id = null;
-        String type = null;
+        String token = jwtService.getToken(request);
 
+        try{
+            if(token != null && !token.equals("")){
+                email = jwtService.extractEmail(token);
 
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("jwt".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
+                if(email != null && !email.equals("")){
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                    if(jwtService.validateToken(token, userDetails)){
+                        JWTBasedAuthentication authentication = new JWTBasedAuthentication(userDetails);
+                        authentication.setToken(token);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
-        }
-
-        if(token == null && authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
-
-        if(token != null){
-            email = jwtService.extractEmail(token);
-            id = jwtService.extractUserId(token);
-            type = jwtService.extractUserType(token);
-        }
-
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if(userOptional.isPresent() && email != null && id != null && type != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userOptional.get();
-
-            if(jwtService.validateToken(token, user)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                  user,
-                        null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + type))
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+        }catch(ExpiredJwtException e){
+            LOGGER.debug("Token expired");
         }
 
         filterChain.doFilter(request, response);
