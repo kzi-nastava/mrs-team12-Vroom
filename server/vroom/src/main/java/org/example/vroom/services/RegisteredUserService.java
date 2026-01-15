@@ -2,7 +2,7 @@ package org.example.vroom.services;
 
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.RegisteredUserDTO;
-import org.example.vroom.DTOs.requests.RegisterRequestDTO;
+import org.example.vroom.DTOs.requests.auth.RegisterRequestDTO;
 import org.example.vroom.entities.RegisteredUser;
 import org.example.vroom.exceptions.user.UserAlreadyExistsException;
 import org.example.vroom.exceptions.user.UserNotFoundException;

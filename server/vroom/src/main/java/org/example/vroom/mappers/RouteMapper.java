@@ -1,7 +1,7 @@
 package org.example.vroom.mappers;
 
-import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.PointResponseDTO;
+import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
+import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.entities.Point;
 import org.example.vroom.entities.Route;
 import org.springframework.stereotype.Component;

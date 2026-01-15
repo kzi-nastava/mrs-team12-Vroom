@@ -1,11 +1,9 @@
 package org.example.vroom.services;
 
-import ch.qos.logback.classic.encoder.JsonEncoder;
 import org.example.vroom.DTOs.DriverDTO;
-import org.example.vroom.DTOs.requests.DriverRegistrationRequestDTO;
-import org.example.vroom.DTOs.requests.DriverUpdateRequestDTO;
-import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.RideHistoryResponseDTO;
+import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
+import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.DriverStatus;
@@ -15,7 +13,6 @@ import org.example.vroom.exceptions.user.DriverStatusChangeNotAllowedException;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.mappers.RideMapper;
-import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.RideRepository;
 import org.springframework.beans.factory.annotation.Autowired;

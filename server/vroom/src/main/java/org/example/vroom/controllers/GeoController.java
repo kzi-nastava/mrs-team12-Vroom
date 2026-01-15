@@ -1,6 +1,6 @@
 package org.example.vroom.controllers;
 
-import org.example.vroom.DTOs.responses.AddressSuggestionResponseDTO;
+import org.example.vroom.DTOs.responses.geocode.AddressSuggestionResponseDTO;
 import org.example.vroom.services.GeoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
