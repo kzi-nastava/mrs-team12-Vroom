@@ -1,12 +1,14 @@
 package org.example.vroom.controllers;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.vroom.DTOs.requests.auth.*;
+import org.example.vroom.DTOs.requests.driver.DriverRegisterRequestDTO;
+import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
+import org.example.vroom.DTOs.responses.auth.RegisterResponseDTO;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
-import org.example.vroom.DTOs.requests.*;
 import org.example.vroom.DTOs.responses.*;
 import org.example.vroom.entities.*;
-import org.example.vroom.exceptions.auth.InvalidLoginException;
 import org.example.vroom.exceptions.auth.InvalidTokenException;
 import org.example.vroom.exceptions.auth.TokenPresentException;
 import org.example.vroom.exceptions.user.AccountStatusException;

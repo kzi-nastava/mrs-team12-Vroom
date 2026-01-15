@@ -1,14 +1,12 @@
 package org.example.vroom.services;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import org.example.vroom.DTOs.responses.LoginResponseDTO;
+import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.UserStatus;
-import org.example.vroom.exceptions.auth.InvalidLoginException;
 import org.example.vroom.exceptions.auth.InvalidTokenException;
 import org.example.vroom.exceptions.auth.TokenPresentException;
 import org.example.vroom.exceptions.user.AccountStatusException;

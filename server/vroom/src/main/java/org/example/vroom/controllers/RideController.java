@@ -2,16 +2,16 @@ package org.example.vroom.controllers;
 
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
 import org.example.vroom.DTOs.RideDTO;
-import org.example.vroom.DTOs.requests.*;
+import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
-import org.example.vroom.DTOs.responses.StoppedRideResponseDTO;
-import org.example.vroom.entities.Driver;
+import org.example.vroom.DTOs.responses.ride.GetRideUpdatesResponseDTO;
+import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
+import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
+import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.Route;
-import org.example.vroom.DTOs.requests.CancelRideRequestDTO;
-import org.example.vroom.DTOs.requests.StopRideRequestDTO;
-import org.example.vroom.DTOs.responses.*;
-import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.ride.CantReviewRideException;
@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController

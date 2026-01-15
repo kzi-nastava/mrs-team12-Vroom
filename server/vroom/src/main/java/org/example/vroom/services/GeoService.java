@@ -1,6 +1,6 @@
 package org.example.vroom.services;
 
-import org.example.vroom.DTOs.responses.AddressSuggestionResponseDTO;
+import org.example.vroom.DTOs.responses.geocode.AddressSuggestionResponseDTO;
 import org.example.vroom.DTOs.responses.geocode.GeoapifyAddressResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
