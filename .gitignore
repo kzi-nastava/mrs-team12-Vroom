@@ -16,3 +16,4 @@ web/vroom/package-lock.json
 *.mv.db
 *.lock.db
 *.trace.db
+server/vroom/data/vroomdb.mv.db
