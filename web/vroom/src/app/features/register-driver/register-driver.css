@@ -15,6 +15,15 @@ h1 {
     font-size: 48px;
     font-weight: 500;
 }
+/* Da input zauzme ceo prostor boksa */
+#seats {
+  width: 100%;
+  height:100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+
 
 .form-box {
     background-color: #DCEED3;
@@ -31,6 +40,7 @@ h1 {
     flex: 1;
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 .form-group.full-width {
     width: 100%;
@@ -48,6 +58,7 @@ label {
     background-color: white;
     border-radius: 4px;
     padding: 2.5%;
+    width: 100%;
 }
 .input-wrapper::before {
     content: '';
