@@ -21,7 +21,6 @@ public class GeoController {
     private GeoService geoService;
 
     @GetMapping("/autocomplete-address")
-    @Cacheable("geo-autocomplete")
     public ResponseEntity<List<AddressSuggestionResponseDTO>> autocompleteAddress(@RequestParam String location) {
         try{
             List<AddressSuggestionResponseDTO> suggestions = geoService.getLocations(location, 5);
@@ -32,7 +31,6 @@ public class GeoController {
     }
 
     @GetMapping("/geocode-address")
-    @Cacheable("geocode-address")
     public ResponseEntity<AddressSuggestionResponseDTO> geocodeLocation(@RequestParam String location) {
         try{
             List<AddressSuggestionResponseDTO> suggestions = geoService.getLocations(location, 1);

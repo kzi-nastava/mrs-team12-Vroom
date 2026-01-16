@@ -6,6 +6,7 @@ import org.example.vroom.repositories.PriceListRepository;
 import org.example.vroom.repositories.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
@@ -27,7 +28,10 @@ public class RouteService {
     @Autowired
     private RouteRepository routeRepository;
 
+    @Autowired
+    private ObjectMapper mapper;
 
+    @Cacheable(value = "route-estimation", key = "{#startLocation, #endLocation, #stopLocations}")
     public RouteQuoteResponseDTO routeEstimation(String startLocation, String endLocation, String stopLocations){
         String waypoints = startLocation;
 
@@ -67,8 +71,6 @@ public class RouteService {
 
             String json = response.toString();
 
-
-            ObjectMapper mapper = new ObjectMapper();
             GeoapifyRouteResponseDTO route = mapper.readValue(json, GeoapifyRouteResponseDTO.class);
 
             double distanceKm = (double)route.getFeatures().get(0).getProperties().getDistance() / 1000.0;

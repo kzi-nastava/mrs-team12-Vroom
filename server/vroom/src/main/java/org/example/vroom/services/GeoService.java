@@ -3,6 +3,7 @@ package org.example.vroom.services;
 import org.example.vroom.DTOs.responses.geocode.AddressSuggestionResponseDTO;
 import org.example.vroom.DTOs.responses.geocode.GeoapifyAddressResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
@@ -19,6 +20,7 @@ public class GeoService {
     @Value("${geoapify.api.key}")
     private String geoapifyApiKey;
 
+    @Cacheable(value = "geo-autocomplete", key = "{#location, #limit}")
     public List<AddressSuggestionResponseDTO> getLocations(String location, int limit) throws IOException {
         String text = URLEncoder.encode(location, StandardCharsets.UTF_8);
         URL url = new URL(
