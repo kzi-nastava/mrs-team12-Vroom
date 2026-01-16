@@ -45,7 +45,9 @@ public class AuthController {
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.NO_CONTENT);
 
         try{
-            Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword()));
+            Authentication authentication = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword())
+            );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 

@@ -54,9 +54,11 @@ public abstract class User implements UserDetails {
     @Column(nullable = true)
     private String blockedReason;
 
+    public abstract String getRoleName();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String role = "ROLE_" + this.getClass().getSimpleName().toUpperCase();
+        String role = "ROLE_" + this.getRoleName();
         return List.of(new SimpleGrantedAuthority(role));
     }
     @Override

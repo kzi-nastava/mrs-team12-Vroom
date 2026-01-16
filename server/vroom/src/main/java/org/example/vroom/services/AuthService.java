@@ -55,29 +55,15 @@ public class AuthService {
             default -> "unknown";
         };
 
-        Cookie cookie = new Cookie("jwt", token);
-        cookie.setMaxAge((int) expiresIn/1000);
-        cookie.setSecure(false);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
-
         return LoginResponseDTO.builder()
                 .userID(user.getId())
                 .type(type)
+                .token(token)
+                .expires(expiresIn)
                 .build();
     }
 
     public void logout(Long id, String type, HttpServletResponse response){
-        Cookie cookie = new Cookie("jwt", null);
-        cookie.setMaxAge(0);
-        cookie.setSecure(false);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
-
         if(!type.equals("driver")) return;
 
         User user = userRepository.findById(id)

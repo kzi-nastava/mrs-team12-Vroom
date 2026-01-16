@@ -10,5 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @SuperBuilder
 public class Admin extends User{
-    
+    @Override
+    public String getRoleName() {
+        return "ADMIN";
+    }
 }

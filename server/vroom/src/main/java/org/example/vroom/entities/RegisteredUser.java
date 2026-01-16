@@ -17,4 +17,10 @@ public class RegisteredUser extends User{
     @Column(nullable = true)
     private UserStatus userStatus;
 
+
+    @Override
+    public String getRoleName() {
+        return "REGISTERED_USER";
+    }
+
 }
