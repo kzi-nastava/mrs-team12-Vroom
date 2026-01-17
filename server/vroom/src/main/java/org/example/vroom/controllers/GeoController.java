@@ -1,6 +1,6 @@
 package org.example.vroom.controllers;
 
-import org.example.vroom.DTOs.responses.AddressSuggestionResponseDTO;
+import org.example.vroom.DTOs.responses.geocode.AddressSuggestionResponseDTO;
 import org.example.vroom.services.GeoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,7 +21,6 @@ public class GeoController {
     private GeoService geoService;
 
     @GetMapping("/autocomplete-address")
-    @Cacheable("geo-autocomplete")
     public ResponseEntity<List<AddressSuggestionResponseDTO>> autocompleteAddress(@RequestParam String location) {
         try{
             List<AddressSuggestionResponseDTO> suggestions = geoService.getLocations(location, 5);
@@ -32,7 +31,6 @@ public class GeoController {
     }
 
     @GetMapping("/geocode-address")
-    @Cacheable("geocode-address")
     public ResponseEntity<AddressSuggestionResponseDTO> geocodeLocation(@RequestParam String location) {
         try{
             List<AddressSuggestionResponseDTO> suggestions = geoService.getLocations(location, 1);

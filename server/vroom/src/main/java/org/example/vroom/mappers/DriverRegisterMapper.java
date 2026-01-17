@@ -1,6 +1,6 @@
 package org.example.vroom.mappers;
 
-import org.example.vroom.DTOs.requests.DriverRegisterRequestDTO;
+import org.example.vroom.DTOs.requests.driver.DriverRegisterRequestDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Vehicle;
 import org.example.vroom.enums.DriverStatus;

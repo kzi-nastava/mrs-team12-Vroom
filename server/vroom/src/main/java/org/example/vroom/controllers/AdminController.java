@@ -1,7 +1,7 @@
 package org.example.vroom.controllers;
 
-import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.RideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.enums.RideStatus;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;

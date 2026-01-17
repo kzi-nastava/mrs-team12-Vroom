@@ -1,7 +1,10 @@
 package org.example.vroom.mappers;
 
-import org.example.vroom.DTOs.requests.*;
-import org.example.vroom.DTOs.responses.*;
+import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
+import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
+import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.RideStatus;
 import org.springframework.beans.factory.annotation.Autowired;
