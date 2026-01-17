@@ -12,6 +12,7 @@ import { CancelStopRide } from './features/cancel-stop-ride/cancel-stop-ride';
 import { RideDuration } from './features/ride-duration/ride-duration';
 import { MainView } from './features/main-view/main-view';
 import { RideReview } from './features/ride-review/ride-review';
+import {RegisterDriver} from './features/register-driver/register-driver'
 
 
 export const routes: Routes = [
@@ -23,11 +24,13 @@ export const routes: Routes = [
     {path: 'driver-active-ride', component: DriverActiveRide},
     {path: 'order-from-favorites', component: OrderFromFavorites},
     {path: 'cancel-ride', component:CancelStopRide},
+    {path: 'register-driver', component: RegisterDriver},
     {path: '', component: MainView, 
         children: [ 
             {path: 'order-a-ride', component: OrderARide}, 
             {path: 'ride-duration', component: RideDuration},
             {path: 'ride-review', component: RideReview}
+            
         ]
     }
 ];
