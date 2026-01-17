@@ -184,9 +184,6 @@ export class RouteEstimation implements OnInit, OnDestroy{
 
 
   async onSubmit(): Promise<void>{
-    console.log(this.stops)
-    console.log(this.startCoords)
-    console.log(this.endCoords)
     this.calculating = true;
 
     const startValid = this.startCoords || await this.tryGeocode('start');
@@ -200,10 +197,6 @@ export class RouteEstimation implements OnInit, OnDestroy{
       this.cdr.detectChanges();
       return; 
     }
-
-    console.log(this.startCoords)
-    console.log(this.endCoords)
-    console.log(this.stops)
 
     const start = this.startCoords?.lat+','+this.startCoords?.lng
     const end = this.endCoords?.lat+','+this.endCoords?.lng
@@ -222,13 +215,20 @@ export class RouteEstimation implements OnInit, OnDestroy{
         this.time = String(data.time)
         this.calculating = false; 
         this.error = ''
-        this.startCoordsChange.emit(this.startCoords)
+        /*this.startCoordsChange.emit(this.startCoords)
         this.endCoordsChange.emit(this.endCoords)
         this.stopsCoordsChange.emit(
             this.stops
                 .filter(stop => stop.coords !== null)
                 .map(stop => stop.coords!)
-        );
+        );*/
+
+        this.mapService.updateRouteOnMap(
+          this.startCoords, 
+          this.endCoords, 
+          this.stops.filter(s => s.coords).map(s => s.coords!)
+        )
+
         this.cdr.detectChanges();
       },
       error: (err: any) => {
