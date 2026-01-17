@@ -17,6 +17,7 @@ import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.ride.CantReviewRideException;
 import org.example.vroom.exceptions.ride.RideCancellationException;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
+import org.example.vroom.exceptions.ride.StopRideException;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -161,12 +162,21 @@ public class RideController {
             @RequestBody StopRideRequestDTO data
     ){
         if(data == null)
-            return new ResponseEntity<StoppedRideResponseDTO>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
-        return new ResponseEntity<StoppedRideResponseDTO>(
-                new StoppedRideResponseDTO(),
-                HttpStatus.OK
-        );
+        try{
+            StoppedRideResponseDTO responseDTO = rideService.stopRide(rideID, data);
+            return new ResponseEntity<StoppedRideResponseDTO>(
+                    responseDTO,
+                    HttpStatus.OK
+            );
+        }catch(RideNotFoundException e){
+            return new ResponseEntity<StoppedRideResponseDTO>(HttpStatus.NOT_FOUND);
+        }catch(StopRideException e){
+            return new ResponseEntity<StoppedRideResponseDTO>(HttpStatus.BAD_REQUEST);
+        } catch(Exception e){
+            return new ResponseEntity<StoppedRideResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

@@ -23,7 +23,7 @@ public class RideMapper {
                 .startLocationLat(ride.getRoute().getStartLocationLat())
                 .startLocationLng(ride.getRoute().getStartLocationLng())
                 .endLocationLat(stopRideDTO.getStopLat())
-                .endLocationLng(stopRideDTO.getStopLat())
+                .endLocationLng(stopRideDTO.getStopLng())
                 .stops(routeMapper.mapRoutePointsDTO(ride.getRoute().getStops()))
                 .build();
 
