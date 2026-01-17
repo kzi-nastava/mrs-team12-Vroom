@@ -1,17 +1,31 @@
 .route-estimation {
-    width: 50%;
-    max-width: 480px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    pointer-events: none;
+
+    font-family: 'IBM Plex Sans';;
+}
+
+.route-estimation-outer-container {
+    width: 100%;
+    background: #dceed3;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -4px 15px rgba(42, 44, 36, 0.15);
+    pointer-events: auto; 
+    padding: 24px 0; 
+}
+
+.route-estimation-inner-container {
+    max-width: 500px; 
     margin: 0 auto;
-    font-family: 'IBM Plex Sans';
-    color: #333;
+    padding: 0 24px;  
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
-
-.route-estimation-container {
-    background: #DCEED3;
-    padding: 30px 20px;
-    border-radius: 15px;
-}
-
 #route-form {
     display: flex;
     flex-direction: column;
