@@ -1,0 +1,263 @@
+<div class="container">
+    <h1>Create account</h1>
+
+    <div class="form-box">
+        <form (ngSubmit)="onSubmit()">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First name</label>
+                    <div class="input-wrapper user-wrapper">
+                        <input
+                            type="text"
+                            id="firstName"
+                            name="firstName"
+                            [(ngModel)]="firstName">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last name</label>
+                    <div class="input-wrapper user-wrapper">
+                        <input
+                            type="text"
+                            id="lastName"
+                            name="lastName"
+                            [(ngModel)]="lastName">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="country"
+                            name="country"
+                            [(ngModel)]="country">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="city"
+                            name="city"
+                            [(ngModel)]="city">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="street">Street</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="street"
+                            name="street"
+                            [(ngModel)]="street">
+                    </div>
+                </div>
+            </div>
+
+            <div class="gender-group">
+                <div class="gender-option">
+                    <input
+                        type="radio"
+                        id="male"
+                        name="gender"
+                        [value]="'MALE'"
+                        [(ngModel)]="gender">
+                    <label for="male">Male</label>
+                </div>
+
+                <div class="gender-option">
+                    <input
+                        type="radio"
+                        id="female"
+                        name="gender"
+                        [value]="'FEMALE'"
+                        [(ngModel)]="gender">
+                    <label for="female">Female</label>
+                </div>
+
+                <div class="gender-option">
+                    <input
+                        type="radio"
+                        id="other"
+                        name="gender"
+                        [value]="'OTHER'"
+                        [(ngModel)]="gender">
+                    <label for="other">Other</label>
+                </div>
+            </div>
+
+            <div class="profile-upload">
+                <label>Profile picture</label>
+                <label for="profilePic" class="upload-btn">Select image</label>
+                <input
+                    type="file"
+                    id="profilePic"
+                    name="profilePic"
+                    accept=".jpg,.jpeg,.png"
+                    (change)="onFileChange($event)">
+                <label *ngIf="profilePic">{{ profilePic.name }}</label>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-wrapper email-wrapper">
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            [(ngModel)]="email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone number</label>
+                    <div class="input-wrapper phone-wrapper">
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            [(ngModel)]="phoneNumber">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper password-wrapper">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            [(ngModel)]="password">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="reenterPassword">Confirm Password</label>
+                    <div class="input-wrapper password-wrapper">
+                        <input
+                            type="password"
+                            id="reenterPassword"
+                            name="rePassword"
+                            [(ngModel)]="rePassword">
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 30px;">Driver information</h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="model">Vehicle model</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="model"
+                            name="model"
+                            [(ngModel)]="vehicleModel">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Vehicle type</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="type"
+                            name="type"
+                            [(ngModel)]="vehicleType">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="plate">Plate number</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="plate"
+                            name="plate"
+                            [(ngModel)]="plateNumber">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="seats">Number of seats</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="number"
+                            id="seats"
+                            name="seats"
+                            [(ngModel)]="numberOfSeats">
+                    </div>
+                </div>
+            </div>
+
+            <div class="gender-group">
+                <div class="gender-option">
+                    <input
+                        type="radio"
+                        id="petsYes"
+                        name="petsAllowed"
+                        [value]="true"
+                        [(ngModel)]="petsAllowed">
+                    <label for="petsYes">Pets allowed</label>
+                </div>
+
+                <div class="gender-option">
+                    <input
+                        type="radio"
+                        id="petsNo"
+                        name="petsAllowed"
+                        [value]="false"
+                        [(ngModel)]="petsAllowed">
+                    <label for="petsNo">Pets not allowed</label>
+                </div>
+            </div>
+
+            <div class="gender-group">
+                <div class="gender-option">
+                    <input
+                        type="radio"
+                        id="babiesYes"
+                        name="babiesAllowed"
+                        [value]="true"
+                        [(ngModel)]="babiesAllowed">
+                    <label for="babiesYes">Babies allowed</label>
+                </div>
+
+                <div class="gender-option">
+                    <input
+                        type="radio"
+                        id="babiesNo"
+                        name="babiesAllowed"
+                        [value]="false"
+                        [(ngModel)]="babiesAllowed">
+                    <label for="babiesNo">Babies not allowed</label>
+                </div>
+            </div>
+
+            <h2 class="error-message">{{ error }}</h2>
+            <h2 class="success-message">{{ success }}</h2>
+            <button
+                type="submit"
+                class="register-btn"
+                [disabled]="isLoading">
+                <span *ngIf="!isLoading">Register driver</span>
+                <span *ngIf="isLoading">Processing...</span>
+            </button>
+
+        </form>
+    </div>
+</div>
