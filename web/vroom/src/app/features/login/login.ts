@@ -35,7 +35,7 @@ export class Login implements OnInit {
     });
   }
 
-  async onForgotPassword(): Promise<void>{
+  onForgotPassword(): void{
     if(this.email === ''){
       this.error = 'Email is missing'
       return
@@ -46,6 +46,8 @@ export class Login implements OnInit {
     this.authService.createForgotPasswordRequest(data).subscribe({
       next: (response: MessageResponseDTO) => {
         this.success = response.message;  
+        this.error = '';
+
         this.cdRef.detectChanges()
         setTimeout(()=>{ this.router.navigate(['/forgot-password']) }, 3000)
       },
@@ -65,7 +67,7 @@ export class Login implements OnInit {
     })
   }
 
-  async onLogin(): Promise<void>{
+  onLogin(): void{
     this.error=''
 
     if(this.email === '' || this.password === ''){
@@ -85,6 +87,8 @@ export class Login implements OnInit {
         localStorage.setItem('user_type', response.type)
         localStorage.setItem('jwt', response.token)
         localStorage.setItem('expires', String(response.expires))
+        this.error = ''
+        
         // redirect to main
         this.router.navigate(['/'])
       },

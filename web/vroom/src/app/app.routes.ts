@@ -14,6 +14,7 @@ import { MainView } from './features/main-view/main-view';
 import { RideReview } from './features/ride-review/ride-review';
 import {RegisterDriver} from './features/register-driver/register-driver'
 import { QuoteView } from './features/quote-view/quote-view';
+import { RouteEstimation } from './features/route-estimation/route-estimation';
 
 
 export const routes: Routes = [
@@ -27,6 +28,7 @@ export const routes: Routes = [
     {path: 'cancel-ride', component:CancelStopRide},
     {path: 'register-driver', component: RegisterDriver},
     {path: 'quote', component: QuoteView},
+    {path: 'route-estimation', component: RouteEstimation},
     {path: '', component: MainView, 
         children: [ 
             {path: 'order-a-ride', component: OrderARide}, 
