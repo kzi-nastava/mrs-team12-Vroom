@@ -2,6 +2,7 @@ package org.example.vroom.services;
 
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
+import org.example.vroom.DTOs.requests.ride.CancelRideRequestDTO;
 import org.example.vroom.DTOs.requests.ride.LeaveReviewRequestDTO;
 import org.example.vroom.DTOs.requests.ride.RideRequestDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
@@ -11,6 +12,7 @@ import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.enums.VehicleType;
 import org.example.vroom.exceptions.ride.CantReviewRideException;
+import org.example.vroom.exceptions.ride.RideCancellationException;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
@@ -210,6 +212,35 @@ public class RideService {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public void cancelRide(Long rideID, CancelRideRequestDTO data){
+        Optional<Ride> rideOptional = rideRepository.findById(rideID);
+        if(rideOptional.isEmpty())
+            throw new RideNotFoundException("Ride not found");
+
+        Ride ride = rideOptional.get();
+        if(!ride.getStatus().equals(RideStatus.ACCEPTED))
+            throw new RideCancellationException("Ride hasn't been accepted or it is finished");
+
+        String userType = data.getType();
+
+        if("REGISTERED_USER".equals(userType)){
+            if(ride.getStartTime().minusMinutes(10).isBefore(LocalDateTime.now()))
+                throw new RideCancellationException("Passengers cannot cancel ride less than 10 minutes before it starts");
+
+            ride.setStatus(RideStatus.CANCELLED_BY_USER);
+        }
+        else if("DRIVER".equals(userType)){
+            if(data.getReason() == null || data.getReason().isBlank()){
+                throw new RideCancellationException("Driver must provide a reason for cancellation");
+            }
+
+            ride.setStatus(RideStatus.CANCELLED_BY_DRIVER);
+            ride.setCancelReason(data.getReason());
+        }
+
+        rideRepository.save(ride);
     }
 }
 
