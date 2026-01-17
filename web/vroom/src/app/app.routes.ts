@@ -19,7 +19,6 @@ import { ChangeDriverStatus } from './features/change-driver-status/change-drive
 
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'route-estimation', pathMatch: 'full' },
     {path: 'login', component: Login},
     {path:'forgot-password', component: ForgotPassword},
     { path: 'profile', component: Profile },
