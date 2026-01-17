@@ -1,8 +1,8 @@
 package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.VehicleDTO;
-import org.example.vroom.DTOs.requests.VehicleRequestDTO;
-import org.example.vroom.DTOs.responses.VehicleRideResponseDTO;
+import org.example.vroom.DTOs.requests.vehicle.VehicleRequestDTO;
+import org.example.vroom.DTOs.responses.ride.VehicleRideResponseDTO;
 import org.example.vroom.entities.Vehicle;
 import org.springframework.stereotype.Component;
 

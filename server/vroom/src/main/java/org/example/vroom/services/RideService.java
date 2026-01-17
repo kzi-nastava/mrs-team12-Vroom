@@ -2,10 +2,10 @@ package org.example.vroom.services;
 
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
-import org.example.vroom.DTOs.requests.LeaveReviewRequestDTO;
-import org.example.vroom.DTOs.requests.RideRequestDTO;
-import org.example.vroom.DTOs.responses.GetRideResponseDTO;
-import org.example.vroom.DTOs.responses.RouteQuoteResponseDTO;
+import org.example.vroom.DTOs.requests.ride.LeaveReviewRequestDTO;
+import org.example.vroom.DTOs.requests.ride.RideRequestDTO;
+import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
@@ -20,6 +20,7 @@ import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.repositories.RegisteredUserRepository;
 import org.example.vroom.repositories.VehicleRepository;
+import org.example.vroom.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

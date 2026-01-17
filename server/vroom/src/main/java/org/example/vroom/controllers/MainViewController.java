@@ -1,7 +1,7 @@
 package org.example.vroom.controllers;
 
-import org.example.vroom.DTOs.responses.DriverPositionDTO;
-import org.example.vroom.DTOs.responses.PointResponseDTO;
+import org.example.vroom.DTOs.responses.driver.DriverPositionDTO;
+import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.enums.DriverStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
