@@ -15,6 +15,7 @@ import org.example.vroom.entities.Route;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.ride.CantReviewRideException;
+import org.example.vroom.exceptions.ride.RideCancellationException;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.springframework.http.*;
@@ -138,17 +139,20 @@ public class RideController {
                 HttpStatus.BAD_REQUEST
         );
 
-        if(data.getType().equals("driver") && (data.getReason() == null || data.getReason().isEmpty())
-        )
-            return new ResponseEntity<MessageResponseDTO>(
-                new MessageResponseDTO("Drivers must provide a reason for cancellation"),
-                HttpStatus.BAD_REQUEST
-            );
+        try{
+            rideService.cancelRide(rideID, data);
 
-        return new ResponseEntity<MessageResponseDTO>(
-                new MessageResponseDTO("Successfully cancelled ride"),
-                HttpStatus.OK
-        );
+            return new ResponseEntity<MessageResponseDTO>(
+                    new MessageResponseDTO("Ride cancelled"),
+                    HttpStatus.OK
+            );
+        }catch(RideCancellationException e){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch(RideNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping(path="/{rideID}/stop",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
