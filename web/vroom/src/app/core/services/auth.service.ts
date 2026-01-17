@@ -28,6 +28,9 @@ export class AuthService{
         return this.http.post<MessageResponseDTO>(this.api+'/register', data)
     }
 
+    createLogoutRequest(id: string, type: string): Observable<MessageResponseDTO>{
+        return this.http.post<MessageResponseDTO>(`${this.api}/logout`, { id, type });
+    }
 
     isPasswordValid(password: string): String | null{
         if(password.length < 8) return 'Password must be over 8 characters long'
@@ -39,12 +42,50 @@ export class AuthService{
     }
 
 
+    get isTokenExpired(): boolean{
+        const expiresAt = localStorage.getItem('expires')
+        if (!expiresAt) return true
 
-    getCurrentUserType(): string | null{
+        const expirationTime = Number(expiresAt)*1000
+        const currentTime = Date.now()
+        
+        return currentTime > expirationTime
+    }
+
+    get getCurrentUserType(): string | null{
         return localStorage.getItem('user_type')
     }
 
-    isLoggedIn(): boolean{
-        return !!localStorage.getItem('user_id')
+    get isLoggedIn(): boolean{
+        const token = localStorage.getItem('jwt');
+        if (!token) return false;
+
+        if (this.isTokenExpired) {
+            this.logout(); 
+            return false;
+        }
+        
+        return true;
+    }
+
+    logout(){
+        const id = localStorage.getItem('user_id');
+        const type = localStorage.getItem('user_type');
+
+        if (id && type) {
+            this.createLogoutRequest(id, type).subscribe({
+                next: () => this.completeLocalLogout(),
+                error: () => this.completeLocalLogout() 
+            });
+        } else {
+            this.completeLocalLogout();
+        }
+    }
+
+    private completeLocalLogout() {
+        localStorage.removeItem('jwt');
+        localStorage.removeItem('expires')
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('user_type');
     }
 }
