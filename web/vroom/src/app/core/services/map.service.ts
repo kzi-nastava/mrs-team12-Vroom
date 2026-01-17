@@ -5,6 +5,8 @@ import { HttpParams } from '@angular/common/http';
 import { AddressSuggestionDTO } from '../models/address/response/address-suggestion-response.dto';
 import { RouteQuoteEstimationDTO } from '../models/address/response/route-quote-estimation.dto';
 import { Subject } from 'rxjs';
+import { MapActionType } from '../models/map/enums/map-action-type.enum';
+import { MapAction } from '../models/map/interfaces/map-action.interface';
 
 @Injectable({
   providedIn: 'root'  
@@ -12,32 +14,10 @@ import { Subject } from 'rxjs';
 export class MapService{
     private geoUrl = 'http://localhost:8080/api/geo'
     private routeUrl = 'http://localhost:8080/api/routes'
-
-    private routePointsSource = new Subject<{
-        start: {lat: number, lng: number},
-        end: {lat: number, lng: number},
-        stops: Array<{lat: number, lng: number}>
-    }>();
-
-    routePoints$ = this.routePointsSource.asObservable();
+    private mapActionSource = new Subject<MapAction>();
+    mapAction$ = this.mapActionSource.asObservable();
 
     constructor(private http: HttpClient) {}
-
-    configMap(map: any){
-        map = L.map('map',{
-          center: [45.2396, 19.8227],
-          zoom: 6
-        })
-    
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-    }
-    
-    updateRouteOnMap(start: any, end: any, stops: any[]) {
-        this.routePointsSource.next({ start, end, stops });
-    }
 
     routeQuote(startLocation: string, endLocation: string, stops: string | undefined){
         let params
@@ -61,4 +41,51 @@ export class MapService{
         return this.http.get<AddressSuggestionDTO>(this.geoUrl+`/geocode-address`, {params})
     }
 
+
+    drawRoute(start: any, end: any, stops: any[]) {
+        this.mapActionSource.next({
+            type: MapActionType.DRAW_ROUTE,
+            payload: { start, end, stops }
+        });
+    }
+
+    clearMap() {
+        this.mapActionSource.next({ type: MapActionType.CLEAR_MAP });
+    }
+
+
+    async getRouteCoordinates(payload: any): Promise<RouteResponse | null>{
+        const coordinates: [number, number][] = [];
+        if (payload.start) {
+            coordinates.push([payload.start.lng, payload.start.lat]); 
+        }
+
+        payload.stops?.forEach((stop: any) => {
+            coordinates.push([stop.lng, stop.lat]);
+        });
+
+        if (payload.end) {
+            coordinates.push([payload.end.lng, payload.end.lat]);
+        }
+
+        if (coordinates.length < 2) {
+            console.error('you need at leat two coordinates');
+            return null;
+        }
+
+        try {
+           const coordString = coordinates.map(c => c.join(',')).join(';');
+           const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
+           
+           const response: any = await this.http.get(url).toPromise();
+
+            if (response.code === 'Ok' && response.routes && response.routes.length > 0) 
+                return response.routes[0];
+
+            return null
+        }
+        catch(e){
+            return null
+        }
+    }
 }

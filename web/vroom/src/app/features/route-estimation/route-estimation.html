@@ -1,5 +1,7 @@
  <section class="route-estimation">
-        <div class="route-estimation-container">
+        <div class="route-estimation-outer-container">
+
+            <div class="route-estimation-inner-container">
             <form (ngSubmit)="onSubmit(); $event.preventDefault()" id="route-form">
                 <div class="form-group from-address">
                     <label for="start-location">Start location</label>
@@ -80,5 +82,6 @@
                     {{ calculating ? 'Calculating...' : 'Calculate' }}
                 </button>
             </form>
+            </div>
         </div>
     </section>

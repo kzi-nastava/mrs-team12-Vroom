@@ -215,19 +215,12 @@ export class RouteEstimation implements OnInit, OnDestroy{
         this.time = String(data.time)
         this.calculating = false; 
         this.error = ''
-        /*this.startCoordsChange.emit(this.startCoords)
-        this.endCoordsChange.emit(this.endCoords)
-        this.stopsCoordsChange.emit(
-            this.stops
-                .filter(stop => stop.coords !== null)
-                .map(stop => stop.coords!)
-        );*/
 
-        this.mapService.updateRouteOnMap(
-          this.startCoords, 
-          this.endCoords, 
-          this.stops.filter(s => s.coords).map(s => s.coords!)
-        )
+        this.mapService.drawRoute(
+                this.startCoords, 
+                this.endCoords, 
+                this.stops.filter(s => s.coords).map(s => s.coords!)
+        );
 
         this.cdr.detectChanges();
       },
@@ -238,7 +231,9 @@ export class RouteEstimation implements OnInit, OnDestroy{
         this.price = ''
         this.time = ''
         this.error = 'An error occurred'
-        this.cdr.detectChanges();
+
+        this.mapService.clearMap()
+        this.cdr.detectChanges()
       }
     })
   }

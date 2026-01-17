@@ -1,0 +1,5 @@
+export enum MapActionType {
+  DRAW_ROUTE = 'DRAW_ROUTE',
+  SHOW_VEHICLES = 'SHOW_VEHICLES',
+  CLEAR_MAP = 'CLEAR_MAP'
+}
