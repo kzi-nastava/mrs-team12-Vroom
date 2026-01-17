@@ -6,6 +6,8 @@ import { RegisterService } from './register.service';
 import { firstValueFrom } from 'rxjs';
 import { isHttpError } from '../../core/utils/http-error.guard';
 import { RegisterRequestDTO } from '../../core/models/auth/requests/register-request.dto';
+import { AuthService } from '../../core/services/auth.service';
+import { MessageResponseDTO } from '../../core/models/message-response.dto';
 
 @Component({
   selector: 'app-register',
@@ -34,7 +36,7 @@ export class Register {
     error: String = ''
     success: String = ''
 
-    constructor(private registerService: RegisterService, private cdRef: ChangeDetectorRef){}
+    constructor(private registerService: RegisterService, private cdRef: ChangeDetectorRef, private authService: AuthService){}
 
     onFileChange(event: Event): void{
       const input = event.target as HTMLInputElement;
@@ -54,7 +56,7 @@ export class Register {
         return
       }
 
-      const error = this.registerService.isPasswordValid(this.password.toString())
+      const error = this.authService.isPasswordValid(this.password.toString())
       if(error){
         this.error = error
         this.isLoading = false;
@@ -84,12 +86,13 @@ export class Register {
         type: "user"
       };
 
-      try{
-        const response = await firstValueFrom(this.registerService.createRequest(data))
-        this.success = response.message;
-        this.error = ''; 
-      }catch(err){
-        if (isHttpError(err)) {
+      this.authService.createRegisterRequest(data).subscribe({
+        next: (response: MessageResponseDTO) => {
+          this.success = response.message;
+          this.error = ''; 
+          this.cdRef.detectChanges()
+        },
+        error: (err) => {
           switch (err.status) {
             case 409:
               this.error = err.error?.message || 'User already exists';
@@ -103,14 +106,9 @@ export class Register {
             default:
               this.error = 'An unexpected error occurred';
           }
-        } else {
-          this.error = 'An unexpected error occurred';
+          this.cdRef.detectChanges()
         }
-      } finally {
-        this.isLoading = false; 
-      }
-
-      this.cdRef.detectChanges()
+      })
     }
 
 }
