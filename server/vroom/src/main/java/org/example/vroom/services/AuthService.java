@@ -3,17 +3,18 @@ package org.example.vroom.services;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import org.example.vroom.DTOs.responses.LoginResponseDTO;
+import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.UserStatus;
-import org.example.vroom.exceptions.auth.InvalidLoginException;
 import org.example.vroom.exceptions.auth.InvalidTokenException;
 import org.example.vroom.exceptions.auth.TokenPresentException;
 import org.example.vroom.exceptions.user.AccountStatusException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.repositories.TokenRepository;
 import org.example.vroom.repositories.UserRepository;
+import org.example.vroom.utils.EmailService;
+import org.example.vroom.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,57 +38,32 @@ public class AuthService {
     @Autowired
     private EmailService emailService;
 
-    public LoginResponseDTO login(String email, String password, HttpServletResponse response) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if(user.isEmpty()) {
-            throw new InvalidLoginException("Email or password is wrong");
-        }
-
-        if(user.get() instanceof RegisteredUser && (
-                        ((RegisteredUser) user.get()).getUserStatus().equals(UserStatus.INACTIVE) ||
-                        ((RegisteredUser) user.get()).getUserStatus().equals(UserStatus.BLOCKED)
-            )
+    public LoginResponseDTO login(User user, HttpServletResponse response) {
+        if(user instanceof RegisteredUser && (
+                ((RegisteredUser) user).getUserStatus().equals(UserStatus.INACTIVE) ||
+                        ((RegisteredUser) user).getUserStatus().equals(UserStatus.BLOCKED))
         )
             throw new AccountStatusException("This account is inactive or blocked");
 
-        String userPassword = user.get().getPassword();
-        if(!passwordEncoder.matches(password, userPassword)) {
-            throw new InvalidLoginException("Email or password is wrong");
-        }
-
-        String token = jwtService.generateToken(user.get());
+        String token = jwtService.generateToken(user);
         long expiresIn = jwtService.extractExpiration(token).getTime() - System.currentTimeMillis();
 
-        String type = switch (user.get()) {
+        String type = switch (user) {
             case RegisteredUser u -> "registeredUser";
             case Driver d -> "driver";
             case Admin a -> "admin";
             default -> "unknown";
         };
 
-        Cookie cookie = new Cookie("jwt", token);
-        cookie.setMaxAge((int) expiresIn/1000);
-        cookie.setSecure(false);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
-
         return LoginResponseDTO.builder()
-                .userID(user.get().getId())
+                .userID(user.getId())
                 .type(type)
+                .token(token)
+                .expires(expiresIn)
                 .build();
     }
 
     public void logout(Long id, String type, HttpServletResponse response){
-        Cookie cookie = new Cookie("jwt", null);
-        cookie.setMaxAge(0);
-        cookie.setSecure(false);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
-
         if(!type.equals("driver")) return;
 
         User user = userRepository.findById(id)

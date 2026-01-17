@@ -1,21 +1,19 @@
 package org.example.vroom.services;
 
-import ch.qos.logback.classic.encoder.JsonEncoder;
 import org.example.vroom.DTOs.DriverDTO;
-import org.example.vroom.DTOs.requests.DriverRegistrationRequestDTO;
-import org.example.vroom.DTOs.requests.DriverUpdateRequestDTO;
-import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.RideHistoryResponseDTO;
+import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
+import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
 import org.example.vroom.exceptions.user.DriverNotFoundException;
 import org.example.vroom.exceptions.user.DriverStatusChangeNotAllowedException;
+import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.mappers.RideMapper;
-import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.RideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -134,6 +133,14 @@ public class DriverService {
             rideHistoryResponseDTOs.add(rideMapper.rideHistory(ride));
         }
         return rideHistoryResponseDTOs;
+    }
+
+    public void changeStatus(Long driverID, DriverStatus status){
+        Optional<Driver> driver = driverRepository.findById(driverID);
+        if(driver.isEmpty()) throw new UserNotFoundException("Driver not found");
+
+        driver.get().setStatus(status);
+        driverRepository.save(driver.get());
     }
 
 }

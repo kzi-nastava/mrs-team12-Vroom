@@ -1,10 +1,11 @@
 package org.example.vroom.controllers;
 
 import org.example.vroom.DTOs.DriverDTO;
-import org.example.vroom.DTOs.requests.DriverRegistrationRequestDTO;
-import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.RideHistoryResponseDTO;
-import org.example.vroom.enums.RideStatus;
+import org.example.vroom.DTOs.requests.driver.DriverChangeStatusRequestDTO;
+import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
+import org.example.vroom.DTOs.responses.MessageResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
+import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.services.DriverService;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -13,9 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/drivers")
@@ -48,4 +47,24 @@ public class DriverController {
                 .body(driverService.registerDriver(request));
     }
 
+    @PutMapping(path = "/{driverID}/status")
+    public ResponseEntity<MessageResponseDTO> changeStatus(
+            @PathVariable Long driverID,
+            @RequestBody DriverChangeStatusRequestDTO data
+    ){
+        if(data == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        try {
+            driverService.changeStatus(driverID, data.getStatus());
+
+            return new ResponseEntity<MessageResponseDTO>(
+                    new MessageResponseDTO("Status changed"),
+                    HttpStatus.OK
+            );
+        }catch(UserNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

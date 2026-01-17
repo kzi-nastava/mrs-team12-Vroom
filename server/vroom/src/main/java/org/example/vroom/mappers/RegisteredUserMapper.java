@@ -1,7 +1,7 @@
 package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.RegisteredUserDTO;
-import org.example.vroom.DTOs.requests.RegisterRequestDTO;
+import org.example.vroom.DTOs.requests.auth.RegisterRequestDTO;
 import org.example.vroom.entities.RegisteredUser;
 import org.example.vroom.enums.UserStatus;
 import org.springframework.stereotype.Component;
