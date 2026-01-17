@@ -4,18 +4,18 @@ import { AuthService } from "../services/auth.service";
 
 export const authGuard: CanActivateFn = (route, state) => {
     const router = inject(Router)
-    const token = localStorage.getItem('jwt')
-    const userType = localStorage.getItem('user_type')
+    const authService = inject(AuthService)
 
-    if(!token){
+    if(!authService.isLoggedIn){
         router.navigate(['/login'])
         return false
     }
 
+    const userType = localStorage.getItem('user_type')
     const expectedRoles = route.data['roles'] as Array<string>;
 
     if(expectedRoles && !expectedRoles.includes(userType || '')){
-        router.navigate(['/'])
+        router.navigate(['/login'])
         return false
     }
 

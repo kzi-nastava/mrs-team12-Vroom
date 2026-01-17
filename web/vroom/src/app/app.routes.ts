@@ -19,6 +19,7 @@ import { authGuard } from './core/utils/auth.guard';
 
 
 export const routes: Routes = [
+    { path: '', redirectTo: 'route-estimation', pathMatch: 'full' },
     {path: 'login', component: Login},
     {path:'forgot-password', component: ForgotPassword},
     { path: 'profile', component: Profile },
@@ -29,13 +30,12 @@ export const routes: Routes = [
     {path: 'cancel-ride', component:CancelStopRide},
     {path: 'register-driver', component: RegisterDriver},
     {path: 'quote', component: QuoteView},
-    {path: 'route-estimation', component: RouteEstimation},
     {path: '', component: MainView, 
         children: [ 
+            {path: 'route-estimation', component: RouteEstimation},
             {path: 'order-a-ride', component: OrderARide}, 
             {path: 'ride-duration', component: RideDuration},
             {path: 'ride-review', component: RideReview}
-            
         ]
     }
 ];
