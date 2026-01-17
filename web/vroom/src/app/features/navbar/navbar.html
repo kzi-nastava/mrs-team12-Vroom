@@ -2,6 +2,7 @@
     <nav class="navbar">
         <a class="logo" routerLink="">Vroom</a>
         <div class="nav-right" *ngIf="!authService.isLoggedIn">
+            <a class="ride-estimation-text" routerLink="/">Ride Estimation</a>
             <a class="login-text" routerLink="/login">Log in</a>
             <a class="register-text" routerLink="/register">Register</a>
             <!--<a routerLink="/driver-ride-history" class="icon-button">
@@ -23,7 +24,7 @@
         </div>
 
         <div class="nav-right" *ngIf="authService.isLoggedIn">
-            <a class="logout" (click)="onLogout()" style="cursor: pointer;">Logout</a>
+            <a class="logout-text" (click)="onLogout()" style="cursor: pointer;">Logout</a>
 
             <a routerLink="/driver-ride-history" class="icon-button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" fill="none">
