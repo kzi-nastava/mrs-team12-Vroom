@@ -24,7 +24,7 @@ export class ForgotPassword {
 
   constructor(private authService: AuthService, private router: Router, private cdRef: ChangeDetectorRef){}
 
-  async onSubmit(): Promise<void>{
+  onSubmit(): void{
     this.error=''
 
     if(this.email === '' || this.code === '' || this.password === '' || this.rePassword === ''){
