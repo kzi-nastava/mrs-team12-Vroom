@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LogoutRequestDTO {
-    private int id;
+    private Long id;
     private String type;
 
 }

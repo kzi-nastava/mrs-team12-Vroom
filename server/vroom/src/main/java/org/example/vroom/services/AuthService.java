@@ -11,6 +11,7 @@ import org.example.vroom.exceptions.auth.InvalidTokenException;
 import org.example.vroom.exceptions.auth.TokenPresentException;
 import org.example.vroom.exceptions.user.AccountStatusException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
+import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.TokenRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.example.vroom.utils.EmailService;
@@ -37,6 +38,8 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private DriverRepository driverRepository;
 
     public LoginResponseDTO login(User user, HttpServletResponse response) {
         if(user instanceof RegisteredUser && (
@@ -49,12 +52,17 @@ public class AuthService {
         long expiresIn = jwtService.extractExpiration(token).getTime() - System.currentTimeMillis();
 
         String type = switch (user) {
-            case RegisteredUser u -> "registeredUser";
-            case Driver d -> "driver";
-            case Admin a -> "admin";
+            case RegisteredUser u -> "REGISTERED_USER";
+            case Driver d -> "DRIVER";
+            case Admin a -> "ADMIN";
             default -> "unknown";
         };
 
+        if(type.equals("DRIVER")){
+            Driver d = (Driver) user;
+            d.setStatus(DriverStatus.AVAILABLE);
+            driverRepository.save(d);
+        }
         return LoginResponseDTO.builder()
                 .userID(user.getId())
                 .type(type)

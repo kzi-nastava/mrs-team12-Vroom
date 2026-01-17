@@ -7,19 +7,6 @@ import { MessageResponseDTO } from "../../core/models/message-response.dto";
   providedIn: 'root'  
 })
 export class RegisterService{
-    private apiUrl = 'http://localhost:8080/api/auth'
-    
-    constructor(private http: HttpClient) {}
-
-    isPasswordValid(password: string): String | null{
-        if(password.length < 8) return 'Password must be over 8 characters long'
-        if(!/[0-9]/.test(password)) return 'Password must contain a number';
-        if(!/[a-z]/.test(password)) return 'Password must contain a lowercase letter'
-        if (!/[A-Z]/.test(password)) return 'Password must contain an uppercase letter';
-
-        return null
-    }
-
     getFileValidationError(file: File): string | null {
         if (!file.type.startsWith('image/')) {
         return 'Please select a valid image file (png, jpg, etc.)';
@@ -44,9 +31,5 @@ export class RegisterService{
 
             reader.onerror = error => reject(error);
         });
-    }
-
-    createRequest(data: any): Observable<MessageResponseDTO> {
-        return this.http.post<MessageResponseDTO>(this.apiUrl+'/register', data)
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, HostListener, ViewChild, ChangeDetectorRef, Output, EventEmitter, NgModule } from '@angular/core';
+import { Component, OnInit, ElementRef, HostListener, ViewChild, ChangeDetectorRef, Output, EventEmitter, NgModule, OnDestroy } from '@angular/core';
 import * as L from 'leaflet'
 import { MapService } from '../../core/services/map.service';
 import { CommonModule } from '@angular/common';
@@ -6,7 +6,7 @@ import { FormsModule, NgModel } from '@angular/forms';
 import { AddressSuggestionDTO } from '../../core/models/address/response/address-suggestion-response.dto';
 import { HttpClient } from '@angular/common/http';
 import { RouteQuoteEstimationDTO } from '../../core/models/address/response/route-quote-estimation.dto';
-import { lastValueFrom } from 'rxjs';
+import { debounceTime, distinctUntilChanged, lastValueFrom, map, Subject, switchMap, takeUntil } from 'rxjs';
 import { Stop } from '../../core/models/address/interfaces/stop-point.interface';
 
 @Component({
@@ -16,7 +16,12 @@ import { Stop } from '../../core/models/address/interfaces/stop-point.interface'
   templateUrl: './route-estimation.html',
   styleUrl: './route-estimation.css',
 })
-export class RouteEstimation{
+export class RouteEstimation implements OnInit, OnDestroy{
+  private startSearchSubject = new Subject<string>()
+  private endSearchSubject = new Subject<string>()
+  private stopSearchSubject = new Subject<{index: number, query: string}>()
+  private destroy$ = new Subject<void>()
+
   startLocation: String = ''
   endLocation: String = ''
   stopLocations: string[] = []
@@ -54,6 +59,50 @@ export class RouteEstimation{
 
   constructor(private mapService: MapService,private http: HttpClient, private eRef:ElementRef, private cdr: ChangeDetectorRef) {}
 
+  ngOnInit(): void {
+      this.startSearchSubject.pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(query => this.mapService.locationSuggestion('Novi Sad, ' + query))
+      ).subscribe(data => {
+        this.startSuggestions = data;
+        this.showStartSuggestions = true;
+        this.cdr.detectChanges();
+      });
+
+      this.endSearchSubject.pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(query => this.mapService.locationSuggestion('Novi Sad, ' + query))
+      ).subscribe(data => {
+        this.endSuggestions = data;
+        this.showEndSuggestions = true;
+        this.cdr.detectChanges();
+      });
+
+      this.stopSearchSubject.pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300),
+        distinctUntilChanged((prev, curr) => prev.query === curr.query && prev.index === curr.index),
+        switchMap(data => 
+          this.mapService.locationSuggestion('Novi Sad, ' + data.query).pipe(
+            map(suggestions => ({ suggestions, index: data.index }))
+          )
+        )
+      ).subscribe(result => {
+        this.stopSuggestions[result.index] = result.suggestions;
+        this.showStopSuggestions[result.index] = true;
+        this.cdr.detectChanges();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   @HostListener('document:mousedown', ['$event'])
   clickout(event: MouseEvent) {
     if (!this.eRef.nativeElement.contains(event.target)) {
@@ -63,34 +112,20 @@ export class RouteEstimation{
     }
   }
 
-  async searchStart(): Promise<void>{
+  searchStart(): void{
     this.startCoords = undefined;
     const location: string = 'Novi Sad, '+this.startLocation.trim().toString()
+    if(this.startLocation.trim().length < 3) return
 
-    this.mapService.locationSuggestion(location).subscribe({
-      next: (data: AddressSuggestionDTO[]) => {
-        this.startSuggestions = data;
-        this.showStartSuggestions = true;
-      },
-      error: (err) => {
-        this.startSuggestions = [];
-      }
-    })
+    this.startSearchSubject.next(location)
   }
 
-  async searchEnd(): Promise<void>{
+  searchEnd(): void{
     this.endCoords = undefined;
     const location: string = 'Novi Sad, '+this.endLocation.trim().toString()
+    if(this.endLocation.trim().length < 3) return
 
-    this.mapService.locationSuggestion(location).subscribe({
-      next: (data: AddressSuggestionDTO[]) => {
-        this.endSuggestions = data;
-        this.showEndSuggestions = true;
-      },
-      error: (err) => {
-        this.endSuggestions = [];
-      }
-    })
+    this.endSearchSubject.next(location)
   }
 
   selectStart(location: AddressSuggestionDTO): void{
@@ -149,9 +184,6 @@ export class RouteEstimation{
 
 
   async onSubmit(): Promise<void>{
-    console.log(this.stops)
-    console.log(this.startCoords)
-    console.log(this.endCoords)
     this.calculating = true;
 
     const startValid = this.startCoords || await this.tryGeocode('start');
@@ -165,10 +197,6 @@ export class RouteEstimation{
       this.cdr.detectChanges();
       return; 
     }
-
-    console.log(this.startCoords)
-    console.log(this.endCoords)
-    console.log(this.stops)
 
     const start = this.startCoords?.lat+','+this.startCoords?.lng
     const end = this.endCoords?.lat+','+this.endCoords?.lng
@@ -187,13 +215,20 @@ export class RouteEstimation{
         this.time = String(data.time)
         this.calculating = false; 
         this.error = ''
-        this.startCoordsChange.emit(this.startCoords)
+        /*this.startCoordsChange.emit(this.startCoords)
         this.endCoordsChange.emit(this.endCoords)
         this.stopsCoordsChange.emit(
             this.stops
                 .filter(stop => stop.coords !== null)
                 .map(stop => stop.coords!)
-        );
+        );*/
+
+        this.mapService.updateRouteOnMap(
+          this.startCoords, 
+          this.endCoords, 
+          this.stops.filter(s => s.coords).map(s => s.coords!)
+        )
+
         this.cdr.detectChanges();
       },
       error: (err: any) => {
@@ -237,20 +272,13 @@ export class RouteEstimation{
       this.stopSuggestions[i] = [];
       this.showStopSuggestions[i] = false;
       this.stops[i].coords = null;
+      this.cdr.detectChanges();
       return;
     }
 
     const location: string = `Novi Sad, ${query}`;
 
-    this.mapService.locationSuggestion(location).subscribe({
-      next: (data: AddressSuggestionDTO[]) => {
-        this.stopSuggestions[i] = data;
-        this.showStopSuggestions[i] = true;
-      },
-      error: (err) => {
-        this.endSuggestions = [];
-      }
-    })
+    this.stopSearchSubject.next({ index: i, query: query });
   }
 
   removeStop(index: number) {

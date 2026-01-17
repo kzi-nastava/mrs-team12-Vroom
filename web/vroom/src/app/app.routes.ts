@@ -13,9 +13,13 @@ import { RideDuration } from './features/ride-duration/ride-duration';
 import { MainView } from './features/main-view/main-view';
 import { RideReview } from './features/ride-review/ride-review';
 import {RegisterDriver} from './features/register-driver/register-driver'
+import { RouteEstimation } from './features/route-estimation/route-estimation';
+import { authGuard } from './core/utils/auth.guard';
+import { ChangeDriverStatus } from './features/change-driver-status/change-driver-status';
 
 
 export const routes: Routes = [
+    { path: '', redirectTo: 'route-estimation', pathMatch: 'full' },
     {path: 'login', component: Login},
     {path:'forgot-password', component: ForgotPassword},
     { path: 'profile', component: Profile },
@@ -30,7 +34,6 @@ export const routes: Routes = [
             {path: 'order-a-ride', component: OrderARide}, 
             {path: 'ride-duration', component: RideDuration},
             {path: 'ride-review', component: RideReview}
-            
         ]
     }
 ];

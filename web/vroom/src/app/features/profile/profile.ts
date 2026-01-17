@@ -27,7 +27,6 @@ export class Profile implements OnInit {
 
 ngOnInit(): void {
   this.profileService.getMyProfile().subscribe(profile => {
-
     this.firstName = profile.firstName;
     this.lastName = profile.lastName;
     this.address = profile.address;
