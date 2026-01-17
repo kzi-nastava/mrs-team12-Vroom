@@ -23,8 +23,10 @@
             </a>-->
         </div>
 
-        <div class="nav-right" *ngIf="authService.isLoggedIn">
+        <div class="nav-right" *ngIf="authService.isLoggedIn && authService.getCurrentUserType !== 'ADMIN'">
             <a class="logout-text" (click)="onLogout()" style="cursor: pointer;">Logout</a>
+            <app-change-driver-status *ngIf="authService.getCurrentUserType==='DRIVER'">
+            </app-change-driver-status>
 
             <a routerLink="/driver-ride-history" class="icon-button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" fill="none">

@@ -29,7 +29,7 @@ export class AuthService{
     }
 
     createLogoutRequest(id: string, type: string): Observable<MessageResponseDTO>{
-        return this.http.post<MessageResponseDTO>(`${this.api}/logout`, { id, type });
+        return this.http.post<MessageResponseDTO>(`${this.api}/logout`, { id: Number(id), type });
     }
 
     isPasswordValid(password: string): String | null{

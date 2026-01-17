@@ -15,6 +15,7 @@ import { RideReview } from './features/ride-review/ride-review';
 import {RegisterDriver} from './features/register-driver/register-driver'
 import { RouteEstimation } from './features/route-estimation/route-estimation';
 import { authGuard } from './core/utils/auth.guard';
+import { ChangeDriverStatus } from './features/change-driver-status/change-driver-status';
 
 
 export const routes: Routes = [
