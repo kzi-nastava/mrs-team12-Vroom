@@ -49,9 +49,9 @@ public class AuthService {
         long expiresIn = jwtService.extractExpiration(token).getTime() - System.currentTimeMillis();
 
         String type = switch (user) {
-            case RegisteredUser u -> "registeredUser";
-            case Driver d -> "driver";
-            case Admin a -> "admin";
+            case RegisteredUser u -> "REGISTERED_USER";
+            case Driver d -> "DRIVER";
+            case Admin a -> "ADMIN";
             default -> "unknown";
         };
 
