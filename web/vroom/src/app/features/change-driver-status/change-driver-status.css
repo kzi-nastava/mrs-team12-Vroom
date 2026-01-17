@@ -1,0 +1,19 @@
+.change-driver-status-btn{
+  background-color: #99C2A2;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.change-driver-status-btn.available {
+  background-color: #99C2A2; 
+}
+
+.change-driver-status-btn.unavailable {
+  background-color: #e74c3c; 
+}

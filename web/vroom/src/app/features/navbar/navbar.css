@@ -48,6 +48,23 @@ header{
     margin-right: 0.0005%;
 }
 
+.ride-estimation-text {
+    font-family: 'IBM Plex Sans';
+    text-decoration: none;
+    font-size: 20px;
+    color: #2A2C24;
+    margin-right: 0.0005%;
+}
+
+.logout-text {
+    font-family: 'IBM Plex Sans';
+    text-decoration: none;
+    font-size: 20px;
+    color: #2A2C24;
+    margin-right: 0.0005%;
+}
+
+
 .icon-button {
     width: 50px;
     height: 50px;
