@@ -9,7 +9,17 @@
     font-family: 'IBM Plex Sans';;
 }
 
+.route-estimation.expanded {
+    transform: translateY(0); 
+    pointer-events: auto;
+}
+
+
 .route-estimation-outer-container {
+    pointer-events: auto; 
+    max-height: 60vh;
+    overflow-y: auto;
+
     width: 100%;
     background: #dceed3;
     border-radius: 24px 24px 0 0;
@@ -17,6 +27,11 @@
     pointer-events: auto; 
     padding: 24px 0; 
 }
+
+.route-estimation-outer-container::-webkit-scrollbar {
+    width: 4px;
+}
+
 
 .route-estimation-inner-container {
     max-width: 500px; 
