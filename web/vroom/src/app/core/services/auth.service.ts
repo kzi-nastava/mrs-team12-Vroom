@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { MessageResponseDTO } from "../models/message-response.dto";
 import { LoginResponseDTO } from "../models/auth/responses/login-response.dto";
-import { Observable } from "rxjs";
+import { finalize, Observable } from "rxjs";
 
 @Injectable({
     providedIn: 'root'
@@ -68,18 +68,29 @@ export class AuthService{
         return true;
     }
 
-    logout(){
+    logout(): Observable<void>{
         const id = localStorage.getItem('user_id');
         const type = localStorage.getItem('user_type');
 
-        if (id && type) {
-            this.createLogoutRequest(id, type).subscribe({
-                next: () => this.completeLocalLogout(),
-                error: () => this.completeLocalLogout() 
-            });
-        } else {
-            this.completeLocalLogout();
-        }
+       if (id && type) {
+        return new Observable(observer => {
+            this.createLogoutRequest(id, type)
+                .pipe(
+                    finalize(() => {
+                        this.completeLocalLogout();
+                        observer.next();
+                        observer.complete();
+                    })
+                )
+                .subscribe();
+        });
+    } else {
+        this.completeLocalLogout();
+        return new Observable(observer => {
+            observer.next();
+            observer.complete();
+        });
+    }
     }
 
     private completeLocalLogout() {
