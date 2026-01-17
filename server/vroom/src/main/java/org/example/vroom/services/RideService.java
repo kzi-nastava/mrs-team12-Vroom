@@ -5,7 +5,9 @@ import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.ride.CancelRideRequestDTO;
 import org.example.vroom.DTOs.requests.ride.LeaveReviewRequestDTO;
 import org.example.vroom.DTOs.requests.ride.RideRequestDTO;
+import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
@@ -14,6 +16,7 @@ import org.example.vroom.enums.VehicleType;
 import org.example.vroom.exceptions.ride.CantReviewRideException;
 import org.example.vroom.exceptions.ride.RideCancellationException;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
+import org.example.vroom.exceptions.ride.StopRideException;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
@@ -31,12 +34,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class RideService {
-
     @Autowired
     private RideRepository rideRepository;
     @Autowired
@@ -241,6 +244,52 @@ public class RideService {
         }
 
         rideRepository.save(ride);
+    }
+
+
+    private double calculateNewPrice(Route route){
+        double price;
+        String startLocation = route.getStartLocationLat()+","+route.getStartLocationLng();
+        String endLocation = route.getEndLocationLat()+","+route.getEndLocationLng();
+        StringJoiner stopsJoiner = new StringJoiner(";");
+
+        for (Point stop : route.getStops()) {
+            stopsJoiner.add(stop.getLat() + "," + stop.getLng());
+        }
+
+        try{
+            price = routeService.routeEstimation(startLocation, endLocation, stopsJoiner.toString()).getPrice();
+        }catch(Exception e){
+            throw new StopRideException("There has been an error with calculating price");
+        }
+
+        return price;
+    }
+
+    @Transactional
+    public StoppedRideResponseDTO stopRide(Long rideID, StopRideRequestDTO data){
+        Optional<Ride> rideOptional = rideRepository.findById(rideID);
+        if(rideOptional.isEmpty())
+            throw new RideNotFoundException("Ride not found");
+
+        Ride ride = rideOptional.get();
+        if(!ride.getStatus().equals(RideStatus.ONGOING))
+            throw new StopRideException("Ride must be active in order to stop it");
+
+        Route route = ride.getRoute();
+
+        route.setEndLocationLat(data.getStopLat());
+        route.setEndLocationLng(data.getStopLng());
+
+        ride.setEndTime(data.getEndTime());
+        ride.setRoute(route);
+        ride.setStatus(RideStatus.FINISHED);
+        double price = calculateNewPrice(ride.getRoute());
+
+        ride.setPrice(price);
+        rideRepository.save(ride);
+
+        return rideMapper.stopRide(ride, data, price);
     }
 }
 
