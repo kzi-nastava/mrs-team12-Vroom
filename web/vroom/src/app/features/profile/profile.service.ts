@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Profile } from '../profile/profile.model';
+import { Profile as ProfileModel } from '../profile/profile.model';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
@@ -10,17 +11,17 @@ export class ProfileService {
 
   constructor(private http: HttpClient) {}
 
-  getMyProfile(isDriver: boolean = false) {
-    const url = isDriver ? this.apiDriver : this.apiUser;
-    return this.http.get<any>(url, {
-      withCredentials: true
+  getMyProfile(): Observable<ProfileModel> {
+    const token = localStorage.getItem('jwt');
+    return this.http.get<ProfileModel>(this.apiUser, {
+      headers: { Authorization: `Bearer ${token}` }
     });
   }
 
-  updateMyProfile(payload: any, isDriver: boolean = false) {
-    const url = isDriver ? this.apiDriver : this.apiUser;
-    return this.http.put<any>(url, payload, {
-      withCredentials: true
+  updateMyProfile(profile: ProfileModel): Observable<ProfileModel> {
+    const token = localStorage.getItem('jwt');
+    return this.http.put<ProfileModel>(this.apiUser, profile, {
+      headers: { Authorization: `Bearer ${token}` }
     });
   }
 }
