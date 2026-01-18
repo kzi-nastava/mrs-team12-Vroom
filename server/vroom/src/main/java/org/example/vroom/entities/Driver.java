@@ -28,10 +28,15 @@ public class Driver extends User {
     @JoinColumn(name="vehicle_id", nullable = true)
     private Vehicle vehicle;
 
-
-    @Override
+        @Override
     public String getRoleName() {
         return "DRIVER";
     }
+    @Override
+    public boolean isEnabled(){
+        return true;
+    }
 
 }
+
+

@@ -7,6 +7,7 @@ import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.DriverStatus;
+import org.example.vroom.enums.UserStatus;
 import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
 import org.example.vroom.exceptions.user.DriverNotFoundException;
 import org.example.vroom.exceptions.user.DriverStatusChangeNotAllowedException;
@@ -16,6 +17,7 @@ import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.RideRepository;
+import org.example.vroom.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,6 +47,9 @@ public class DriverService {
     private RideRepository rideRepository;
     @Autowired
     private RideMapper rideMapper;
+    @Autowired
+    private VehicleRepository vehicleRepository;
+
 
     public DriverDTO getById(Long id) {
         Driver driver = driverRepository.findById(id)
@@ -89,15 +94,31 @@ public class DriverService {
             );
         }
 
-        Driver driver = driverMapper.toEntity(request);
-        driver.setPassword(passwordEncoder.encode(request.getPassword()));
-        driver.setStatus(DriverStatus.UNAVAILABLE);
-        driver.setBlockedReason(null);
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
+
+        Driver driver = driverMapper.toEntity(request, encodedPassword);
+
+
+        if (request.getNumberOfSeats() == null || request.getNumberOfSeats() <= 0) {
+            throw new IllegalArgumentException("Number of seats must be positive");
+        }
+
+        if (request.getPetsAllowed() == null) {
+            throw new IllegalArgumentException("Pets preference must be selected");
+        }
+
+        if (request.getBabiesAllowed() == null) {
+            throw new IllegalArgumentException("Babies preference must be selected");
+        }
 
         Driver saved = driverRepository.saveAndFlush(driver);
 
         return driverMapper.toDTO(saved);
     }
+
+
 
     public DriverDTO getMyProfile(String email) {
 
@@ -137,7 +158,8 @@ public class DriverService {
 
     public void changeStatus(Long driverID, DriverStatus status){
         Optional<Driver> driver = driverRepository.findById(driverID);
-        if(driver.isEmpty() || driver.get().getStatus().equals("BLOCKED")) throw new UserNotFoundException("Driver not found");
+        if (driver.isEmpty() || driver.get().getStatus() == DriverStatus.BLOCKED)
+            throw new DriverNotFoundException("Driver not found");
 
         driver.get().setStatus(status);
         driverRepository.save(driver.get());
