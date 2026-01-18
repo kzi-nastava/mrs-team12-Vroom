@@ -59,6 +59,7 @@ public class PanicNotificationsController {
         @PathVariable Long rideID,
         @RequestBody PanicRequestDTO data
     ){
+        System.out.println("Ovde");
         if(data == null)  return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         try{

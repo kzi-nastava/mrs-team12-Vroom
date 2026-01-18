@@ -4,17 +4,18 @@ import { CancelRideRequestDTO } from "../models/ride/requests/cancel-ride-req.dt
 import { MessageResponseDTO } from "../models/message-response.dto";
 import { Observable } from "rxjs";
 import { StopRideRequestDTO } from "../models/ride/requests/stop-ride-req.dto";
+import { PanicRequestDTO } from "../models/panic/requests/panic-request.dto";
 
 @Injectable({
     providedIn: "root"
 })
 export class PanicService{
-    private panicUrl = 'http://localhost:8080/api/panic' // when panic controller implemented use this route
+    private panicUrl = 'http://localhost:8080/api/panics' // when panic controller implemented use this route
 
     constructor(private http: HttpClient) {}
 
-    panicRequest(rideId: string, userID: string, userType: string, date: string){
-
+    panicRequest(rideId: string, data: PanicRequestDTO): Observable<MessageResponseDTO>{
+        return this.http.post<MessageResponseDTO>(`${this.panicUrl}/ride/${rideId}`, data)
     }
 
     getActivePanicRequests(){
