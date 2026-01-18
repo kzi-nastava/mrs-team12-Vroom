@@ -119,5 +119,5 @@ button:disabled {
     box-shadow: none !important;
 }
 
-.error-msg { color: #d32f2f; font-weight: 500; font-size: 14px; }
+.error-msg { color: #d32f2f; font-weight: 500; font-size: 16px; }
 .success-msg { color: #2e7d32; font-weight: 500; font-size: 14px; }
