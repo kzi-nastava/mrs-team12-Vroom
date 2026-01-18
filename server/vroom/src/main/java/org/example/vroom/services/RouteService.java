@@ -1,5 +1,6 @@
 package org.example.vroom.services;
 
+import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.responses.geocode.GeoapifyRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.repositories.PriceListRepository;
