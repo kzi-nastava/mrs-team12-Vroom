@@ -50,6 +50,9 @@ public class Ride {
     @Column(nullable = false)
     private RideStatus status;
 
+    @Column(nullable = true)
+    private String cancelReason;
+
     @Column(nullable = false)
     private Boolean isScheduled;
 

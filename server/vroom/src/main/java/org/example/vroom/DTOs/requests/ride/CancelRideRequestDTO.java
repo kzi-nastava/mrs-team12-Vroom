@@ -1,5 +1,6 @@
 package org.example.vroom.DTOs.requests.ride;
 
+import jakarta.annotation.Nullable;
 import lombok.*;
 
 @Getter
@@ -9,6 +10,7 @@ import lombok.*;
 @Builder
 public class CancelRideRequestDTO {
     private String type;
+    @Nullable
     private String reason;
 
     public CancelRideRequestDTO(String type) {
