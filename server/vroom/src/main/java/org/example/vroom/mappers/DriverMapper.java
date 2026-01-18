@@ -5,6 +5,7 @@ import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
 import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Vehicle;
+import org.example.vroom.enums.DriverStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -87,7 +88,7 @@ public class DriverMapper {
                 .toList();
     }
 
-    public Driver toEntity(DriverRegistrationRequestDTO dto) {
+    public Driver toEntity(DriverRegistrationRequestDTO dto, String encodedPassword) {
 
         Vehicle vehicle = Vehicle.builder()
                 .model(dto.getModel())
@@ -106,8 +107,14 @@ public class DriverMapper {
                 .gender(dto.getGender())
                 .phoneNumber(dto.getPhoneNumber())
                 .profilePhoto(dto.getProfilePhoto())
+                .password(encodedPassword)
+                .status(DriverStatus.AVAILABLE)
+                .blockedReason(null)
                 .vehicle(vehicle)
+                .ratingCount(0L)
+                .ratingSum(0L)
                 .build();
     }
+
 
 }

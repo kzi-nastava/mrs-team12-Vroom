@@ -18,8 +18,40 @@ export class RegisterDriverService{
         if (!/[A-Z]/.test(password)) return 'Password must contain an uppercase letter';
 
         return null
-    }
+        }
 
+        validateDriverPreferences(
+  numberOfSeats: number| null,
+  petsAllowed: boolean | null,
+  babiesAllowed: boolean | null
+): string | null {
+
+  if (numberOfSeats === null || numberOfSeats === undefined) {
+    return 'Number of seats is required';
+  }
+
+  const seats = Number(numberOfSeats);
+
+  if (isNaN(seats)) {
+    return 'Number of seats must be a number';
+  }
+
+  if (seats <= 0) {
+    return 'Number of seats must be a positive number';
+  }
+
+ 
+  if (petsAllowed === null) {
+    return 'You must select whether pets are allowed';
+  }
+
+
+  if (babiesAllowed === null) {
+    return 'You must select whether babies are allowed';
+  }
+
+  return null; 
+}
     getFileValidationError(file: File): string | null {
         if (!file.type.startsWith('image/')) {
         return 'Please select a valid image file (png, jpg, etc.)';

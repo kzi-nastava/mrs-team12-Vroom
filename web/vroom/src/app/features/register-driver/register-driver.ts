@@ -69,6 +69,20 @@ export class RegisterDriver {
         return
       }
 
+
+  const prefError = this.registerService.validateDriverPreferences(
+    this.numberOfSeats,
+    this.petsAllowed,
+    this.babiesAllowed
+  );
+
+  if (prefError) {
+    this.error = prefError;
+    this.isLoading = false;
+    return;
+  }
+  
+
       let photoBase64: string | undefined = undefined;
       if (this.profilePic) {
         try {
@@ -89,7 +103,7 @@ export class RegisterDriver {
         gender: this.gender.toString().toUpperCase() as 'MALE' | 'FEMALE' | 'OTHER',
         password: String(this.password),
         profilePhoto: photoBase64,
-        type: "user"
+        type: "driver"
       };
 
       try{
