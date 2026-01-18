@@ -211,7 +211,7 @@ export class RouteEstimation implements OnInit, OnDestroy{
 
     this.mapService.routeQuote(start, end, stops).subscribe({
       next: (data: RouteQuoteEstimationDTO) => {
-        this.price = String(data.price)
+        this.price = String(data.price.toFixed(2))
         this.time = String(data.time)
         this.calculating = false; 
         this.error = ''
