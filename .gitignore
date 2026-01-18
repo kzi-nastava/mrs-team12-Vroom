@@ -13,7 +13,8 @@ mobile/.idea/misc.xml
 server/vroom/src/main/resources/application-local.properties
 server/vroom/src/main/resources/application-secrets.properties
 web/vroom/package-lock.json
+server/vroom/data/vroomdb.mv.db
+server/vroom/data/*.mv.db
 *.mv.db
 *.lock.db
 *.trace.db
-server/vroom/data/vroomdb.mv.db
