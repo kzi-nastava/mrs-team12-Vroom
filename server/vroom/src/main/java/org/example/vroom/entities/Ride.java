@@ -61,7 +61,12 @@ public class Ride {
     private ArrayList<String> complaints;
 
     @Column(nullable = false)
-    private Boolean panicActivated;
+    @Builder.Default
+    private Boolean panicActivated = false;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "panic_notification_id")
+    private PanicNotification panicNotification;
 
     @Column(nullable = true)
     private Integer driverRating;

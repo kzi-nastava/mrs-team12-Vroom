@@ -246,26 +246,6 @@ public class RideService {
         rideRepository.save(ride);
     }
 
-
-    private double calculateNewPrice(Route route){
-        double price;
-        String startLocation = route.getStartLocationLat()+","+route.getStartLocationLng();
-        String endLocation = route.getEndLocationLat()+","+route.getEndLocationLng();
-        StringJoiner stopsJoiner = new StringJoiner(";");
-
-        for (Point stop : route.getStops()) {
-            stopsJoiner.add(stop.getLat() + "," + stop.getLng());
-        }
-
-        try{
-            price = routeService.routeEstimation(startLocation, endLocation, stopsJoiner.toString()).getPrice();
-        }catch(Exception e){
-            throw new StopRideException("There has been an error with calculating price");
-        }
-
-        return price;
-    }
-
     @Transactional
     public StoppedRideResponseDTO stopRide(Long rideID, StopRideRequestDTO data){
         Optional<Ride> rideOptional = rideRepository.findById(rideID);
@@ -280,11 +260,12 @@ public class RideService {
 
         route.setEndLocationLat(data.getStopLat());
         route.setEndLocationLng(data.getStopLng());
+        route.getStops().clear();
 
         ride.setEndTime(data.getEndTime());
         ride.setRoute(route);
         ride.setStatus(RideStatus.FINISHED);
-        double price = calculateNewPrice(ride.getRoute());
+        double price = this.calculatePrice(ride.getRoute(), ride.getDriver().getVehicle().getType());
 
         ride.setPrice(price);
         rideRepository.save(ride);
