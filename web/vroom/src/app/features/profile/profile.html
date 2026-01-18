@@ -3,7 +3,8 @@
   <h1>Profile</h1>
 
   <!-- BASIC PROFILE -->
-  <div class="profile-page">
+  <div class="profile-page" *ngIf="profile$ | async as profile; else loading">
+
     <section class="profile-section">
 
       <div class="avatar-wrapper">
@@ -12,76 +13,97 @@
         </div>
       </div>
 
-      <form class="profile-form" onsubmit="event.preventDefault();">
+      <form class="profile-form" (submit)="false">
 
         <label>First Name</label>
         <div class="input-wrapper">
-          <input type="text" placeholder="Enter first name"
-                 [(ngModel)]="firstName" name="firstName">
+          <input type="text"
+                 placeholder="Enter first name"
+                 [(ngModel)]="profileData.firstName"
+                 name="firstName"
+                 [disabled]="!editMode">
         </div>
 
         <label>Last Name</label>
         <div class="input-wrapper">
-          <input type="text" placeholder="Enter last name"
-                 [(ngModel)]="lastName" name="lastName">
+          <input type="text"
+                 placeholder="Enter last name"
+                 [(ngModel)]="profileData.lastName"
+                 name="lastName"
+                 [disabled]="!editMode">
         </div>
 
         <label>Address</label>
         <div class="input-wrapper">
-          <input type="text" placeholder="Enter address"
-                 [(ngModel)]="address" name="address">
+          <input type="text"
+                 placeholder="Enter address"
+                 [(ngModel)]="profileData.address"
+                 name="address"
+                 [disabled]="!editMode">
         </div>
 
         <label>Phone Number</label>
         <div class="input-wrapper">
-          <input type="tel" placeholder="Enter phone number"
-                 [(ngModel)]="phone" name="phone">
+          <input type="tel"
+                 placeholder="Enter phone number"
+                 [(ngModel)]="profileData.phoneNumber"
+                 name="phoneNumber"
+                 [disabled]="!editMode">
         </div>
 
         <label>Email Address</label>
         <div class="input-wrapper">
-          <input type="email" placeholder="Enter email"
-                 [(ngModel)]="email" name="email">
+          <input type="email"
+                 placeholder="Enter email"
+                 [(ngModel)]="profileData.email"
+                 name="email"
+                 [disabled]="!editMode">
         </div>
 
       </form>
+
+      <button class="change-button" (click)="onChange()">
+        {{ editMode ? 'Save' : 'Change' }}
+      </button>
+
     </section>
 
-    <button class="change-button" (click)="onChange()">
-      Change
-    </button>
+    <!-- DRIVER INFO -->
+    <div class="driver-wrapper" *ngIf="profileData.vehicle as vehicle">
+
+      <section class="profile-section">
+        <h2>Driver Activity</h2>
+        <p>
+          Active in last 24h:
+          <strong>{{ profileData.activeHoursLast24h ?? 0 }} hours</strong>
+        </p>
+      </section>
+
+      <section class="profile-section">
+        <h2>Vehicle Information</h2>
+
+        <p><strong>Brand:</strong> {{ vehicle.brand }}</p>
+        <p><strong>Model:</strong> {{ vehicle.model }}</p>
+        <p><strong>Number of seats:</strong> {{ vehicle.numberOfSeats }}</p>
+        <p><strong>License plate:</strong> {{ vehicle.licensePlate }}</p>
+
+        <p>
+          <strong>Babies allowed:</strong>
+          {{ vehicle.babiesAllowed ? 'Yes' : 'No' }}
+        </p>
+
+        <p>
+          <strong>Pets allowed:</strong>
+          {{ vehicle.petsAllowed ? 'Yes' : 'No' }}
+        </p>
+      </section>
+
+    </div>
+
   </div>
 
-  <!-- DRIVER INFO -->
-  <div class="driver-wrapper" *ngIf="userRole === 'DRIVER'">
-
-    <section class="profile-section">
-      <h2>Driver Activity</h2>
-      <p>
-        Active in last 24h:
-        <strong>{{ activeHoursLast24h }} hours</strong>
-      </p>
-    </section>
-
-    <section class="profile-section">
-      <h2>Vehicle Information</h2>
-
-      <p><strong>Brand:</strong> {{ vehicle.brand }}</p>
-      <p><strong>Model:</strong> {{ vehicle.model }}</p>
-      <p><strong>Number of seats:</strong> {{ vehicle.numberOfSeats }}</p>
-      <p><strong>License plate:</strong> {{ vehicle.licensePlate }}</p>
-
-      <p>
-        <strong>Babies allowed:</strong>
-        {{ vehicle.babiesAllowed ? 'Yes' : 'No' }}
-      </p>
-
-      <p>
-        <strong>Pets allowed:</strong>
-        {{ vehicle.petsAllowed ? 'Yes' : 'No' }}
-      </p>
-    </section>
-
-  </div>
+  <ng-template #loading>
+    <p>Loading profile...</p>
+  </ng-template>
 
 </div>
