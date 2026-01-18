@@ -4,6 +4,7 @@ import { CancelRideRequestDTO } from "../models/ride/requests/cancel-ride-req.dt
 import { MessageResponseDTO } from "../models/message-response.dto";
 import { Observable } from "rxjs";
 import { StopRideRequestDTO } from "../models/ride/requests/stop-ride-req.dto";
+import { StoppedRideResponseDTO } from "../models/ride/responses/sopped-ride-response.dto";
 
 @Injectable({
     providedIn: "root"
@@ -17,8 +18,8 @@ export class RideService{
         return this.http.put<MessageResponseDTO>(this.rideUrl+`/${rideID}`+'/cancel', data);
     }
 
-    stopRideRequest(rideID: string, data: StopRideRequestDTO){
-        return this.http.put<MessageResponseDTO>(this.rideUrl+`/${rideID}`+'/stop', data);
+    stopRideRequest(rideID: string, data: StopRideRequestDTO): Observable<StoppedRideResponseDTO>{
+        return this.http.put<StoppedRideResponseDTO>(this.rideUrl+`/${rideID}`+'/stop', data);
     }
 
 }
