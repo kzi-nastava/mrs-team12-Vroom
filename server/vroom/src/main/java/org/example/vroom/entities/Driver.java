@@ -32,10 +32,10 @@ public class Driver extends User {
     public String getRoleName() {
         return "DRIVER";
     }
-    @Override
+    /*@Override
     public boolean isEnabled(){
         return true;
-    }
+    }*/
 
 }
 

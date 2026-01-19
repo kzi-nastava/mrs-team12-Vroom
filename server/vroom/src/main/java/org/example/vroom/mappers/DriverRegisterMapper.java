@@ -5,6 +5,7 @@ import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Vehicle;
 import org.example.vroom.enums.DriverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,6 +17,8 @@ public class DriverRegisterMapper {
         this.vehicleMapper = vehicleMapper;
     }
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     public Driver toEntity(DriverRegisterRequestDTO dto) {
         Driver driver = new Driver();
 
@@ -23,7 +26,10 @@ public class DriverRegisterMapper {
         driver.setFirstName(dto.getFirstName());
         driver.setLastName(dto.getLastName());
         driver.setPhoneNumber(dto.getPhoneNumber());
+        driver.setAddress(dto.getAddress());
+        driver.setGender(dto.getGender());
         driver.setStatus(DriverStatus.INACTIVE);
+        driver.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         Vehicle vehicle = vehicleMapper.toEntity(dto.getVehicle());
         driver.setVehicle(vehicle);
