@@ -24,7 +24,7 @@ export class PanicNotificationService{
         /*this.socket.fromEvent('panic').subscribe((data)=>{
             const userType = this.authService.getCurrentUserType()
 
-            if (userType && userType === 'admin') {
+            if (userType && userType === 'ADMIN') {
                 this.panicSubject.next(data)
                 this.handlePanicNotification()
             }

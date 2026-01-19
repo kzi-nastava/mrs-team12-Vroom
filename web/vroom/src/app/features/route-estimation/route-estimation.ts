@@ -31,8 +31,8 @@ export class RouteEstimation implements OnInit, OnDestroy{
   stopSuggestions: AddressSuggestionDTO[][] = [];
   showStopSuggestions: boolean[] = [];
 
-  price: String = ''
-  time: String = ''
+  price: number | null = null;
+  time: number | null = null;
 
   startSuggestions: AddressSuggestionDTO[] = [];
   endSuggestions: AddressSuggestionDTO[] = [];
@@ -211,8 +211,8 @@ export class RouteEstimation implements OnInit, OnDestroy{
 
     this.mapService.routeQuote(start, end, stops).subscribe({
       next: (data: RouteQuoteEstimationDTO) => {
-        this.price = String(data.price.toFixed(2))
-        this.time = String(data.time)
+        this.price = data.price
+        this.time = data.time
         this.calculating = false; 
         this.error = ''
 
@@ -228,8 +228,8 @@ export class RouteEstimation implements OnInit, OnDestroy{
         this.calculating = false; 
         this.startCoords = undefined
         this.endCoords = undefined
-        this.price = ''
-        this.time = ''
+        this.price = null
+        this.time = null
         this.error = 'An error occurred'
 
         this.mapService.clearMap()

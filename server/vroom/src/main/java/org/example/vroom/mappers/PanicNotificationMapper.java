@@ -14,7 +14,7 @@ public class PanicNotificationMapper {
                 .builder()
                 .id(notification.getId())
                 .rideID(notification.getRide().getId())
-                .activatedById(notification.getActivatedBy().getId())
+                .activatedBy(notification.getActivatedBy().getRoleName())
                 .activatedAt(notification.getActivatedAt())
                 .build();
     }
@@ -24,7 +24,7 @@ public class PanicNotificationMapper {
                 .map(notification -> PanicNotificationResponseDTO.builder()
                         .id(notification.getId())
                         .rideID(notification.getRide().getId())
-                        .activatedById(notification.getActivatedBy().getId())
+                        .activatedBy(notification.getActivatedBy().getRoleName())
                         .activatedAt(notification.getActivatedAt())
                         .build())
                 .toList();

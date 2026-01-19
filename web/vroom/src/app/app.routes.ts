@@ -16,6 +16,8 @@ import {RegisterDriver} from './features/register-driver/register-driver'
 import { RouteEstimation } from './features/route-estimation/route-estimation';
 import { authGuard } from './core/utils/auth.guard';
 import { ChangeDriverStatus } from './features/change-driver-status/change-driver-status';
+import { PanicButton } from './features/panic-btn/panic-button';
+import { PanicFeed } from './features/panic-feed/panic-feed';
 
 
 export const routes: Routes = [
@@ -28,6 +30,8 @@ export const routes: Routes = [
     {path: 'order-from-favorites', component: OrderFromFavorites},
     {path: 'cancel-ride', component:CancelStopRide},
     {path: 'register-driver', component: RegisterDriver},
+    {path: 'panic', component: PanicButton},
+    {path: 'panic-feed', component: PanicFeed},
     {path: '', component: MainView, 
         children: [ 
             {path: 'route-estimation', component: RouteEstimation },
