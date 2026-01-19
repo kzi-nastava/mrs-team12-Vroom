@@ -2,7 +2,7 @@ export interface Vehicle {
   brand: string;
   model: string;
   numberOfSeats: number;
-  licensePlate: string;
+  licenceNumber: string;
   babiesAllowed: boolean;
   petsAllowed: boolean;
 }

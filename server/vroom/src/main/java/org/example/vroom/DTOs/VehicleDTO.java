@@ -10,6 +10,7 @@ import org.example.vroom.enums.VehicleType;
 @Builder
 public class VehicleDTO {
     private Long id;
+    private String brand;
     private String model;
     private VehicleType type;
     private String licenceNumber;
