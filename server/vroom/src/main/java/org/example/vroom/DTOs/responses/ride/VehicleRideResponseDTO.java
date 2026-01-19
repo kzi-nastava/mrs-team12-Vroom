@@ -9,6 +9,7 @@ import org.example.vroom.enums.VehicleType;
 @AllArgsConstructor
 @Builder
 public class VehicleRideResponseDTO {
+    private String brand;
     private String model;
     private VehicleType type;
     private Integer numberOfSeats;
