@@ -67,9 +67,12 @@
                     </ul>
                 </div>
 
-                <div *ngIf="time && price" class="estimation-info">
-                    <span>Est Time: <strong>{{ time }} min</strong></span>
-                    <span>Est Price: <strong>{{ price }} RSD</strong></span>
+                <div *ngIf="calculating" class="loader-container">
+                    <div class="spinner"></div>
+                </div>
+                <div *ngIf="time && price && !calculating" class="estimation-info">
+                    <span>Est Time: <strong>{{ time | number:'1.0-2' }} min</strong></span>
+                    <span>Est Price: <strong>{{ price | number:'1.2-2' }} RSD</strong></span>
                 </div>
                 
                 <button type="button" class="add-stop-btn" (click)="addStop()">Add more stops</button>

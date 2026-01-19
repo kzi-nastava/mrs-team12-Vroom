@@ -12,6 +12,6 @@ import java.time.LocalDateTime;
 public class PanicNotificationResponseDTO {
     private Long id;
     private Long rideID;
-    private Long activatedById;
+    private String activatedBy;
     private LocalDateTime activatedAt;
 }
