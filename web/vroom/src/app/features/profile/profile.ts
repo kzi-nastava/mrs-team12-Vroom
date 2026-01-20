@@ -14,7 +14,7 @@ import {Profile as ProfileModel} from '../profile/profile.model';
 })
 export class Profile implements OnInit {
 
-  userRole: 'DRIVER' | 'PASSENGER' = 'PASSENGER';
+  userRole: 'DRIVER' | 'REGISTERED_USER' = 'DRIVER';
   profile$!: Observable<ProfileModel>;   
   profileData!: ProfileModel;             
   editMode = false;
@@ -22,6 +22,12 @@ export class Profile implements OnInit {
   constructor(private profileService: ProfileService) { }
 
   ngOnInit(): void {
+    const storedType = localStorage.getItem('user_type');
+
+    this.userRole = storedType === 'DRIVER'
+      ? 'DRIVER'
+      : 'REGISTERED_USER';
+
     this.loadProfile();
   }
 

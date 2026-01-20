@@ -17,6 +17,9 @@ public class Vehicle {
     private Long id;
 
     @Column(nullable = false)
+    private String brand;
+
+    @Column(nullable = false)
     private String model;
 
     @Enumerated(EnumType.STRING)

@@ -42,7 +42,7 @@ public class Ride {
 
     @ElementCollection
     @Column(nullable = true)
-    private ArrayList<String> passengers;
+    private List<String> passengers;
 
     @Column(nullable = true)
     private double price;
@@ -58,7 +58,7 @@ public class Ride {
 
     @ElementCollection
     @Column(nullable = true)
-    private ArrayList<String> complaints;
+    private List<String> complaints;
 
     @Column(nullable = false)
     @Builder.Default

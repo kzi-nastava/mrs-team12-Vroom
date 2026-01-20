@@ -11,16 +11,26 @@ export class ProfileService {
 
   constructor(private http: HttpClient) {}
 
+  private getUrl(): string {
+    const type = localStorage.getItem('user_type');
+
+    return type === 'DRIVER'
+      ? this.apiDriver
+      : this.apiUser;
+  }
+
   getMyProfile(): Observable<ProfileModel> {
     const token = localStorage.getItem('jwt');
-    return this.http.get<ProfileModel>(this.apiUser, {
+
+    return this.http.get<ProfileModel>(this.getUrl(), {
       headers: { Authorization: `Bearer ${token}` }
     });
   }
 
   updateMyProfile(profile: ProfileModel): Observable<ProfileModel> {
     const token = localStorage.getItem('jwt');
-    return this.http.put<ProfileModel>(this.apiUser, profile, {
+
+    return this.http.put<ProfileModel>(this.getUrl(), profile, {
       headers: { Authorization: `Bearer ${token}` }
     });
   }

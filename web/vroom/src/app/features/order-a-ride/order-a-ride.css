@@ -71,7 +71,31 @@ select {
   margin-top: 20px; 
 }
 
+.suggestions-list {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+  width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 1000;       
+  box-shadow: 0 4px 8px rgba(0,0,0,.1);
+}
 
+.suggestions-list li {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.suggestions-list li:hover {
+  background: #f0f0f0;
+}
+.field {
+  position: relative;   
+}
 .order-btn {
   margin-top: auto;  
   padding: 16px;

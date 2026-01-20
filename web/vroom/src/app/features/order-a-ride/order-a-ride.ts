@@ -1,13 +1,269 @@
-import { Component, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
+import { MapService } from '../../core/services/map.service';
 
 @Component({
   selector: 'app-order-a-ride',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, DecimalPipe],
   templateUrl: './order-a-ride.html',
   styleUrls: ['./order-a-ride.css']
 })
-export class OrderARide {
+export class OrderARide implements OnInit {
 
+
+  // ---------- FORM FIELDS ----------
+  startLocation = '';
+  endLocation = '';
+  vehicleType = 'STANDARD';
+  childrenAllowed = false;
+  petsAllowed = false;
+  otherEmail = '';
+
+  startSuggestions: any[] = [];
+  endSuggestions: any[] = [];
+  showStartSuggestions = false;
+  showEndSuggestions = false;
+
+  stops: any[] = [];
+  stopSuggestions: any[][] = [];
+  showStopSuggestions: boolean[] = [];
+
+  startCoords?: { lat: number; lng: number };
+  endCoords?: { lat: number; lng: number };
+
+  // ---------- ROUTE RESULTS ----------
+  time: number | null = null;
+  price: number | null = null;
+  calculating = false;
+  error = '';
+
+  routeResult: any = null;
+
+  private stopIdCounter = 0;
+
+  constructor(
+    private mapService: MapService,
+    private http: HttpClient
+  ) {}
+
+  ngOnInit() {
+    setTimeout(() => {
+      this.mapService.showVehicles();
+    }, 300);
+  }
+
+  // ================= AUTOCOMPLETE =================
+
+  searchStart() {
+    if (!this.startLocation || this.startLocation.length < 2) {
+      this.startSuggestions = [];
+      this.showStartSuggestions = false;
+      return;
+    }
+
+    this.mapService.locationSuggestion('Novi Sad, ' + this.startLocation)
+      .subscribe(data => {
+        this.startSuggestions = data;
+        this.showStartSuggestions = data.length > 0;
+      });
+  }
+
+  selectStart(s: any) {
+    this.startLocation = s.label;
+    this.startCoords = { lat: s.lat, lng: s.lon };
+    this.startSuggestions = [];
+    this.showStartSuggestions = false;
+  }
+
+  searchEnd() {
+    if (!this.endLocation || this.endLocation.length < 2) {
+      this.endSuggestions = [];
+      this.showEndSuggestions = false;
+      return;
+    }
+
+    this.mapService.locationSuggestion('Novi Sad, ' + this.endLocation)
+      .subscribe(data => {
+        this.endSuggestions = data;
+        this.showEndSuggestions = data.length > 0;
+      });
+  }
+
+  selectEnd(s: any) {
+    this.endLocation = s.label;
+    this.endCoords = { lat: s.lat, lng: s.lon };
+    this.endSuggestions = [];
+    this.showEndSuggestions = false;
+  }
+
+  searchStop(i: number) {
+    const query = this.stops[i]?.address;
+
+    if (!query || query.length < 2) {
+      this.stopSuggestions[i] = [];
+      this.showStopSuggestions[i] = false;
+      return;
+    }
+
+    this.mapService.locationSuggestion('Novi Sad, ' + query)
+      .subscribe(data => {
+        this.stopSuggestions[i] = data;
+        this.showStopSuggestions[i] = data.length > 0;
+      });
+  }
+
+  selectStop(i: number, s: any) {
+    this.stops[i].address = s.label;
+    this.stops[i].coords = { lat: s.lat, lng: s.lon };
+    this.stopSuggestions[i] = [];
+    this.showStopSuggestions[i] = false;
+  }
+
+  // ================= STOPS =================
+
+  addStop() {
+    this.stops.push({ id: this.stopIdCounter++, address: '', coords: null });
+    this.stopSuggestions.push([]);
+    this.showStopSuggestions.push(false);
+  }
+
+  removeStop(i: number) {
+    this.stops.splice(i, 1);
+    this.stopSuggestions.splice(i, 1);
+    this.showStopSuggestions.splice(i, 1);
+  }
+
+  trackByStopId(index: number, stop: any) {
+    return stop.id;
+  }
+
+  // ================= CALCULATE ROUTE =================
+
+  calculateRoute() {
+    this.error = '';
+
+    if (!this.startCoords || !this.endCoords) {
+      this.error = 'Please select start and end first';
+      return;
+    }
+
+    this.calculating = true;
+    this.time = null;
+    this.price = null;
+
+    const start = `${this.startCoords.lat},${this.startCoords.lng}`;
+    const end = `${this.endCoords.lat},${this.endCoords.lng}`;
+    const stops = this.stops
+      .filter(s => s.coords)
+      .map(s => `${s.coords.lat},${s.coords.lng}`)
+      .join(';');
+
+    this.mapService.routeQuote(start, end, stops).subscribe({
+      next: quote => {
+
+        if (!quote || quote.price == null || quote.time == null) {
+          this.error = 'Server returned invalid data';
+          this.calculating = false;
+          return;
+        }
+
+        this.price = quote.price;
+        this.time = quote.time;
+
+        this.routeResult = {
+          estimatedTimeMin: quote.time,
+          price: quote.price
+        };
+
+        const payload = {
+          start: this.startCoords,
+          end: this.endCoords,
+          stops: this.stops.filter(s => s.coords).map(s => s.coords)
+        };
+
+        this.mapService.getRouteCoordinates(payload)
+          .then(route => {
+            if (route) {
+              this.mapService.drawRoute(
+                payload.start!,
+                payload.end!,
+                payload.stops
+              );
+            }
+            this.calculating = false;
+          })
+          .catch(err => {
+            console.error('Error fetching route', err);
+            this.error = 'Could not fetch route details';
+            this.calculating = false;
+          });
+      },
+
+      error: err => {
+        console.error('Error calculating quote', err);
+        this.error = 'Could not calculate route';
+        this.calculating = false;
+      }
+    });
+  }
+
+  // ================= ORDER RIDE =================
+
+  orderRide() {
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+      alert('You are not logged in!');
+      return;
+    }
+
+    if (!this.routeResult) {
+      alert('Please calculate route first!');
+      return;
+    }
+
+const rideRequest = {
+  locations: [
+    this.startLocation,
+    ...this.stops.map(s => s.address),
+    this.endLocation
+  ],
+  passengersEmails: this.otherEmail
+    ? [localStorage.getItem('email'), this.otherEmail]
+    : [localStorage.getItem('email')],
+  vehicleType: this.vehicleType,
+  babiesAllowed: this.childrenAllowed,
+  petsAllowed: this.petsAllowed,
+  scheduled: false,
+  scheduledTime: null,
+  route: {
+    startLocationLat: this.startCoords?.lat,
+    startLocationLng: this.startCoords?.lng,
+    endLocationLat: this.endCoords?.lat,
+    endLocationLng: this.endCoords?.lng,
+stops: (this.stops?.filter(s => s.coords).map(s => ({
+  lat: s.coords.lat,
+  lng: s.coords.lng
+}))) || []
+  }
+};
+
+    const headers = new HttpHeaders({
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.post('http://localhost:8080/api/rides', rideRequest, { headers })
+      .subscribe({
+        next: res => {
+          alert('Ride successfully created!');
+        },
+        error: err => {
+          console.error(err);
+          alert('Error creating ride');
+        }
+      });
+  }
 }
