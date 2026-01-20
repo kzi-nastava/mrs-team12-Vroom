@@ -54,38 +54,44 @@ export class MapService{
     }
 
 
-    async getRouteCoordinates(payload: any): Promise<RouteResponse | null>{
-        const coordinates: [number, number][] = [];
-        if (payload.start) {
-            coordinates.push([payload.start.lng, payload.start.lat]); 
-        }
+async getRouteCoordinates(payload: any): Promise<RouteResponse | null> {
+  const coordinates: [number, number][] = [];
 
-        payload.stops?.forEach((stop: any) => {
-            coordinates.push([stop.lng, stop.lat]);
-        });
+  if (payload.start) coordinates.push([payload.start.lng, payload.start.lat]);
+  payload.stops?.forEach((stop: any) => coordinates.push([stop.lng, stop.lat]));
+  if (payload.end) coordinates.push([payload.end.lng, payload.end.lat]);
 
-        if (payload.end) {
-            coordinates.push([payload.end.lng, payload.end.lat]);
-        }
+  if (coordinates.length < 2) {
+    console.error('You need at least two coordinates');
+    return null;
+  }
 
-        if (coordinates.length < 2) {
-            console.error('you need at leat two coordinates');
-            return null;
-        }
+  try {
+    const coordString = coordinates.map(c => c.join(',')).join(';');
 
-        try {
-           const coordString = coordinates.map(c => c.join(',')).join(';');
-           const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
-           
-           const response: any = await this.http.get(url).toPromise();
 
-            if (response.code === 'Ok' && response.routes && response.routes.length > 0) 
-                return response.routes[0];
+    const response: any = await this.http
+  .get(`http://localhost:8080/api/routes/osrm-route`, { params: { coords: coordString } })
+  .toPromise();
 
-            return null
-        }
-        catch(e){
-            return null
-        }
+    if (response?.routes?.length > 0) {
+      return response.routes[0];
+    } else {
+      return null;
     }
+
+  } catch (e) {
+    console.error('Error fetching route', e);
+    return null;
+  }
+}
+
+
+
+showVehicles() {
+  this.mapActionSource.next({ 
+    type: MapActionType.SHOW_VEHICLES 
+  });
+}
+
 }

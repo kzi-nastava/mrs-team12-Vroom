@@ -42,5 +42,14 @@ public class DriverLocationService {
     public List<DriverLocation> getAllLocations() {
         return locationRepo.findAll();
     }
+
+    public List<DriverLocation> getActiveDrivers() {
+        LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
+
+        return locationRepo.findAll().stream()
+                .filter(loc -> loc.getLastUpdated().isAfter(fiveMinutesAgo))
+                .toList();
+    }
+
 }
 

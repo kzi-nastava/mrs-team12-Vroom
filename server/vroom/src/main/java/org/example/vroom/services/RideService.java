@@ -76,11 +76,19 @@ public class RideService {
         passengers.add(user);
         if (request.getPassengersEmails() != null) {
             for (String email : request.getPassengersEmails()) {
+
+                if (email == null || email.isBlank()) {
+                    continue;   // preskacem praznei null mejlove
+                }
+
                 RegisteredUser p = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new UserNotFoundException("Passenger not found: " + email));
+                        .orElseThrow(() ->
+                                new UserNotFoundException("Passenger not found: " + email));
+
                 passengers.add(p);
             }
         }
+
 
         // odabir dostupnog
         Driver driver = driverRepository.findFirstAvailableDriver(
@@ -96,6 +104,7 @@ public class RideService {
 
 
         Ride ride = Ride.builder()
+                .passenger(user)
                 .passengers(convertToPassengerNames(passengers))
                 .driver(driver)
                 .route(route)
@@ -103,6 +112,7 @@ public class RideService {
                 .status(request.getScheduled() ? RideStatus.ACCEPTED : RideStatus.PENDING)
                 .price(calculatePrice(route, request.getVehicleType()))
                 .panicActivated(false)
+                .isScheduled(request.getScheduled() != null && request.getScheduled())
                 .build();
 
         ride = rideRepository.save(ride);
@@ -142,15 +152,17 @@ public class RideService {
     }
 
     private double calculatePrice(Route route, VehicleType vehicleType) {
-        // Ako ruta ima stopove, koristi ih, inače prazna lista
-        List<Point> stops = route.getStops() != null ? route.getStops() : new ArrayList<>();
+        List<Point> stops = route.getStops();
+        if (stops == null) {
+            stops = new ArrayList<>();
+        }
 
-        // Napravi string stopLocations za Geoapify API
-        String stopLocations = stops.stream()
+        String stopLocations = stops.isEmpty()
+                ? null
+                : stops.stream()
                 .map(stop -> stop.getLat() + "," + stop.getLng())
                 .collect(Collectors.joining(";"));
 
-        // Pozovi routeEstimation sa start, end i stopLocations
         RouteQuoteResponseDTO quote = routeService.routeEstimation(
                 route.getStartLocationLat() + "," + route.getStartLocationLng(),
                 route.getEndLocationLat() + "," + route.getEndLocationLng(),
@@ -161,7 +173,6 @@ public class RideService {
             throw new RuntimeException("Failed to estimate route price");
         }
 
-        // Cena za celu rutu (uključujući sve stopove)
         return quote.getPrice();
     }
 
