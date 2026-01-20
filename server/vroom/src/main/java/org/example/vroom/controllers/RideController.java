@@ -19,8 +19,11 @@ import org.example.vroom.exceptions.ride.RideCancellationException;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.ride.StopRideException;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
+import org.example.vroom.repositories.RideRepository;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.example.vroom.services.RideService;
@@ -34,9 +37,11 @@ import java.util.List;
 @RequestMapping("/api/rides")
 public class RideController {
     private final RideService rideService;
+    private final RideRepository rideRepository;
 
-    public RideController(RideService rideService) {
+    public RideController(RideService rideService, RideRepository rideRepository) {
         this.rideService = rideService;
+        this.rideRepository = rideRepository;
     }
 
     @GetMapping(path="/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -205,41 +210,32 @@ public class RideController {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new MessageResponseDTO("Ride order declined: " + ex.getMessage()));
     }
-    
-    @PutMapping("/{rideId}/start")
-    public ResponseEntity<RideDTO> startRide(
-            @PathVariable Long rideId,
-            @RequestBody(required = false) StartRideRequestDTO dto
+
+    @PutMapping("/start")
+    public ResponseEntity<GetRideResponseDTO> startActiveRide(
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-
-        Ride ride = new Ride();
-        ride.setId(rideId);
-        ride.setStatus(RideStatus.ACCEPTED);
-
-
-        if (ride.getStatus() != RideStatus.ACCEPTED) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .build();
+        if (userDetails == null) {
+            System.out.println("UserDetails je null!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        ride.setStartTime(
-                dto != null && dto.getStartTime() != null
-                        ? dto.getStartTime()
-                        : LocalDateTime.now()
-        );
+        String driverEmail = userDetails.getUsername();
+        System.out.println("Driver email: " + driverEmail);
 
+        Ride ride = rideService.getActiveRideForDriver(driverEmail);
+        if (ride == null) {
+            System.out.println("Nema aktivne vožnje za ovog vozača!");
+            return ResponseEntity.noContent().build();
+        }
         ride.setStatus(RideStatus.ONGOING);
+        rideRepository.save(ride);
 
-        RideDTO response = RideDTO.builder()
-                .id(ride.getId())
-                .status(ride.getStatus())
-                .startTime(ride.getStartTime())
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(rideService.mapToDTO(ride));
     }
-    
+
+
+
     @PostMapping(
             path = "/order/favorite",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -268,5 +264,26 @@ public class RideController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/active")
+    public ResponseEntity<GetRideResponseDTO> getActiveRide(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if(userDetails == null) {
+            System.out.println("UserDetails je null!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String driverEmail = userDetails.getUsername();
+        System.out.println("Driver email: " + driverEmail);
+
+        Ride ride = rideService.getActiveRideForDriver(driverEmail);
+        if (ride == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(rideService.mapToDTO(ride));
+    }
+
+
 
 }
