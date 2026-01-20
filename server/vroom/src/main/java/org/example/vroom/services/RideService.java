@@ -3,6 +3,11 @@ package org.example.vroom.services;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.ride.*;
+import org.example.vroom.DTOs.RideDTO;
+import org.example.vroom.DTOs.requests.ride.CancelRideRequestDTO;
+import org.example.vroom.DTOs.requests.ride.LeaveReviewRequestDTO;
+import org.example.vroom.DTOs.requests.ride.RideRequestDTO;
+import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
@@ -22,7 +27,11 @@ import org.example.vroom.repositories.*;
 import org.example.vroom.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -103,6 +112,9 @@ public class RideService {
 
         return route;
     }
+
+
+
     @Transactional
     public GetRideResponseDTO orderRide(String userEmail, RideRequestDTO request) {
 
@@ -170,6 +182,38 @@ public class RideService {
 
         return rideMapper.getRideDTO(ride);
     }
+
+    public Ride getActiveRideForDriver(String driverEmail) {
+
+        driverEmail = "lazarvilotic87@gmail.com";
+        System.out.println("Driver email u metodi: " + driverEmail);
+
+        Optional<Driver> driverOpt = driverRepository.findByEmail(driverEmail);
+
+        if (driverOpt.isEmpty()) {
+            System.out.println("Nije pronađen driver za email: " + driverEmail);
+        } else {
+            Driver driver = driverOpt.get();
+            System.out.println("Pronađen driver: " + driver.getFirstName() + " " + driver.getLastName());
+        }
+
+        Driver driver = driverOpt.orElseThrow(() -> new UserNotFoundException("Driver not found"));
+
+        Optional<Ride> rideOpt = rideRepository.findByDriverAndStatus(driver, RideStatus.ACCEPTED);
+
+        if (rideOpt.isEmpty()) {
+            System.out.println("Nema aktivne vožnje za drivera: " + driverEmail);
+        } else {
+            System.out.println("Pronađena aktivna vožnja: rideId=" + rideOpt.get().getId());
+        }
+
+        return rideOpt.orElse(null);
+    }
+
+    public GetRideResponseDTO mapToDTO(Ride ride) {
+        return rideMapper.getRideDTO(ride);
+    }
+
     private ArrayList<String> convertToPassengerNames(List<RegisteredUser> passengers) {
         ArrayList<String> names = new ArrayList<>();
         for (RegisteredUser p : passengers) {
@@ -329,5 +373,23 @@ public class RideService {
 
         return rideMapper.stopRide(ride, data, price);
     }
+
+    public GetRideResponseDTO startRide(Long rideId) {
+
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RideNotFoundException("Ride not found"));
+
+        if (!ride.getStatus().equals(RideStatus.ACCEPTED)) {
+            throw new RuntimeException("Ride must be ACCEPTED to start");
+        }
+
+        ride.setStartTime(LocalDateTime.now());
+        ride.setStatus(RideStatus.ONGOING);
+
+        ride = rideRepository.save(ride);
+
+        return rideMapper.getRideDTO(ride);
+    }
+
 }
 

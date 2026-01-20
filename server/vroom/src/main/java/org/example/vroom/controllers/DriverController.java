@@ -4,13 +4,20 @@ import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverChangeStatusRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
+import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
+import org.example.vroom.entities.Ride;
 import org.example.vroom.exceptions.user.UserNotFoundException;
+import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.services.DriverService;
+import org.example.vroom.services.RideService;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -22,7 +29,8 @@ public class DriverController {
 
     private final DriverService driverService;
 
-    public DriverController(DriverService driverService) {
+
+    public DriverController(DriverService driverService, RideService rideService, RideMapper rideMapper) {
         this.driverService = driverService;
     }
 

@@ -13,6 +13,6 @@ export interface Profile {
   address: string;
   phoneNumber: string;
   email: string;
-  vehicle?: Vehicle;
+  vehicle?: Vehicle | null;
   activeHoursLast24h?: number;
 }
