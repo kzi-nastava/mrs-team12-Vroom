@@ -45,4 +45,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             @Param("now") LocalDateTime now,
             @Param("tenMinutesLater") LocalDateTime tenMinutesLater
     );
+
+    Optional<Ride> findByDriverAndStatus(Driver driver, RideStatus rideStatus);
+
 }

@@ -1,43 +1,37 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DriverActiveRideService } from './driver-active-ride.service';
+import { Observable } from 'rxjs';
+import { Ride } from './ride.model';
 
 @Component({
   selector: 'app-driver-active-ride',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './driver-active-ride.html',
-  styleUrl: './driver-active-ride.css'
+  styleUrls: ['./driver-active-ride.css']
 })
 export class DriverActiveRide {
 
-  ride: any = {
-    id: 1,
-    startAddress: 'Novi Sad',
-    endAddress: 'Beograd',
-    status: 'ACCEPTED', // ACCEPTED | STARTED
-    price: 2300,
-    passengers: [
-      { firstName: 'Marko', lastName: 'Petrović' },
-      { firstName: 'Ana', lastName: 'Jovanović' }
-    ],
-    vehicle: {
-      brand: 'Toyota',
-      model: 'Corolla',
-      licensePlate: 'NS-123-AB'
-    }
-  };
+  ride$: Observable<Ride | null>; // koristimo Observable direktno
+
+  constructor(private rideService: DriverActiveRideService) {
+    this.ride$ = this.rideService.getActiveRide(); // odmah inicijalizujemo
+  }
 
   startRide(): void {
-    if (confirm('Are all passengers in the vehicle?')) {
-      // TODO: call backend
-      this.ride.status = 'STARTED';
-    }
+    if (!confirm('Are all passengers in the vehicle?')) return;
+
+    this.rideService.startRide().subscribe({
+      next: () => {
+        // osveži Observable nakon starta
+        this.ride$ = this.rideService.getActiveRide();
+      },
+      error: err => console.error(err)
+    });
   }
 
   finishRide(): void {
-    if (confirm('Finish the ride?')) {
-      // TODO: call backend
-      this.ride = null;
-    }
+    console.log("radi");
   }
 }
