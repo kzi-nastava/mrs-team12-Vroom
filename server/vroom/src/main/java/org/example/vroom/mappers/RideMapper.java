@@ -1,5 +1,6 @@
 package org.example.vroom.mappers;
 
+import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
@@ -66,4 +67,21 @@ public class RideMapper {
                 .vehicleRating(ride.getVehicleRating())
                 .build();
     }
+
+    public RideDTO toRideDTO(Ride ride) {
+        if (ride == null) return null;
+
+        return RideDTO.builder()
+                .id(ride.getId())
+                .status(ride.getStatus())
+                .driver(driverMapper.toDTO(ride.getDriver()))
+                .route(routeMapper.getRouteDTO(ride.getRoute()))
+                .startTime(ride.getStartTime())
+                .endTime(ride.getEndTime())
+                .passengers(ride.getPassengers())
+                .price(ride.getPrice())
+                .build();
+    }
+
+
 }
