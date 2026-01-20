@@ -1,0 +1,177 @@
+/* review-popup.component.css */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px;
+}
+
+.popup-content {
+    background: #dceed3;
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close-button {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #6b7280;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.close-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #374151;
+}
+
+.review-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.review-header {
+    font-size: 24px;
+    color: #1f2937;
+    font-family: 'IBM Plex Sans';
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.rating-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.rating-label {
+    font-size: 18px;
+    color: #374151;
+    font-family: 'IBM Plex Sans';
+    min-width: 130px;
+}
+
+.stars {
+    display: flex;
+    gap: 8px;
+}
+
+.star {
+    font-size: 32px;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.1s ease;
+    user-select: none;
+}
+
+.star:hover {
+    color: #fbbf24;
+    transform: scale(1.1);
+}
+
+.star.selected {
+    color: #99c2a2;
+}
+
+.review-textarea {
+    width: 100%;
+    height: 120px;
+    padding: 16px 24px;
+    background: white;
+    border: none;
+    border-radius: 16px;
+    font-family: 'IBM Plex Sans';
+    font-size: 16px;
+    color: #374151;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.review-textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(153, 194, 162, 0.5);
+}
+
+.review-textarea::placeholder {
+    color: #9ca3af;
+}
+
+.submit-button {
+    align-self: flex-end;
+    padding: 14px 36px;
+    background-color: #99c2a2;
+    color: #1f2937;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'IBM Plex Sans';
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.submit-button:hover {
+    background-color: #88b091;
+    transform: translateY(-1px);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .popup-content {
+        padding: 32px 24px;
+        margin: 20px;
+    }
+
+    .rating-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .rating-label {
+        min-width: auto;
+    }
+
+    .review-header {
+        font-size: 20px;
+    }
+}

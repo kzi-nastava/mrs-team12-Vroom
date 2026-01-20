@@ -20,7 +20,7 @@ public class GeoService {
     @Value("${geoapify.api.key}")
     private String geoapifyApiKey;
 
-    @Cacheable(value = "geo-autocomplete", key = "{#location, #limit}")
+//    @Cacheable(value = "geo-autocomplete", key = "{#location, #limit}")
     public List<AddressSuggestionResponseDTO> getLocations(String location, int limit) throws IOException {
         String text = URLEncoder.encode(location, StandardCharsets.UTF_8);
         URL url = new URL(

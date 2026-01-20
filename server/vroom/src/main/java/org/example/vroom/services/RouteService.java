@@ -32,7 +32,7 @@ public class RouteService {
     @Autowired
     private ObjectMapper mapper;
 
-    @Cacheable(value = "route-estimation", key = "{#startLocation, #endLocation, #stopLocations}")
+//    @Cacheable(value = "route-estimation", key = "{#startLocation, #endLocation, #stopLocations}")
     public RouteQuoteResponseDTO routeEstimation(String startLocation, String endLocation, String stopLocations){
         String waypoints = startLocation;
 

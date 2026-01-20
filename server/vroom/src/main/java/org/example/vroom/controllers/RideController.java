@@ -107,6 +107,10 @@ public class RideController {
             @PathVariable Long rideID,
             @RequestBody LeaveReviewRequestDTO review
     ){
+        System.out.println(rideID);
+        if (review == null){
+            return new ResponseEntity<>(new MessageResponseDTO("No content sent"), HttpStatus.NO_CONTENT);
+        }
         try {
             rideService.leaveReview(rideID, review);
         }catch (RideNotFoundException e){
