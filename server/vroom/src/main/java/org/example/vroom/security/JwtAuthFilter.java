@@ -1,5 +1,6 @@
 package org.example.vroom.security;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -12,6 +13,7 @@ import org.example.vroom.repositories.UserRepository;
 import org.example.vroom.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,14 +42,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
+
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
+        System.out.println("JwtAuthFilter - Authorization header: " + authHeader);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
+        System.out.println("==== JWT DEBUG START ====");
+        System.out.println("Header: " + request.getHeader("Authorization"));
+
+        try {
+            String token = authHeader.substring(7);
+            System.out.println("TOKEN RAW: " + token);
+
+            Claims claims = jwtService.extractAllClaims(token);
+            System.out.println("CLAIMS: " + claims);
+            System.out.println("TYPE from token: " + claims.get("type"));
+            System.out.println("EMAIL from token: " + claims.getSubject());
+        } catch (Exception e) {
+            System.out.println("JWT ERROR: " + e.getMessage());
+        }
+        System.out.println("==== JWT DEBUG END ====");
         String email = null;
         String token = jwtService.getToken(request);
 
@@ -61,6 +80,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         JWTBasedAuthentication authentication = new JWTBasedAuthentication(userDetails);
                         authentication.setToken(token);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                        System.out.println("SPRING AUTH USER: " + auth.getName());
+                        System.out.println("SPRING AUTHORITIES: " + auth.getAuthorities());
                     }
                 }
             }
@@ -78,7 +100,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // change this to ignore auth + main + route estimation endpoints
         return path.startsWith("/api/auth/")
                 || path.startsWith("/api/admins/")
-                || path.startsWith("/api/rides/")
+                //|| path.startsWith("/api/rides/")
                 || path.startsWith("/api/routes/")
                 || path.startsWith("/api/main/")
                 //|| path.startsWith("/api/profile/driver")
