@@ -6,6 +6,7 @@ import { filter, Subject, takeUntil } from 'rxjs';
 import { MapService } from '../../core/services/map.service';
 import { MapActionType } from '../../core/models/map/enums/map-action-type.enum';
 import { HttpClient } from '@angular/common/http';
+import { DriverLocationService } from '../driver-location/driver-location.service';
 
 @Component({
   selector: 'app-map',
@@ -18,6 +19,7 @@ export class MainView implements AfterViewInit {
   private centroid: L.LatLngExpression = [45.2455, 19.8227];
   private routeLayer: L.LayerGroup = L.layerGroup();
   private destroy$ = new Subject<void>();
+  private vehiclesLayer: L.LayerGroup=L.layerGroup();
   
   private routesWithMap = [
     '/route-estimation',
@@ -30,7 +32,8 @@ export class MainView implements AfterViewInit {
   constructor(
     private mapService: MapService,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private driverLocationService: DriverLocationService
   ) {}
 
   ngAfterViewInit(): void {
@@ -68,6 +71,7 @@ export class MainView implements AfterViewInit {
             this.routeLayer.clearLayers();
             break;
           case MapActionType.SHOW_VEHICLES:
+            this.showVehiclesOnMap();
             break;
         }
       });
@@ -75,6 +79,7 @@ export class MainView implements AfterViewInit {
 
   private setupRouteListener(): void{
     this.routeLayer.addTo(this.map);
+    this.vehiclesLayer.addTo(this.map);
 
     this.router.events
       .pipe(
@@ -182,4 +187,28 @@ export class MainView implements AfterViewInit {
     this.destroy$.complete();
     this.mapService.clearMap();
   }
+
+ private showVehiclesOnMap(): void {
+  this.vehiclesLayer.clearLayers();
+
+  this.driverLocationService.getAllLocations()
+    .subscribe(locations => {
+
+      locations.forEach(loc => {
+
+        const marker = L.marker([loc.latitude, loc.longitude], {
+          icon: this.createCustomIcon('🚕')
+        });
+
+        marker.bindPopup(
+          `Driver #${loc.driver.id}<br/>
+           Last update: ${new Date(loc.lastUpdated).toLocaleTimeString()}`
+        );
+
+        marker.addTo(this.vehiclesLayer);
+      });
+
+    });
+}
+
 }

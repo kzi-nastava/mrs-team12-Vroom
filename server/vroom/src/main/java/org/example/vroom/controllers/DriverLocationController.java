@@ -27,4 +27,10 @@ public class DriverLocationController {
     ){
         service.updateLocation(driverId, lat, lng);
     }
+
+    @GetMapping("/active")
+    public List<DriverLocation> getActiveDrivers() {
+        return service.getActiveDrivers();
+    }
+
 }

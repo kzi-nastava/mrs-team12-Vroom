@@ -1,57 +1,78 @@
+<div class="ride-panel">
+  <h1>Order a ride</h1>
 
-  <div class="ride-panel">
-
-    <h1>Order a ride</h1>
-
-    <div class="row">
-      <div class="field">
-        <label>Start location</label>
-        <input value="Promenada" />
-      </div>
-
-      <div class="field">
-        <label>Type of vehicle</label>
-        <select>
-          <option>Luxury</option>
-          <option>Standard</option>
-          <option>Van</option>
-        </select>
-      </div>
+  <div class="row">
+    <div class="field">
+      <label>Start location</label>
+      <input type="text" [(ngModel)]="startLocation" (input)="searchStart()" placeholder="Street & Number" autocomplete="off" />
+      <ul class="suggestions-list" *ngIf="startSuggestions.length && showStartSuggestions">
+        <li *ngFor="let s of startSuggestions" (click)="selectStart(s); $event.stopPropagation()">
+          {{ s.label }}
+        </li>
+      </ul>
     </div>
 
-    <div class="row">
-      <div class="field">
-        <label>End location</label>
-        <input value="SNP" />
-      </div>
+    <div class="field">
+      <label>Type of vehicle</label>
+      <select [(ngModel)]="vehicleType">
+        <option value="LUXURY">Luxury</option>
+        <option value="STANDARD">Standard</option>
+        <option value="VAN">Van</option>
+      </select>
+    </div>
+  </div>
 
-      <div class="field toggles">
-        <label><input type="checkbox" /> Children</label>
-        <label><input type="checkbox" /> Pets</label>
-      </div>
+  <div class="row">
+    <div class="field">
+      <label>End location</label>
+      <input type="text" [(ngModel)]="endLocation" (input)="searchEnd()" placeholder="Street & Number" autocomplete="off" />
+      <ul class="suggestions-list" *ngIf="endSuggestions.length && showEndSuggestions">
+        <li *ngFor="let s of endSuggestions" (click)="selectEnd(s); $event.stopPropagation()">
+          {{ s.label }}
+        </li>
+      </ul>
     </div>
 
-<div class="row">
-  <div class="field">
-    <label>Stations</label>
-    <select>
-      <option>Station A</option>
-      <option>Station B</option>
-      <option>Station C</option>
-    </select>
+    <div class="field toggles">
+      <label><input type="checkbox" [(ngModel)]="childrenAllowed" /> Children</label>
+      <label><input type="checkbox" [(ngModel)]="petsAllowed" /> Pets</label>
+    </div>
   </div>
 
-  <div class="field">
-    <label>Others (Email)</label>
-    <input type="email" placeholder="Enter email" />
+  <div class="row">
+    <div class="field">
+      <label>Stations</label>
+      <div *ngFor="let stop of stops; let i = index; trackBy: trackByStopId" class="station-row">
+        <input type="text" [(ngModel)]="stop.address" (input)="searchStop(i)" placeholder="Street & Number" />
+        <button type="button" (click)="removeStop(i)">X</button>
+        <ul class="suggestions-list" *ngIf="stopSuggestions[i]?.length && showStopSuggestions[i]">
+          <li *ngFor="let s of stopSuggestions[i]" (click)="selectStop(i, s); $event.stopPropagation()">{{ s.label }}</li>
+        </ul>
+      </div>
+      <button type="button" (click)="addStop()">+ Add station</button>
+    </div>
   </div>
+
+  <div class="row">
+    <div class="field">
+      <label>Others (Email)</label>
+      <input type="email" [(ngModel)]="otherEmail" placeholder="Enter email" />
+    </div>
+  </div>
+
+  <div class="estimates" *ngIf="!calculating && price !== null && time !== null">
+    <div>⏱ {{ time | number:'1.0-2' }} min</div>
+    <div> {{ price | number:'1.2-2' }} EUR</div>
+  </div>
+
+  <div *ngIf="calculating" class="loader">Calculating...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <button class="order-btn" (click)="calculateRoute()" [disabled]="calculating">
+    {{ calculating ? 'Calculating...' : 'Calculate route' }}
+  </button>
+
+  <button class="order-btn confirm" (click)="orderRide()" [disabled]="price === null || time === null">
+    Order a ride
+  </button>
 </div>
-
-    <div class="estimates">
-      <div>⏱ 5 min</div>
-      <div>💰 450 RSD</div>
-    </div>
-
-    <button class="order-btn">Order a ride</button>
-
-  </div>
