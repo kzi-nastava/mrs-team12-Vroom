@@ -2,6 +2,7 @@ package org.example.vroom.services;
 
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
+import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.CancelRideRequestDTO;
 import org.example.vroom.DTOs.requests.ride.LeaveReviewRequestDTO;
@@ -22,12 +23,10 @@ import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.mappers.RouteMapper;
-import org.example.vroom.repositories.DriverRepository;
-import org.example.vroom.repositories.RideRepository;
-import org.example.vroom.repositories.RegisteredUserRepository;
-import org.example.vroom.repositories.VehicleRepository;
+import org.example.vroom.repositories.*;
 import org.example.vroom.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -62,6 +61,57 @@ public class RideService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private FavoriteRouteRepository favoriteRouteRepository;
+
+
+    public Ride orderFromFavorite(
+            OrderFromFavoriteRequestDTO request,
+            String userEmail
+    ) {
+        RegisteredUser user = userRepository
+                .findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+        FavoriteRoute favorite = favoriteRouteRepository
+                .findById(request.getFavoriteRouteId())
+                .orElseThrow(() -> new RuntimeException("Favorite route not found"));
+
+        Route routeCopy = copyRoute(favorite.getRoute());
+
+        Ride ride = Ride.builder()
+                .passenger(user)
+                .route(routeCopy)
+                .status(RideStatus.PENDING)
+                .isScheduled(Boolean.FALSE)
+                .panicActivated(false)
+                .build();
+
+        return rideRepository.save(ride);
+    }
+
+    private Route copyRoute(Route original) {
+        Route route = new Route();
+        route.setStartLocationLat(original.getStartLocationLat());
+        route.setStartLocationLng(original.getStartLocationLng());
+        route.setEndLocationLat(original.getEndLocationLat());
+        route.setEndLocationLng(original.getEndLocationLng());
+
+        if (original.getStops() != null) {
+            List<Point> stops = original.getStops().stream()
+                    .map(p -> {
+                        Point np = new Point();
+                        np.setLat(p.getLat());
+                        np.setLng(p.getLng());
+                        return np;
+                    })
+                    .toList();
+            route.setStops(stops);
+        }
+
+        return route;
+    }
 
 
 
