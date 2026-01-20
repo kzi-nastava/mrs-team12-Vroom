@@ -7,6 +7,7 @@ import org.example.vroom.enums.RideStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,8 +18,8 @@ public class GetRideResponseDTO {
     private DriverRideResponseDTO driver;
     private GetRouteResponseDTO route;
 
-    private ArrayList<String> passengers;
-    private ArrayList<String> complaints;
+    private List<String> passengers;
+    private List<String> complaints;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;

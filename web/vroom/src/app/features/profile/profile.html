@@ -69,7 +69,9 @@
     </section>
 
     <!-- DRIVER INFO -->
-    <div class="driver-wrapper" *ngIf="profileData.vehicle as vehicle">
+    <div class="driver-wrapper"
+     *ngIf="userRole === 'DRIVER' && profileData?.vehicle as vehicle">
+
 
       <section class="profile-section">
         <h2>Driver Activity</h2>
@@ -79,13 +81,13 @@
         </p>
       </section>
 
-      <section class="profile-section">
+      <section class="profile-section"> 
         <h2>Vehicle Information</h2>
 
         <p><strong>Brand:</strong> {{ vehicle.brand }}</p>
         <p><strong>Model:</strong> {{ vehicle.model }}</p>
         <p><strong>Number of seats:</strong> {{ vehicle.numberOfSeats }}</p>
-        <p><strong>License plate:</strong> {{ vehicle.licensePlate }}</p>
+        <p><strong>License plate:</strong> {{ vehicle.licenceNumber }}</p>
 
         <p>
           <strong>Babies allowed:</strong>

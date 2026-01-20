@@ -17,6 +17,7 @@ public class VehicleMapper {
         }
 
         return VehicleDTO.builder()
+                .brand(vehicle.getBrand())
                 .model(vehicle.getModel())
                 .type(vehicle.getType())
                 .licenceNumber(vehicle.getLicenceNumber())
@@ -34,6 +35,7 @@ public class VehicleMapper {
         }
 
         return Vehicle.builder()
+                .brand(vehicleDTO.getBrand())
                 .model(vehicleDTO.getModel())
                 .type(vehicleDTO.getType())
                 .licenceNumber(vehicleDTO.getLicenceNumber())
@@ -50,6 +52,7 @@ public class VehicleMapper {
 
         return VehicleRideResponseDTO
                 .builder()
+                .brand(vehicle.getBrand())
                 .model(vehicle.getModel())
                 .type(vehicle.getType())
                 .numberOfSeats(vehicle.getNumberOfSeats())
@@ -75,6 +78,7 @@ public class VehicleMapper {
         }
 
         return Vehicle.builder()
+                .brand(vehicleRequestDTO.getBrand())
                 .model(vehicleRequestDTO.getModel())
                 .type(vehicleRequestDTO.getType())
                 .licenceNumber(vehicleRequestDTO.getLicenceNumber())
