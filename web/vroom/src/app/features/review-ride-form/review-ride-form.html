@@ -1,0 +1,40 @@
+<!-- review-popup.component.html -->
+<div class="popup-overlay" (click)="onClose()">
+  <div class="popup-content" (click)="$event.stopPropagation()">
+    <button class="close-button" (click)="onClose()">×</button>
+    
+    <div class="review-container">
+      <div class="review-header">Leave a review:</div>
+
+      <div class="rating-group">
+        <label class="rating-label">Rate the driver:</label>
+        <div class="stars">
+          <span *ngFor="let star of [1,2,3,4,5]" 
+                class="star" 
+                [class.selected]="driverRating >= star"
+                (click)="setDriverRating(star)">★</span>
+        </div>
+      </div>
+
+      <div class="rating-group">
+        <label class="rating-label">Rate the car:</label>
+        <div class="stars">
+          <span *ngFor="let star of [1,2,3,4,5]" 
+                class="star" 
+                [class.selected]="carRating >= star"
+                (click)="setCarRating(star)">★</span>
+        </div>
+      </div>
+
+      <textarea 
+        class="review-textarea" 
+        placeholder="Comment..."
+        [(ngModel)]="comment"
+      ></textarea>
+
+      <button class="submit-button" (click)="onSubmit()">
+        Submit
+      </button>
+    </div>
+  </div>
+</div>

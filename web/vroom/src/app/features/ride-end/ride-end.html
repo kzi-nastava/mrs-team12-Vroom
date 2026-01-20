@@ -1,0 +1,29 @@
+<div class="review-panel">
+  <div class="content-grid">
+    <!-- Left Side - Arrival Info -->
+    <div class="left-section">
+      <div class="arrival-message">
+        You have arrived<br>
+        at your destination!
+      </div>
+      
+      <div class="route">
+        <div>Bulevar Patrijarha Pavla, 20</div>
+        <div class="arrow">↓</div>
+        <div>Naučno-Tehnološki Park</div>
+      </div>
+    </div>
+    <div class="right-section">
+      <button class="review-button" (click)="openReviewForm()">
+        Leave a Review
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<app-review-popup 
+  class="popup"
+  *ngIf="showReviewPopup"
+  (closePopup)="closeReviewForm()">
+</app-review-popup>
