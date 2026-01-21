@@ -21,6 +21,7 @@ public class GeoController {
     private GeoService geoService;
 
     @GetMapping("/autocomplete-address")
+    @Cacheable(value = "geo-autocomplete", key = "#location")
     public ResponseEntity<List<AddressSuggestionResponseDTO>> autocompleteAddress(@RequestParam String location) {
         try{
             List<AddressSuggestionResponseDTO> suggestions = geoService.getLocations(location, 5);
