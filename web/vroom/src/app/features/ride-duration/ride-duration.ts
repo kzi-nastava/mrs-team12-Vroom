@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { RideService } from '../../core/services/ride.service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PanicButton } from '../panic-btn/panic-button';
 
 @Component({
   selector: 'app-ride-duration',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, PanicButton],
   templateUrl: './ride-duration.html',
   styleUrl: './ride-duration.css',
 })
