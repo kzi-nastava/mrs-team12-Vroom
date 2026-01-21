@@ -7,6 +7,8 @@ import { MapService } from '../../core/services/map.service';
 import { MapActionType } from '../../core/models/map/enums/map-action-type.enum';
 import { HttpClient } from '@angular/common/http';
 import { DriverLocationService } from '../driver-location/driver-location.service';
+import { DriverService } from '../../core/services/driver.service';
+import { LocationUpdate } from '../../core/models/driver/location-update-response.dto';
 
 @Component({
   selector: 'app-map',
@@ -20,6 +22,7 @@ export class MainView implements AfterViewInit {
   private routeLayer: L.LayerGroup = L.layerGroup();
   private destroy$ = new Subject<void>();
   private vehiclesLayer: L.LayerGroup=L.layerGroup();
+  private driverMarkers: Map<number, L.Marker> = new Map();
   
   private routesWithMap = [
     '/route-estimation',
@@ -33,30 +36,84 @@ export class MainView implements AfterViewInit {
     private mapService: MapService,
     private http: HttpClient,
     private router: Router,
-    private driverLocationService: DriverLocationService
+    private driverLocationService: DriverLocationService,
+    private driverService: DriverService
   ) {}
 
   ngAfterViewInit(): void {
     this.map = L.map('map', {
       center: this.centroid,
-      zoom: 14,
+      zoom: 16,
       scrollWheelZoom: false,
       dragging: true,
       touchZoom: true,
       doubleClickZoom: true
     });
+    this.centerOnUser();
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
+    this.routeLayer.addTo(this.map);
+    this.vehiclesLayer.addTo(this.map);
 
     // setup route listener to clear things from the map when changing route
-    this.setupRouteListener()
+    this.setupRouteListener();
     
     // setup map service listener when action happens there to update the map
-    this.setupMapServiceListener()
+    this.setupMapServiceListener();
+    this.setupRealTimeLocationListener();
+  }
+
+  private centerOnUser(): void {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation: L.LatLngExpression = [
+            position.coords.latitude,
+            position.coords.longitude
+          ];
+          this.centroid = userLocation;
+          this.map.setView(userLocation, 16);
+        },
+        () => console.warn('Location access denied. Using default centroid.')
+      );
+    }
+  }
+
+  private setupRealTimeLocationListener(): void {
+    this.driverService.initializeWebSocket();
+    this.driverService.locationUpdates$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((location: LocationUpdate) => {
+        this.updateSingleVehicleOnMap(
+          location.driverId,
+          location.point.lat,
+          location.point.lng,
+          location.status
+        );
+      });
+  }
+
+  private updateSingleVehicleOnMap(driverId: number, latitude: number, longitude: number, status: String): void {
+    const existingMarker = this.driverMarkers.get(driverId);
+
+    if (existingMarker) {
+      existingMarker.setLatLng([latitude, longitude]);
+    } else {
+      const marker = L.marker([latitude, longitude], {
+        // later add different colored icons based on status
+        icon: this.showCarIcon()
+      }).addTo(this.vehiclesLayer);
+
+      marker.bindPopup(
+        `Driver #${driverId}<br/>
+        Status: ${status}`
+      );
+      this.driverMarkers.set(driverId, marker);
+    }
   }
 
   private setupMapServiceListener(): void{
@@ -69,9 +126,6 @@ export class MainView implements AfterViewInit {
             break;
           case MapActionType.CLEAR_MAP:
             this.routeLayer.clearLayers();
-            break;
-          case MapActionType.SHOW_VEHICLES:
-            this.showVehiclesOnMap();
             break;
         }
       });
@@ -182,33 +236,25 @@ export class MainView implements AfterViewInit {
     });
   }
 
+    private showCarIcon(): L.DivIcon {
+    return L.divIcon({
+      html: `<div style="width: 50px; height: 50px;">
+        <img src="../../assets/icons/available-taxi.svg" style="width: 100%; height: 100%;" />
+        </div>
+      `,
+      className: 'available-taxi-icon',
+      iconSize: [50, 50],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, -20]
+    });
+  }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
     this.mapService.clearMap();
+    this.driverService.disconnectWebSocket();
   }
 
- private showVehiclesOnMap(): void {
-  this.vehiclesLayer.clearLayers();
-
-  this.driverLocationService.getAllLocations()
-    .subscribe(locations => {
-
-      locations.forEach(loc => {
-
-        const marker = L.marker([loc.latitude, loc.longitude], {
-          icon: this.createCustomIcon('🚕')
-        });
-
-        marker.bindPopup(
-          `Driver #${loc.driver.id}<br/>
-           Last update: ${new Date(loc.lastUpdated).toLocaleTimeString()}`
-        );
-
-        marker.addTo(this.vehiclesLayer);
-      });
-
-    });
-}
 
 }

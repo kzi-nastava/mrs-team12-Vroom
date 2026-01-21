@@ -14,10 +14,7 @@ import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.Route;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
-import org.example.vroom.exceptions.ride.CantReviewRideException;
-import org.example.vroom.exceptions.ride.RideCancellationException;
-import org.example.vroom.exceptions.ride.RideNotFoundException;
-import org.example.vroom.exceptions.ride.StopRideException;
+import org.example.vroom.exceptions.ride.*;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.example.vroom.repositories.RideRepository;
 import org.springframework.http.*;
@@ -104,6 +101,13 @@ public class RideController {
             @PathVariable Long rideID,
             @RequestBody ComplaintRequestDTO complaint
     ){
+        try {
+            this.rideService.sendComplaint(rideID, complaint);
+        } catch (EmptyBodyException e) {
+            return new ResponseEntity<>(new MessageResponseDTO("Complaint Body is empty"), HttpStatus.BAD_REQUEST);
+        } catch (RideNotFoundException e) {
+            return new ResponseEntity<>(new MessageResponseDTO("Ride Not Found"), HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 

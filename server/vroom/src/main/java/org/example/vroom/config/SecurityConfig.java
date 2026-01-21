@@ -89,7 +89,8 @@ public class SecurityConfig {
                                 "/api/profile/user",
                                 "/api/drivers/**",
                                 "/api/geo/**",
-                                "/h2-console/**"
+                                "/h2-console/**",
+                                "/socket/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
