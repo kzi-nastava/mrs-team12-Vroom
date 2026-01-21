@@ -20,13 +20,13 @@ public class MainViewController {
     public ResponseEntity<Collection<DriverPositionDTO>> getDriverPositions() {
         Collection<DriverPositionDTO> driverPositions = new ArrayList<>();
         DriverPositionDTO driverPositionDTO = new DriverPositionDTO();
-        driverPositionDTO.setDriverId(1);
+        driverPositionDTO.setDriverId(1L);
         driverPositionDTO.setStatus(DriverStatus.AVAILABLE);
         driverPositionDTO.setPoint(new PointResponseDTO(45.0,45.0));
         driverPositions.add(driverPositionDTO);
 
         DriverPositionDTO driverPositionDTO2 = new DriverPositionDTO();
-        driverPositionDTO2.setDriverId(2);
+        driverPositionDTO2.setDriverId(2L);
         driverPositionDTO2.setStatus(DriverStatus.UNAVAILABLE);
         driverPositionDTO2.setPoint(new PointResponseDTO(49.76,41.32));
         driverPositions.add(driverPositionDTO2);

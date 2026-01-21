@@ -5,7 +5,8 @@ import { MessageResponseDTO } from "../models/message-response.dto";
 import { Observable } from "rxjs";
 import { StopRideRequestDTO } from "../models/ride/requests/stop-ride-req.dto";
 import { StoppedRideResponseDTO } from "../models/ride/responses/sopped-ride-response.dto";
-import { LeaveReviewRequestDTO } from "../models/ride/requests/leave-review-req.dto"
+import { LeaveReviewRequestDTO } from "../models/ride/requests/leave-review-req.dto";
+import { ComplaintRequestDTO } from "../models/ride/requests/complaint-req.dto";
 
 @Injectable({
     providedIn: "root"
@@ -30,6 +31,10 @@ export class RideService{
 
     finishRideRequest(rideID: string): Observable<MessageResponseDTO>{
         return this.http.post<MessageResponseDTO>(this.rideUrl+`/${rideID}`+'/finish', null)
+    }
+
+    sendComplaintRequest(rideID: string, data: ComplaintRequestDTO): Observable<MessageResponseDTO>{
+        return this.http.post<MessageResponseDTO>(this.rideUrl+`/${rideID}`+'/complaint', data)
     }
 
 }

@@ -23,9 +23,10 @@
             <textarea 
                 class="complaint-textarea" 
                 placeholder="..."
+                [formControl]="complaintControl"
             ></textarea>
 
-            <button class="submit-button">
+            <button class="submit-button" (click)="onSubmitComplaint()" [disabled]="!complaintControl.value?.trim()">
                 Submit complaint
             </button>
             </div>

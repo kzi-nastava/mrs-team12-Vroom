@@ -15,10 +15,7 @@ import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.enums.VehicleType;
-import org.example.vroom.exceptions.ride.CantReviewRideException;
-import org.example.vroom.exceptions.ride.RideCancellationException;
-import org.example.vroom.exceptions.ride.RideNotFoundException;
-import org.example.vroom.exceptions.ride.StopRideException;
+import org.example.vroom.exceptions.ride.*;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
@@ -316,6 +313,19 @@ public class RideService {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public void sendComplaint(Long rideID, ComplaintRequestDTO complaint){
+        if (complaint == null) {
+            throw new EmptyBodyException("Complaint is empty");
+        }
+        Optional<Ride> rideOptional = rideRepository.findById(rideID);
+        if (rideOptional.isEmpty()) {
+            throw new RideNotFoundException("Ride not found");
+        }
+        Ride ride = rideOptional.get();
+        ride.getComplaints().add(complaint.getComplaintBody());
+        rideRepository.save(ride);
     }
 
     public void cancelRide(Long rideID, CancelRideRequestDTO data){
