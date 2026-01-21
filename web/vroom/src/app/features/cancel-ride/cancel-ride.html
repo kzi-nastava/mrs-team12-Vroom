@@ -1,0 +1,22 @@
+<section class="cancel-ride">
+    <div class="cancel-before-user" *ngIf="role === 'REGISTERED_USER' && showPopup">
+        <div class="cancel-before-user-container">
+            <h2>Are you sure you want to cancel ride?</h2>
+            <button class="confirm-cancellation" (click)="submitCancellation()" [disabled]="isLoading">{{ isLoading ? 'Cancelling...' : 'Confirm' }}</button>
+            <button (click)="closePopup()" class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+
+    <div class="cancel-before-driver" *ngIf="role === 'DRIVER' && showPopup">
+        <div class="cancel-before-driver-container">
+            <h2>Are you sure you want to cancel ride?</h2>
+            <form class="reason">
+                <input type="text" placeholder="Reason" name="reason" [(ngModel)]="reason" required/>
+                <button type="submit" (click)="submitCancellation()" [disabled]="isLoading">{{ isLoading ? 'Cancelling...' : 'Confirm' }}</button>
+            </form>
+            <button (click)="closePopup()" class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+
+    <button (click)="openPopup()" class="main-cancel-btn">Cancel Ride</button>
+</section>

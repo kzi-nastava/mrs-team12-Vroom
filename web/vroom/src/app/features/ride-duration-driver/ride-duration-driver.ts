@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import {PanicButton} from '../panic-btn/panic-button';
-import {CancelStopRide} from '../cancel-stop-ride/cancel-stop-ride';
 import {RideService} from '../../core/services/ride.service';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
 import { Router, ActivatedRoute } from '@angular/router';
+import { StopRide } from '../stop-ride/stop-ride';
+
 @Component({
   selector: 'app-ride-duration-driver',
-  imports: [PanicButton, CancelStopRide],
+  imports: [PanicButton, StopRide],
   templateUrl: './ride-duration-driver.html',
   styleUrl: './ride-duration-driver.css',
 })

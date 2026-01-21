@@ -12,10 +12,10 @@ import { StoppedRideResponseDTO } from '../../core/models/ride/responses/sopped-
   selector: 'app-cancel-ride',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './cancel-stop-ride.html',
-  styleUrl: './cancel-stop-ride.css',
+  templateUrl: './cancel-ride.html',
+  styleUrl: './cancel-ride.css',
 })
-export class CancelStopRide implements OnInit {
+export class CancelRide implements OnInit {
   role: String = ''
   showPopup: boolean = false
   showSuccessPopup: boolean = false
@@ -23,7 +23,6 @@ export class CancelStopRide implements OnInit {
   stoppedRideData: StoppedRideResponseDTO | null = null
   isLoading: boolean = false
 
-  @Input() duringRide: boolean = true
   @Input() rideId: string = '';
 
   constructor(private rideService: RideService, private geolocationService: GeolocationService, private cdr: ChangeDetectorRef){}
@@ -32,22 +31,6 @@ export class CancelStopRide implements OnInit {
       this.role = localStorage.getItem('user_type') || ''
   }
 
-  shouldShowButton(): boolean {
-      if (this.role === 'REGISTERED_USER' && !this.duringRide) {
-          return true;
-      }
-      if (this.role === 'DRIVER') {
-          return true;
-      }
-      return false;
-  }
-
-  get buttonLabel(): string {
-      if (this.role === 'DRIVER' && this.duringRide) {
-          return 'Stop Ride';
-      }
-      return 'Cancel Ride';
-  }
 
   openPopup(){
     this.showPopup = true
@@ -86,32 +69,6 @@ export class CancelStopRide implements OnInit {
         this.cdr.detectChanges()
         alert("Failed to cancel ride. Try again.");
       }
-    })
-  }
-
-  submitStop(){
-    this.isLoading = true
-
-    const stopRideData: StopRideRequestDTO = new StopRideRequestDTO()
-    
-    stopRideData.getLocation(() => {
-      stopRideData.endTime = new Date().toISOString()
-
-      this.rideService.stopRideRequest(this.rideId, stopRideData).subscribe({
-        next: (response) => {
-          this.stoppedRideData = response;  
-          this.showPopup = false
-          this.showSuccessPopup = true;
-          this.isLoading = false
-          this.cdr.detectChanges()
-        },
-        error: (e) => {
-          this.showPopup = false
-          this.isLoading = false
-          alert("Error stopping ride");
-          this.cdr.detectChanges()
-        }
-      })
     })
   }
 }
