@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @DiscriminatorValue("REGISTERED_USER")
 @Getter
@@ -17,6 +20,9 @@ public class RegisteredUser extends User{
     @Column(nullable = true)
     private UserStatus userStatus;
 
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+    
 
     @Override
     public String getRoleName() {
