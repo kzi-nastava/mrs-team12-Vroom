@@ -3,6 +3,8 @@ import { Socket } from "ngx-socket-io";
 import { Subject } from "rxjs";
 import { AuthService } from "./auth.service";
 import { NgToastService, ToastType } from "ng-angular-popup";
+import * as Stomp from 'stompjs';
+import SockJS from 'sockjs-client';
 
 // uncomment everything when panic endpoints & websockets are implemented, this is for testing purposes only
 @Injectable({
@@ -10,25 +12,32 @@ import { NgToastService, ToastType } from "ng-angular-popup";
 })
 export class PanicNotificationService{
     private panicSubject = new Subject<any>()
+    private stompClient: any
     panic$ = this.panicSubject.asObservable()
     
-    //private socket = inject(Socket);
-    //private authService = inject(AuthService);
+    constructor(private toastService: NgToastService, private authService: AuthService){}
 
-    constructor(private toastService: NgToastService){
-        console.log('init')
-        //this.initPanicSocketListener()
+    initalizeWebSocket(){
+        const ws = new SockJS('http://localhost:8080/socket')
+        this.stompClient = Stomp.over(ws)
+
+        this.stompClient.connect({}, () => {
+            this.stompClient.subscribe('/socket-publisher/panic-notifications', (message: any) => {
+                const userType = this.authService.getCurrentUserType
+
+                // only start listening if admin is logged in
+                if(userType === 'ADMIN' && message.body){
+                    const parsedData = JSON.parse(message.body);
+                    this.panicSubject.next(parsedData)
+                    this.handlePanicNotification()
+                }
+            })
+        })
     }
-
-    private initPanicSocketListener(){
-        /*this.socket.fromEvent('panic').subscribe((data)=>{
-            const userType = this.authService.getCurrentUserType()
-
-            if (userType && userType === 'ADMIN') {
-                this.panicSubject.next(data)
-                this.handlePanicNotification()
-            }
-        })*/
+    disconnectWebSocket(){
+        if(this.stompClient && this.stompClient.connected){
+            this.stompClient.disconnect()
+        }
     }
 
     handlePanicNotification(){
