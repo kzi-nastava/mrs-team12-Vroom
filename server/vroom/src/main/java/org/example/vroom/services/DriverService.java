@@ -63,10 +63,16 @@ public class DriverService {
         return driverMapper.toDTO(driver);
     }
 
+
+
     public List<DriverDTO> getAvailableDrivers() {
         List<Driver> drivers =
                 driverRepository.findByStatus(DriverStatus.AVAILABLE);
         return driverMapper.toDTOList(drivers);
+    }
+
+    public Optional<DriverStatus> getDriverStatus(Long id) {
+        return this.driverRepository.findStatusById(id);
     }
 
     public DriverDTO changeStatus(Long driverId,
