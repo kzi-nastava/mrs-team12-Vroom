@@ -7,7 +7,7 @@ import { DriverRideHistory } from './features/driver-ride-history/driver-ride-hi
 import { DriverActiveRide} from './features/driver-active-ride/driver-active-ride';   
 import { OrderFromFavorites } from './features/order-from-favorites/order-from-favorites';
 import { OrderARide } from './features/order-a-ride/order-a-ride';
-import { CancelStopRide } from './features/cancel-stop-ride/cancel-stop-ride';
+import { CancelRide } from './features/cancel-ride/cancel-ride';
 import { RideDuration } from './features/ride-duration/ride-duration';
 import { MainView } from './features/main-view/main-view';
 import { RideEnd } from './features/ride-end/ride-end';
@@ -18,6 +18,7 @@ import { ChangeDriverStatus } from './features/change-driver-status/change-drive
 import { PanicButton } from './features/panic-btn/panic-button';
 import { PanicFeed } from './features/panic-feed/panic-feed';
 import { RideDurationDriver } from './features/ride-duration-driver/ride-duration-driver'
+import { StopRide } from './features/stop-ride/stop-ride';
  
 
 export const routes: Routes = [
@@ -28,7 +29,6 @@ export const routes: Routes = [
     {path: 'driver-ride-history', component: DriverRideHistory},
     {path: 'driver-active-ride', component: DriverActiveRide},
     {path: 'order-from-favorites', component: OrderFromFavorites},
-    {path: 'cancel-ride', component:CancelStopRide},
     {path: 'register-driver', component: RegisterDriver},
     {path: 'panic', component: PanicButton},
     {path: 'panic-feed', component: PanicFeed},
@@ -40,5 +40,7 @@ export const routes: Routes = [
             {path: 'ride-duration-driver', component: RideDurationDriver},
             {path: 'review', component: RideEnd}
         ]
-    }
+    },
+    {path: 'cancel-ride', component:CancelRide},
+    {path: 'stop', component:StopRide}
 ];

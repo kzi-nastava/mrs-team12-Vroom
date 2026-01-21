@@ -10,6 +10,7 @@ import { ForgotPasswordRequestDTO } from '../../core/models/auth/requests/forgot
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
 import { AuthService } from '../../core/services/auth.service';
 import { DriverService } from '../../core/services/driver.service';
+import { PanicNotificationService } from '../../core/services/panic-notification.service';
 
 @Component({
   selector: 'app-login',
@@ -33,7 +34,8 @@ export class Login implements OnInit {
     private activatedRoute: ActivatedRoute, 
     private cdRef: ChangeDetectorRef, 
     private authService: AuthService,
-    private driverService: DriverService){}
+    private driverService: DriverService,
+    private panicNotificationService: PanicNotificationService){}
 
   ngOnInit(): void {
     this.activatedRoute.queryParams.subscribe(params => {
@@ -97,7 +99,8 @@ export class Login implements OnInit {
         
         if (response.type === 'DRIVER') {
           this.driverService.initializeWebSocket();
-        }
+        }else if(response.type === 'ADMIN')
+          this.panicNotificationService.initalizeWebSocket()
 
         // redirect to main
         this.router.navigate(['/'])
