@@ -41,4 +41,8 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
             @Param("babiesAllowed") Boolean babiesAllowed,
             @Param("petsAllowed") Boolean petsAllowed
     );
+
+    @Query("SELECT d.status FROM Driver d WHERE d.id = :id")
+    Optional<DriverStatus> findStatusById(@Param("id") Long id);
+
 }

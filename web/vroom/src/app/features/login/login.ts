@@ -9,6 +9,7 @@ import { isHttpError } from '../../core/utils/http-error.guard';
 import { ForgotPasswordRequestDTO } from '../../core/models/auth/requests/forgot-password-request.dto';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
 import { AuthService } from '../../core/services/auth.service';
+import { DriverService } from '../../core/services/driver.service';
 
 @Component({
   selector: 'app-login',
@@ -27,7 +28,12 @@ export class Login implements OnInit {
   success: String = ''
 
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute, private cdRef: ChangeDetectorRef, private authService: AuthService){}
+  constructor(
+    private router: Router, 
+    private activatedRoute: ActivatedRoute, 
+    private cdRef: ChangeDetectorRef, 
+    private authService: AuthService,
+    private driverService: DriverService){}
 
   ngOnInit(): void {
     this.activatedRoute.queryParams.subscribe(params => {
@@ -89,6 +95,10 @@ export class Login implements OnInit {
         localStorage.setItem('expires', String(response.expires))
         this.error = ''
         
+        if (response.type === 'DRIVER') {
+          this.driverService.initializeWebSocket();
+        }
+
         // redirect to main
         this.router.navigate(['/'])
       },
