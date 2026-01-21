@@ -19,7 +19,6 @@ public class RegisteredUserMapper {
                 .password(user.getPassword())
                 .address(user.getAddress())
                 .gender(user.getGender())
-                .userStatus(UserStatus.INACTIVE)
                 .build();
     }
 

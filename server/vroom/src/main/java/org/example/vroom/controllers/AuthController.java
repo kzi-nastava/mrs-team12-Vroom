@@ -5,6 +5,7 @@ import org.example.vroom.DTOs.requests.auth.*;
 import org.example.vroom.DTOs.requests.driver.DriverRegisterRequestDTO;
 import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
 import org.example.vroom.DTOs.responses.auth.RegisterResponseDTO;
+import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.example.vroom.DTOs.responses.*;
@@ -138,13 +139,18 @@ public class AuthController {
 
     @GetMapping(path = "/activate-account/{userID}")
     public ResponseEntity<Void> activateAccount(@PathVariable Long userID){
-        boolean isActivated = registeredUserService.activateUser(userID);
-        String targetUrl="";
+        String targetUrl;
 
-        if(isActivated)
+        try {
+            registeredUserService.activateUser(userID);
+
             targetUrl = "http://localhost:4200/login?status=activated";
-        else
+        } catch (ActivationExpiredException e) {
+            targetUrl = "http://localhost:4200/login?status=expired";
+
+        } catch (UserNotFoundException e) {
             targetUrl = "http://localhost:4200/login?status=failed";
+        }
 
         return ResponseEntity
                 .status(HttpStatus.SEE_OTHER)

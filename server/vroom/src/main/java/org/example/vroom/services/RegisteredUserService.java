@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.RegisteredUserDTO;
 import org.example.vroom.DTOs.requests.auth.RegisterRequestDTO;
 import org.example.vroom.entities.RegisteredUser;
+import org.example.vroom.enums.UserStatus;
+import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
 import org.example.vroom.exceptions.user.UserAlreadyExistsException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RegisteredUserMapper;
@@ -14,6 +16,9 @@ import org.example.vroom.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class RegisteredUserService {
@@ -38,6 +43,8 @@ public class RegisteredUserService {
 
         req.setPassword(passwordEncoder.encode(req.getPassword()));
         RegisteredUser user = registeredUserMapper.createUser(req);
+        user.setUserStatus(UserStatus.INACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
 
         user = registeredUserRepository.saveAndFlush(user);
 
@@ -51,8 +58,19 @@ public class RegisteredUserService {
         }
     }
 
-    public boolean activateUser(Long id) {
-        return registeredUserRepository.activateUserById(id) > 0;
+    @Transactional
+    public void activateUser(Long id) {
+        Optional<RegisteredUser> userOptional = registeredUserRepository.findById(id);
+        if(userOptional.isEmpty())
+            throw new UserNotFoundException("User not found");
+
+        RegisteredUser user = userOptional.get();
+
+        if(LocalDateTime.now().isAfter(user.getCreatedAt().plusDays(1)))
+            throw new ActivationExpiredException("The activation link has expired (valid 24h)");
+
+        user.setUserStatus(UserStatus.ACTIVE);
+        registeredUserRepository.save(user);
     }
 
     public RegisteredUserDTO getMyProfile(String email) {
