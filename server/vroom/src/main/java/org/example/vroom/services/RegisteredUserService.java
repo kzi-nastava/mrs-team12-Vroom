@@ -14,6 +14,7 @@ import org.example.vroom.mappers.RegisteredUserProfileMapper;
 import org.example.vroom.repositories.RegisteredUserRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.example.vroom.utils.EmailService;
+import org.example.vroom.utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,22 +37,17 @@ public class RegisteredUserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private RegisteredUserProfileMapper registeredUserProfileMapper;
+    @Autowired
+    private PasswordUtils passwordUtils;
 
-    private boolean isPasswordValid(String pass){
-        if(pass == null || pass.isEmpty() ||
-                pass.length() < 8 || !pass.matches(".*[0-9].*") ||
-                !pass.matches(".*[a-z].*") || !pass.matches(".*[A-Z].*"))
-            return false;
-
-        return true;
-    }
 
     @Transactional
     public void createUser(RegisterRequestDTO req) {
         if (userRepository.findByEmail(req.getEmail()).isPresent())
             throw new UserAlreadyExistsException("User with this email already exists");
 
-        if(!isPasswordValid(req.getPassword())) throw new InvalidPasswordException("Password doesn't match criteria");
+        if(!passwordUtils.isPasswordValid(req.getPassword()))
+            throw new InvalidPasswordException("Password doesn't match criteria");
 
         req.setPassword(passwordEncoder.encode(req.getPassword()));
         RegisteredUser user = registeredUserMapper.createUser(req);

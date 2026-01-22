@@ -1,18 +1,31 @@
 package com.example.vroom.network;
 
-import com.example.vroom.services.AuthService;
+import android.content.Context;
 
+import com.example.vroom.services.AuthService;
+import com.example.vroom.services.DriverService;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
+    private static Context mContext;
     private static final String BASE_URL = "http://10.0.2.2:8080/";
     private static Retrofit retrofit = null;
 
+    public static void init(Context context) {
+        mContext = context;
+    }
     private static Retrofit getClient() {
         if (retrofit == null) {
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .addInterceptor(new AuthInterceptor(mContext))
+                    .build();
+
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+                    .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
@@ -21,4 +34,5 @@ public class RetrofitClient {
     public static AuthService getAuthService(){
         return getClient().create(AuthService.class);
     }
+    public static DriverService getDriverService() {return getClient().create(DriverService.class);}
 }
