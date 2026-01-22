@@ -59,6 +59,7 @@ public class LoginActivity extends BaseActivity {
         String token = StorageManager.getData("jwt", null);
         Long expires = StorageManager.getLong("expires", null);
 
+        // check this for milis if correct
         if(token != null && System.currentTimeMillis() < expires){
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
