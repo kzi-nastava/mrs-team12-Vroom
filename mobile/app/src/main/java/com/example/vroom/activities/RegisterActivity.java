@@ -12,7 +12,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.vroom.DTOs.MessageResponse;
+import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.auth.requests.RegisterUserRequestDTO;
 import com.example.vroom.R;
 import com.example.vroom.enums.Gender;
@@ -140,9 +140,9 @@ public class RegisterActivity extends BaseActivity {
             RegisterUserRequestDTO req = new RegisterUserRequestDTO(firstName, lastName, email, phone,
                     address, genderEnum, photo, pass);
 
-            RetrofitClient.getAuthService().registerUser(req).enqueue(new Callback<MessageResponse>() {
+            RetrofitClient.getAuthService().registerUser(req).enqueue(new Callback<MessageResponseDTO>() {
                 @Override
-                public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                     if(response.isSuccessful() && response.body() != null){
                         Toast.makeText(RegisterActivity.this, response.body().getMessage(), Toast.LENGTH_LONG).show();
 
@@ -156,7 +156,7 @@ public class RegisterActivity extends BaseActivity {
                 }
 
                 @Override
-                public void onFailure(Call<MessageResponse> call, Throwable t) {
+                public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
                     Toast.makeText(RegisterActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
