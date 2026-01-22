@@ -12,7 +12,7 @@ import { Subject } from "rxjs";
     providedIn: 'root'
 })
 export class DriverService{
-    private api = 'http://localhost:8080/api/driver'
+    private api = 'http://localhost:8080/api/drivers'
     private stompClient: any;
     public locationUpdates$ = new Subject<LocationUpdate>();
 
