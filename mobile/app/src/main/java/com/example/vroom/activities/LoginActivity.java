@@ -57,7 +57,7 @@ public class LoginActivity extends BaseActivity {
         StorageManager.getSharedPreferences(this);
 
         String token = StorageManager.getData("jwt", null);
-        Long expires = StorageManager.getLong("expires", null);
+        long expires = StorageManager.getLong("expires", -1L);
 
         // check this for milis if correct
         if(token != null && System.currentTimeMillis() < expires){
@@ -94,9 +94,6 @@ public class LoginActivity extends BaseActivity {
                     Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
-
-            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
-            startActivity(intent);
         }catch(Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
