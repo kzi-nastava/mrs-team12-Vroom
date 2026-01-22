@@ -7,6 +7,7 @@ import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
 import org.example.vroom.DTOs.responses.auth.RegisterResponseDTO;
 import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
+import org.example.vroom.repositories.DriverRepository;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.example.vroom.DTOs.responses.*;
@@ -159,7 +160,9 @@ public class AuthController {
                 .location(URI.create(targetUrl))
                 .build();
     }
-    
+
+    @Autowired
+    private DriverRepository driverRepository;
     @PostMapping(
             path = "/register/driver",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -173,7 +176,7 @@ public class AuthController {
         }
 
         Driver driver = driverRegisterMapper.toEntity(data);
-        // driverRepository.save(driver);
+        driverRepository.save(driver);
 
         return new ResponseEntity<RegisterResponseDTO>(
                 new RegisterResponseDTO(
