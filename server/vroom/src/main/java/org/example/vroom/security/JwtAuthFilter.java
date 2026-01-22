@@ -100,12 +100,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // change this to ignore auth + main + route estimation endpoints
         return path.startsWith("/api/auth/")
                 || path.startsWith("/api/admins/")
-                //|| path.startsWith("/api/rides/")
+                || path.startsWith("/api/rides/")
                 || path.startsWith("/api/routes/")
                 || path.startsWith("/api/main/")
                 //|| path.startsWith("/api/profile/driver")
-                //|| path.startsWith("/api/profile/user")
-                || path.startsWith("/api/geo")
-                || path.startsWith("/api/drivers/");
+               // || path.startsWith("/api/profile/user")
+                || path.startsWith("/api/geo");
+                //|| path.startsWith("/api/drivers/");
     }
 }

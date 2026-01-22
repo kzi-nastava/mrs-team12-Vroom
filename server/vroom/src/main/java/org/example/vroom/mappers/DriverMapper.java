@@ -91,6 +91,7 @@ public class DriverMapper {
     public Driver toEntity(DriverRegistrationRequestDTO dto, String encodedPassword) {
 
         Vehicle vehicle = Vehicle.builder()
+                .brand(dto.getBrand())
                 .model(dto.getModel())
                 .type(dto.getType())
                 .licenceNumber(dto.getLicenceNumber())
