@@ -101,6 +101,7 @@ public class AuthController {
     public ResponseEntity<MessageResponseDTO> forgotPassword(@RequestBody ResetPasswordRequestDTO data){
         if(data==null)
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
+
         try{
             authService.resetPassword(data.getEmail(), data.getCode(), data.getPassword());
             return new ResponseEntity<MessageResponseDTO>(

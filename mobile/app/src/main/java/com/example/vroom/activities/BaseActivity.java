@@ -78,6 +78,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         viewModel = new ViewModelProvider(this).get(NavigationViewModel.class);
         observeViewModel();
+
         initToggleStatus(navigationView);
     }
 
