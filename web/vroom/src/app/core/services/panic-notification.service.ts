@@ -18,15 +18,15 @@ export class PanicNotificationService{
     constructor(private toastService: NgToastService, private authService: AuthService){}
 
     initalizeWebSocket(){
+        const userType = this.authService.getCurrentUserType
+        if(userType !=='ADMIN') return
+
         const ws = new SockJS('http://localhost:8080/socket')
         this.stompClient = Stomp.over(ws)
 
         this.stompClient.connect({}, () => {
             this.stompClient.subscribe('/socket-publisher/panic-notifications', (message: any) => {
-                const userType = this.authService.getCurrentUserType
-
-                // only start listening if admin is logged in
-                if(userType === 'ADMIN' && message.body){
+                if(message.body){
                     const parsedData = JSON.parse(message.body);
                     this.panicSubject.next(parsedData)
                     this.handlePanicNotification()
@@ -34,6 +34,7 @@ export class PanicNotificationService{
             })
         })
     }
+
     disconnectWebSocket(){
         if(this.stompClient && this.stompClient.connected){
             this.stompClient.disconnect()

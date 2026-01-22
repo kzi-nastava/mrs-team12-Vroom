@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +23,6 @@ import java.util.List;
 public class PanicNotificationsController {
     @Autowired
     private PanicNotificationsService panicNotificationsService;
-
-    /*@Autowired
-    private SimpMessagingTemplate messagingTemplate;*/
 
     @GetMapping()
     public ResponseEntity<List<PanicNotificationResponseDTO>> getPanicNotifications(
@@ -49,32 +48,21 @@ public class PanicNotificationsController {
         }
     }
 
-
-    @PostMapping(
-            path = "/ride/{rideID}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<MessageResponseDTO> panicRide(
-        @PathVariable Long rideID,
-        @RequestBody PanicRequestDTO data
+    @MessageMapping("panic")
+    @SendTo("/socket-publisher/panic-notifications")
+    public MessageResponseDTO panicRide(
+        PanicRequestDTO data
     ){
-        System.out.println("Ovde");
-        if(data == null)  return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if(data == null && data.getRideId() == null)  return new MessageResponseDTO("Invalid panic request data");
 
         try{
-            panicNotificationsService.activatePanic(rideID, data);
+            panicNotificationsService.activatePanic(data);
 
-            // messagingTemplate/convertAndSend() send notification
-
-            return new ResponseEntity<MessageResponseDTO>(
-                    new MessageResponseDTO("Administrators are notified, please hang in there while they resolve the issue"),
-                    HttpStatus.OK
-            );
+            return new MessageResponseDTO("Administrators are notified, please hang in there while they resolve the issue");
         }catch(RideNotFoundException | UserNotFoundException  e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new MessageResponseDTO("User or ride not found, please try again");
         }catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new MessageResponseDTO("System error occured");
         }
     }
 
