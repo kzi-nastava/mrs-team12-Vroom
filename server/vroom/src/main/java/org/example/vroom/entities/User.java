@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -88,4 +89,8 @@ public abstract class User implements UserDetails {
     public boolean isEnabled(){
         return this.blockedReason == null;
     }
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @org.hibernate.annotations.CreationTimestamp
+    private LocalDateTime createdAt;
 }
