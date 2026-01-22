@@ -7,11 +7,11 @@ import { MessageResponseDTO } from "../../core/models/message-response.dto";
   providedIn: 'root'  
 })
 export class RegisterDriverService{
-    private apiUrl = 'http://localhost:8080/api/auth'
+    private apiUrl = 'http://localhost:8080/api/drivers';
     
     constructor(private http: HttpClient) {}
 
-    isPasswordValid(password: string): String | null{
+    isPasswordValid(password: string): string | null{
         if(password.length < 8) return 'Password must be over 8 characters long'
         if(!/[0-9]/.test(password)) return 'Password must contain a number';
         if(!/[a-z]/.test(password)) return 'Password must contain a lowercase letter'
@@ -79,6 +79,6 @@ export class RegisterDriverService{
     }
 
     createRequest(data: any): Observable<MessageResponseDTO> {
-        return this.http.post<MessageResponseDTO>(this.apiUrl+'/register', data)
+        return this.http.post<MessageResponseDTO>(this.apiUrl+'/register/driver', data)
     }
 }

@@ -17,6 +17,7 @@ import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.RideRepository;
+import org.example.vroom.repositories.UserRepository;
 import org.example.vroom.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -47,6 +48,8 @@ public class DriverService {
     private RideRepository rideRepository;
     @Autowired
     private RideMapper rideMapper;
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private VehicleRepository vehicleRepository;
 
@@ -93,8 +96,7 @@ public class DriverService {
     }
     @Transactional
     public DriverDTO registerDriver(DriverRegistrationRequestDTO request) {
-
-        if (driverRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new DriverAlreadyExistsException(
                     "Driver with this email already exists"
             );
@@ -107,21 +109,32 @@ public class DriverService {
         Driver driver = driverMapper.toEntity(request, encodedPassword);
 
 
+        driver.setStatus(DriverStatus.INACTIVE);
+
+
         if (request.getNumberOfSeats() == null || request.getNumberOfSeats() <= 0) {
             throw new IllegalArgumentException("Number of seats must be positive");
         }
-
         if (request.getPetsAllowed() == null) {
             throw new IllegalArgumentException("Pets preference must be selected");
         }
-
         if (request.getBabiesAllowed() == null) {
             throw new IllegalArgumentException("Babies preference must be selected");
         }
 
-        Driver saved = driverRepository.saveAndFlush(driver);
 
-        return driverMapper.toDTO(saved);
+        System.out.println("Registering driver: " + driver);
+        if (vehicleRepository.existsByLicenceNumber(request.getLicenceNumber())) {
+            throw new IllegalArgumentException("Vehicle with this licence number already exists");
+        }
+
+
+        driver = driverRepository.saveAndFlush(driver);
+
+        System.out.println("Driver saved with ID: " + driver.getId());
+
+
+        return driverMapper.toDTO(driver);
     }
 
 

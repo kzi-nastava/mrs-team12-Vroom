@@ -20,6 +20,7 @@ public class DriverRegistrationRequestDTO {
     private String phoneNumber;
     private byte[] profilePhoto;
 
+    private String brand;
     private String model;
     private VehicleType type;
     private String licenceNumber;
