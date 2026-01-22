@@ -69,8 +69,8 @@ public class PanicNotificationsService {
         else return panicNotificationMapper.createPanicResponseDTO(notification);
     }
 
-    public void activatePanic(Long rideId, PanicRequestDTO data){
-        Ride ride = checkRideExisting(rideId);
+    public void activatePanic(PanicRequestDTO data){
+        Ride ride = checkRideExisting(data.getRideId());
 
         Optional<User> user = userRepository.findById(data.getUserId());
         if(user.isEmpty()){

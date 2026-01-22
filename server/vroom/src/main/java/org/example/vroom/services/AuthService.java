@@ -72,7 +72,7 @@ public class AuthService {
     }
 
     public void logout(Long id, String type, HttpServletResponse response){
-        if(!type.equals("driver")) return;
+        if(!type.equals("DRIVER")) return;
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
