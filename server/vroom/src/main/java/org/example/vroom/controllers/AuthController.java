@@ -106,7 +106,7 @@ public class AuthController {
                     new MessageResponseDTO("Successfully reseted password"),
                     HttpStatus.OK
             );
-        }catch(InvalidTokenException e){
+        }catch(InvalidTokenException | InvalidPasswordException e){
             return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         }catch(Exception e){
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
