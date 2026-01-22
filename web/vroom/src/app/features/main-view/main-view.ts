@@ -5,8 +5,6 @@ import * as L from 'leaflet';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { MapService } from '../../core/services/map.service';
 import { MapActionType } from '../../core/models/map/enums/map-action-type.enum';
-import { HttpClient } from '@angular/common/http';
-import { DriverLocationService } from '../driver-location/driver-location.service';
 import { DriverService } from '../../core/services/driver.service';
 import { LocationUpdate } from '../../core/models/driver/location-update-response.dto';
 
@@ -31,12 +29,9 @@ export class MainView implements AfterViewInit {
     '/ride-review'
   ];
   
-
   constructor(
     private mapService: MapService,
-    private http: HttpClient,
     private router: Router,
-    private driverLocationService: DriverLocationService,
     private driverService: DriverService
   ) {}
 
@@ -64,7 +59,6 @@ export class MainView implements AfterViewInit {
     
     // setup map service listener when action happens there to update the map
     this.setupMapServiceListener();
-    this.setupRealTimeLocationListener();
   }
 
   private centerOnUser(): void {
@@ -81,6 +75,44 @@ export class MainView implements AfterViewInit {
         () => console.warn('Location access denied. Using default centroid.')
       );
     }
+  }
+
+  private setupRouteListener(): void{
+    this.routeLayer.addTo(this.map);
+    this.vehiclesLayer.addTo(this.map);
+
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event: any) => {
+        const currentUrl = event.urlAfterRedirects;
+        if (!this.routesWithMap.some(route => currentUrl.includes(route))) {
+          this.routeLayer.clearLayers();
+          this.map.setView(this.centroid, 14); 
+        }
+      });
+  } 
+
+  private setupMapServiceListener(): void{
+    this.mapService.mapAction$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(action => {
+        switch (action.type) {
+          case MapActionType.DRAW_ROUTE:
+            this.driverService.disconnectWebSocket();
+            this.handleDrawRoute(action.payload);
+            break;
+          case MapActionType.CLEAR_MAP:
+            this.routeLayer.clearLayers();
+            break;
+          case MapActionType.SHOW_VEHICLES:
+            this.routeLayer.clearLayers();
+            this.setupRealTimeLocationListener();
+            break;
+        }
+      });
   }
 
   private setupRealTimeLocationListener(): void {
@@ -114,39 +146,6 @@ export class MainView implements AfterViewInit {
       );
       this.driverMarkers.set(driverId, marker);
     }
-  }
-
-  private setupMapServiceListener(): void{
-    this.mapService.mapAction$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(action => {
-        switch (action.type) {
-          case MapActionType.DRAW_ROUTE:
-            this.handleDrawRoute(action.payload);
-            break;
-          case MapActionType.CLEAR_MAP:
-            this.routeLayer.clearLayers();
-            break;
-        }
-      });
-  }
-
-  private setupRouteListener(): void{
-    this.routeLayer.addTo(this.map);
-    this.vehiclesLayer.addTo(this.map);
-
-    this.router.events
-      .pipe(
-        filter(event => event instanceof NavigationEnd),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((event: any) => {
-        const currentUrl = event.urlAfterRedirects;
-        if (!this.routesWithMap.some(route => currentUrl.includes(route))) {
-          this.routeLayer.clearLayers();
-          this.map.setView(this.centroid, 14); 
-        }
-      });
   }
 
   private async handleDrawRoute(payload: any): Promise<void> {
@@ -236,7 +235,7 @@ export class MainView implements AfterViewInit {
     });
   }
 
-    private showCarIcon(): L.DivIcon {
+  private showCarIcon(): L.DivIcon {
     return L.divIcon({
       html: `<div style="width: 50px; height: 50px;">
         <img src="../../assets/icons/available-taxi.svg" style="width: 100%; height: 100%;" />
