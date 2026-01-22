@@ -5,6 +5,7 @@ import org.example.vroom.DTOs.RegisteredUserDTO;
 import org.example.vroom.DTOs.requests.auth.RegisterRequestDTO;
 import org.example.vroom.entities.RegisteredUser;
 import org.example.vroom.enums.UserStatus;
+import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
 import org.example.vroom.exceptions.user.UserAlreadyExistsException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
@@ -36,10 +37,21 @@ public class RegisteredUserService {
     @Autowired
     private RegisteredUserProfileMapper registeredUserProfileMapper;
 
+    private boolean isPasswordValid(String pass){
+        if(pass == null || pass.isEmpty() ||
+                pass.length() < 8 || !pass.matches(".*[0-9].*") ||
+                !pass.matches(".*[a-z].*") || !pass.matches(".*[A-Z].*"))
+            return false;
+
+        return true;
+    }
+
     @Transactional
     public void createUser(RegisterRequestDTO req) {
         if (userRepository.findByEmail(req.getEmail()).isPresent())
             throw new UserAlreadyExistsException("User with this email already exists");
+
+        if(!isPasswordValid(req.getPassword())) throw new InvalidPasswordException("Password doesn't match criteria");
 
         req.setPassword(passwordEncoder.encode(req.getPassword()));
         RegisteredUser user = registeredUserMapper.createUser(req);

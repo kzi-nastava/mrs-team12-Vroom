@@ -1,5 +1,6 @@
 package com.example.vroom.activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.*;
@@ -7,12 +8,21 @@ import android.widget.*;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.vroom.DTOs.MessageResponse;
+import com.example.vroom.DTOs.auth.requests.RegisterUserRequestDTO;
 import com.example.vroom.R;
+import com.example.vroom.enums.Gender;
+import com.example.vroom.network.RetrofitClient;
+import com.example.vroom.utils.ImageUtils;
+import com.example.vroom.utils.PasswordUtils;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RegisterActivity extends BaseActivity {
     private EditText firstNameInput;
@@ -91,28 +101,13 @@ public class RegisterActivity extends BaseActivity {
             }
     );
 
-    private void isPasswordValid() throws Exception{
-        String pass = passInput.getText().toString();
-        String rePass = rePassInput.getText().toString();
-
-        if (pass.length() < 8) {
-            throw new Exception("Password must be at least 8 characters long");
-        }
-
-        if (!pass.matches(".*[0-9].*")) {
-            throw new Exception("Password must contain a number");
-        }
-
-        if (!pass.matches(".*[a-z].*")) {
-            throw new Exception("Password must contain a lowercase letter");
-        }
-
-        if (!pass.matches(".*[A-Z].*")) {
-            throw new Exception("Password must contain an uppercase letter");
-        }
-
-        if(!pass.equals(rePass))
-            throw new Exception("Password must match");
+    private Gender getGender(){
+        if(selectedGender.equalsIgnoreCase("male"))
+            return Gender.MALE;
+        else if (selectedGender.equalsIgnoreCase("FEMALE"))
+            return Gender.FEMALE;
+        else
+            return Gender.OTHER;
     }
 
     private void register(){
@@ -127,9 +122,7 @@ public class RegisterActivity extends BaseActivity {
             String pass = passInput.getText().toString();
             String rePass = rePassInput.getText().toString();
 
-            Toast.makeText(this, selectedGender, Toast.LENGTH_SHORT).show();
-
-            /*if(
+            if(
                     firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
                     phone.isEmpty() || country.isEmpty() || city.isEmpty() ||
                     street.isEmpty() || pass.isEmpty() || rePass.isEmpty() ||
@@ -137,7 +130,36 @@ public class RegisterActivity extends BaseActivity {
             )
                 throw new Exception("Fields cannot be empty");
 
-            isPasswordValid();*/
+            PasswordUtils.isPasswordValid(passInput.getText().toString(), rePassInput.getText().toString());
+
+            String address = street + ", " + city + ", " + country;
+            Gender genderEnum = getGender();
+
+            byte[] photo = ImageUtils.uriToByteArray(this, selectedImage);
+
+            RegisterUserRequestDTO req = new RegisterUserRequestDTO(firstName, lastName, email, phone,
+                    address, genderEnum, photo, pass);
+
+            RetrofitClient.getAuthService().registerUser(req).enqueue(new Callback<MessageResponse>() {
+                @Override
+                public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                    if(response.isSuccessful() && response.body() != null){
+                        Toast.makeText(RegisterActivity.this, response.body().getMessage(), Toast.LENGTH_LONG).show();
+
+                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                        startActivity(intent);
+
+                        finish();
+
+                    }else
+                        Toast.makeText(RegisterActivity.this, "Server error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Call<MessageResponse> call, Throwable t) {
+                    Toast.makeText(RegisterActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
 
         }catch(Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
