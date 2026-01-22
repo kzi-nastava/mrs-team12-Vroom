@@ -3,7 +3,6 @@ import { provideRouter } from '@angular/router';
 import { provideNgToast } from 'ng-angular-popup';
 
 import { routes } from './app.routes';
-import { PanicNotificationService } from './core/services/panic-notification.service';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 
@@ -24,12 +23,5 @@ export const appConfig: ApplicationConfig = {
       enableAnimations: true 
     }),
     provideRouter(routes)
-    // uncomment next set of code, it is used to listen for panic notifications in bg, starts on load but only admin gets notifications
-    /*,{
-      provide: APP_INITIALIZER,
-      useFactory: (pns: PanicNotificationService) => () => Promise.resolve(),
-      deps: [PanicNotificationService],
-      multi: true
-    }*/
   ]
 };
