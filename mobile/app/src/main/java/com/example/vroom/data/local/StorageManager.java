@@ -39,11 +39,11 @@ public class StorageManager {
         return prefs.getString(key, value);
     }
 
-    public static void saveLong(String key, Long value){
+    public static void saveLong(String key, long value){
         prefs.edit().putLong(key, value).apply();
     }
 
-    public static Long getLong(String key, Long value){
+    public static long getLong(String key, long value){
         return prefs.getLong(key, value);
     }
 
