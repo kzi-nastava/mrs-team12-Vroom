@@ -1,6 +1,7 @@
 package com.example.vroom.network;
 
 import com.example.vroom.services.AuthService;
+import com.example.vroom.services.DriverService;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -21,4 +22,5 @@ public class RetrofitClient {
     public static AuthService getAuthService(){
         return getClient().create(AuthService.class);
     }
+    public static DriverService getDriverService() {return getClient().create(DriverService.class);}
 }
