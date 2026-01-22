@@ -10,6 +10,7 @@ import org.example.vroom.DTOs.requests.ride.RideRequestDTO;
 import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
+import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
@@ -108,6 +109,15 @@ public class RideService {
         }
 
         return route;
+    }
+
+    public GetRouteResponseDTO getRoute(Long rideID){
+        Optional<Ride> rideOptional = this.rideRepository.findById(rideID);
+        if (rideOptional.isPresent()) {
+            Ride ride = rideOptional.get();
+            return routeMapper.getRouteDTO(ride.getRoute());
+        }
+        return null;
     }
 
 
