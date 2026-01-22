@@ -7,6 +7,7 @@ import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Ride;
+import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.services.DriverService;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/drivers")
@@ -46,13 +48,17 @@ public class DriverController {
     }
 
     //@PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    public ResponseEntity<DriverDTO> registerDriver(
-            @RequestBody DriverRegistrationRequestDTO request
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(driverService.registerDriver(request));
+    @PostMapping("/register/driver")
+    public ResponseEntity<?> registerDriver(@RequestBody DriverRegistrationRequestDTO request) {
+        try {
+            DriverDTO driver = driverService.registerDriver(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(driver);
+        } catch (DriverAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PutMapping(path = "/{driverID}/status")
