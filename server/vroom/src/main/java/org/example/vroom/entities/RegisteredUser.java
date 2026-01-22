@@ -20,7 +20,7 @@ public class RegisteredUser extends User{
     @Column(nullable = true)
     private UserStatus userStatus;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime createdAt;
     
 
