@@ -75,22 +75,13 @@ public class RideController {
         return new ResponseEntity<GetRideResponseDTO>(ride, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/{rideID}/duration", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GetRideUpdatesResponseDTO> getRideUpdate(@PathVariable Long rideID){
-        GetRideUpdatesResponseDTO dto = new GetRideUpdatesResponseDTO();
-        dto.setPoint(new PointResponseDTO(48.45, 45.32));
-        dto.setTime(14.0);
-        return new ResponseEntity<>(dto, HttpStatus.OK);
-    }
-
-    @PutMapping(path = "/{rideID}/duration", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponseDTO> updateRide(
-            @PathVariable Long rideID,
-            @RequestBody RideUpdateRequestDTO updatedData
-    ){
-        double time = updatedData.getTime();
-        PointResponseDTO point = updatedData.getPoint();
-        return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
+    @GetMapping(path="/{rideID}/route", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GetRouteResponseDTO> getRoute(@PathVariable Long rideID){
+        GetRouteResponseDTO route = this.rideService.getRoute(rideID);
+        if (route == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<GetRouteResponseDTO>(route, HttpStatus.OK);
     }
 
     @PostMapping(path = "/{rideID}/complaint", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
