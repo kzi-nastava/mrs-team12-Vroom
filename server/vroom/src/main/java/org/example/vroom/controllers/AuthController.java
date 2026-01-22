@@ -5,6 +5,7 @@ import org.example.vroom.DTOs.requests.auth.*;
 import org.example.vroom.DTOs.requests.driver.DriverRegisterRequestDTO;
 import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
 import org.example.vroom.DTOs.responses.auth.RegisterResponseDTO;
+import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -129,12 +130,13 @@ public class AuthController {
             );
         }catch(UserAlreadyExistsException e) {
             return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.CONFLICT);
+        } catch(InvalidPasswordException e){
+            return new ResponseEntity<>(new MessageResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e){
             return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.SERVICE_UNAVAILABLE);
         }catch(Exception e){
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @GetMapping(path = "/activate-account/{userID}")
