@@ -43,7 +43,7 @@ public class RouteMapper {
     }
 
     public Route fromDTO(GetRouteResponseDTO dto) {
-        if(dto == null) return null;
+        if (dto == null) return null;
 
         Route route = new Route();
         route.setStartLocationLat(dto.getStartLocationLat());
@@ -51,8 +51,9 @@ public class RouteMapper {
         route.setEndLocationLat(dto.getEndLocationLat());
         route.setEndLocationLng(dto.getEndLocationLng());
 
-        if(dto.getStops() != null) {
-            List<Point> points = dto.getStops().stream()
+        List<Point> points;
+        if (dto.getStops() != null) {
+            points = dto.getStops().stream()
                     .map(p -> {
                         Point point = new Point();
                         point.setLat(p.getLat());
@@ -60,8 +61,10 @@ public class RouteMapper {
                         return point;
                     })
                     .toList();
-            route.setStops(points);
+        } else {
+            points = new ArrayList<>();
         }
+        route.setStops(points);
 
         return route;
     }
