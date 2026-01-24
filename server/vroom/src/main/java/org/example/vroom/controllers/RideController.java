@@ -264,11 +264,14 @@ public class RideController {
             path = "/favorites",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<List<FavoriteRouteDTO>> getFavoriteRoutes() {
-
+    public ResponseEntity<List<FavoriteRouteDTO>> getFavoriteRoutes(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
 
         List<FavoriteRoute> favorites =
-                favoriteRouteService.getCurrentUserFavorites();
+                favoriteRouteService.getCurrentUserFavorites(
+                        userDetails.getUsername()
+                );
 
         List<FavoriteRouteDTO> response = favorites.stream()
                 .map(routeMapper::favoriteRouteToDTO)

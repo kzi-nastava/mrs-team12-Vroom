@@ -106,14 +106,14 @@ public class RideService {
         }
 
         // Start i end
-        String startLocation = route.getStartLocationLng() + "," + route.getStartLocationLat();
-        String endLocation = route.getEndLocationLng() + "," + route.getEndLocationLat();
+        String startLocation = route.getStartLocationLat() + "," + route.getStartLocationLng();
+        String endLocation = route.getEndLocationLat() + "," + route.getEndLocationLng();
 
         String stops = null;
         if (route.getStops() != null && !route.getStops().isEmpty()) {
             stops = route.getStops().stream()
                     .filter(p -> p != null && p.getLat() != null && p.getLng() != null)
-                    .map(p -> p.getLng() + "," + p.getLat())
+                    .map(p -> p.getLat() + "," + p.getLng())
                     .collect(Collectors.joining(";"));
         }
 
@@ -140,8 +140,6 @@ public class RideService {
 
 
     public Ride getActiveRideForDriver(String driverEmail) {
-
-        driverEmail = "lazarvilotic87@gmail.com";
         System.out.println("Driver email u metodi: " + driverEmail);
 
         Optional<Driver> driverOpt = driverRepository.findByEmail(driverEmail);

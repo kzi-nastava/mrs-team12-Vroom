@@ -35,13 +35,7 @@ public class FavoriteRouteService {
     private final RideMapper rideMapper;
     private final RouteService routeService;
 
-    public List<FavoriteRoute> getCurrentUserFavorites() {
-
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        String email = authentication.getName();
-
+    public List<FavoriteRoute> getCurrentUserFavorites(String email) {
         RegisteredUser user = registeredUserRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
