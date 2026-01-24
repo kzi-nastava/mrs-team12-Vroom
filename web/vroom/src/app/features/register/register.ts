@@ -2,7 +2,6 @@ import { Component, ChangeDetectorRef  } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { RegisterService } from './register.service';
 import { firstValueFrom } from 'rxjs';
 import { isHttpError } from '../../core/utils/http-error.guard';
 import { RegisterRequestDTO } from '../../core/models/auth/requests/register-request.dto';
@@ -36,7 +35,7 @@ export class Register {
     error: String = ''
     success: String = ''
 
-    constructor(private registerService: RegisterService, private cdRef: ChangeDetectorRef, private authService: AuthService){}
+    constructor(private cdRef: ChangeDetectorRef, private authService: AuthService){}
 
     onFileChange(event: Event): void{
       const input = event.target as HTMLInputElement;
@@ -44,7 +43,7 @@ export class Register {
     }
 
 
-    async onSubmit(): Promise<void>{
+    onSubmit(){
       this.isLoading = true; 
       this.cdRef.detectChanges();
       this.error = '';
@@ -63,33 +62,24 @@ export class Register {
         return
       }
 
-      let photoBase64: string | undefined = undefined;
-      if (this.profilePic) {
-        try {
-          photoBase64 = await this.registerService.fileToBase64(this.profilePic);
-        } catch (e) {
-          this.error = "Failed to process image profile.";
-          this.isLoading = false;
-          return;
-        }
+      const formData = new FormData()
+      formData.append('firstName', String(this.firstName).trim());
+      formData.append('lastName', String(this.lastName).trim());
+      formData.append('email', String(this.email).trim());
+      formData.append('phoneNumber', String(this.phoneNumber).trim());
+      formData.append('address', `${this.street}, ${this.city}, ${this.country}`);
+      formData.append('gender', this.gender.toString().toUpperCase());
+      formData.append('password', String(this.password));
+
+      if(this.profilePic){
+        formData.append('profilePhoto', this.profilePic)
       }
 
-      const data: RegisterRequestDTO = {
-        firstName: String(this.firstName).trim(),
-        lastName: String(this.lastName).trim(),
-        email: String(this.email).trim(),
-        phoneNumber: String(this.phoneNumber).trim(),
-        address: `${this.street}, ${this.city}, ${this.country}`,
-        gender: this.gender.toString().toUpperCase() as 'MALE' | 'FEMALE' | 'OTHER',
-        password: String(this.password),
-        profilePhoto: photoBase64,
-        type: "user"
-      };
-
-      this.authService.createRegisterRequest(data).subscribe({
+      this.authService.createRegisterRequest(formData).subscribe({
         next: (response: MessageResponseDTO) => {
           this.success = response.message;
           this.error = ''; 
+          this.isLoading = false;
           this.cdRef.detectChanges()
         },
         error: (err) => {
@@ -106,6 +96,7 @@ export class Register {
             default:
               this.error = 'An unexpected error occurred';
           }
+          this.isLoading = false;
           this.cdRef.detectChanges()
         }
       })
