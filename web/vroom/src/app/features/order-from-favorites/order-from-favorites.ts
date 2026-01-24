@@ -1,40 +1,72 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core'; 
+import { CommonModule, } from '@angular/common';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { FavoriteRoute } from './favorite-route.model';
+import { FavoriteRoutesService } from './order-from-favorites.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-order-from-favorites',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './order-from-favorites.html',
-  styleUrl: './order-from-favorites.css'
+  styleUrls: ['./order-from-favorites.css']
 })
-export class OrderFromFavorites {
+export class OrderFromFavorites implements OnInit {
 
-  favoriteRoutes = [
-    {
-      id: 1,
-      name: 'Home → Faculty',
-      start: 'Bulevar Patrijarha Pavla 37',
-      end: 'FTN Novi Sad',
-      price: 520
-    },
-    {
-      id: 2,
-      name: 'Work → Home',
-      start: 'Ilirska 23',
-      end: 'Stražilovska 2',
-      price: 480
-    }
-  ];
+  favoriteRoutes$!: Observable<FavoriteRoute[]>;
 
-  useRoute(route: any) {
-    console.log('Using route:', route);
-    // this.rideForm.start = route.start;
-    // this.rideForm.end = route.end;
+
+  private errorMessageSubject = new BehaviorSubject<string | null>(null);
+  errorMessage$ = this.errorMessageSubject.asObservable(); 
+
+
+  routeOptions: { [key: number]: { vehicleType: string, babiesAllowed: boolean, petsAllowed: boolean } } = {};
+
+  constructor(private favoritesService: FavoriteRoutesService) {}
+
+  ngOnInit(): void {
+    this.favoriteRoutes$ = this.favoritesService.getFavorites();
+    this.favoriteRoutes$.subscribe(favs => {
+      favs.forEach(fav => {
+        this.routeOptions[fav.id] = {
+          vehicleType: 'STANDARD',
+          babiesAllowed: false,
+          petsAllowed: false
+        };
+      });
+    });
   }
 
-  removeFromFavorites(route: any) {
-    this.favoriteRoutes =
-      this.favoriteRoutes.filter(r => r.id !== route.id);
+  useRoute(route: FavoriteRoute) {
+    this.errorMessageSubject.next(null);
+
+    const options = this.routeOptions[route.id];
+
+    const request = {
+      favoriteRouteId: route.id,
+      vehicleType: options.vehicleType,
+      babiesAllowed: options.babiesAllowed,
+      petsAllowed: options.petsAllowed,
+      scheduledTime: null
+    };
+
+    this.favoritesService.orderFromFavorite(request)
+      .subscribe({
+        next: res => {
+          alert('Ride successfully ordered!');
+        },
+        error: err => {
+          const message = err.error?.message || err.message || 'Unknown error occurred';
+          this.errorMessageSubject.next(message);
+          console.error('Ride order failed', err);
+        }
+      });
   }
+
+  removeFromFavorites(route: FavoriteRoute) {
+    console.log('TODO remove', route.id);
+  }
+
+  
 }

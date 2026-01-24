@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+.error-message {
+  color: #b00020;
+  background-color: #ffebee;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
