@@ -68,14 +68,13 @@ public class AuthService {
             driverRepository.save(d);
         }
         return LoginResponseDTO.builder()
-                .userID(user.getId())
                 .type(type)
                 .token(token)
                 .expires(expiresIn)
                 .build();
     }
 
-    public void logout(Long id, String type, HttpServletResponse response){
+    public void logout(Long id, String type){
         if(!type.equals("DRIVER")) return;
 
         User user = userRepository.findById(id)
