@@ -1,5 +1,6 @@
 package org.example.vroom.controllers;
 
+import org.example.vroom.DTOs.FavoriteRouteDTO;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
 import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.*;
@@ -10,13 +11,17 @@ import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
+import org.example.vroom.entities.FavoriteRoute;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.Route;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.ride.*;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
+import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.RideRepository;
+import org.example.vroom.services.FavoriteRouteService;
+import org.example.vroom.services.RouteService;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,10 +40,14 @@ import java.util.List;
 public class RideController {
     private final RideService rideService;
     private final RideRepository rideRepository;
+    private final RouteMapper routeMapper;
+    private final FavoriteRouteService favoriteRouteService;
 
-    public RideController(RideService rideService, RideRepository rideRepository) {
+    public RideController(RideService rideService, RideRepository rideRepository, RouteMapper routeMapper, FavoriteRouteService favoriteRouteService) {
         this.rideService = rideService;
         this.rideRepository = rideRepository;
+        this.routeMapper = routeMapper;
+        this.favoriteRouteService = favoriteRouteService;
     }
 
     @GetMapping(path="/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -244,34 +253,38 @@ public class RideController {
 
 
 
+    @GetMapping(
+            path = "/favorites",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<FavoriteRouteDTO>> getFavoriteRoutes() {
+
+
+        List<FavoriteRoute> favorites =
+                favoriteRouteService.getCurrentUserFavorites();
+
+        List<FavoriteRouteDTO> response = favorites.stream()
+                .map(routeMapper::favoriteRouteToDTO)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(
             path = "/order/favorite",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<RideDTO> orderFromFavorite(
-            @RequestBody OrderFromFavoriteRequestDTO dto
-    ) {
+    public ResponseEntity<GetRideResponseDTO> orderFromFavorite(
+            @RequestBody OrderFromFavoriteRequestDTO request) {
 
-        if (dto == null || dto.getFavoriteRouteId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        GetRideResponseDTO rideResponse = favoriteRouteService.orderFavoriteRoute(userEmail, request);
 
-        Route route = new Route();
-
-        Ride ride = Ride.builder()
-                .route(route)
-                .status(RideStatus.PENDING)
-                .isScheduled(dto.getScheduledTime() != null)
-                .build();
-
-        RideDTO response = RideDTO.builder()
-                .id(1L)
-                .status(ride.getStatus())
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(rideResponse);
     }
+
+
 
     @GetMapping("/active")
     public ResponseEntity<GetRideResponseDTO> getActiveRide(
