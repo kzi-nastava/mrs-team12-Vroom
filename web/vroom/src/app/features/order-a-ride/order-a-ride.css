@@ -16,7 +16,18 @@
   pointer-events:auto;
   box-shadow: 4px 4px 6px 6px rgba(42, 44, 36, 0.25);
 }
+.error {
+  margin-top: 12px;
+  padding: 12px 16px;
 
+  color: #b71c1c;          
+  background-color: #fdecea; 
+  border: 1px solid #f5c2c7;
+  border-radius: 6px;
+
+  font-size: 1.05rem;       
+  font-weight: 500;
+}
 h1 {
   font-family: 'IBM Plex Sans';
   text-align: center;
@@ -97,7 +108,7 @@ select {
   position: relative;   
 }
 .order-btn {
-  margin-top: auto;  
+  margin-top: 20px;  
   padding: 16px;
   background: #99c2a2;
   border: none;
@@ -106,4 +117,5 @@ select {
   font-weight: 600;
   font-family: 'IBM Plex Sans';
   cursor: pointer;
+   width: 100%;
 }
