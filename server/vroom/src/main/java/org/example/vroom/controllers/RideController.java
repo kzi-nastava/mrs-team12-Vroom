@@ -22,6 +22,8 @@ import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.services.FavoriteRouteService;
 import org.example.vroom.services.RouteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,6 +44,8 @@ public class RideController {
     private final RideRepository rideRepository;
     private final RouteMapper routeMapper;
     private final FavoriteRouteService favoriteRouteService;
+    private static final Logger log = LoggerFactory.getLogger(RideService.class);
+
 
     public RideController(RideService rideService, RideRepository rideRepository, RouteMapper routeMapper, FavoriteRouteService favoriteRouteService) {
         this.rideService = rideService;
@@ -203,28 +207,31 @@ public class RideController {
 
 
    // @PreAuthorize("hasRole('USER')")
-    @PostMapping(
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<GetRideResponseDTO> orderRide(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody RideRequestDTO request
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(
-                        rideService.orderRide(
-                                userDetails.getUsername(),
-                                request
-                        )
-                );
-    }
+   @PostMapping(
+           consumes = MediaType.APPLICATION_JSON_VALUE,
+           produces = MediaType.APPLICATION_JSON_VALUE
+   )
+   public ResponseEntity<GetRideResponseDTO> orderRide(
+           @AuthenticationPrincipal UserDetails userDetails,
+           @RequestBody RideRequestDTO request
+   ) {
+       GetRideResponseDTO response = null;
+       try {
+           response = rideService.orderRide(userDetails.getUsername(), request);
+       } catch (Exception e) {
+           log.error("Exception u rideService.orderRide: ", e);
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+       }
+
+       return ResponseEntity
+               .status(HttpStatus.CREATED)
+               .body(response);
+   }
 
     @ExceptionHandler(NoAvailableDriverException.class)
     public ResponseEntity<MessageResponseDTO> handleNoDriver(NoAvailableDriverException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.CONFLICT)
                 .body(new MessageResponseDTO("Ride order declined: " + ex.getMessage()));
     }
 
