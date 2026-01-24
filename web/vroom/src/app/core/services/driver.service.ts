@@ -56,7 +56,7 @@ export class DriverService{
     }
 
 
-    createChangeStatusRequest(id: number, status: 'AVAILABLE' | 'UNAVAILABLE'): Observable<MessageResponseDTO>{
-        return this.http.put<MessageResponseDTO>(`${this.api}/${id}/status`, {status})
+    createChangeStatusRequest(status: 'AVAILABLE' | 'UNAVAILABLE'): Observable<MessageResponseDTO>{
+        return this.http.put<MessageResponseDTO>(`${this.api}/status`, {status})
     }
 }

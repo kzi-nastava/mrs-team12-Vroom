@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -42,14 +43,13 @@ public class RegisteredUserService {
 
 
     @Transactional
-    public void createUser(RegisterRequestDTO req) {
+    public void createUser(RegisterRequestDTO req) throws IOException {
         if (userRepository.findByEmail(req.getEmail()).isPresent())
             throw new UserAlreadyExistsException("User with this email already exists");
 
         if(!passwordUtils.isPasswordValid(req.getPassword()))
             throw new InvalidPasswordException("Password doesn't match criteria");
 
-        req.setPassword(passwordEncoder.encode(req.getPassword()));
         RegisteredUser user = registeredUserMapper.createUser(req);
         user.setUserStatus(UserStatus.INACTIVE);
         user.setCreatedAt(LocalDateTime.now());

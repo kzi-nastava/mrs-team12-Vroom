@@ -28,8 +28,8 @@ export class AuthService{
         return this.http.post<MessageResponseDTO>(this.api+'/register', data)
     }
 
-    createLogoutRequest(id: string, type: string): Observable<MessageResponseDTO>{
-        return this.http.post<MessageResponseDTO>(`${this.api}/logout`, { id: Number(id), type });
+    createLogoutRequest(type: string): Observable<MessageResponseDTO>{
+        return this.http.post<MessageResponseDTO>(`${this.api}/logout`, { type });
     }
 
     isPasswordValid(password: string): String | null{
@@ -69,12 +69,11 @@ export class AuthService{
     }
 
     logout(): Observable<void>{
-        const id = localStorage.getItem('user_id');
         const type = localStorage.getItem('user_type');
 
-       if (id && type) {
+       if (type) {
         return new Observable(observer => {
-            this.createLogoutRequest(id, type)
+            this.createLogoutRequest(type)
                 .pipe(
                     finalize(() => {
                         this.completeLocalLogout();
@@ -96,7 +95,6 @@ export class AuthService{
     private completeLocalLogout() {
         localStorage.removeItem('jwt');
         localStorage.removeItem('expires')
-        localStorage.removeItem('user_id');
         localStorage.removeItem('user_type');
     }
 }
