@@ -79,6 +79,7 @@ export class Register {
         next: (response: MessageResponseDTO) => {
           this.success = response.message;
           this.error = ''; 
+          this.isLoading = false;
           this.cdRef.detectChanges()
         },
         error: (err) => {
@@ -95,6 +96,7 @@ export class Register {
             default:
               this.error = 'An unexpected error occurred';
           }
+          this.isLoading = false;
           this.cdRef.detectChanges()
         }
       })
