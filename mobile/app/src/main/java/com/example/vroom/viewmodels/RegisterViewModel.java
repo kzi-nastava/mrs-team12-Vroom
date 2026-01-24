@@ -1,22 +1,19 @@
 package com.example.vroom.viewmodels;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.vroom.DTOs.MessageResponseDTO;
-import com.example.vroom.DTOs.auth.requests.RegisterUserRequestDTO;
-import com.example.vroom.activities.LoginActivity;
-import com.example.vroom.activities.RegisterActivity;
 import com.example.vroom.enums.Gender;
 import com.example.vroom.network.RetrofitClient;
-import com.example.vroom.utils.ImageUtils;
 import com.example.vroom.utils.PasswordUtils;
 
+import java.io.IOException;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,6 +38,22 @@ public class RegisterViewModel extends ViewModel {
             return Gender.FEMALE;
         else
             return Gender.OTHER;
+    }
+
+    private MultipartBody.Part getPhoto(byte[] photo){
+        if(photo == null || photo.length == 0) return null;
+
+        RequestBody photoBody = RequestBody.create(
+                MediaType.parse("image/*"),
+                photo
+        );
+
+        return MultipartBody.Part.createFormData(
+                "profilePhoto",
+                "profile.jpg",
+                photoBody
+        );
+
     }
     public void register(
             String firstName,
@@ -67,18 +80,35 @@ public class RegisterViewModel extends ViewModel {
             PasswordUtils.isPasswordValid(pass, rePass);
             String address = street + ", " + city + ", " + country;
 
-            Gender gender = getGender(selectedGender);
-            RegisterUserRequestDTO req = new RegisterUserRequestDTO(firstName, lastName, email, phone,
-                    address, gender, photo, pass);
+            RequestBody fNameBody = RequestBody.create(MediaType.parse("text/plain"), firstName);
+            RequestBody lNameBody = RequestBody.create(MediaType.parse("text/plain"), lastName);
+            RequestBody emailBody = RequestBody.create(MediaType.parse("text/plain"), email);
+            RequestBody phoneBody = RequestBody.create(MediaType.parse("text/plain"), phone);
+            RequestBody addressBody = RequestBody.create(MediaType.parse("text/plain"), address);
+            RequestBody passBody = RequestBody.create(MediaType.parse("text/plain"), pass);
+            RequestBody genderBody = RequestBody.create(MediaType.parse("text/plain"), getGender(selectedGender).name());
 
-            RetrofitClient.getAuthService().registerUser(req).enqueue(new Callback<MessageResponseDTO>() {
+            MultipartBody.Part photoPart = getPhoto(photo);
+
+            RetrofitClient.getAuthService().registerUser(
+                    fNameBody, lNameBody, emailBody, phoneBody,
+                    addressBody, genderBody, passBody, photoPart
+            ).enqueue(new Callback<MessageResponseDTO>() {
                 @Override
                 public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                     if(response.isSuccessful() && response.body() != null){
                         registerMessage.postValue(response.body().getMessage());
                         registerStatus.postValue(true);
                     }else{
-                        registerMessage.postValue(response.body().getMessage());
+                        String errorMsg = "Something went wrong";
+                        try {
+                            if (response.errorBody() != null) {
+                                errorMsg = response.errorBody().string();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        registerMessage.postValue(errorMsg);
                         registerStatus.postValue(false);
                     }
 

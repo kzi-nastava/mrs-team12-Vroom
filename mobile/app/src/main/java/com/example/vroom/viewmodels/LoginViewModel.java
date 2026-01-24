@@ -85,7 +85,6 @@ public class LoginViewModel extends ViewModel {
                 @Override
                 public void onResponse(Call<LoginResponseDTO> call, Response<LoginResponseDTO> response) {
                     if(response.isSuccessful() && response.body() != null){
-                        StorageManager.saveLong("user_id", response.body().getUserID());
                         StorageManager.saveData("user_type", response.body().getType());
                         StorageManager.saveData("jwt", response.body().getToken());
                         StorageManager.saveLong("expires", response.body().getExpires());

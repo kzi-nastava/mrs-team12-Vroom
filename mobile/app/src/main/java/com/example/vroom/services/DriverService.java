@@ -9,6 +9,6 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface DriverService {
-    @PUT("api/drivers/{driverId}/status")
-    Call<MessageResponseDTO> changeDriverStatus(@Path("driverId") Long driverID, @Body DriverChangeStatusRequestDTO data);
+    @PUT("api/drivers/status")
+    Call<MessageResponseDTO> changeDriverStatus( @Body DriverChangeStatusRequestDTO data);
 }

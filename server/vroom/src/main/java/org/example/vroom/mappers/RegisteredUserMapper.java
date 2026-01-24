@@ -7,6 +7,7 @@ import org.example.vroom.enums.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,10 +17,10 @@ public class RegisteredUserMapper {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public RegisteredUser createUser(RegisterRequestDTO user) throws IOException {
+    public RegisteredUser createUser(RegisterRequestDTO user, MultipartFile profilePhoto) throws IOException {
         byte[] photoBytes = null;
-        if (user.getProfilePhoto() != null && !user.getProfilePhoto().isEmpty()) {
-            photoBytes = user.getProfilePhoto().getBytes();
+        if (profilePhoto != null && !profilePhoto.isEmpty()) {
+            photoBytes = profilePhoto.getBytes();
         }
 
         return RegisteredUser.builder()

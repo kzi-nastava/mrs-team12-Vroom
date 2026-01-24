@@ -25,6 +25,7 @@ import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 
@@ -124,12 +125,15 @@ public class AuthController {
             path="/register",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponseDTO> register(@ModelAttribute RegisterRequestDTO data){
+    public ResponseEntity<MessageResponseDTO> register(
+            @ModelAttribute RegisterRequestDTO data,
+            @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto
+    ){
         if(data == null)
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
 
         try{
-            registeredUserService.createUser(data);
+            registeredUserService.createUser(data, profilePhoto);
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Successfully created user, activation link is sent to email"),
                     HttpStatus.CREATED

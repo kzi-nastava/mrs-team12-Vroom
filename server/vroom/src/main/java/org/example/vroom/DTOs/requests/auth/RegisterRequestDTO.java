@@ -16,8 +16,9 @@ public class RegisterRequestDTO {
     private String phoneNumber;
     private String address;
     private Gender gender;
-    private MultipartFile profilePhoto;
+    //private MultipartFile profilePhoto;
     private String password;
+
 
     public RegisterRequestDTO(
             String firstName,
