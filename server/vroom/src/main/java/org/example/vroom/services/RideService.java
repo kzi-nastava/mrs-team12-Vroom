@@ -60,59 +60,11 @@ public class RideService {
     @Autowired
     private EmailService emailService;
 
+
     @Autowired
     private FavoriteRouteRepository favoriteRouteRepository;
 
     private static final Logger log = LoggerFactory.getLogger(RideService.class);
-
-    public Ride orderFromFavorite(
-            OrderFromFavoriteRequestDTO request,
-            String userEmail
-    ) {
-        RegisteredUser user = userRepository
-                .findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-
-        FavoriteRoute favorite = favoriteRouteRepository
-                .findById(request.getFavoriteRouteId())
-                .orElseThrow(() -> new RuntimeException("Favorite route not found"));
-
-        Route routeCopy = copyRoute(favorite.getRoute());
-
-        Ride ride = Ride.builder()
-                .passenger(user)
-                .route(routeCopy)
-                .status(RideStatus.PENDING)
-                .isScheduled(Boolean.FALSE)
-                .panicActivated(false)
-                .build();
-
-        return rideRepository.save(ride);
-    }
-
-    private Route copyRoute(Route original) {
-        Route route = new Route();
-        route.setStartLocationLat(original.getStartLocationLat());
-        route.setStartLocationLng(original.getStartLocationLng());
-        route.setEndLocationLat(original.getEndLocationLat());
-        route.setEndLocationLng(original.getEndLocationLng());
-
-        if (original.getStops() != null) {
-            List<Point> stops = original.getStops().stream()
-                    .map(p -> {
-                        Point np = new Point();
-                        np.setLat(p.getLat());
-                        np.setLng(p.getLng());
-                        return np;
-                    })
-                    .toList();
-            route.setStops(stops);
-        }
-
-        return route;
-    }
-
 
 
     @Transactional
