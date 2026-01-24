@@ -29,6 +29,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -61,6 +63,7 @@ public class RideService {
     @Autowired
     private FavoriteRouteRepository favoriteRouteRepository;
 
+    private static final Logger log = LoggerFactory.getLogger(RideService.class);
 
     public Ride orderFromFavorite(
             OrderFromFavoriteRequestDTO request,
@@ -114,6 +117,7 @@ public class RideService {
 
     @Transactional
     public GetRideResponseDTO orderRide(String userEmail, RideRequestDTO request) {
+        log.info(">>> orderRide() method ENTERED <<<");
 
         RegisteredUser user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -131,41 +135,46 @@ public class RideService {
         passengers.add(user);
         if (request.getPassengersEmails() != null) {
             for (String email : request.getPassengersEmails()) {
-
-                if (email == null || email.isBlank()) {
-                    continue;   // preskacem praznei null mejlove
-                }
-
+                if (email == null || email.isBlank()) continue;
                 RegisteredUser p = userRepository.findByEmail(email)
-                        .orElseThrow(() ->
-                                new UserNotFoundException("Passenger not found: " + email));
-
+                        .orElseThrow(() -> new UserNotFoundException("Passenger not found: " + email));
                 passengers.add(p);
             }
         }
 
-
-        // odabir dostupnog
+        // odabir dostupnog drivera
         Driver driver = driverRepository.findFirstAvailableDriver(
                 request.getVehicleType(),
                 request.getBabiesAllowed(),
                 request.getPetsAllowed()
         ).orElseThrow(() -> new NoAvailableDriverException("No available drivers"));
 
-        //provera radnog vremena
         if (!driverHasWorkingTime(driver)) {
             throw new NoAvailableDriverException("Driver exceeded 8 working hours in last 24h");
         }
 
+        // Start i end
+        String startLocation = route.getStartLocationLng() + "," + route.getStartLocationLat();
+        String endLocation = route.getEndLocationLng() + "," + route.getEndLocationLat();
+
+        String stops = null;
+        if (route.getStops() != null && !route.getStops().isEmpty()) {
+            stops = route.getStops().stream()
+                    .filter(p -> p != null && p.getLat() != null && p.getLng() != null)
+                    .map(p -> p.getLng() + "," + p.getLat())
+                    .collect(Collectors.joining(";"));
+        }
+
+        RouteQuoteResponseDTO quote = routeService.routeEstimation(startLocation, endLocation, stops);
 
         Ride ride = Ride.builder()
                 .passenger(user)
                 .passengers(convertToPassengerNames(passengers))
                 .driver(driver)
                 .route(route)
-                .startTime(request.getScheduled() ? request.getScheduledTime() : LocalDateTime.now())
-                .status(request.getScheduled() ? RideStatus.ACCEPTED : RideStatus.PENDING)
-                .price(calculatePrice(route, request.getVehicleType()))
+                .startTime(request.getScheduled() != null && request.getScheduled() ? request.getScheduledTime() : LocalDateTime.now())
+                .status(request.getScheduled() != null && request.getScheduled() ? RideStatus.ACCEPTED : RideStatus.PENDING)
+                .price(quote.getPrice())
                 .panicActivated(false)
                 .isScheduled(request.getScheduled() != null && request.getScheduled())
                 .build();
@@ -174,11 +183,9 @@ public class RideService {
 
         driver.setStatus(DriverStatus.UNAVAILABLE);
 
-        // slanje notifikacija putem NotificationService
-        //notificationService.notifyRideAssigned(user, driver, ride);
-
         return rideMapper.getRideDTO(ride);
     }
+
 
     public Ride getActiveRideForDriver(String driverEmail) {
 
@@ -236,31 +243,6 @@ public class RideService {
                 .sum();
 
         return totalHours < 8.0;
-    }
-
-    private double calculatePrice(Route route, VehicleType vehicleType) {
-        List<Point> stops = route.getStops();
-        if (stops == null) {
-            stops = new ArrayList<>();
-        }
-
-        String stopLocations = stops.isEmpty()
-                ? null
-                : stops.stream()
-                .map(stop -> stop.getLat() + "," + stop.getLng())
-                .collect(Collectors.joining(";"));
-
-        RouteQuoteResponseDTO quote = routeService.routeEstimation(
-                route.getStartLocationLat() + "," + route.getStartLocationLng(),
-                route.getEndLocationLat() + "," + route.getEndLocationLng(),
-                stopLocations
-        );
-
-        if (quote == null) {
-            throw new RuntimeException("Failed to estimate route price");
-        }
-
-        return quote.getPrice();
     }
 
     public void leaveReview(Long rideId, LeaveReviewRequestDTO review){
@@ -358,6 +340,9 @@ public class RideService {
     }
 
     @Transactional
+    public void calculatePrice(){}
+
+    @Transactional
     public StoppedRideResponseDTO stopRide(Long rideID, StopRideRequestDTO data){
         Optional<Ride> rideOptional = rideRepository.findById(rideID);
         if(rideOptional.isEmpty())
@@ -376,7 +361,8 @@ public class RideService {
         ride.setEndTime(data.getEndTime());
         ride.setRoute(route);
         ride.setStatus(RideStatus.FINISHED);
-        double price = this.calculatePrice(ride.getRoute(), ride.getDriver().getVehicle().getType());
+        //double price = this.calculatePrice();
+        double price=1;
 
         ride.setPrice(price);
         rideRepository.save(ride);
