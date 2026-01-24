@@ -2,6 +2,7 @@ package org.example.vroom.DTOs;
 
 import java.time.LocalDateTime;
 
+import org.example.vroom.entities.Route;
 import org.example.vroom.enums.VehicleType;
 
 import lombok.AllArgsConstructor;
@@ -19,5 +20,5 @@ public class OrderFromFavoriteRequestDTO {
     private VehicleType vehicleType;
     private Boolean babiesAllowed;
     private Boolean petsAllowed;
-    private LocalDateTime scheduledTime; 
+    private LocalDateTime scheduledTime;
 }
