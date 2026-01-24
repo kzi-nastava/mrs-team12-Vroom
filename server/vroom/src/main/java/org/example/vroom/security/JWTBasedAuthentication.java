@@ -13,11 +13,11 @@ public class JWTBasedAuthentication extends AbstractAuthenticationToken {
     @Setter
     private String token;
 
-    private final UserDetails principle;
+    private final UserDetails principal;
 
     public JWTBasedAuthentication(UserDetails principle) {
         super(principle.getAuthorities());
-        this.principle = principle;
+        this.principal = principle;
     }
 
 
@@ -33,6 +33,6 @@ public class JWTBasedAuthentication extends AbstractAuthenticationToken {
 
     @Override
     public UserDetails getPrincipal() {
-        return principle;
+        return principal;
     }
 }

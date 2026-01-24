@@ -1,13 +1,11 @@
 package com.example.vroom.DTOs.auth.responses;
 
 public class LoginResponseDTO {
-    private Long userID;
     private String type;
     private String token;
     private Long expires;
 
-    public LoginResponseDTO(Long userID, String type, String token, Long expires) {
-        this.userID = userID;
+    public LoginResponseDTO(String type, String token, Long expires) {
         this.type = type;
         this.token = token;
         this.expires = expires;
@@ -16,13 +14,6 @@ public class LoginResponseDTO {
     public LoginResponseDTO() {
     }
 
-    public Long getUserID() {
-        return userID;
-    }
-
-    public void setUserID(Long userID) {
-        this.userID = userID;
-    }
 
     public String getType() {
         return type;

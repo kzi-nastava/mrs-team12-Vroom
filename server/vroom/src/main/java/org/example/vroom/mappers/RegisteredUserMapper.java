@@ -4,21 +4,34 @@ import org.example.vroom.DTOs.RegisteredUserDTO;
 import org.example.vroom.DTOs.requests.auth.RegisterRequestDTO;
 import org.example.vroom.entities.RegisteredUser;
 import org.example.vroom.enums.UserStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Component
 public class RegisteredUserMapper {
-    public RegisteredUser createUser(RegisterRequestDTO user) {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public RegisteredUser createUser(RegisterRequestDTO user, MultipartFile profilePhoto) throws IOException {
+        byte[] photoBytes = null;
+        if (profilePhoto != null && !profilePhoto.isEmpty()) {
+            photoBytes = profilePhoto.getBytes();
+        }
+
         return RegisteredUser.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
-                .password(user.getPassword())
+                .password(passwordEncoder.encode(user.getPassword()))
                 .address(user.getAddress())
                 .gender(user.getGender())
+                .profilePhoto(photoBytes)
                 .build();
     }
 

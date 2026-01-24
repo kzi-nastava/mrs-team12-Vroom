@@ -108,7 +108,7 @@ public class RegisterActivity extends BaseActivity {
 
         viewModel.getRegisterStatus().observe(this, success -> {
             if (success != null && success) {
-                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
             }

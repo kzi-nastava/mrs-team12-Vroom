@@ -24,7 +24,7 @@ export class ChangeDriverStatus implements OnInit{
       this.status = 'AVAILABLE'
 
     this.driverService
-      .createChangeStatusRequest(Number(localStorage.getItem('user_id')), this.status)
+      .createChangeStatusRequest(this.status)
       .subscribe()
       
   }

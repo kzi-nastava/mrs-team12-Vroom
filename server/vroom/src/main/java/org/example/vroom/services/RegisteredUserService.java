@@ -18,7 +18,9 @@ import org.example.vroom.utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -42,15 +44,14 @@ public class RegisteredUserService {
 
 
     @Transactional
-    public void createUser(RegisterRequestDTO req) {
+    public void createUser(RegisterRequestDTO req, MultipartFile profilePhoto) throws IOException {
         if (userRepository.findByEmail(req.getEmail()).isPresent())
             throw new UserAlreadyExistsException("User with this email already exists");
 
         if(!passwordUtils.isPasswordValid(req.getPassword()))
             throw new InvalidPasswordException("Password doesn't match criteria");
 
-        req.setPassword(passwordEncoder.encode(req.getPassword()));
-        RegisteredUser user = registeredUserMapper.createUser(req);
+        RegisteredUser user = registeredUserMapper.createUser(req, profilePhoto);
         user.setUserStatus(UserStatus.INACTIVE);
         user.setCreatedAt(LocalDateTime.now());
 

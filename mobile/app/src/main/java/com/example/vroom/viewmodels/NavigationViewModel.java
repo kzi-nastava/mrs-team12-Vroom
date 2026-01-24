@@ -42,8 +42,6 @@ public class NavigationViewModel extends ViewModel {
     }
 
     public void changeDriverStatus(boolean isChecked) {
-        long driverId = StorageManager.getLong("user_id", -1L);
-
         DriverStatus status = isChecked
                 ? DriverStatus.AVAILABLE
                 : DriverStatus.UNAVAILABLE;
@@ -52,7 +50,7 @@ public class NavigationViewModel extends ViewModel {
                 new DriverChangeStatusRequestDTO(status);
 
         RetrofitClient.getDriverService()
-                .changeDriverStatus(driverId, req)
+                .changeDriverStatus(req)
                 .enqueue(new Callback<MessageResponseDTO>() {
                     @Override
                     public void onResponse(Call<MessageResponseDTO> call,
@@ -78,7 +76,6 @@ public class NavigationViewModel extends ViewModel {
 
     public void logout() {
         LogoutRequestDTO req = new LogoutRequestDTO(
-                StorageManager.getLong("user_id", -1L),
                 StorageManager.getData("user_type", null)
         );
 

@@ -3,6 +3,7 @@ package org.example.vroom.DTOs.requests.driver;
 import lombok.*;
 import org.example.vroom.DTOs.requests.vehicle.VehicleRequestDTO;
 import org.example.vroom.enums.Gender;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ public class DriverRegisterRequestDTO {
     private String phoneNumber;
     private String address;
     private Gender gender;
-    private byte[] profilePhoto;
+    private MultipartFile profilePhoto;
     private String password;
 
     private VehicleRequestDTO vehicle;

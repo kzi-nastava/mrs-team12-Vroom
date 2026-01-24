@@ -7,6 +7,7 @@ import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Ride;
+import org.example.vroom.entities.User;
 import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
@@ -36,14 +37,14 @@ public class DriverController {
         this.driverService = driverService;
     }
 
-    @GetMapping(path = "/{driverID}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideHistoryResponseDTO>> getRides(
-            @PathVariable Long driverID,
+            @AuthenticationPrincipal User user,
             @RequestParam(required = false) LocalDateTime startDate,
             @RequestParam(required = false) LocalDateTime endDate,
             @RequestParam(required = false) Sort sort
     ) {
-        Collection<RideHistoryResponseDTO> rides = driverService.getDriverRides(driverID, startDate, endDate, sort);
+        Collection<RideHistoryResponseDTO> rides = driverService.getDriverRides(user.getId(), startDate, endDate, sort);
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
@@ -61,14 +62,14 @@ public class DriverController {
         }
     }
 
-    @PutMapping(path = "/{driverID}/status")
+    @PutMapping(path = "/status")
     public ResponseEntity<MessageResponseDTO> changeStatus(
-            @PathVariable Long driverID,
+            @AuthenticationPrincipal User user,
             @RequestBody DriverChangeStatusRequestDTO data
     ){
         if(data == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         try {
-            driverService.changeStatus(driverID, data.getStatus());
+            driverService.changeStatus(user.getId(), data.getStatus());
 
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Status changed"),
