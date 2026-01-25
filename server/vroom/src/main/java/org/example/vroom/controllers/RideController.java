@@ -1,23 +1,37 @@
 package org.example.vroom.controllers;
 
+import org.example.vroom.DTOs.FavoriteRouteDTO;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
 import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideUpdateResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
 import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
+import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
+import org.example.vroom.entities.FavoriteRoute;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.Route;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.ride.*;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
+import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.RideRepository;
+import org.example.vroom.services.FavoriteRouteService;
+import org.example.vroom.services.RouteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.example.vroom.services.RideService;
@@ -30,13 +44,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/rides")
 public class RideController {
-    private final RideService rideService;
-    private final RideRepository rideRepository;
+    @Autowired
+    private RideService rideService;
+    @Autowired
+    private RideRepository rideRepository;
+    @Autowired
+    private RouteMapper routeMapper;
+    @Autowired
+    private FavoriteRouteService favoriteRouteService;
+    @Autowired
+    private RouteService routeService;
 
-    public RideController(RideService rideService, RideRepository rideRepository) {
-        this.rideService = rideService;
-        this.rideRepository = rideRepository;
-    }
+    private static final Logger log = LoggerFactory.getLogger(RideService.class);
+
 
     @GetMapping(path="/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GetRideResponseDTO> getRide(@PathVariable Long rideID){
@@ -82,6 +102,20 @@ public class RideController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<GetRouteResponseDTO>(route, HttpStatus.OK);
+    }
+
+    @MessageMapping("ride-duration-update/{rideID}")
+    @SendTo("/socket-publisher/ride-duration-update/{rideID}")
+    public RideUpdateResponseDTO updateRideDuration(@DestinationVariable String rideID,
+                                                    PointResponseDTO currentLocation) {
+
+        String start = this.routeService.coordinatesToString(currentLocation);
+        String end = this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLat() + ","
+                + this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLng();
+        RouteQuoteResponseDTO quoteResponseDTO = this.routeService.routeEstimation(start, end);
+        Double estTime = quoteResponseDTO.getTime();
+        return new RideUpdateResponseDTO(currentLocation, estTime);
+
     }
 
     @PostMapping(path = "/{rideID}/complaint", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -182,28 +216,31 @@ public class RideController {
 
 
    // @PreAuthorize("hasRole('USER')")
-    @PostMapping(
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<GetRideResponseDTO> orderRide(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody RideRequestDTO request
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(
-                        rideService.orderRide(
-                                userDetails.getUsername(),
-                                request
-                        )
-                );
-    }
+   @PostMapping(
+           consumes = MediaType.APPLICATION_JSON_VALUE,
+           produces = MediaType.APPLICATION_JSON_VALUE
+   )
+   public ResponseEntity<GetRideResponseDTO> orderRide(
+           @AuthenticationPrincipal UserDetails userDetails,
+           @RequestBody RideRequestDTO request
+   ) {
+       GetRideResponseDTO response = null;
+       try {
+           response = rideService.orderRide(userDetails.getUsername(), request);
+       } catch (Exception e) {
+           log.error("Exception u rideService.orderRide: ", e);
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+       }
+
+       return ResponseEntity
+               .status(HttpStatus.CREATED)
+               .body(response);
+   }
 
     @ExceptionHandler(NoAvailableDriverException.class)
     public ResponseEntity<MessageResponseDTO> handleNoDriver(NoAvailableDriverException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.CONFLICT)
                 .body(new MessageResponseDTO("Ride order declined: " + ex.getMessage()));
     }
 
@@ -232,34 +269,41 @@ public class RideController {
 
 
 
+    @GetMapping(
+            path = "/favorites",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<FavoriteRouteDTO>> getFavoriteRoutes(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+
+        List<FavoriteRoute> favorites =
+                favoriteRouteService.getCurrentUserFavorites(
+                        userDetails.getUsername()
+                );
+
+        List<FavoriteRouteDTO> response = favorites.stream()
+                .map(routeMapper::favoriteRouteToDTO)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(
             path = "/order/favorite",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<RideDTO> orderFromFavorite(
-            @RequestBody OrderFromFavoriteRequestDTO dto
-    ) {
+    public ResponseEntity<GetRideResponseDTO> orderFromFavorite(
+            @RequestBody OrderFromFavoriteRequestDTO request) {
 
-        if (dto == null || dto.getFavoriteRouteId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        GetRideResponseDTO rideResponse = favoriteRouteService.orderFavoriteRoute(userEmail, request);
 
-        Route route = new Route();
-
-        Ride ride = Ride.builder()
-                .route(route)
-                .status(RideStatus.PENDING)
-                .isScheduled(dto.getScheduledTime() != null)
-                .build();
-
-        RideDTO response = RideDTO.builder()
-                .id(1L)
-                .status(ride.getStatus())
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(rideResponse);
     }
+
+
 
     @GetMapping("/active")
     public ResponseEntity<GetRideResponseDTO> getActiveRide(

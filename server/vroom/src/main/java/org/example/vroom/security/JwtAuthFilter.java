@@ -47,7 +47,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        System.out.println("JwtAuthFilter - Authorization header: " + authHeader);
+        //System.out.println("JwtAuthFilter - Authorization header: " + authHeader);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -98,11 +98,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         // change this to ignore auth + main + route estimation endpoints
-        return path.startsWith("/api/auth/")
+        return path.startsWith("/api/auth/login")
+                || path.startsWith("/api/auth/register")
+                || path.startsWith("/api/auth/register/driver")
+                || path.startsWith("/api/auth/forgot-password")
+                || path.startsWith("/api/auth/reset-password")
                 || path.startsWith("/api/admins/")
-                || path.startsWith("/api/rides/")
+                //|| path.startsWith("/api/rides/")
                 || path.startsWith("/api/routes/")
                 || path.startsWith("/api/main/")
+                || path.startsWith("/api/drivers/rides")
                 //|| path.startsWith("/api/profile/driver")
                // || path.startsWith("/api/profile/user")
                 || path.startsWith("/api/geo");

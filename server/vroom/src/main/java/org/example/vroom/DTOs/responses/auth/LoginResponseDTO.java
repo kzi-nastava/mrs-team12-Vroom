@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class LoginResponseDTO {
-    private Long userID;
     private String type;
     private String token;
     private Long expires;

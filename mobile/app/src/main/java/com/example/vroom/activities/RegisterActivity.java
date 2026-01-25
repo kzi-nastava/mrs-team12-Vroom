@@ -11,14 +11,17 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.example.vroom.DTOs.MessageResponse;
+import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.auth.requests.RegisterUserRequestDTO;
 import com.example.vroom.R;
 import com.example.vroom.enums.Gender;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.utils.ImageUtils;
 import com.example.vroom.utils.PasswordUtils;
+import com.example.vroom.viewmodels.ForgotPasswordViewModel;
+import com.example.vroom.viewmodels.RegisterViewModel;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,6 +44,8 @@ public class RegisterActivity extends BaseActivity {
     private ImageView profileImageView;
     private Button uploadImageBtn;
     private Uri selectedImage;
+
+    private RegisterViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +94,25 @@ public class RegisterActivity extends BaseActivity {
         profileImageView = findViewById(R.id.profileImage);
         uploadImageBtn = findViewById(R.id.uploadImageBtn);
         uploadImageBtn.setOnClickListener(v -> getContent.launch("image/*"));
+
+        viewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
+        observeViewModel();
+    }
+
+    private void observeViewModel(){
+        viewModel.getRegisterMessage().observe(this, message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        viewModel.getRegisterStatus().observe(this, success -> {
+            if (success != null && success) {
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     private final ActivityResultLauncher<String> getContent = registerForActivityResult(
@@ -101,68 +125,19 @@ public class RegisterActivity extends BaseActivity {
             }
     );
 
-    private Gender getGender(){
-        if(selectedGender.equalsIgnoreCase("male"))
-            return Gender.MALE;
-        else if (selectedGender.equalsIgnoreCase("FEMALE"))
-            return Gender.FEMALE;
-        else
-            return Gender.OTHER;
-    }
-
     private void register(){
-        try{
-            String firstName = firstNameInput.getText().toString().trim();
-            String lastName = lastNameInput.getText().toString().trim();
-            String email = emailInput.getText().toString().trim();
-            String phone = phoneNumInput.getText().toString().trim();
-            String country = countrySpinner.getSelectedItem().toString();
-            String city = cityInput.getText().toString().trim();
-            String street = streetInput.getText().toString().trim();
-            String pass = passInput.getText().toString();
-            String rePass = rePassInput.getText().toString();
+        String firstName = firstNameInput.getText().toString().trim();
+        String lastName = lastNameInput.getText().toString().trim();
+        String email = emailInput.getText().toString().trim();
+        String phone = phoneNumInput.getText().toString().trim();
+        String country = countrySpinner.getSelectedItem().toString();
+        String city = cityInput.getText().toString().trim();
+        String street = streetInput.getText().toString().trim();
+        String pass = passInput.getText().toString();
+        String rePass = rePassInput.getText().toString();
 
-            if(
-                    firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
-                    phone.isEmpty() || country.isEmpty() || city.isEmpty() ||
-                    street.isEmpty() || pass.isEmpty() || rePass.isEmpty() ||
-                    selectedGender==null
-            )
-                throw new Exception("Fields cannot be empty");
+        byte[] photo = ImageUtils.uriToByteArray(this, selectedImage);
 
-            PasswordUtils.isPasswordValid(passInput.getText().toString(), rePassInput.getText().toString());
-
-            String address = street + ", " + city + ", " + country;
-            Gender genderEnum = getGender();
-
-            byte[] photo = ImageUtils.uriToByteArray(this, selectedImage);
-
-            RegisterUserRequestDTO req = new RegisterUserRequestDTO(firstName, lastName, email, phone,
-                    address, genderEnum, photo, pass);
-
-            RetrofitClient.getAuthService().registerUser(req).enqueue(new Callback<MessageResponse>() {
-                @Override
-                public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
-                    if(response.isSuccessful() && response.body() != null){
-                        Toast.makeText(RegisterActivity.this, response.body().getMessage(), Toast.LENGTH_LONG).show();
-
-                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                        startActivity(intent);
-
-                        finish();
-
-                    }else
-                        Toast.makeText(RegisterActivity.this, "Server error: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onFailure(Call<MessageResponse> call, Throwable t) {
-                    Toast.makeText(RegisterActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-        }catch(Exception e){
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+        viewModel.register(firstName, lastName, email, phone, country, city, street, pass, rePass, selectedGender, photo);
     }
 }

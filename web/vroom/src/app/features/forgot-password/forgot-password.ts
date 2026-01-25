@@ -53,6 +53,10 @@ export class ForgotPassword {
       next: (response: MessageResponseDTO) => {
         this.success = response.message;   
         this.cdRef.detectChanges()
+
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 5000)
       },
       error: (e)=>{
         if(e.status === 400){

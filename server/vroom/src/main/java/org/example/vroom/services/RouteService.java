@@ -2,6 +2,7 @@ package org.example.vroom.services;
 
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.responses.geocode.GeoapifyRouteResponseDTO;
+import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.repositories.PriceListRepository;
 import org.example.vroom.repositories.RouteRepository;
@@ -32,19 +33,20 @@ public class RouteService {
     @Autowired
     private ObjectMapper mapper;
 
+    public String coordinatesToString(PointResponseDTO coordinates) {
+        return coordinates.getLat() + "," + coordinates.getLng();
+    }
+
 //    @Cacheable(value = "route-estimation", key = "{#startLocation, #endLocation, #stopLocations}")
     public RouteQuoteResponseDTO routeEstimation(String startLocation, String endLocation, String stopLocations){
         String waypoints = startLocation;
-
-        if(stopLocations != null){
+        if(stopLocations != null && !stopLocations.isBlank()){
             List<String> stops = Arrays.asList(stopLocations.split(";"));
             for (String stop : stops) {
                 waypoints += "|"+stop;
             }
         }
-
         waypoints += "|"+endLocation;
-
         try{
             URL url = new URL("https://api.geoapify.com/v1/routing?" +
                     "waypoints=" + waypoints +
@@ -71,7 +73,7 @@ public class RouteService {
             conn.disconnect();
 
             String json = response.toString();
-
+            System.out.println("Geoapify response: " + json);
             GeoapifyRouteResponseDTO route = mapper.readValue(json, GeoapifyRouteResponseDTO.class);
 
             double distanceKm = (double)route.getFeatures().get(0).getProperties().getDistance() / 1000.0;
@@ -82,6 +84,49 @@ public class RouteService {
 
             return new RouteQuoteResponseDTO(price, time);
         }catch(Exception e){
+            return null;
+        }
+    }
+
+    public RouteQuoteResponseDTO routeEstimation(String startLocation, String endLocation) {
+        String waypoints = startLocation + "|" + endLocation;
+        try {
+            URL url = new URL("https://api.geoapify.com/v1/routing?" +
+                    "waypoints=" + waypoints +
+                    "&mode=drive" +
+                    "&traffic=approximated" +
+                    "&max_speed=60" +
+                    "&type=short" +
+                    "&apiKey=" + geoapifyApyKey
+            );
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+
+            InputStream is = conn.getResponseCode() >= 400 ? conn.getErrorStream() : conn.getInputStream();
+
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+            }
+            conn.disconnect();
+
+            String json = response.toString();
+            System.out.println("Geoapify response: " + json);
+            GeoapifyRouteResponseDTO route = mapper.readValue(json, GeoapifyRouteResponseDTO.class);
+
+            double distanceKm = (double) route.getFeatures().get(0).getProperties().getDistance() / 1000.0;
+            double time = (double) route.getFeatures().get(0).getProperties().getTime() / 60.0;
+
+            float pricePerKm = 5;
+            double price = distanceKm * (double) pricePerKm;
+
+            return new RouteQuoteResponseDTO(price, time);
+        } catch (Exception e) {
             return null;
         }
     }
