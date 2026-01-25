@@ -3,6 +3,7 @@ package org.example.vroom.controllers;
 import org.example.vroom.DTOs.requests.panic.PanicRequestDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.panic.PanicNotificationResponseDTO;
+import org.example.vroom.entities.User;
 import org.example.vroom.exceptions.panic.PanicNotificationNotFound;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
@@ -12,9 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -51,12 +55,14 @@ public class PanicNotificationsController {
     @MessageMapping("panic")
     @SendTo("/socket-publisher/panic-notifications")
     public MessageResponseDTO panicRide(
-        PanicRequestDTO data
+            Principal principal,
+            @Payload PanicRequestDTO data
     ){
-        if(data == null && data.getRideId() == null)  return new MessageResponseDTO("Invalid panic request data");
+        System.out.println("ovde");
+        if(data == null || data.getRideId() == null)  return new MessageResponseDTO("Invalid panic request data");
 
         try{
-            panicNotificationsService.activatePanic(data);
+            panicNotificationsService.activatePanic(data, principal.getName());
 
             return new MessageResponseDTO("Administrators are notified, please hang in there while they resolve the issue");
         }catch(RideNotFoundException | UserNotFoundException  e){

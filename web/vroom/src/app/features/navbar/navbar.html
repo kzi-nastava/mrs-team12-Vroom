@@ -1,7 +1,7 @@
 <header>
     <nav class="navbar">
         <a class="logo" routerLink="">Vroom</a>
-        <div class="nav-right" *ngIf="!authService.isLoggedIn">
+        <div class="nav-right" *ngIf="!(authService.isLoggedIn$ | async)">
             <a class="ride-estimation-text" routerLink="/route-estimation">Ride Estimation</a>
             <a class="login-text" routerLink="/login">Log in</a>
             <a class="register-text" routerLink="/register">Register</a>
@@ -23,7 +23,7 @@
             </a>-->
         </div>
 
-        <div class="nav-right" *ngIf="authService.isLoggedIn && authService.getCurrentUserType !== 'ADMIN'">
+        <div class="nav-right" *ngIf="(authService.isLoggedIn$ | async) && authService.getCurrentUserType !== 'ADMIN'">
             <a class="logout-text" (click)="onLogout()" style="cursor: pointer;">Logout</a>
             <app-change-driver-status *ngIf="authService.getCurrentUserType==='DRIVER'">
             </app-change-driver-status>

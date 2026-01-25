@@ -20,15 +20,13 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
     return next(authReq).pipe(
         catchError((err) => {
             if(err.status === 401){
-                localStorage.removeItem('jwt');
-                localStorage.removeItem('expires')
-                localStorage.removeItem('user_id');
-                localStorage.removeItem('user_type');
+                localStorage.removeItem('jwt')
+                localStorage.removeItem('user_type')
 
                 router.navigate(['/login'])
             }
             
-            return throwError(() => err);
+            return throwError(() => err)
         })
     )
 }
