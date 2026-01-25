@@ -22,6 +22,7 @@ export class OrderARide implements OnInit {
   childrenAllowed = false;
   petsAllowed = false;
   otherEmail = '';
+  scheduledTime: string | null = null;
 
   startSuggestions: any[] = [];
   endSuggestions: any[] = [];
@@ -225,65 +226,104 @@ this.mapService.getRouteCoordinates(payload)
   // ================= ORDER RIDE =================
 
   orderRide() {
-    const token = localStorage.getItem('jwt');
-    if (!token) {
-      alert('You are not logged in!');
-      return;
-    }
-
-    if (!this.routeResult) {
-      alert('Please calculate route first!');
-      return;
-    }
-
-const rideRequest = {
-  locations: [
-    this.startLocation,
-    ...this.stops.map(s => s.address),
-    this.endLocation
-  ],
-  passengersEmails: this.otherEmail
-    ? [localStorage.getItem('email'), this.otherEmail]
-    : [localStorage.getItem('email')],
-  vehicleType: this.vehicleType,
-  babiesAllowed: this.childrenAllowed,
-  petsAllowed: this.petsAllowed,
-  scheduled: false,
-  scheduledTime: null,
-  route: {
-    startLocationLat: this.startCoords?.lat,
-    startLocationLng: this.startCoords?.lng,
-    endLocationLat: this.endCoords?.lat,
-    endLocationLng: this.endCoords?.lng,
-stops: (this.stops?.filter(s => s.coords).map(s => ({
-  lat: s.coords.lat,
-  lng: s.coords.lng
-}))) || []
+  const token = localStorage.getItem('jwt');
+  if (!token) {
+    alert('You are not logged in!');
+    return;
   }
-};
 
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token,
-      'Content-Type': 'application/json'
-    });
-this.error = '';
-this.http.post('http://localhost:8080/api/rides', rideRequest, { headers })
-  .subscribe({
-    next: () => {
-      this.error = '';
-      alert('Ride successfully created!');
-    },
-    error: err => {
-      console.error('Order ride error:', err);
+  if (!this.routeResult) {
+    alert('Please calculate route first!');
+    return;
+  }
+  let scheduled = false;
+  let scheduledTimeISO: string | null = null;
 
-      if (err.error?.message) {
-        this.error = err.error.message;
-      } else {
-        this.error = 'Could not create ride. Please try again.';
-        
-      }
-      this.cdr.detectChanges();
+  if (this.scheduledTime) {
+    const [hours, minutes] = this.scheduledTime.split(':').map(Number);
+
+    const now = new Date();
+    const scheduledDate = new Date();
+    scheduledDate.setHours(hours, minutes, 0, 0);
+
+    if (scheduledDate < now) {
+      alert('Scheduled time cannot be in the past');
+      return;
     }
+
+    const maxDate = new Date();
+    maxDate.setHours(maxDate.getHours() + 5);
+
+    if (scheduledDate > maxDate) {
+      alert('Scheduled time cannot be more than 5 hours ahead');
+      return;
+    }
+
+    scheduled = true;
+    scheduledTimeISO = scheduledDate.toISOString();
+  }
+
+  const rideRequest = {
+    locations: [
+      this.startLocation,
+      ...this.stops.map(s => s.address),
+      this.endLocation
+    ],
+    passengersEmails: this.otherEmail
+      ? [localStorage.getItem('email'), this.otherEmail]
+      : [localStorage.getItem('email')],
+    vehicleType: this.vehicleType,
+    babiesAllowed: this.childrenAllowed,
+    petsAllowed: this.petsAllowed,
+    scheduled: scheduled,
+    scheduledTime: scheduledTimeISO,
+    route: {
+      startLocationLat: this.startCoords?.lat,
+      startLocationLng: this.startCoords?.lng,
+      endLocationLat: this.endCoords?.lat,
+      endLocationLng: this.endCoords?.lng,
+      stops: (this.stops?.filter(s => s.coords).map(s => ({
+        lat: s.coords.lat,
+        lng: s.coords.lng
+      }))) || []
+    }
+  };
+
+  const headers = new HttpHeaders({
+    'Authorization': 'Bearer ' + token,
+    'Content-Type': 'application/json'
   });
-  }
+
+  this.error = '';
+  this.http.post('http://localhost:8080/api/rides', rideRequest, { headers })
+    .subscribe({
+      next: () => {
+        this.error = '';
+        alert('Ride successfully created!');
+      },
+      error: err => {
+        console.error('Order ride error:', err);
+
+        if (err.error?.message) {
+          this.error = err.error.message;
+        } else {
+          this.error = 'Could not create ride. Please try again.';
+        }
+
+        this.cdr.detectChanges();
+      }
+    });
+}
+
+
+  getMinTime(): string {
+  const now = new Date();
+  return now.toISOString().substring(11, 16); 
+}
+
+getMaxTime(): string {
+  const max = new Date();
+  max.setHours(max.getHours() + 5);
+  return max.toISOString().substring(11, 16); 
+}
 }
