@@ -69,20 +69,32 @@ public class RideService {
 
     @Transactional
     public GetRideResponseDTO orderRide(String userEmail, RideRequestDTO request) {
-        log.info(">>> orderRide() method ENTERED <<<");
-
         RegisteredUser user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        if (request.getScheduled() && request.getScheduledTime() != null) {
-            if (request.getScheduledTime().isAfter(LocalDateTime.now().plusHours(5))) {
+        // Validacija zakazanog vremena
+        LocalDateTime scheduledTime = null;
+        boolean isScheduled = request.getScheduled() != null && request.getScheduled() && request.getScheduledTime() != null;
+
+        if (isScheduled) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime max = now.plusHours(5);
+
+            if (request.getScheduledTime().isBefore(now)) {
+                throw new RuntimeException("Scheduled time cannot be in the past");
+            }
+
+            if (request.getScheduledTime().isAfter(max)) {
                 throw new RuntimeException("Scheduled ride cannot be more than 5 hours ahead");
             }
+
+            scheduledTime = request.getScheduledTime();
         }
 
+        // Konvertovanje rute iz DTO
         Route route = routeMapper.fromDTO(request.getRoute());
 
-        // ucitavanje i validacija dodatnih putnika
+        // Putnici
         List<RegisteredUser> passengers = new ArrayList<>();
         passengers.add(user);
         if (request.getPassengersEmails() != null) {
@@ -94,7 +106,7 @@ public class RideService {
             }
         }
 
-        // odabir dostupnog drivera
+        // Driver
         Driver driver = driverRepository.findFirstAvailableDriver(
                 request.getVehicleType(),
                 request.getBabiesAllowed(),
@@ -105,7 +117,7 @@ public class RideService {
             throw new NoAvailableDriverException("Driver exceeded 8 working hours in last 24h");
         }
 
-        // Start i end
+        // Start / End
         String startLocation = route.getStartLocationLat() + "," + route.getStartLocationLng();
         String endLocation = route.getEndLocationLat() + "," + route.getEndLocationLng();
 
@@ -119,24 +131,33 @@ public class RideService {
 
         RouteQuoteResponseDTO quote = routeService.routeEstimation(startLocation, endLocation, stops);
 
+        // StartTime = scheduledTime ako je zakazano
+        LocalDateTime startTime = isScheduled ? scheduledTime : LocalDateTime.now();
+        RideStatus status = isScheduled ? RideStatus.ACCEPTED : RideStatus.PENDING;
+
         Ride ride = Ride.builder()
                 .passenger(user)
                 .passengers(convertToPassengerNames(passengers))
                 .driver(driver)
                 .route(route)
-                .startTime(request.getScheduled() != null && request.getScheduled() ? request.getScheduledTime() : LocalDateTime.now())
-                .status(request.getScheduled() != null && request.getScheduled() ? RideStatus.ACCEPTED : RideStatus.PENDING)
+                .startTime(startTime)
+                .status(status)
                 .price(quote.getPrice())
                 .panicActivated(false)
-                .isScheduled(request.getScheduled() != null && request.getScheduled())
+                .isScheduled(isScheduled)
                 .build();
 
         ride = rideRepository.save(ride);
+        if (!isScheduled) {
+            driver.setStatus(DriverStatus.UNAVAILABLE);
+        }
+        // DTO
+        GetRideResponseDTO dto = rideMapper.getRideDTO(ride);
+        dto.setScheduledTime(scheduledTime);
 
-        driver.setStatus(DriverStatus.UNAVAILABLE);
-
-        return rideMapper.getRideDTO(ride);
+        return dto;
     }
+
 
 
     public Ride getActiveRideForDriver(String driverEmail) {
