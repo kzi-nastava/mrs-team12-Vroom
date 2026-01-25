@@ -16,4 +16,7 @@ public class FavoriteRouteDTO {
     private Long id;
     private String name;
     private GetRouteResponseDTO route;
+    private String startAddress;
+    private String endAddress;
+
 }

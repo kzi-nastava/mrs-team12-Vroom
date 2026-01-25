@@ -9,6 +9,8 @@ export interface FavoriteRoute {
   id: number;
   name: string;
   route: RouteDTO;
+  startAddress: string;
+  endAddress: string;
 }
 
 export interface OrderFromFavoriteRequest {

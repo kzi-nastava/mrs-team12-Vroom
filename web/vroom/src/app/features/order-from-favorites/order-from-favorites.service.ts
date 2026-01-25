@@ -21,6 +21,8 @@ getFavorites(): Observable<FavoriteRoute[]> {
       routes.map(r => ({
         id: r.id,
         name: r.name,
+        startAddress: r.startAddress,
+        endAddress: r.endAddress,
         route: {
           startLocationLat: r.route.startLocationLat,
           startLocationLng: r.route.startLocationLng,
