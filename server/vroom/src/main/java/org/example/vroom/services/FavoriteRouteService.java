@@ -55,7 +55,19 @@ public class FavoriteRouteService {
         if (route == null) {
             throw new RuntimeException("Favorite route has no route assigned");
         }
+        LocalDateTime scheduledTime = request.getScheduledTime();
 
+        if (scheduledTime != null) {
+            LocalDateTime now = LocalDateTime.now();
+
+            if (scheduledTime.isBefore(now)) {
+                throw new RuntimeException("Scheduled time cannot be in the past");
+            }
+
+            if (scheduledTime.isAfter(now.plusHours(5))) {
+                throw new RuntimeException("Scheduled time cannot be more than 5 hours ahead");
+            }
+        }
         if (route.getStartLocationLat() == null || route.getStartLocationLng() == null ||
                 route.getEndLocationLat() == null || route.getEndLocationLng() == null) {
             throw new RuntimeException("Favorite route has invalid start or end coordinates");
@@ -107,7 +119,9 @@ public class FavoriteRouteService {
 
         ride = rideRepository.save(ride);
 
-        driver.setStatus(DriverStatus.UNAVAILABLE);
+        if (scheduledTime == null) {
+            driver.setStatus(DriverStatus.UNAVAILABLE);
+        }
 
         return rideMapper.getRideDTO(ride);
     }
