@@ -154,112 +154,79 @@
                 </div>
             </div>
 
-            <h2 style="margin-top: 30px;">Driver information</h2>
+<h2 style="margin-top: 30px;">Driver information</h2>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="model">Vehicle model</label>
-                    <div class="input-wrapper">
-                        <input
-                            type="text"
-                            id="model"
-                            name="model"
-                            [(ngModel)]="vehicleModel">
-                    </div>
-                </div>
-
-<div class="form-row">
-    <div class="form-group">
-        <label for="model">Vehicle brand</label>
+<div class="driver-info">
+    <div class="form-group full-width">
+        <label for="model">Vehicle model</label>
         <div class="input-wrapper">
-            <input
-                type="text"
-                id="brand"
-                name="brand"
-                [(ngModel)]="vehicleBrand">
+            <input type="text" id="model" name="model" [(ngModel)]="vehicleModel">
         </div>
     </div>
 
-    <select name="vehicleType" [(ngModel)]="vehicleType">
-      <option value="" disabled selected>Select vehicle type</option>
-      <option value="LUXURY">LUXURY</option>
-      <option value="STANDARD">STANDARD</option>
-      <option value="MINIVAN">MINIVAN</option>
-    </select>
+    <div class="form-group full-width">
+        <label for="brand">Vehicle brand</label>
+        <div class="input-wrapper">
+            <input type="text" id="brand" name="brand" [(ngModel)]="vehicleBrand">
+        </div>
+    </div>
+
+    <div class="form-group full-width">
+        <label for="vehicleType">Vehicle type</label>
+        <select id="vehicleType" name="vehicleType" [(ngModel)]="vehicleType">
+            <option value="" disabled selected>Select vehicle type</option>
+            <option value="LUXURY">LUXURY</option>
+            <option value="STANDARD">STANDARD</option>
+            <option value="MINIVAN">MINIVAN</option>
+        </select>
+    </div>
+
+    <div class="form-group full-width">
+        <label for="plate">Plate number</label>
+        <div class="input-wrapper">
+            <input type="text" id="plate" name="plate" [(ngModel)]="plateNumber">
+        </div>
+    </div>
+
+    <div class="form-group full-width">
+        <label for="seats">Number of seats</label>
+        <div class="input-wrapper">
+            <input type="number" id="seats" name="seats" [(ngModel)]="numberOfSeats">
+        </div>
+    </div>
+
+    <div class="radio-group">
+        <label>Pets allowed:</label>
+        <div class="gender-option">
+            <input type="radio" id="petsYes" name="petsAllowed" [value]="true" [(ngModel)]="petsAllowed">
+            <label for="petsYes">Yes</label>
+        </div>
+        <div class="gender-option">
+            <input type="radio" id="petsNo" name="petsAllowed" [value]="false" [(ngModel)]="petsAllowed">
+            <label for="petsNo">No</label>
+        </div>
+    </div>
+
+    <div class="radio-group">
+        <label>Babies allowed:</label>
+        <div class="gender-option">
+            <input type="radio" id="babiesYes" name="babiesAllowed" [value]="true" [(ngModel)]="babiesAllowed">
+            <label for="babiesYes">Yes</label>
+        </div>
+        <div class="gender-option">
+            <input type="radio" id="babiesNo" name="babiesAllowed" [value]="false" [(ngModel)]="babiesAllowed">
+            <label for="babiesNo">No</label>
+        </div>
+    </div>
 </div>
-               
-            </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="plate">Plate number</label>
-                    <div class="input-wrapper">
-                        <input
-                            type="text"
-                            id="plate"
-                            name="plate"
-                            [(ngModel)]="plateNumber">
-                    </div>
-                </div>
+<div *ngIf="error" class="alert alert-error">
+  {{ error }}
+</div>
 
-                <div class="form-group">
-                    <label for="seats">Number of seats</label>
-                    <div class="input-wrapper">
-                        <input
-                            type="number"
-                            id="seats"
-                            name="seats"
-                            [(ngModel)]="numberOfSeats">
-                    </div>
-                </div>
-            </div>
-
-            <div class="gender-group">
-                <div class="gender-option">
-                    <input
-                        type="radio"
-                        id="petsYes"
-                        name="petsAllowed"
-                        [value]="true"
-                        [(ngModel)]="petsAllowed">
-                    <label for="petsYes">Pets  allowed</label>
-                </div>
-
-                <div class="gender-option">
-                    <input
-                        type="radio"
-                        id="petsNo"
-                        name="petsAllowed"
-                        [value]="false"
-                        [(ngModel)]="petsAllowed">
-                    <label for="petsNo">Pets not allowed</label>
-                </div>
-            </div>
-
-            <div class="gender-group">
-                <div class="gender-option">
-                    <input
-                        type="radio"
-                        id="babiesYes"
-                        name="babiesAllowed"
-                        [value]="true"
-                        [(ngModel)]="babiesAllowed">
-                    <label for="babiesYes">Babies allowed</label>
-                </div>
-
-                <div class="gender-option">
-                    <input
-                        type="radio"
-                        id="babiesNo"
-                        name="babiesAllowed"
-                        [value]="false"
-                        [(ngModel)]="babiesAllowed">
-                    <label for="babiesNo">Babies not allowed</label>
-                </div>
-            </div>
-
-            <h2 class="error-message">{{ error }}</h2>
-            <h2 class="success-message">{{ success }}</h2>
+<div *ngIf="success" class="alert alert-success">
+  {{ success }}
+</div>
             <button
                 type="submit"
                 class="register-btn"
