@@ -1,4 +1,4 @@
 export interface PanicRequestDTO{
-    userId: number;
+    rideId: number,
     activatedAt: Date;
 }

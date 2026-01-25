@@ -70,7 +70,6 @@ public class AuthService {
         return LoginResponseDTO.builder()
                 .type(type)
                 .token(token)
-                .expires(expiresIn)
                 .build();
     }
 

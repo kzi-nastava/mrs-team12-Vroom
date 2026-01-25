@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDriverStatus } from '../change-driver-status/change-driver-status';
 import { DriverService } from '../../core/services/driver.service';
 import { PanicNotificationService } from '../../core/services/panic-notification.service';
+import { PanicService } from '../../core/services/panic.service';
 @Component({
   selector: 'app-navbar',
   imports: [RouterModule, CommonModule, ChangeDriverStatus],
@@ -17,18 +18,25 @@ export class Navbar {
     private router: Router, 
     private cdRef: ChangeDetectorRef,
     private driverService: DriverService,
-    private panicNotificationService: PanicNotificationService
+    private panicNotificationService: PanicNotificationService,
+    private panicService: PanicService
   ){}
 
   onLogout() {
     this.authService.logout().subscribe({
-        next: () => {
-          this.cdRef.detectChanges()  
-          this.router.navigate(['/']);
+        next: async () => {
           this.driverService.disconnectWebSocket();
-          this.panicNotificationService.disconnectWebSocket()
+          await this.panicNotificationService.disconnectWebSocket()
+          await this.panicService.disconnectWebSocket()
+          this.cdRef.detectChanges()  
+          this.authService.updateStatus()
+          this.router.navigate(['/']);
         },
-        error: () => {
+        error: async () => {
+            this.driverService.disconnectWebSocket();
+            await this.panicNotificationService.disconnectWebSocket()
+            await this.panicService.disconnectWebSocket()
+            this.authService.updateStatus()
             this.cdRef.detectChanges()  
             this.router.navigate(['/']);
         }
