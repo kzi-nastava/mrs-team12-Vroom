@@ -74,7 +74,22 @@
         </label>
       </div>
     </div>
-
+<!-- SCHEDULE TIME -->
+<div class="row">
+  <div class="field">
+    <label>Schedule time (optional)</label>
+    <input
+      type="time"
+      [min]="getMinTime()"
+      [max]="getMaxTime()"
+      [(ngModel)]="scheduledTime"
+      [ngModelOptions]="{ standalone: true }"
+    />
+    <div class="hint">
+      You can schedule between now and 5 hours ahead
+    </div>
+  </div>
+</div>
     <!-- STOPS -->
     <div class="row">
       <div class="field">

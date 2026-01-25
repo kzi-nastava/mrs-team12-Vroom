@@ -60,7 +60,8 @@ select {
   border: none;
   background: #99c2a2;
   font-size: 15px;
-  font-family: 'IBM Plex Sans'
+  font-family: 'IBM Plex Sans';
+  z-index: 1; 
 }
 
 
@@ -84,21 +85,26 @@ select {
 
 .suggestions-list {
   position: absolute;
-  background: white;
-  border: 1px solid #ccc;
-  list-style: none;
-  padding: 0;
-  margin: 4px 0 0 0;
+  top: 100%; 
+  left: 0;
   width: 100%;
+  background: #99c2a2;
+  border: 1px solid #ccc;
+  border-radius: 8px;
   max-height: 180px;
   overflow-y: auto;
-  z-index: 1000;       
-  box-shadow: 0 4px 8px rgba(0,0,0,.1);
+  padding: 0;
+  margin: 4px 0 0 0;
+  list-style: none;
+  z-index: 10; 
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .suggestions-list li {
-  padding: 8px 10px;
+  padding: 10px;
   cursor: pointer;
+  font-family: 'IBM Plex Sans';
+  font-size: 14px;
 }
 
 .suggestions-list li:hover {
