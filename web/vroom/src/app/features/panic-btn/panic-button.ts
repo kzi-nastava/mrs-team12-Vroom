@@ -5,6 +5,7 @@ import { PanicNotificationService } from '../../core/services/panic-notification
 import { PanicService } from '../../core/services/panic.service';
 import { PanicRequestDTO } from '../../core/models/panic/requests/panic-request.dto';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-panic-btn',
@@ -22,8 +23,18 @@ export class PanicButton {
 
   @Input() rideID: string = ''
   
-  constructor(private panicService: PanicService, private toastService: NgToastService, private pns: PanicNotificationService, private cdr: ChangeDetectorRef){
-    this.userType = localStorage.getItem('user_type') || '';
+  constructor(
+    private panicService: PanicService, 
+    private toastService: NgToastService, 
+    private pns: PanicNotificationService, 
+    private cdr: ChangeDetectorRef, 
+    private route: ActivatedRoute 
+  ){
+    this.userType = localStorage.getItem('user_type') || ''
+
+    this.route.queryParamMap.subscribe(params => {
+      this.rideID = params.get('rideId') || ''
+    })
   }
 
   openPanicPopup(){
@@ -37,40 +48,31 @@ export class PanicButton {
   notifyPanic(){
     this.isLoading = true
     const data: PanicRequestDTO = {
-        userId: Number(localStorage.getItem('user_id')),
+        rideId: Number(this.rideID),
         activatedAt: new Date()
     }
 
-    this.panicService.panicRequest(this.rideID, data).subscribe({
-      next: (response: MessageResponseDTO) => {
-        this.notifiedResponse = response.message
-        this.isLoading = false
+    try {
+        this.panicService.sendPanicWebSockets(data)
+
+        this.notifiedResponse = "Administrators are notified, please hang in there"
         this.error = ''
-        this.closePanicPopup()
-        this.cdr.detectChanges()
-      },
-      error: (e) => {
-        if(e.status === 204){
-          this.error = `Content wasn't send to server` 
-        }else if (e.status === 400) {
-          this.error = `Couldn't process the request, please try again and hang tight in there` 
-        } else if (e.status === 404) {
-          this.error = 'Ride not found' 
-        } else if (e.status === 500) {
-          this.error = 'Internal server error. Please try again later' 
-        } else {
-          this.error = 'An unexpected error occurred. Please try again' 
-        }
-        this.notifiedResponse = ''
+        
+        setTimeout(() => {
+            this.closePanicPopup()
+            this.notifiedResponse = ""
+            this.isLoading = false
+            this.cdr.detectChanges()
+        }, 1000)
+
+    } catch (e) {
+        this.error = "Failed to send panic alert. Please try again"
         this.isLoading = false
         this.cdr.detectChanges()
-      }
-    })
+    }
 
     // delete next line of code, this is only for testing purposes 
     this.pns.handlePanicNotification()
-    
-    //this.rideService.panicRequest()
-    //this.closePanicPopup()
+
   }
 }

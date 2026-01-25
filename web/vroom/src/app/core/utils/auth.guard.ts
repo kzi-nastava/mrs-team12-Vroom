@@ -12,7 +12,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     }
 
     const userType = localStorage.getItem('user_type')
-    const expectedRoles = route.data['roles'] as Array<string>;
+    const expectedRoles = route.data['roles'] as Array<string>
 
     if(expectedRoles && !expectedRoles.includes(userType || '')){
         router.navigate(['/login'])

@@ -69,10 +69,10 @@ public class PanicNotificationsService {
         else return panicNotificationMapper.createPanicResponseDTO(notification);
     }
 
-    public void activatePanic(PanicRequestDTO data){
+    public void activatePanic(PanicRequestDTO data, String email){
         Ride ride = checkRideExisting(data.getRideId());
 
-        Optional<User> user = userRepository.findById(data.getUserId());
+        Optional<User> user = userRepository.findByEmail(email);
         if(user.isEmpty()){
             throw new UserNotFoundException("Couldn't find user");
         }
