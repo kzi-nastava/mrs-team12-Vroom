@@ -2,13 +2,15 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { MessageResponseDTO } from "../models/message-response.dto";
 import { LoginResponseDTO } from "../models/auth/responses/login-response.dto";
-import { finalize, Observable } from "rxjs";
+import { BehaviorSubject, finalize, Observable } from "rxjs";
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService{
     private api = 'http://localhost:8080/api/auth'
+    private loggedInStatus = new BehaviorSubject<boolean>(!!localStorage.getItem('jwt'))
+    isLoggedIn$ = this.loggedInStatus.asObservable();
 
     constructor(private http: HttpClient) {}
 
@@ -54,6 +56,10 @@ export class AuthService{
 
     get getCurrentUserType(): string | null{
         return localStorage.getItem('user_type')
+    }
+
+    updateStatus() {
+        this.loggedInStatus.next(!!localStorage.getItem('jwt'));
     }
 
     get isLoggedIn(): boolean{

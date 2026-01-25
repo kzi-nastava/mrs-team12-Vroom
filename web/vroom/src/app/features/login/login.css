@@ -27,6 +27,12 @@ h1 {
   border: 1px solid #f5c6cb;
 }
 
+.status-message.expired {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
 .login-page {
     width: 100%;
     max-width: 440px;

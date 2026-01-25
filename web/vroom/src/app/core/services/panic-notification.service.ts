@@ -35,10 +35,19 @@ export class PanicNotificationService{
         })
     }
 
-    disconnectWebSocket(){
-        if(this.stompClient && this.stompClient.connected){
-            this.stompClient.disconnect()
-        }
+    disconnectWebSocket(): Promise<void>{
+        return new Promise((resolve)=>{
+            if (this.stompClient && this.stompClient.connected) {
+                this.stompClient.disconnect(() => {
+                    this.stompClient = null;
+                    console.log("Socket disconnected");
+                    resolve();
+                });
+            } else {
+                this.stompClient = null;
+                resolve();
+            }
+        })
     }
 
     handlePanicNotification(){

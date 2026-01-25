@@ -58,7 +58,7 @@ public class PanicNotificationsController {
             Principal principal,
             @Payload PanicRequestDTO data
     ){
-
+        System.out.println("ovde");
         if(data == null || data.getRideId() == null)  return new MessageResponseDTO("Invalid panic request data");
 
         try{
