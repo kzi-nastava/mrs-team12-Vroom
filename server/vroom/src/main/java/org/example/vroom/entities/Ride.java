@@ -29,7 +29,7 @@ public class Ride {
     @JoinColumn(name = "passenger_id", nullable = false)
     private RegisteredUser passenger;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "routes_id", nullable = false)
     private Route route;
 

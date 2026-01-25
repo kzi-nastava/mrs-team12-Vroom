@@ -1,13 +1,13 @@
 package com.example.vroom.DTOs;
 
-public class MessageResponse {
+public class MessageResponseDTO {
     private String message;
 
-    public MessageResponse(String message) {
+    public MessageResponseDTO(String message) {
         this.message = message;
     }
 
-    public MessageResponse() {
+    public MessageResponseDTO() {
     }
 
     public String getMessage() {

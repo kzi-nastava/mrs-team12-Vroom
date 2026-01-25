@@ -7,6 +7,7 @@ import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
 import org.example.vroom.DTOs.responses.auth.RegisterResponseDTO;
 import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
+import org.example.vroom.repositories.DriverRepository;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.example.vroom.DTOs.responses.*;
@@ -21,8 +22,10 @@ import org.example.vroom.services.RegisteredUserService;
 import org.example.vroom.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 
@@ -37,6 +40,9 @@ public class AuthController {
     private DriverRegisterMapper driverRegisterMapper;
     @Autowired
     private AuthenticationManager authManager;
+    @Autowired
+    private DriverRepository driverRepository;
+
 
     @PostMapping(
             path="/login",
@@ -100,13 +106,14 @@ public class AuthController {
     public ResponseEntity<MessageResponseDTO> forgotPassword(@RequestBody ResetPasswordRequestDTO data){
         if(data==null)
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
+
         try{
             authService.resetPassword(data.getEmail(), data.getCode(), data.getPassword());
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Successfully reseted password"),
                     HttpStatus.OK
             );
-        }catch(InvalidTokenException e){
+        }catch(InvalidTokenException | InvalidPasswordException e){
             return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         }catch(Exception e){
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -116,25 +123,28 @@ public class AuthController {
 
     @PostMapping(
             path="/register",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponseDTO> register(@RequestBody RegisterRequestDTO data){
+    public ResponseEntity<MessageResponseDTO> register(
+            @ModelAttribute RegisterRequestDTO data,
+            @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto
+    ){
         if(data == null)
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
 
         try{
-            registeredUserService.createUser(data);
+            registeredUserService.createUser(data, profilePhoto);
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Successfully created user, activation link is sent to email"),
                     HttpStatus.CREATED
             );
-        }catch(UserAlreadyExistsException e) {
+        } catch(UserAlreadyExistsException e) {
             return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.CONFLICT);
         } catch(InvalidPasswordException e){
             return new ResponseEntity<>(new MessageResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e){
             return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.SERVICE_UNAVAILABLE);
-        }catch(Exception e){
+        } catch(Exception e){
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -159,7 +169,8 @@ public class AuthController {
                 .location(URI.create(targetUrl))
                 .build();
     }
-    
+
+
     @PostMapping(
             path = "/register/driver",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -173,7 +184,7 @@ public class AuthController {
         }
 
         Driver driver = driverRegisterMapper.toEntity(data);
-        // driverRepository.save(driver);
+        driverRepository.save(driver);
 
         return new ResponseEntity<RegisterResponseDTO>(
                 new RegisterResponseDTO(
@@ -190,9 +201,10 @@ public class AuthController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<MessageResponseDTO> logout(@RequestBody LogoutRequestDTO req, HttpServletResponse response) {
+    public ResponseEntity<MessageResponseDTO> logout(@AuthenticationPrincipal User user) {
         try{
-            authService.logout(Long.valueOf(req.getId()), req.getType(), response);
+            System.out.println(user.getId());
+            authService.logout(Long.valueOf(user.getId()), user.getRoleName());
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Logout successful"),
                     HttpStatus.OK
@@ -200,6 +212,7 @@ public class AuthController {
         }catch(UserNotFoundException e){
             return new ResponseEntity<MessageResponseDTO>(new MessageResponseDTO(e.getMessage()), HttpStatus.NOT_FOUND);
         }catch(Exception e){
+            System.out.println(e.getMessage());
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

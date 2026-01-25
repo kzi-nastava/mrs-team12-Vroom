@@ -91,7 +91,6 @@ export class Login implements OnInit {
     this.authService.createLoginRequest(data).subscribe({
       next:(response: LoginResponseDTO) =>{
         // save login response data in localstorage
-        localStorage.setItem('user_id', String(response.userID).trim())
         localStorage.setItem('user_type', response.type)
         localStorage.setItem('jwt', response.token)
         localStorage.setItem('expires', String(response.expires))

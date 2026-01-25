@@ -7,6 +7,7 @@ import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.UserStatus;
+import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.auth.InvalidTokenException;
 import org.example.vroom.exceptions.auth.TokenPresentException;
 import org.example.vroom.exceptions.user.AccountStatusException;
@@ -16,6 +17,7 @@ import org.example.vroom.repositories.TokenRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.example.vroom.utils.EmailService;
 import org.example.vroom.utils.JwtService;
+import org.example.vroom.utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,6 @@ public class AuthService {
     private UserRepository userRepository;
     @Autowired
     private TokenRepository tokenRepository;
-
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -40,6 +41,9 @@ public class AuthService {
     private EmailService emailService;
     @Autowired
     private DriverRepository driverRepository;
+    @Autowired
+    private PasswordUtils passwordUtils;
+
 
     public LoginResponseDTO login(User user, HttpServletResponse response) {
         if(user instanceof RegisteredUser && (
@@ -64,14 +68,13 @@ public class AuthService {
             driverRepository.save(d);
         }
         return LoginResponseDTO.builder()
-                .userID(user.getId())
                 .type(type)
                 .token(token)
                 .expires(expiresIn)
                 .build();
     }
 
-    public void logout(Long id, String type, HttpServletResponse response){
+    public void logout(Long id, String type){
         if(!type.equals("DRIVER")) return;
 
         User user = userRepository.findById(id)
@@ -121,6 +124,9 @@ public class AuthService {
         Optional<Token> tokenOptional = tokenRepository.findByUserEmail(email);
         if(tokenOptional.isEmpty())
             throw new InvalidTokenException("Invalid or expired token");
+
+        if(!passwordUtils.isPasswordValid(password))
+            throw new InvalidPasswordException("Password doesn't match criteria");
 
         Token token = tokenOptional.get();
         if(!token.getCode().equals(code))

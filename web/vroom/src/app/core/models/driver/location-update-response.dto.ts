@@ -1,7 +1,7 @@
-import { PointResponse } from "./point-response.dto";
+import { PointResponseDTO } from "./point-response.dto";
 
 export interface LocationUpdate {
   driverId: number;
-  point: PointResponse;
+  point: PointResponseDTO;
   status: String;  
 }

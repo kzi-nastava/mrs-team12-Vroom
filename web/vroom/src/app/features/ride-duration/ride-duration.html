@@ -3,17 +3,23 @@
   <div class="content-grid">
     <div class="left-section">
         <div class="container">
-            <div class="eta">ETA : 8 minutes</div>
-      
-        <div class="route">
-            <div>Bulevar Patrijarha Pavla, 20</div>
-            <div class="arrow">↓</div>
-            <div>Naučno-Tehnološki Park</div>
-        </div>
+            <div class="eta">ETA : {{eta}} minutes</div>
+                <div class="route">
+                    <div>{{startAddress}}</div>
+                    
+                    <ng-container *ngFor="let stop of stops">
+                        <div class="arrow">↓</div>
+                        <div>{{stop}}</div>
+                    </ng-container>
+
+                    <div class="arrow">↓</div>
+                    <div>{{endAddress}}</div>
+                </div>  
         </div>
 
     </div>
-    <div class="right-section">
+
+    <div class="right-section" *ngIf="userRole === 'REGISTERED_USER'">
         <div class="container">
             <div class="complaint-header">
                 Have any complaints?<br>
@@ -32,6 +38,16 @@
 
             <app-panic-btn></app-panic-btn>
             </div>
+    </div>
+
+    <div class="right-section" *ngIf="userRole === 'DRIVER'">
+        <div class="driver-actions">
+                <button class="finish-button" (click)="finishRide()">
+                    Finish Ride
+                </button>
+                <app-stop-ride></app-stop-ride>
+                <app-panic-btn></app-panic-btn>
         </div>
     </div>
 </div>
+

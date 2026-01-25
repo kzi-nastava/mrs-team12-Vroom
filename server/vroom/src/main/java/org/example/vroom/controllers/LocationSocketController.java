@@ -1,9 +1,12 @@
 package org.example.vroom.controllers;
 
 import org.example.vroom.DTOs.responses.driver.DriverPositionDTO;
+import org.example.vroom.DTOs.responses.ride.RideUpdateResponseDTO;
+import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.services.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;

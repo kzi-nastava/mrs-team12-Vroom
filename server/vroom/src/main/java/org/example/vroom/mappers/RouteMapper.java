@@ -1,7 +1,9 @@
 package org.example.vroom.mappers;
 
+import org.example.vroom.DTOs.FavoriteRouteDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
+import org.example.vroom.entities.FavoriteRoute;
 import org.example.vroom.entities.Point;
 import org.example.vroom.entities.Route;
 import org.springframework.stereotype.Component;
@@ -43,7 +45,7 @@ public class RouteMapper {
     }
 
     public Route fromDTO(GetRouteResponseDTO dto) {
-        if(dto == null) return null;
+        if (dto == null) return null;
 
         Route route = new Route();
         route.setStartLocationLat(dto.getStartLocationLat());
@@ -51,8 +53,9 @@ public class RouteMapper {
         route.setEndLocationLat(dto.getEndLocationLat());
         route.setEndLocationLng(dto.getEndLocationLng());
 
-        if(dto.getStops() != null) {
-            List<Point> points = dto.getStops().stream()
+        List<Point> points;
+        if (dto.getStops() != null) {
+            points = dto.getStops().stream()
                     .map(p -> {
                         Point point = new Point();
                         point.setLat(p.getLat());
@@ -60,8 +63,10 @@ public class RouteMapper {
                         return point;
                     })
                     .toList();
-            route.setStops(points);
+        } else {
+            points = new ArrayList<>();
         }
+        route.setStops(points);
 
         return route;
     }
@@ -78,4 +83,27 @@ public class RouteMapper {
         }
         return points;
     }
+
+    public FavoriteRouteDTO favoriteRouteToDTO(FavoriteRoute favoriteRoute) {
+        if (favoriteRoute == null) return null;
+
+        FavoriteRouteDTO dto = new FavoriteRouteDTO();
+        dto.setId(favoriteRoute.getId());
+        dto.setName(favoriteRoute.getName());
+
+        if (favoriteRoute.getRoute() != null) {
+            dto.setRoute(getRouteDTO(favoriteRoute.getRoute()));
+        }
+
+        return dto;
+    }
+
+    public List<FavoriteRouteDTO> favoriteRoutesToDTOs(List<FavoriteRoute> routes) {
+        if (routes == null) return List.of();
+
+        return routes.stream()
+                .map(this::favoriteRouteToDTO)
+                .toList();
+    }
+
 }

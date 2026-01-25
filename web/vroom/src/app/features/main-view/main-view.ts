@@ -7,6 +7,8 @@ import { MapService } from '../../core/services/map.service';
 import { MapActionType } from '../../core/models/map/enums/map-action-type.enum';
 import { DriverService } from '../../core/services/driver.service';
 import { LocationUpdate } from '../../core/models/driver/location-update-response.dto';
+import { RideUpdatesService } from '../../core/services/ride-update-service';
+import { RideService } from '../../core/services/ride.service';
 
 @Component({
   selector: 'app-map',
@@ -32,7 +34,9 @@ export class MainView implements AfterViewInit {
   constructor(
     private mapService: MapService,
     private router: Router,
-    private driverService: DriverService
+    private driverService: DriverService,
+    private rideUpdatesService: RideUpdatesService,
+    private rideService: RideService
   ) {}
 
   ngAfterViewInit(): void {
@@ -101,6 +105,7 @@ export class MainView implements AfterViewInit {
       .subscribe(action => {
         switch (action.type) {
           case MapActionType.DRAW_ROUTE:
+            this.routeLayer.clearLayers();
             this.driverService.disconnectWebSocket();
             this.handleDrawRoute(action.payload);
             break;
@@ -111,9 +116,40 @@ export class MainView implements AfterViewInit {
             this.routeLayer.clearLayers();
             this.setupRealTimeLocationListener();
             break;
+          case MapActionType.RIDE_DURATION:
+            this.routeLayer.clearLayers();
+            this.driverService.disconnectWebSocket();
+            this.setUpRideTracking(action.payload.rideID);
+            break;
         }
       });
   }
+
+  private setUpRideTracking(rideID: string): void {
+    this.rideUpdatesService.initRideUpdatesWebSocket(rideID);
+
+    this.rideUpdatesService.getRideUpdates().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(update => {
+      this.updateSingleVehicleOnMap( 0,
+        update.currentLocation.lat,
+        update.currentLocation.lng,
+        "In Ride"
+      );
+    });
+
+    this.rideService.getRouteDetails(rideID).subscribe({
+      next: (ride) => {
+        const payload = {
+          start: { lat: ride.startLocationLat, lng: ride.startLocationLng },
+          end: { lat: ride.endLocationLat, lng: ride.endLocationLng },
+          stops: ride.stops
+        };
+        this.handleDrawRoute(payload);
+      }
+    });
+  }
+
 
   private setupRealTimeLocationListener(): void {
     this.driverService.initializeWebSocket();
@@ -128,6 +164,8 @@ export class MainView implements AfterViewInit {
         );
       });
   }
+
+
 
   private updateSingleVehicleOnMap(driverId: number, latitude: number, longitude: number, status: String): void {
     const existingMarker = this.driverMarkers.get(driverId);
@@ -149,8 +187,6 @@ export class MainView implements AfterViewInit {
   }
 
   private async handleDrawRoute(payload: any): Promise<void> {
-    // clear all older layers
-    this.routeLayer.clearLayers();
 
     try {
       // get coordinates for every straight line
@@ -182,7 +218,7 @@ export class MainView implements AfterViewInit {
   private addRouteMarkers(payload: any): void{
     if (payload.start) {
         L.marker([payload.start.lat, payload.start.lng], {
-          icon: this.createCustomIcon('🚗')
+          icon: this.createCustomIcon('📍')
         }).addTo(this.routeLayer).bindPopup('Start');
       }
       

@@ -3,6 +3,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
 import { MapService } from '../../core/services/map.service';
+import { ChangeDetectorRef, NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-order-a-ride',
@@ -14,7 +15,6 @@ import { MapService } from '../../core/services/map.service';
 export class OrderARide implements OnInit {
 
 
-  // ---------- FORM FIELDS ----------
   startLocation = '';
   endLocation = '';
   vehicleType = 'STANDARD';
@@ -34,7 +34,6 @@ export class OrderARide implements OnInit {
   startCoords?: { lat: number; lng: number };
   endCoords?: { lat: number; lng: number };
 
-  // ---------- ROUTE RESULTS ----------
   time: number | null = null;
   price: number | null = null;
   calculating = false;
@@ -46,7 +45,9 @@ export class OrderARide implements OnInit {
 
   constructor(
     private mapService: MapService,
-    private http: HttpClient
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef,
+    private zone: NgZone
   ) {}
 
   ngOnInit() {
@@ -55,7 +56,6 @@ export class OrderARide implements OnInit {
     }, 300);
   }
 
-  // ================= AUTOCOMPLETE =================
 
   searchStart() {
     if (!this.startLocation || this.startLocation.length < 2) {
@@ -122,7 +122,6 @@ export class OrderARide implements OnInit {
     this.showStopSuggestions[i] = false;
   }
 
-  // ================= STOPS =================
 
   addStop() {
     this.stops.push({ id: this.stopIdCounter++, address: '', coords: null });
@@ -140,7 +139,6 @@ export class OrderARide implements OnInit {
     return stop.id;
   }
 
-  // ================= CALCULATE ROUTE =================
 
   calculateRoute() {
     this.error = '';
@@ -156,16 +154,18 @@ export class OrderARide implements OnInit {
 
     const start = `${this.startCoords.lat},${this.startCoords.lng}`;
     const end = `${this.endCoords.lat},${this.endCoords.lng}`;
-    const stops = this.stops
-      .filter(s => s.coords)
-      .map(s => `${s.coords.lat},${s.coords.lng}`)
-      .join(';');
+const stops = this.stops.length > 0
+    ? this.stops
+        .filter(stop => stop.coords)
+        .map(stop => `${stop.coords!.lat},${stop.coords!.lng}`)
+        .join(';')
+    : undefined;
 
     this.mapService.routeQuote(start, end, stops).subscribe({
       next: quote => {
-
+        console.log("Quote received:", quote);
         if (!quote || quote.price == null || quote.time == null) {
-          this.error = 'Server returned invalid data';
+          this.error = 'Invalid route!';
           this.calculating = false;
           return;
         }
@@ -184,22 +184,29 @@ export class OrderARide implements OnInit {
           stops: this.stops.filter(s => s.coords).map(s => s.coords)
         };
 
-        this.mapService.getRouteCoordinates(payload)
-          .then(route => {
-            if (route) {
-              this.mapService.drawRoute(
-                payload.start!,
-                payload.end!,
-                payload.stops
-              );
-            }
-            this.calculating = false;
-          })
-          .catch(err => {
-            console.error('Error fetching route', err);
-            this.error = 'Could not fetch route details';
-            this.calculating = false;
-          });
+this.mapService.getRouteCoordinates(payload)
+  .then(route => {
+    this.zone.run(() => {
+      if (route) {
+        this.mapService.drawRoute(
+          payload.start!,
+          payload.end!,
+          payload.stops
+        );
+      }
+
+      this.calculating = false;
+      this.cdr.detectChanges();
+    });
+  })
+  .catch(err => {
+    this.zone.run(() => {
+      console.error('Error fetching route', err);
+      this.error = 'Could not fetch route details';
+      this.calculating = false;
+      this.cdr.detectChanges();
+    });
+  });
       },
 
       error: err => {
@@ -210,7 +217,6 @@ export class OrderARide implements OnInit {
     });
   }
 
-  // ================= ORDER RIDE =================
 
   orderRide() {
     const token = localStorage.getItem('jwt');
@@ -254,16 +260,24 @@ stops: (this.stops?.filter(s => s.coords).map(s => ({
       'Authorization': 'Bearer ' + token,
       'Content-Type': 'application/json'
     });
+this.error = '';
+this.http.post('http://localhost:8080/api/rides', rideRequest, { headers })
+  .subscribe({
+    next: () => {
+      this.error = '';
+      alert('Ride successfully created!');
+    },
+    error: err => {
+      console.error('Order ride error:', err);
 
-    this.http.post('http://localhost:8080/api/rides', rideRequest, { headers })
-      .subscribe({
-        next: res => {
-          alert('Ride successfully created!');
-        },
-        error: err => {
-          console.error(err);
-          alert('Error creating ride');
-        }
-      });
+      if (err.error?.message) {
+        this.error = err.error.message;
+      } else {
+        this.error = 'Could not create ride. Please try again.';
+        
+      }
+      this.cdr.detectChanges();
+    }
+  });
   }
 }
