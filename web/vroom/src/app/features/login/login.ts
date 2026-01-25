@@ -93,7 +93,6 @@ export class Login implements OnInit {
         // save login response data in localstorage
         localStorage.setItem('user_type', response.type)
         localStorage.setItem('jwt', response.token)
-        localStorage.setItem('expires', String(response.expires))
         this.error = ''
         
         if (response.type === 'DRIVER') {

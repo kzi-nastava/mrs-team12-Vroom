@@ -6,17 +6,40 @@ import { Observable } from "rxjs";
 import { StopRideRequestDTO } from "../models/ride/requests/stop-ride-req.dto";
 import { PanicRequestDTO } from "../models/panic/requests/panic-request.dto";
 import { PanicNotificationDTO } from "../models/panic/responses/panic-notification.dto";
+import SockJS from "sockjs-client";
+import * as Stomp from "stompjs";
 
 @Injectable({
     providedIn: "root"
 })
 export class PanicService{
-    private panicUrl = 'http://localhost:8080/api/panics' // when panic controller implemented use this route
+    private panicUrl = 'http://localhost:8080/api/panics' 
+    private stompClient: any;
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {
+        const serverUrl = 'http://localhost:8080/socket'
+        const ws = new SockJS(serverUrl)
+        this.stompClient = Stomp.over(ws)
 
-    panicRequest(rideId: string, data: PanicRequestDTO): Observable<MessageResponseDTO>{
-        return this.http.post<MessageResponseDTO>(`${this.panicUrl}/ride/${rideId}`, data)
+        const token = localStorage.getItem('jwt')
+
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        }
+
+        this.stompClient.connect(headers, (frame: any) => {
+            console.log('WebSocket connected with JWT: ' + frame)
+        }, (error: any) => {
+            console.error('WebSocket error: ', error);
+        })
+    }
+
+    sendPanicWebSockets(data: PanicRequestDTO){
+        if (this.stompClient && this.stompClient.connected) {
+            this.stompClient.send("/socket-subscriber/panic", {}, JSON.stringify(data))
+        } else {
+            console.error("STOMP didn't connect, please try again later")
+        }
     }
 
     getActivePanicRequests(): Observable<PanicNotificationDTO[]>{

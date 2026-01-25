@@ -270,9 +270,8 @@ public class RideService {
             throw new RideCancellationException("Ride hasn't been accepted or it is finished");
 
         String userType = data.getType();
-
         if("REGISTERED_USER".equals(userType)){
-            if(ride.getStartTime().minusMinutes(10).isBefore(LocalDateTime.now()))
+            if(ride.getStartTime() != null && ride.getStartTime().minusMinutes(10).isBefore(LocalDateTime.now()))
                 throw new RideCancellationException("Passengers cannot cancel ride less than 10 minutes before it starts");
 
             ride.setStatus(RideStatus.CANCELLED_BY_USER);

@@ -12,5 +12,4 @@ import java.time.LocalDateTime;
 public class LoginResponseDTO {
     private String type;
     private String token;
-    private Long expires;
 }
