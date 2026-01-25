@@ -60,11 +60,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowedHeaders(List.of("*"));
-        //configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -85,6 +85,7 @@ public class SecurityConfig {
                                 "/api/rides/**",
                                 "/api/routes/**",
                                 "/api/main/**",
+                                "/api/panics/**",
                                 "/api/profile/driver",
                                 "/api/profile/user",
                                 "/api/drivers/**",
@@ -92,6 +93,7 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/socket/**"
                         ).permitAll()
+                        .requestMatchers("/socket/**").permitAll()
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/drivers/rides").authenticated()
                         .anyRequest().authenticated()

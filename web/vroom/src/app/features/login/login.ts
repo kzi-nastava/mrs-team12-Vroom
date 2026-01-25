@@ -11,6 +11,7 @@ import { MessageResponseDTO } from '../../core/models/message-response.dto';
 import { AuthService } from '../../core/services/auth.service';
 import { DriverService } from '../../core/services/driver.service';
 import { PanicNotificationService } from '../../core/services/panic-notification.service';
+import { PanicService } from '../../core/services/panic.service';
 
 @Component({
   selector: 'app-login',
@@ -35,7 +36,9 @@ export class Login implements OnInit {
     private cdRef: ChangeDetectorRef, 
     private authService: AuthService,
     private driverService: DriverService,
-    private panicNotificationService: PanicNotificationService){}
+    private panicService: PanicService,
+    private panicNotificationService: PanicNotificationService
+  ){}
 
   ngOnInit(): void {
     this.activatedRoute.queryParams.subscribe(params => {
@@ -62,7 +65,8 @@ export class Login implements OnInit {
       error: (e)=>{
         if (e.status === 404) {
           this.error = 'User not found. Please check your email'
-        } else if (e.status === 409) {
+        }
+        else if (e.status === 409) {
           this.error = 'Token is already present'
         } else if (e.status === 500) {
           this.error = 'Internal server error. Please try again later'
@@ -87,21 +91,29 @@ export class Login implements OnInit {
       email: String(this.email).trim(),
       password: String(this.password).trim()
     }
-    
+
     this.authService.createLoginRequest(data).subscribe({
-      next:(response: LoginResponseDTO) =>{
+      next:async (response: LoginResponseDTO) =>{
         // save login response data in localstorage
         localStorage.setItem('user_type', response.type)
         localStorage.setItem('jwt', response.token)
         this.error = ''
         
-        if (response.type === 'DRIVER') {
+        if(response.type==='REGISTERED_USER'){
+          await this.panicService.initPanicWebSockets();
+        }
+        else if (response.type === 'DRIVER') {
+          await this.panicService.initPanicWebSockets();
           this.driverService.initializeWebSocket();
         }else if(response.type === 'ADMIN')
           this.panicNotificationService.initalizeWebSocket()
 
+        this.cdRef.detectChanges()
+        this.authService.updateStatus()
         // redirect to main
         this.router.navigate(['/'])
+        //   //window.location.reload(); 
+
       },
 
       error: (e)=>{

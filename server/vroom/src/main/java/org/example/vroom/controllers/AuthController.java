@@ -159,7 +159,6 @@ public class AuthController {
             targetUrl = "http://localhost:4200/login?status=activated";
         } catch (ActivationExpiredException e) {
             targetUrl = "http://localhost:4200/login?status=expired";
-
         } catch (UserNotFoundException e) {
             targetUrl = "http://localhost:4200/login?status=failed";
         }

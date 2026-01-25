@@ -14,33 +14,57 @@ import * as Stomp from "stompjs";
 })
 export class PanicService{
     private panicUrl = 'http://localhost:8080/api/panics' 
-    private stompClient: any;
+    public stompClient: any;
 
-    constructor(private http: HttpClient) {
-        const serverUrl = 'http://localhost:8080/socket'
-        const ws = new SockJS(serverUrl)
-        this.stompClient = Stomp.over(ws)
+    constructor(private http: HttpClient) {}
 
-        const token = localStorage.getItem('jwt')
+    initPanicWebSockets(): Promise<void>{
+        return new Promise((resolve, reject)=>{
+            const serverUrl = 'http://localhost:8080/socket';
+            const ws = new SockJS(serverUrl);
+            this.stompClient = Stomp.over(ws);
+            const token = localStorage.getItem('jwt');
 
-        const headers = {
-            'Authorization': `Bearer ${token}`
-        }
-
-        this.stompClient.connect(headers, (frame: any) => {
-            console.log('WebSocket connected with JWT: ' + frame)
-        }, (error: any) => {
-            console.error('WebSocket error: ', error);
+            this.stompClient.connect(
+                { 'Authorization': `Bearer ${token}` },
+                (frame: any) => {
+                    console.log('Connected')
+                    resolve()
+                },
+                (error: any) => {
+                    console.error('Error: ', error)
+                    reject(error)
+                }
+            );
         })
     }
 
-    sendPanicWebSockets(data: PanicRequestDTO){
+    async sendPanicWebSockets(data: PanicRequestDTO){
+        if(!this.stompClient)
+            await this.initPanicWebSockets()
+
         if (this.stompClient && this.stompClient.connected) {
             this.stompClient.send("/socket-subscriber/panic", {}, JSON.stringify(data))
         } else {
             console.error("STOMP didn't connect, please try again later")
         }
     }
+
+     disconnectWebSocket(): Promise<void>{
+        return new Promise((resolve)=>{
+            if (this.stompClient && this.stompClient.connected) {
+                this.stompClient.disconnect(() => {
+                    this.stompClient = null;
+                    console.log("Socket disconnected");
+                    resolve();
+                });
+            } else {
+                this.stompClient = null;
+                resolve();
+            }
+        })
+    }
+
 
     getActivePanicRequests(): Observable<PanicNotificationDTO[]>{
         const params = new HttpParams().set('active', true);

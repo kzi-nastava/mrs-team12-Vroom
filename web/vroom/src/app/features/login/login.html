@@ -8,6 +8,9 @@
     <div *ngIf="status === 'failed'" class="status-message error">
         There has been an error with account activation
     </div>
+    <div *ngIf="status === 'expired'" class="status-message expired">
+        Account activation has expired. Please create new account and try again
+    </div>
 
     <div class="login-page">
         <section class="login-section">
