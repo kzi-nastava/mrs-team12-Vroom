@@ -21,6 +21,7 @@ public class GetRideResponseDTO {
     private List<String> passengers;
     private List<String> complaints;
 
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private RideStatus status;
@@ -28,4 +29,6 @@ public class GetRideResponseDTO {
     private boolean panicActivated;
     private Integer driverRating;
     private Integer vehicleRating;
+
+    private LocalDateTime scheduledTime;
 }
