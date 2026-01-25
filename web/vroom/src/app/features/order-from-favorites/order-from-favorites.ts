@@ -21,7 +21,7 @@ export class OrderFromFavorites implements OnInit {
   errorMessage$ = this.errorMessageSubject.asObservable(); 
 
 
-  routeOptions: { [key: number]: { vehicleType: string, babiesAllowed: boolean, petsAllowed: boolean } } = {};
+  routeOptions: { [key: number]: { vehicleType: string, babiesAllowed: boolean, petsAllowed: boolean,  scheduledTime: string | null; } } = {};
 
   constructor(private favoritesService: FavoriteRoutesService) {}
 
@@ -32,7 +32,8 @@ export class OrderFromFavorites implements OnInit {
         this.routeOptions[fav.id] = {
           vehicleType: 'STANDARD',
           babiesAllowed: false,
-          petsAllowed: false
+          petsAllowed: false,
+           scheduledTime: null
         };
       });
     });
@@ -42,13 +43,36 @@ export class OrderFromFavorites implements OnInit {
     this.errorMessageSubject.next(null);
 
     const options = this.routeOptions[route.id];
+    let scheduledTime: string | null = null;
 
+  if (options.scheduledTime) {
+    const now = new Date();
+    const [hours, minutes] = options.scheduledTime.split(':');
+
+    const scheduled = new Date();
+    scheduled.setHours(+hours, +minutes, 0, 0);
+
+    if (scheduled < now) {
+      this.errorMessageSubject.next('Scheduled time cannot be in the past');
+      return;
+    }
+
+    const max = new Date();
+    max.setHours(max.getHours() + 5);
+
+    if (scheduled > max) {
+      this.errorMessageSubject.next('Scheduled time cannot be more than 5 hours ahead');
+      return;
+    }
+
+    scheduledTime = scheduled.toISOString();
+  }
     const request = {
       favoriteRouteId: route.id,
       vehicleType: options.vehicleType,
       babiesAllowed: options.babiesAllowed,
       petsAllowed: options.petsAllowed,
-      scheduledTime: null
+      scheduledTime: scheduledTime
     };
 
     this.favoritesService.orderFromFavorite(request)
@@ -67,6 +91,17 @@ export class OrderFromFavorites implements OnInit {
   removeFromFavorites(route: FavoriteRoute) {
     console.log('TODO remove', route.id);
   }
+
+  getMinTime(): string {
+  const now = new Date();
+  return now.toISOString().substring(11, 16); // HH:mm
+}
+
+getMaxTime(): string {
+  const max = new Date();
+  max.setHours(max.getHours() + 5);
+  return max.toISOString().substring(11, 16);
+}
 
   
 }
