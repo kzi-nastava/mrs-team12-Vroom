@@ -90,6 +90,8 @@ public class RouteMapper {
         FavoriteRouteDTO dto = new FavoriteRouteDTO();
         dto.setId(favoriteRoute.getId());
         dto.setName(favoriteRoute.getName());
+        dto.setStartAddress(favoriteRoute.getStartAddress());
+        dto.setEndAddress(favoriteRoute.getEndAddress());
 
         if (favoriteRoute.getRoute() != null) {
             dto.setRoute(getRouteDTO(favoriteRoute.getRoute()));

@@ -1,71 +1,87 @@
-<h1>Order from favorites</h1>
+<div class="container">
+  <h1>Order from favorites</h1>
 
-<!-- Error message -->
-<div *ngIf="errorMessage$ | async as errorMessage" class="error-message">
-  {{ errorMessage }}
+  <div *ngIf="errorMessage$ | async as errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="favoriteRoutes$ | async as favoriteRoutes; else loading">
+    <div class="ride-card" *ngFor="let fav of favoriteRoutes">
+
+      <div class="route">
+        <span class="location">
+          {{ fav.startAddress || 'N/A' }}
+        </span>
+        <span class="arrow">→</span>
+        <span class="location">
+           {{ fav.endAddress || 'N/A' }}
+        </span>
+      </div>
+
+      <div class="route-name">
+        {{ fav.name }}
+      </div>
+
+      <div class="section">
+        <div class="section-title">Vehicle type</div>
+        <div class="option-group">
+          <label class="option">
+            <input type="radio" name="vehicleType-{{fav.id}}" value="STANDARD"
+                   [(ngModel)]="routeOptions[fav.id].vehicleType">
+            Standard
+          </label>
+          <label class="option">
+            <input type="radio" name="vehicleType-{{fav.id}}" value="LUXURY"
+                   [(ngModel)]="routeOptions[fav.id].vehicleType">
+            Luxury
+          </label>
+          <label class="option">
+            <input type="radio" name="vehicleType-{{fav.id}}" value="MINIVAN"
+                   [(ngModel)]="routeOptions[fav.id].vehicleType">
+            Minivan
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Extras</div>
+        <div class="option-group">
+          <label class="option">
+            <input type="checkbox" [(ngModel)]="routeOptions[fav.id].babiesAllowed">
+            Kids allowed
+          </label>
+          <label class="option">
+            <input type="checkbox" [(ngModel)]="routeOptions[fav.id].petsAllowed">
+            Pets allowed
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+  <div class="section-title">Schedule time (optional)</div>
+
+  <input
+    type="time"
+    [min]="getMinTime()"
+    [max]="getMaxTime()"
+    [(ngModel)]="routeOptions[fav.id].scheduledTime"
+  />
+
+  <div class="hint">
+    You can schedule between now and 5 hours ahead
+  </div>
 </div>
 
-<ng-container *ngIf="favoriteRoutes$ | async as favoriteRoutes; else loading">
-  <div class="ride-card" *ngFor="let fav of favoriteRoutes">
+      <div class="action-row">
+        <button (click)="useRoute(fav)">
+          Use this route
+        </button>
+      </div>
 
-    <!-- Route display -->
-    <div class="route">
-      <span class="location">
-        {{ fav.route?.startLocationLat || 'N/A' }},
-        {{ fav.route?.startLocationLng || 'N/A' }}
-      </span>
-      <span class="arrow">→</span>
-      <span class="location">
-        {{ fav.route?.endLocationLat || 'N/A' }},
-        {{ fav.route?.endLocationLng || 'N/A' }}
-      </span>
     </div>
+  </ng-container>
 
-    <div class="details">
-      <span class="detail-value">{{ fav.name }}</span>
-    </div>
-
-    <!-- Vehicle Type radio buttons -->
-    <div class="vehicle-type">
-      <label>
-        <input type="radio" name="vehicleType-{{fav.id}}" value="STANDARD"
-               [(ngModel)]="routeOptions[fav.id].vehicleType">
-        Standard
-      </label>
-      <label>
-        <input type="radio" name="vehicleType-{{fav.id}}" value="LUXURY"
-               [(ngModel)]="routeOptions[fav.id].vehicleType">
-        Luxury
-      </label>
-      <label>
-        <input type="radio" name="vehicleType-{{fav.id}}" value="MINIVAN"
-               [(ngModel)]="routeOptions[fav.id].vehicleType">
-        Minivan
-      </label>
-    </div>
-
-    <!-- Pets & Kids checkboxes -->
-    <div class="extras">
-      <label>
-        <input type="checkbox" [(ngModel)]="routeOptions[fav.id].babiesAllowed">
-        Kids allowed
-      </label>
-      <label>
-        <input type="checkbox" [(ngModel)]="routeOptions[fav.id].petsAllowed">
-        Pets allowed
-      </label>
-    </div>
-
-    <!-- Order button -->
-    <button (click)="useRoute(fav)">
-      Use this route
-    </button>
-
-    
-
-  </div>
-</ng-container>
-
-<ng-template #loading>
-  <p>Loading favorite routes...</p>
-</ng-template>
+  <ng-template #loading>
+    <p>Loading favorite routes...</p>
+  </ng-template>
+</div>
