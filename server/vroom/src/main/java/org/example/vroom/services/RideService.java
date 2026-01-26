@@ -164,8 +164,8 @@ public class RideService {
                 .isScheduled(isScheduled)
                 .build();
 
-        String startAddress = decodeAddress(ride.getRoute().getStartLocationLat(), ride.getRoute().getStartLocationLng());
-        String endAddress = decodeAddress(ride.getRoute().getEndLocationLat(), ride.getRoute().getEndLocationLng());
+        startAddress = decodeAddress(ride.getRoute().getStartLocationLat(), ride.getRoute().getStartLocationLng());
+        endAddress = decodeAddress(ride.getRoute().getEndLocationLat(), ride.getRoute().getEndLocationLng());
         ride.getRoute().setStartAddress(startAddress);
         ride.getRoute().setEndAddress(endAddress);
 
@@ -337,7 +337,7 @@ public class RideService {
         rideRepository.save(ride);
     }
 
-    public void cancelRide(Long rideID, CancelRideRequestDTO data){
+    public void cancelRide(Long rideID, String reason, String userType){
         Optional<Ride> rideOptional = rideRepository.findById(rideID);
         if(rideOptional.isEmpty())
             throw new RideNotFoundException("Ride not found");
@@ -346,7 +346,6 @@ public class RideService {
         if(!ride.getStatus().equals(RideStatus.ACCEPTED))
             throw new RideCancellationException("Ride hasn't been accepted or it is finished");
 
-        String userType = data.getType();
         if("REGISTERED_USER".equals(userType)){
             if(ride.getStartTime() != null && ride.getStartTime().minusMinutes(10).isBefore(LocalDateTime.now()))
                 throw new RideCancellationException("Passengers cannot cancel ride less than 10 minutes before it starts");
@@ -354,12 +353,12 @@ public class RideService {
             ride.setStatus(RideStatus.CANCELLED_BY_USER);
         }
         else if("DRIVER".equals(userType)){
-            if(data.getReason() == null || data.getReason().isBlank()){
+            if(reason == null || reason.isEmpty() || reason.isBlank()){
                 throw new RideCancellationException("Driver must provide a reason for cancellation");
             }
 
             ride.setStatus(RideStatus.CANCELLED_BY_DRIVER);
-            ride.setCancelReason(data.getReason());
+            ride.setCancelReason(reason);
         }
 
         rideRepository.save(ride);

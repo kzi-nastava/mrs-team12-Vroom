@@ -6,6 +6,7 @@ import { ChangeDriverStatus } from '../change-driver-status/change-driver-status
 import { DriverService } from '../../core/services/driver.service';
 import { PanicNotificationService } from '../../core/services/panic-notification.service';
 import { PanicService } from '../../core/services/panic.service';
+import { forkJoin, Observable } from 'rxjs';
 @Component({
   selector: 'app-navbar',
   imports: [RouterModule, CommonModule, ChangeDriverStatus],
@@ -22,24 +23,32 @@ export class Navbar {
     private panicService: PanicService
   ){}
 
+  connectionTasks$: Observable<void>[] = []
+
+
   onLogout() {
     this.authService.logout().subscribe({
-        next: async () => {
-          this.driverService.disconnectWebSocket();
-          await this.panicNotificationService.disconnectWebSocket()
-          await this.panicService.disconnectWebSocket()
-          this.cdRef.detectChanges()  
-          this.authService.updateStatus()
-          this.router.navigate(['/']);
+        next: () => {
+          this.connectionTasks$.push(this.driverService.disconnectWebSocket());
+          this.connectionTasks$.push(this.panicNotificationService.disconnectWebSocket())
+
+          this.finalizeLogout()
         },
-        error: async () => {
-            this.driverService.disconnectWebSocket();
-            await this.panicNotificationService.disconnectWebSocket()
-            await this.panicService.disconnectWebSocket()
-            this.authService.updateStatus()
-            this.cdRef.detectChanges()  
-            this.router.navigate(['/']);
+        error: () => {
+            this.connectionTasks$.push(this.driverService.disconnectWebSocket());
+            this.connectionTasks$.push(this.panicNotificationService.disconnectWebSocket())
+
+          this.finalizeLogout()   
         }
     });
-}
+  }
+
+  finalizeLogout(){
+    forkJoin(this.connectionTasks$).subscribe(()=>{
+        this.authService.updateStatus()
+        this.cdRef.detectChanges() 
+        this.router.navigate(['/'])
+    })
+
+  }
 }

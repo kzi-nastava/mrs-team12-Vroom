@@ -108,7 +108,7 @@ public class AuthController {
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
 
         try{
-            authService.resetPassword(data.getEmail(), data.getCode(), data.getPassword());
+            authService.resetPassword(data.getEmail(), data.getCode(), data.getPassword(), data.getConfirmPassword());
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Successfully reseted password"),
                     HttpStatus.OK

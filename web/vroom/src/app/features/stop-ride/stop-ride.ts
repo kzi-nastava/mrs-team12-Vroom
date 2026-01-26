@@ -5,6 +5,8 @@ import { GeolocationService } from '../../core/services/geolocation.service';
 import { StopRideRequestDTO } from '../../core/models/ride/requests/stop-ride-req.dto';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgToastService } from 'ng-angular-popup';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-stop-ride',
@@ -21,7 +23,11 @@ export class StopRide implements OnInit{
 
   @Input() rideId: string = ''
 
-  constructor(private rideService: RideService, private geolocationService: GeolocationService, private cdr: ChangeDetectorRef){}
+  constructor(
+    private rideService: RideService, 
+    private cdr: ChangeDetectorRef,
+    private toastService: NgToastService
+  ){}
 
   ngOnInit(): void {
       this.role = localStorage.getItem('user_type') || ''
@@ -39,6 +45,18 @@ export class StopRide implements OnInit{
     this.showSuccessPopup = false
   }
 
+  private getCETDate(): string{
+    const now = new Date()
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    const hours = String(now.getHours()).padStart(2, '0')
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0')
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  }
 
   submitStop(){
       this.isLoading = true
@@ -46,11 +64,15 @@ export class StopRide implements OnInit{
       const stopRideData: StopRideRequestDTO = new StopRideRequestDTO()
       
       stopRideData.getLocation(() => {
-        stopRideData.endTime = new Date().toISOString()
+        stopRideData.endTime = this.getCETDate()
   
         this.rideService.stopRideRequest(this.rideId, stopRideData).subscribe({
           next: (response) => {
-            this.stoppedRideData = response;  
+            this.stoppedRideData = {
+              ...response,
+              startTime: new Date(response.startTime.toString()),
+              endTime: new Date(response.endTime.toString())
+            }
             this.showPopup = false
             this.showSuccessPopup = true;
             this.isLoading = false
@@ -59,7 +81,16 @@ export class StopRide implements OnInit{
           error: (e) => {
             this.showPopup = false
             this.isLoading = false
-            alert("Error stopping ride");
+
+            this.toastService.danger(
+              "Failed to stop the ride. Try again.", 
+              'Stopping', 
+              5000, 
+              true, 
+              true, 
+              false
+            )
+
             this.cdr.detectChanges()
           }
         })

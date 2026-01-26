@@ -2,7 +2,10 @@
     <div class="stop-ride-wrapper" *ngIf="role === 'DRIVER' && showPopup">
         <div class="stop-ride-container">
             <h2>Are you sure you want to stop ride?</h2>
-            <button class="confirm-cancellation" (click)="submitStop()" [disabled]="isLoading">{{ isLoading ? 'Stopping...' : 'Confirm' }}</button>
+            <div *ngIf="isLoading" class="loader-container">
+                <div class="spinner"></div>
+            </div>
+            <button class="confirm-cancellation" (click)="submitStop()" [disabled]="isLoading" *ngIf="!isLoading">{{ isLoading ? 'Stopping...' : 'Confirm' }}</button>
             <button (click)="closePopup()" class="cancel-btn">Cancel</button>
         </div>
     </div>
@@ -13,9 +16,9 @@
             <h2>Ride Finished Successfully</h2>
             <div class="ride-details">
                 <p><strong>Status:</strong> {{ stoppedRideData.status }}</p>
-                <p><strong>Price:</strong> {{ stoppedRideData.price | currency:'RSD' }}</p>
-                <p><strong>Start:</strong> {{ stoppedRideData.startTime }}</p>
-                <p><strong>End:</strong> {{ stoppedRideData.endTime }}</p>
+                <p><strong>Price:</strong> {{ stoppedRideData.price }} RSD</p>
+                <p><strong>Start:</strong> {{ stoppedRideData.startTime | date:'HH:mm' }}</p>
+                <p><strong>End:</strong> {{ stoppedRideData.endTime | date:'HH:mm' }}</p>
             </div>
             <button (click)="closeSuccessPopup()" class="confirm-btn">OK</button>
         </div>

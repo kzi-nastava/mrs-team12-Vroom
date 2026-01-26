@@ -25,15 +25,20 @@
                     <input name="password" type="password" placeholder="Enter your password" [(ngModel)]="password"/>
                 </div>
             </form>
-
-            <h2 class="error-message">{{error}}</h2>
-            <h2 class="success-message">{{success}}</h2>
         </section>
+
 
         <section class="forgot-password-section">
-            <button (click)="onForgotPassword()">Forgot password</button>
+            <div *ngIf="isLoadingForgotPassword" class="loader-container">
+                <div class="spinner"></div>
+            </div>
+            <button (click)="onForgotPassword()" *ngIf="!isLoadingForgotPassword">Forgot password</button>
         </section>
+
+        <div *ngIf="isLoadingLogin" class="loader-container">
+            <div class="spinner"></div>
+        </div>
         
-        <button class="login-button" (click)="onLogin()">Login</button>
+        <button class="login-button" (click)="onLogin()" *ngIf="!isLoadingLogin">Login</button>
     </div>
 </div>

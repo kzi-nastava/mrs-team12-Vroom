@@ -12,4 +12,5 @@ public class ResetPasswordRequestDTO {
     private String email;
     private String code;
     private String password;
+    private String confirmPassword;
 }
