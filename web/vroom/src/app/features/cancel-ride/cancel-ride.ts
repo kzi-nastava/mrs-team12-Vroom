@@ -7,6 +7,7 @@ import { CancelRideRequestDTO } from '../../core/models/ride/requests/cancel-rid
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
 import { StopRideRequestDTO } from '../../core/models/ride/requests/stop-ride-req.dto';
 import { StoppedRideResponseDTO } from '../../core/models/ride/responses/sopped-ride-response.dto';
+import { NgToastService } from 'ng-angular-popup';
 
 @Component({
   selector: 'app-cancel-ride',
@@ -25,7 +26,12 @@ export class CancelRide implements OnInit {
 
   @Input() rideId: string = '';
 
-  constructor(private rideService: RideService, private geolocationService: GeolocationService, private cdr: ChangeDetectorRef){}
+  constructor(
+    private rideService: RideService, 
+    private geolocationService: GeolocationService, 
+    private cdr: ChangeDetectorRef, 
+    private toastService: NgToastService
+  ){}
 
   ngOnInit(): void {
       this.role = localStorage.getItem('user_type') || ''
@@ -61,13 +67,30 @@ export class CancelRide implements OnInit {
         this.showPopup = false
         this.reason = ''
         this.isLoading = false
+
+        this.toastService.success(
+            response.message + ' redirecting....', 
+            'Cancellation', 
+            5000, 
+            true, 
+            true, 
+            false
+        )
+
         this.cdr.detectChanges()
-        alert(response.message + ' redirecting....')
       },
       error: (e) => {
         this.isLoading = false
+        this.toastService.danger(
+            "Failed to cancel ride. Try again.", 
+            'Cancellation', 
+            5000, 
+            true, 
+            true, 
+            false
+          )
+
         this.cdr.detectChanges()
-        alert("Failed to cancel ride. Try again.");
       }
     })
   }

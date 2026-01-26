@@ -17,8 +17,6 @@ import { ActivatedRoute } from '@angular/router';
 export class PanicButton {
   showPanicPopup: boolean = false
   userType: string = ''
-  notifiedResponse: string = ''
-  error: string = ''
   isLoading: boolean = false
 
   @Input() rideID: string = ''
@@ -47,7 +45,7 @@ export class PanicButton {
 
   notifyPanic(){
     this.isLoading = true
-    
+
     const data: PanicRequestDTO = {
         rideId: Number(this.rideID),
         activatedAt: new Date()
@@ -55,20 +53,32 @@ export class PanicButton {
 
     this.panicService.sendPanicWebSockets(data).subscribe({
         next: () => {
-          this.notifiedResponse = "Administrators are notified, please hang in there"
-          this.error = ""
+          this.toastService.success(
+            "Administrators are notified, please hang in there", 
+            'PANIC', 
+            5000, 
+            true, 
+            true, 
+            false
+          )
 
           this.cdr.detectChanges()
 
           setTimeout(() => {
             this.closePanicPopup()
-            this.notifiedResponse = ""
             this.isLoading = false
             this.cdr.detectChanges()
           }, 1000)
         },
         error: () => {
-          this.error = "Failed to send panic alert. Please try again"
+          this.toastService.danger(
+            "Failed to send panic alert. Please try again", 
+            'PANIC', 
+            5000, 
+            true, 
+            true, 
+            false
+          )
           this.isLoading = false
           this.cdr.detectChanges()
         }
