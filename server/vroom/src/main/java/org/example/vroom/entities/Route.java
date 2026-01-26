@@ -23,6 +23,12 @@ public class Route {
     @Column(nullable = false)
     private Double startLocationLng;
 
+    @Column(nullable = true)
+    private String startAddress;
+
+    @Column(nullable = true)
+    private String endAddress;
+
     @Column(nullable = false)
     private Double endLocationLat;
 
