@@ -13,10 +13,10 @@ import { Ride } from './ride.model';
 })
 export class DriverActiveRide {
 
-  ride$: Observable<Ride | null>; // koristimo Observable direktno
+  ride$: Observable<Ride | null>; 
 
   constructor(private rideService: DriverActiveRideService) {
-    this.ride$ = this.rideService.getActiveRide(); // odmah inicijalizujemo
+    this.ride$ = this.rideService.getActiveRide(); 
   }
 
   startRide(): void {
@@ -24,7 +24,7 @@ export class DriverActiveRide {
 
     this.rideService.startRide().subscribe({
       next: () => {
-        // osveži Observable nakon starta
+  
         this.ride$ = this.rideService.getActiveRide();
       },
       error: err => console.error(err)

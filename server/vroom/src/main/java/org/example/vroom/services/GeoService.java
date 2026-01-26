@@ -49,4 +49,35 @@ public class GeoService {
                     .toList();
         }
     }
+
+    public String reverseGeocode(Double lat, Double lng) throws IOException {
+        if (lat == null || lng == null) return null;
+
+        URL url = new URL(
+                "https://api.geoapify.com/v1/geocode/reverse?" +
+                        "lat=" + lat +
+                        "&lon=" + lng +
+                        "&lang=sr" +
+                        "&apiKey=" + geoapifyApiKey
+        );
+
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        try (InputStream is = con.getInputStream()) {
+            GeoapifyAddressResponseDTO resp =
+                    mapper.readValue(is, GeoapifyAddressResponseDTO.class);
+
+            if (resp.getFeatures() == null || resp.getFeatures().isEmpty()) {
+                return null;
+            }
+
+            return resp.getFeatures().get(0)
+                    .getProperties()
+                    .getFormatted();
+        }
+    }
+
 }

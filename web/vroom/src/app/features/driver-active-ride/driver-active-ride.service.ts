@@ -11,7 +11,7 @@ export class DriverActiveRideService {
   constructor(private http: HttpClient) {}
 
   getActiveRide(): Observable<Ride | null> {
-    const token = localStorage.getItem('jwt'); // koristi isti token kao profil
+    const token = localStorage.getItem('jwt'); 
     console.log('Sending token for active ride:', token);
     return this.http.get<Ride | null>(`${this.baseUrl}/active`, {
       headers: { Authorization: `Bearer ${token}` }
