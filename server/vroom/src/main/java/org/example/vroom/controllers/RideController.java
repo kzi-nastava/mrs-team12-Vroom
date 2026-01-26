@@ -240,22 +240,12 @@ public class RideController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         if (userDetails == null) {
-            System.out.println("UserDetails je null!");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        String driverEmail = userDetails.getUsername();
-        System.out.println("Driver email: " + driverEmail);
-
-        Ride ride = rideService.getActiveRideForDriver(driverEmail);
-        if (ride == null) {
-            System.out.println("Nema aktivne vožnje za ovog vozača!");
-            return ResponseEntity.noContent().build();
-        }
-        ride.setStatus(RideStatus.ONGOING);
-        rideRepository.save(ride);
-
-        return ResponseEntity.ok(rideService.mapToDTO(ride));
+        return ResponseEntity.ok(
+                rideService.startRide(userDetails.getUsername())
+        );
     }
 
 
