@@ -71,10 +71,10 @@ public class PanicNotificationsService {
     }
 
     @Transactional
-    public void createPanicNotification(PanicRequestDTO data, String email){
+    public void createPanicNotification(PanicRequestDTO data, Long id){
         Ride ride = checkRideExisting(data.getRideId());
 
-        Optional<User> user = userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findById(id);
         if(user.isEmpty()){
             throw new UserNotFoundException("Couldn't find user");
         }

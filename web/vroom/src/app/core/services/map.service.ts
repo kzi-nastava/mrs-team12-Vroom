@@ -4,7 +4,7 @@ import * as L from 'leaflet'
 import { HttpParams } from '@angular/common/http';
 import { AddressSuggestionDTO } from '../models/address/response/address-suggestion-response.dto';
 import { RouteQuoteEstimationDTO } from '../models/address/response/route-quote-estimation.dto';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { MapActionType } from '../models/map/enums/map-action-type.enum';
 import { MapAction } from '../models/map/interfaces/map-action.interface';
 
@@ -36,7 +36,7 @@ export class MapService{
         return this.http.get<AddressSuggestionDTO[]>(this.geoUrl+`/autocomplete-address`, {params})
     }
 
-    geocodeLocation(location: string){
+    geocodeLocation(location: string): Observable<AddressSuggestionDTO>{
         const params = new HttpParams().set('location', location);
         return this.http.get<AddressSuggestionDTO>(this.geoUrl+`/geocode-address`, {params})
     }

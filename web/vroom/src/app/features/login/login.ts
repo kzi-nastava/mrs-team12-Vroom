@@ -12,6 +12,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { DriverService } from '../../core/services/driver.service';
 import { PanicNotificationService } from '../../core/services/panic-notification.service';
 import { PanicService } from '../../core/services/panic.service';
+import { NgToastService } from 'ng-angular-popup';
 
 @Component({
   selector: 'app-login',
@@ -38,7 +39,8 @@ export class Login implements OnInit {
     private authService: AuthService,
     private driverService: DriverService,
     private panicService: PanicService,
-    private panicNotificationService: PanicNotificationService
+    private panicNotificationService: PanicNotificationService,
+    private toastService: NgToastService
   ){}
 
   ngOnInit(): void {
@@ -51,6 +53,7 @@ export class Login implements OnInit {
     this.isLoadingForgotPassword = true
     if(this.email === ''){
       this.error = 'Email is missing'
+      this.createFailureToast('Forgot Password Failed')
       this.isLoadingForgotPassword = false
       return
     }
@@ -62,6 +65,8 @@ export class Login implements OnInit {
         this.success = response.message;  
         this.error = '';
         this.isLoadingForgotPassword = false
+
+        this.createSuccessToast('Forgot Password Success')
 
         this.cdRef.detectChanges()
         setTimeout(()=>{ this.router.navigate(['/forgot-password']) }, 3000)
@@ -79,6 +84,8 @@ export class Login implements OnInit {
           this.error = 'An unexpected error occurred. Please try again' 
         }
 
+        this.createFailureToast('Forgot Password Failed')
+
         this.cdRef.detectChanges()
       }
     })
@@ -90,10 +97,12 @@ export class Login implements OnInit {
 
     if(this.email === '' || this.password === ''){
       this.error = 'Data is missing'
+
+      this.createFailureToast('Login Failed')
+
       this.isLoadingLogin = false
       return
     }
-
     const data: LoginRequestDTO = {
       email: String(this.email).trim(),
       password: String(this.password).trim()
@@ -137,8 +146,33 @@ export class Login implements OnInit {
         } else {
           this.error = 'An unexpected error occurred. Please try again' 
         }
+
+        this.createFailureToast('Login Failed')
+
         this.cdRef.detectChanges()
       }
     })
+  }
+
+  createFailureToast(title: string){
+    this.toastService.danger(
+      this.error.toString(),
+      title,
+      7000,
+      true, 
+      true, 
+      false
+    )
+  }
+
+  createSuccessToast(title: string){
+    this.toastService.success(
+      this.success.toString(),
+      title,
+      3000,
+      true, 
+      true, 
+      false
+    )
   }
 }

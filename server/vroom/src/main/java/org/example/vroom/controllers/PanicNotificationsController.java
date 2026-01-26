@@ -60,7 +60,7 @@ public class PanicNotificationsController {
             );
 
         try{
-            panicNotificationsService.createPanicNotification(data, user.getEmail());
+            panicNotificationsService.createPanicNotification(data, user.getId());
 
             return new ResponseEntity<MessageResponseDTO> (
                     new MessageResponseDTO("Administrators are notified, please hang in there while they resolve the issue"),
