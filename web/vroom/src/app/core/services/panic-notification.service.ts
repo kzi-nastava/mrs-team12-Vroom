@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { Socket } from "ngx-socket-io";
-import { Subject } from "rxjs";
+import { catchError, Observable, of, Subject, throwError, timeout } from "rxjs";
 import { AuthService } from "./auth.service";
 import { NgToastService, ToastType } from "ng-angular-popup";
 import * as Stomp from 'stompjs';
@@ -17,37 +17,73 @@ export class PanicNotificationService{
     
     constructor(private toastService: NgToastService, private authService: AuthService){}
 
-    initalizeWebSocket(){
+    initalizeWebSocket(): Observable<void>{
         const userType = this.authService.getCurrentUserType
-        if(userType !=='ADMIN') return
+        if(userType !== 'ADMIN') return of(void 0)
 
-        const ws = new SockJS('http://localhost:8080/socket')
-        this.stompClient = Stomp.over(ws)
+        return new Observable<void>((observer) => {
+            const ws = new SockJS('http://localhost:8080/socket')
+            this.stompClient = Stomp.over(ws)
 
-        this.stompClient.connect({}, () => {
-            this.stompClient.subscribe('/socket-publisher/panic-notifications', (message: any) => {
-                if(message.body){
-                    const parsedData = JSON.parse(message.body);
-                    this.panicSubject.next(parsedData)
-                    this.handlePanicNotification()
+            this.stompClient.connect(
+                {},
+                () => {
+                    this.stompClient.subscribe('/socket-publisher/panic-notifications', 
+                        (message: any) => {
+                            if (message.body) {
+                                try {
+                                    const parsedData = JSON.parse(message.body)
+                                    this.panicSubject.next(parsedData)
+                                    this.handlePanicNotification()
+                                } catch (err) {
+                                    console.error('Failed to parse panic notification:', err)
+                                }
+                            }
+                        }
+                    )
+
+                    observer.next()
+                    observer.complete()
+                },
+                (error: any) =>{
+                     console.error('Error:', error);
+                    observer.error(error)
                 }
+            )
+        }).pipe(
+            timeout(5000),
+            catchError((err:any)=>{
+                return throwError(() => err)
             })
-        })
+        )
     }
 
-    disconnectWebSocket(): Promise<void>{
-        return new Promise((resolve)=>{
+    disconnectWebSocket(): Observable<void>{
+        return new Observable<void>((observer)=>{
             if (this.stompClient && this.stompClient.connected) {
-                this.stompClient.disconnect(() => {
-                    this.stompClient = null;
-                    console.log("Socket disconnected");
-                    resolve();
+                try {
+                    this.stompClient.disconnect(() => {
+                        this.stompClient = null
+                        console.log("Socket disconnected")
+                        observer.next()
+                        observer.complete()
                 });
+                } catch (err) {
+                    this.stompClient = null
+                    observer.error(err)
+                }
             } else {
-                this.stompClient = null;
-                resolve();
+                this.stompClient = null
+                observer.next()
+                observer.complete()
             }
-        })
+        }).pipe(
+            timeout(2000),  
+            catchError((err) => {
+                this.stompClient = null;
+                return of(void 0);  
+            })
+        )
     }
 
     handlePanicNotification(){

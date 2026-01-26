@@ -47,29 +47,32 @@ export class PanicButton {
 
   notifyPanic(){
     this.isLoading = true
+    
     const data: PanicRequestDTO = {
         rideId: Number(this.rideID),
         activatedAt: new Date()
     }
 
-    try {
-        this.panicService.sendPanicWebSockets(data)
+    this.panicService.sendPanicWebSockets(data).subscribe({
+        next: () => {
+          this.notifiedResponse = "Administrators are notified, please hang in there"
+          this.error = ""
 
-        this.notifiedResponse = "Administrators are notified, please hang in there"
-        this.error = ''
-        
-        setTimeout(() => {
+          this.cdr.detectChanges()
+
+          setTimeout(() => {
             this.closePanicPopup()
             this.notifiedResponse = ""
             this.isLoading = false
             this.cdr.detectChanges()
-        }, 1000)
-
-    } catch (e) {
-        this.error = "Failed to send panic alert. Please try again"
-        this.isLoading = false
-        this.cdr.detectChanges()
-    }
+          }, 1000)
+        },
+        error: () => {
+          this.error = "Failed to send panic alert. Please try again"
+          this.isLoading = false
+          this.cdr.detectChanges()
+        }
+      });
 
     // delete next line of code, this is only for testing purposes 
     this.pns.handlePanicNotification()
