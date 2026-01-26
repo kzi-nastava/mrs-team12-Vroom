@@ -9,11 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CancelRideRequestDTO {
-    private String type;
     @Nullable
     private String reason;
-
-    public CancelRideRequestDTO(String type) {
-        this.type = type;
-    }
 }

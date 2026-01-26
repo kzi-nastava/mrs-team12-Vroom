@@ -48,7 +48,7 @@ public class RegisteredUserService {
         if (userRepository.findByEmail(req.getEmail()).isPresent())
             throw new UserAlreadyExistsException("User with this email already exists");
 
-        if(!passwordUtils.isPasswordValid(req.getPassword()))
+        if(!passwordUtils.isPasswordValid(req.getPassword()) || !req.getPassword().equals(req.getConfirmPassword()))
             throw new InvalidPasswordException("Password doesn't match criteria");
 
         RegisteredUser user = registeredUserMapper.createUser(req, profilePhoto);

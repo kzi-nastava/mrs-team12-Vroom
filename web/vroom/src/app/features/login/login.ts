@@ -2,7 +2,7 @@ import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import {FormsModule} from '@angular/forms'
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { firstValueFrom, Observable, forkJoin } from 'rxjs';
+import { firstValueFrom, Observable, forkJoin, of } from 'rxjs';
 import { LoginRequestDTO } from '../../core/models/auth/requests/login-request.dto';
 import { LoginResponseDTO } from '../../core/models/auth/responses/login-response.dto';
 import { isHttpError } from '../../core/utils/http-error.guard';
@@ -128,10 +128,18 @@ export class Login implements OnInit {
         this.authService.updateStatus()
 
         // wait to open websocket connections 
-        forkJoin(connectionTasks$).subscribe(()=>{
-          // redirect to main
-          this.router.navigate(['/'])
-        })
+        if (connectionTasks$.length > 0) {
+    forkJoin(connectionTasks$).subscribe({
+        next: () => this.router.navigate(['/']),
+        error: (err) => {
+            console.error('Socket initialization failed', err);
+            this.router.navigate(['/']); // Still navigate or handle error
+        }
+    });
+} else {
+    // No tasks (e.g., REGISTERED_USER), redirect immediately
+    this.router.navigate(['/']);
+}
       },
 
       error: (e)=>{

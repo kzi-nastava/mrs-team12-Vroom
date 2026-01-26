@@ -119,24 +119,22 @@ public class AuthService {
         }
     }
 
-    public void resetPassword(String email, String code, String password){
+    @Transactional
+    public void resetPassword(String email, String code, String password, String confirmPassword){
         Optional<Token> tokenOptional = tokenRepository.findByUserEmail(email);
         if(tokenOptional.isEmpty())
             throw new InvalidTokenException("Invalid or expired token");
 
-        if(!passwordUtils.isPasswordValid(password))
+        if(!passwordUtils.isPasswordValid(password) || !password.equals(confirmPassword))
             throw new InvalidPasswordException("Password doesn't match criteria");
 
         Token token = tokenOptional.get();
-        if(!token.getCode().equals(code))
-            throw new InvalidTokenException("Invalid or expired token");
-
-        if(token.isExpired())
+        if(!token.getCode().equals(code) || token.isExpired())
             throw new InvalidTokenException("Invalid or expired token");
 
         User user = token.getUser();
         user.setPassword(passwordEncoder.encode(password));
-        userRepository.saveAndFlush(user);
+        userRepository.save(user);
 
         tokenRepository.delete(token);
     }

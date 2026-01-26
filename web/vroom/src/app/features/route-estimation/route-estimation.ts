@@ -198,7 +198,7 @@ export class RouteEstimation implements OnInit, OnDestroy{
     const stopsCheck$ = this.tryStopGeocode();
 
     forkJoin([startCheck$, endCheck$, stopsCheck$]).pipe(
-      takeUntil(this.destroy$), // Sigurnost od memory leak-a
+      takeUntil(this.destroy$),
       switchMap(([startValid, endValid, stopsValid]) => {
         if (!startValid || !endValid || !stopsValid) {
           throw new Error('invalid_locations');

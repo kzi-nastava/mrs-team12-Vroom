@@ -18,7 +18,7 @@ export class ForgotPassword {
   email: String =''
   code: String =''
   password: String=''
-  rePassword: String =''
+  confirmPassword: String =''
   error: String=''
   success: String=''
 
@@ -27,7 +27,7 @@ export class ForgotPassword {
   onSubmit(): void{
     this.error=''
 
-    if(this.email === '' || this.code === '' || this.password === '' || this.rePassword === ''){
+    if(this.email === '' || this.code === '' || this.password === '' || this.confirmPassword === ''){
       this.error = 'Data is missing'
       return
     }
@@ -38,7 +38,7 @@ export class ForgotPassword {
       return
     }
 
-    if(this.password !== this.rePassword){
+    if(this.password !== this.confirmPassword){
       this.error='Password must match'
       return
     }
@@ -46,7 +46,8 @@ export class ForgotPassword {
     const data: ResetPasswordRequestDTO = {
       email: String(this.email).trim(),
       code: String(this.code).trim(),
-      password: String(this.password).trim()
+      password: String(this.password).trim(),
+      confirmPassword: String(this.confirmPassword)
     }
 
     this.authService.createResetPasswordRequest(data).subscribe({

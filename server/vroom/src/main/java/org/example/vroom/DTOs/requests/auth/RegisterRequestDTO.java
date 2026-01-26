@@ -18,6 +18,7 @@ public class RegisterRequestDTO {
     private Gender gender;
     //private MultipartFile profilePhoto;
     private String password;
+    private String confirmPassword;
 
 
     public RegisterRequestDTO(
@@ -27,7 +28,8 @@ public class RegisterRequestDTO {
             String phoneNumber,
             String address,
             String gender,
-            String password
+            String password,
+            String confirmPassword
     ){
         this.firstName = firstName;
         this.lastName = lastName;
@@ -36,5 +38,6 @@ public class RegisterRequestDTO {
         this.address = address;
         this.gender = Gender.valueOf(gender);
         this.password = password;
+        this.confirmPassword = confirmPassword;
     }
 }

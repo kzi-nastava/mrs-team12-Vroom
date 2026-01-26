@@ -35,11 +35,6 @@ public class Route {
     @Column(nullable = false)
     private Double endLocationLng;
 
-    @Column(nullable = false)
-    private String startAddress;
-
-    @Column(nullable = false)
-    private String endAddress;
 
     @ElementCollection
     @CollectionTable(name = "route_path", joinColumns = @JoinColumn(name = "route_id"))
