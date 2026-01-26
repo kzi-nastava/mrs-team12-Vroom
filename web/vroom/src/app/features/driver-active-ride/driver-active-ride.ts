@@ -24,7 +24,7 @@ export class DriverActiveRide {
 
     this.rideService.startRide().subscribe({
       next: () => {
-  
+        localStorage.setItem('activeRide', 'true');
         this.ride$ = this.rideService.getActiveRide();
       },
       error: err => console.error(err)
