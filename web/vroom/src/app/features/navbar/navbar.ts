@@ -31,14 +31,12 @@ export class Navbar {
         next: () => {
           this.connectionTasks$.push(this.driverService.disconnectWebSocket());
           this.connectionTasks$.push(this.panicNotificationService.disconnectWebSocket())
-          this.connectionTasks$.push(this.panicService.disconnectWebSocket())
 
           this.finalizeLogout()
         },
         error: () => {
             this.connectionTasks$.push(this.driverService.disconnectWebSocket());
             this.connectionTasks$.push(this.panicNotificationService.disconnectWebSocket())
-            this.connectionTasks$.push(this.panicService.disconnectWebSocket())
 
           this.finalizeLogout()   
         }
