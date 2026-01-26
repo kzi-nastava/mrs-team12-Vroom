@@ -1,7 +1,7 @@
 export interface StoppedRideResponseDTO{
     driverID: number;
-    startTime: String;
-    endTime: String;
+    startTime: string | Date;
+    endTime: string | Date;
     status: String;
     price: number;
 }

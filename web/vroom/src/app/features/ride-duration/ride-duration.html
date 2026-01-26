@@ -36,7 +36,7 @@
                 Submit complaint
             </button>
 
-            <app-panic-btn></app-panic-btn>
+            <app-panic-btn [rideId]="rideID"></app-panic-btn>
             </div>
     </div>
 
@@ -45,8 +45,8 @@
                 <button class="finish-button" (click)="finishRide()">
                     Finish Ride
                 </button>
-                <app-stop-ride></app-stop-ride>
-                <app-panic-btn></app-panic-btn>
+                <app-stop-ride [rideId]="rideID"></app-stop-ride>
+                <app-panic-btn [rideId]="rideID"></app-panic-btn>
         </div>
     </div>
 </div>

@@ -6,6 +6,8 @@ import org.example.vroom.DTOs.responses.panic.PanicNotificationResponseDTO;
 import org.example.vroom.entities.PanicNotification;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.User;
+import org.example.vroom.enums.RideStatus;
+import org.example.vroom.exceptions.panic.IllegalRideException;
 import org.example.vroom.exceptions.panic.PanicNotificationNotFound;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
@@ -64,15 +66,17 @@ public class PanicNotificationsService {
     }
 
     public PanicNotificationResponseDTO getPanic(Long id){
-        PanicNotification notification = notificationRepository.findById(id).orElse(null);
+        PanicNotification notification = notificationRepository.findById(id).orElseThrow(() -> new PanicNotificationNotFound("Not found"));
 
-        if(notification == null) return null;
-        else return panicNotificationMapper.createPanicResponseDTO(notification);
+        return panicNotificationMapper.createPanicResponseDTO(notification);
     }
 
     @Transactional
     public void createPanicNotification(PanicRequestDTO data, Long id){
         Ride ride = checkRideExisting(data.getRideId());
+
+        if(!ride.getStatus().equals(RideStatus.ONGOING))
+            throw new IllegalRideException("You cannot call PANIC unless ride is active");
 
         Optional<User> user = userRepository.findById(id);
         if(user.isEmpty()){

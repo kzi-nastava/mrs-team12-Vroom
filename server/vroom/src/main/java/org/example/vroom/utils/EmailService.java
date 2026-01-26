@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
@@ -18,7 +19,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-
+    @Async
     public void sendActivationMail(String to, String id) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -36,6 +37,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendTokenMail(String to, String code) throws MessagingException, IOException{
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -52,6 +54,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendRideEndMail(String to) throws MessagingException, IOException{
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

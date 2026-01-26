@@ -20,20 +20,15 @@ export class PanicButton {
   userType: string = ''
   isLoading: boolean = false
 
-  @Input() rideID: string = ''
+  @Input() rideId: string = ''
   
   constructor(
     private panicService: PanicService, 
     private toastService: NgToastService, 
     private pns: PanicNotificationService, 
-    private cdr: ChangeDetectorRef, 
-    private route: ActivatedRoute 
+    private cdr: ChangeDetectorRef
   ){
     this.userType = localStorage.getItem('user_type') || ''
-
-    this.route.queryParamMap.subscribe(params => {
-      this.rideID = params.get('rideId') || ''
-    })
   }
 
   openPanicPopup(){
@@ -45,10 +40,11 @@ export class PanicButton {
   }
 
   notifyPanic(){
+    console.log(this.rideId, 'nesta')
     this.isLoading = true
 
     const data: PanicRequestDTO = {
-        rideId: Number(this.rideID),
+        rideId: Number(this.rideId),
         activatedAt: new Date()
     }
 

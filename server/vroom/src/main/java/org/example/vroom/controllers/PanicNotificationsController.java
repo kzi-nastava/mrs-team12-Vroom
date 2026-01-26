@@ -4,6 +4,7 @@ import org.example.vroom.DTOs.requests.panic.PanicRequestDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.panic.PanicNotificationResponseDTO;
 import org.example.vroom.entities.User;
+import org.example.vroom.exceptions.panic.IllegalRideException;
 import org.example.vroom.exceptions.panic.PanicNotificationNotFound;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
@@ -39,9 +40,11 @@ public class PanicNotificationsController {
     @GetMapping("/{panicID}")
     public ResponseEntity<PanicNotificationResponseDTO> getPanicNotifications(@PathVariable Long panicID) {
         try{
-           PanicNotificationResponseDTO  notification = panicNotificationsService.getPanic(panicID);
+           PanicNotificationResponseDTO notification = panicNotificationsService.getPanic(panicID);
 
             return new ResponseEntity<PanicNotificationResponseDTO>(notification, HttpStatus.OK);
+        }catch(PanicNotificationNotFound e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }catch(Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -70,6 +73,11 @@ public class PanicNotificationsController {
             return new ResponseEntity<MessageResponseDTO> (
                     new MessageResponseDTO("User or ride not found, please try again"),
                     HttpStatus.NOT_FOUND
+            );
+        }catch(IllegalRideException e){
+            return new ResponseEntity<MessageResponseDTO> (
+                    new MessageResponseDTO("Ride is not active, cannot call PANIC"),
+                    HttpStatus.BAD_REQUEST
             );
         }catch(Exception e){
             return new ResponseEntity<MessageResponseDTO> (

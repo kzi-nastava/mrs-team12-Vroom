@@ -9,6 +9,7 @@ import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.User;
 import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
+import org.example.vroom.exceptions.user.DriverStatusChangeNotAllowedException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.services.DriverService;
@@ -91,7 +92,9 @@ public class DriverController {
         }catch(UserNotFoundException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        catch(Exception e){
+        catch(DriverStatusChangeNotAllowedException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

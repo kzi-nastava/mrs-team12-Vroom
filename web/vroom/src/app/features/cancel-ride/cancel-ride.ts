@@ -8,6 +8,8 @@ import { MessageResponseDTO } from '../../core/models/message-response.dto';
 import { StopRideRequestDTO } from '../../core/models/ride/requests/stop-ride-req.dto';
 import { StoppedRideResponseDTO } from '../../core/models/ride/responses/stopped-ride-response.dto';
 import { NgToastService } from 'ng-angular-popup';
+import { ActivatedRoute } from '@angular/router';
+import { Message } from 'stompjs';
 
 
 @Component({
@@ -29,13 +31,17 @@ export class CancelRide implements OnInit {
 
   constructor(
     private rideService: RideService, 
-    private geolocationService: GeolocationService, 
     private cdr: ChangeDetectorRef, 
-    private toastService: NgToastService
+    private toastService: NgToastService,
+    private route: ActivatedRoute 
   ){}
 
   ngOnInit(): void {
       this.role = localStorage.getItem('user_type') || ''
+
+      this.route.queryParamMap.subscribe(params => {
+        this.rideId = params.get('rideId') || ''
+      })
   }
 
 
@@ -59,7 +65,6 @@ export class CancelRide implements OnInit {
     this.isLoading = true 
 
     const cancelRideData: CancelRideRequestDTO = {
-      type: this.role,
       reason: this.reason
     }
 
@@ -80,10 +85,10 @@ export class CancelRide implements OnInit {
 
         this.cdr.detectChanges()
       },
-      error: (e) => {
+      error: (e: MessageResponseDTO) => {
         this.isLoading = false
         this.toastService.danger(
-            "Failed to cancel ride. Try again.", 
+            e.message,
             'Cancellation', 
             5000, 
             true, 
