@@ -14,6 +14,7 @@ import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.services.DriverService;
 import org.example.vroom.services.RideService;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,11 +41,23 @@ public class DriverController {
     @GetMapping(path = "/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideHistoryResponseDTO>> getRides(
             @AuthenticationPrincipal User user,
-            @RequestParam(required = false) LocalDateTime startDate,
-            @RequestParam(required = false) LocalDateTime endDate,
-            @RequestParam(required = false) Sort sort
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false) String sort
     ) {
-        Collection<RideHistoryResponseDTO> rides = driverService.getDriverRides(user.getId(), startDate, endDate, sort);
+        System.out.println("getRides AAAAAAAAAAAAAAAAAAA");
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        Sort sortOrder = Sort.unsorted();
+        if (sort != null && sort.contains(",")) {
+            String[] split = sort.split(",");
+            sortOrder = Sort.by(Sort.Direction.fromString(split[split.length - 1]), split[0]);
+        }
+        Collection<RideHistoryResponseDTO> rides = driverService.getDriverRides(user.getId(), startDate, endDate, sortOrder);
+        if (rides == null || rides.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 

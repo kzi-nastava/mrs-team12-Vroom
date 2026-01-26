@@ -2,6 +2,7 @@ package org.example.vroom.services;
 
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.responses.geocode.GeoapifyRouteResponseDTO;
+import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.repositories.PriceListRepository;
 import org.example.vroom.repositories.RouteRepository;
@@ -31,6 +32,10 @@ public class RouteService {
 
     @Autowired
     private ObjectMapper mapper;
+
+    public String coordinatesToString(PointResponseDTO coordinates) {
+        return coordinates.getLat() + "," + coordinates.getLng();
+    }
 
 //    @Cacheable(value = "route-estimation", key = "{#startLocation, #endLocation, #stopLocations}")
     public RouteQuoteResponseDTO routeEstimation(String startLocation, String endLocation, String stopLocations){

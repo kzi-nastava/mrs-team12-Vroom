@@ -17,7 +17,6 @@ import { authGuard } from './core/utils/auth.guard';
 import { ChangeDriverStatus } from './features/change-driver-status/change-driver-status';
 import { PanicButton } from './features/panic-btn/panic-button';
 import { PanicFeed } from './features/panic-feed/panic-feed';
-import { RideDurationDriver } from './features/ride-duration-driver/ride-duration-driver'
 import { StopRide } from './features/stop-ride/stop-ride';
  
 
@@ -37,7 +36,6 @@ export const routes: Routes = [
             {path: 'route-estimation', component: RouteEstimation },
             {path: 'order-a-ride', component: OrderARide}, 
             {path: 'ride-duration', component: RideDuration},
-            {path: 'ride-duration-driver', component: RideDurationDriver},
             {path: 'review', component: RideEnd}
         ]
     },

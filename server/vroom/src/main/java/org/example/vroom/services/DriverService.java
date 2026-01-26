@@ -167,6 +167,7 @@ public class DriverService {
                                                              LocalDateTime endDate,
                                                              Sort sort)
     {
+        System.out.println("getDriverRides ovde +================================");
         List<Ride> rides = rideRepository.findDriverRideHistory(driverId, startDate, endDate, sort);
         Collection<RideHistoryResponseDTO> rideHistoryResponseDTOs = new ArrayList<>();
         for (Ride ride : rides) {

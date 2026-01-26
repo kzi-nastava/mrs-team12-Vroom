@@ -15,7 +15,6 @@ import { ChangeDetectorRef, NgZone } from '@angular/core';
 export class OrderARide implements OnInit {
 
 
-  // ---------- FORM FIELDS ----------
   startLocation = '';
   endLocation = '';
   vehicleType = 'STANDARD';
@@ -36,7 +35,6 @@ export class OrderARide implements OnInit {
   startCoords?: { lat: number; lng: number };
   endCoords?: { lat: number; lng: number };
 
-  // ---------- ROUTE RESULTS ----------
   time: number | null = null;
   price: number | null = null;
   calculating = false;
@@ -59,7 +57,6 @@ export class OrderARide implements OnInit {
     }, 300);
   }
 
-  // ================= AUTOCOMPLETE =================
 
   searchStart() {
     if (!this.startLocation || this.startLocation.length < 2) {
@@ -126,7 +123,6 @@ export class OrderARide implements OnInit {
     this.showStopSuggestions[i] = false;
   }
 
-  // ================= STOPS =================
 
   addStop() {
     this.stops.push({ id: this.stopIdCounter++, address: '', coords: null });
@@ -144,7 +140,6 @@ export class OrderARide implements OnInit {
     return stop.id;
   }
 
-  // ================= CALCULATE ROUTE =================
 
   calculateRoute() {
     this.error = '';
@@ -223,7 +218,6 @@ this.mapService.getRouteCoordinates(payload)
     });
   }
 
-  // ================= ORDER RIDE =================
 
   orderRide() {
   const token = localStorage.getItem('jwt');

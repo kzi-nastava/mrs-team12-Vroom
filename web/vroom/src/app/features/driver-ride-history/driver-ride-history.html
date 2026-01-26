@@ -8,109 +8,86 @@
     <div class="container">
         <h1>Driver's Ride History</h1>
 
-        <div class="ride-card">
+        <div class="filter-controls">
+
+            <div class="filter-item">
+                <label for="startDate">Start Date</label>
+                <input 
+                    type="date" 
+                    id="startDate"
+                    [(ngModel)]="startDateFilter" 
+                    (change)="onFilterChange()"
+                    class="date-input"
+                />
+            </div>
+
+            <div class="filter-item">
+                <label for="endDate">End Date</label>
+                <input 
+                    type="date" 
+                    id="endDate"
+                    [(ngModel)]="endDateFilter" 
+                    (change)="onFilterChange()"
+                    class="date-input"
+                />
+            </div>
+
+            <div class="filter-item">
+                <label for="sortBy">Sort By</label>
+                <select 
+                    id="sortBy" 
+                    [(ngModel)]="currentSort" 
+                    (change)="onSortChange($event)"
+                    class="sort-select"
+                >
+                    <option value="startTime,desc">Date: Newest First</option>
+                    <option value="startTime,asc">Date: Oldest First</option>
+                    <option value="price,desc">Price: High to Low</option>
+                    <option value="price,asc">Price: Low to High</option>
+                </select>
+
+            </div>
+                <button 
+                    *ngIf="startDateFilter || endDateFilter" 
+                    (click)="clearFilters()"
+                    class="clear-filters-btn">
+                        Clear Filters
+                </button>
+        </div>
+
+
+
+        <div *ngIf="isLoading" class="loading-indicator">
+            Loading ride history...
+        </div>
+
+        <div *ngFor="let ride of rides" class="ride-card">
             <div class="route">
-                <span class="location">Srpsko Narodno Pozorište</span>
+                <span class="location">{{ ride.startAddress }}</span>
                 <span class="arrow">→</span>
-                <span class="location">Naučno-Tehnološki Park</span>
+                <span class="location">{{ ride.endAddress }}</span>
             </div>
             <div class="details">
                 <div class="detail-item">
                     <span class="detail-label">Date & Time</span>
-                    <span class="detail-value">Dec 15, 2024 • 14:30</span>
+                    <span class="detail-value">{{ ride.startTime.getDate() }} • {{ ride.startTime.getTime() }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Price</span>
-                    <span class="detail-value">740 RSD</span>
+                    <span class="detail-value">{{ ride.price }} RSD</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Status</span>
-                    <span class="status-badge completed">Completed</span>
+                    <span class="status-badge" [ngClass]="getStatusClass(ride.status)">{{ getStatusLabel(ride.status) }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Safety</span>
-                    <span class="status-badge safe">Safe</span>
+                    <span class="status-badge" [ngClass]="ride.panicActivated ? 'panic' : 'safe'">
+                        {{ ride.panicActivated ? 'Panic' : 'Safe' }}
+                    </span>
                 </div>
             </div>
             
-        </div>
-
-        <div class="ride-card">
-            <div class="route">
-                <span class="location">Klinički Centar Vojvodine</span>
-                <span class="arrow">→</span>
-                <span class="location">Danila Kiša, 20</span>
-            </div>
-            <div class="details">
-                <div class="detail-item">
-                    <span class="detail-label">Date & Time</span>
-                    <span class="detail-value">Dec 14, 2024 • 11:15</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Price</span>
-                    <span class="detail-value">---</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Status</span>
-                    <span class="status-badge cancelled">Cancelled by User</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Safety</span>
-                    <span class="status-badge safe">Safe</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="ride-card">
-            <div class="route">
-                <span class="location">Bulevar Patrijarha Pavla, 37</span>
-                <span class="arrow">→</span>
-                <span class="location">Cara Dušana, 12</span>
-            </div>
-            <div class="details">
-                <div class="detail-item">
-                    <span class="detail-label">Date & Time</span>
-                    <span class="detail-value">Dec 14, 2024 • 9:00</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Price</span>
-                    <span class="detail-value">480 RSD</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Status</span>
-                    <span class="status-badge completed">Completed</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Safety</span>
-                    <span class="status-badge panic">Panic Activated</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="ride-card">
-            <div class="route">
-                <span class="location">Stražilovska, 2</span>
-                <span class="arrow">→</span>
-                <span class="location">Ilirska, 23</span>
-            </div>
-            <div class="details">
-                <div class="detail-item">
-                    <span class="detail-label">Date & Time</span>
-                    <span class="detail-value">Dec 13, 2024 • 20:45 </span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Price</span>
-                    <span class="detail-value">---</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Status</span>
-                    <span class="status-badge cancelled">Cancelled by Driver</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Safety</span>
-                    <span class="status-badge safe">Safe</span>
-                </div>
-            </div>
         </div>
 
     </div>

@@ -5,12 +5,13 @@ import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
 import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
-import org.example.vroom.DTOs.responses.ride.GetRideUpdatesResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideUpdateResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
 import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
+import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.FavoriteRoute;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.Route;
@@ -24,8 +25,11 @@ import org.example.vroom.services.FavoriteRouteService;
 import org.example.vroom.services.RouteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import org.springframework.security.core.Authentication;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,19 +44,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/rides")
 public class RideController {
-    private final RideService rideService;
-    private final RideRepository rideRepository;
-    private final RouteMapper routeMapper;
-    private final FavoriteRouteService favoriteRouteService;
+    @Autowired
+    private RideService rideService;
+    @Autowired
+    private RideRepository rideRepository;
+    @Autowired
+    private RouteMapper routeMapper;
+    @Autowired
+    private FavoriteRouteService favoriteRouteService;
+    @Autowired
+    private RouteService routeService;
+
     private static final Logger log = LoggerFactory.getLogger(RideService.class);
 
-
-    public RideController(RideService rideService, RideRepository rideRepository, RouteMapper routeMapper, FavoriteRouteService favoriteRouteService) {
-        this.rideService = rideService;
-        this.rideRepository = rideRepository;
-        this.routeMapper = routeMapper;
-        this.favoriteRouteService = favoriteRouteService;
-    }
 
     @GetMapping(path="/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GetRideResponseDTO> getRide(@PathVariable Long rideID){
@@ -91,22 +95,27 @@ public class RideController {
         return new ResponseEntity<GetRideResponseDTO>(ride, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/{rideID}/duration", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GetRideUpdatesResponseDTO> getRideUpdate(@PathVariable Long rideID){
-        GetRideUpdatesResponseDTO dto = new GetRideUpdatesResponseDTO();
-        dto.setPoint(new PointResponseDTO(48.45, 45.32));
-        dto.setTime(14.0);
-        return new ResponseEntity<>(dto, HttpStatus.OK);
+    @GetMapping(path="/{rideID}/route", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GetRouteResponseDTO> getRoute(@PathVariable Long rideID){
+        GetRouteResponseDTO route = this.rideService.getRoute(rideID);
+        if (route == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<GetRouteResponseDTO>(route, HttpStatus.OK);
     }
 
-    @PutMapping(path = "/{rideID}/duration", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponseDTO> updateRide(
-            @PathVariable Long rideID,
-            @RequestBody RideUpdateRequestDTO updatedData
-    ){
-        double time = updatedData.getTime();
-        PointResponseDTO point = updatedData.getPoint();
-        return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
+    @MessageMapping("ride-duration-update/{rideID}")
+    @SendTo("/socket-publisher/ride-duration-update/{rideID}")
+    public RideUpdateResponseDTO updateRideDuration(@DestinationVariable String rideID,
+                                                    PointResponseDTO currentLocation) {
+
+        String start = this.routeService.coordinatesToString(currentLocation);
+        String end = this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLat() + ","
+                + this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLng();
+        RouteQuoteResponseDTO quoteResponseDTO = this.routeService.routeEstimation(start, end);
+        Double estTime = quoteResponseDTO.getTime();
+        return new RideUpdateResponseDTO(currentLocation, estTime);
+
     }
 
     @PostMapping(path = "/{rideID}/complaint", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
