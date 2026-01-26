@@ -1,24 +1,22 @@
 package org.example.vroom.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Driver;
+import org.example.vroom.entities.DriverProfileUpdateRequest;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.DriverStatus;
+import org.example.vroom.enums.RequestStatus;
 import org.example.vroom.enums.UserStatus;
-import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
-import org.example.vroom.exceptions.user.DriverNotFoundException;
-import org.example.vroom.exceptions.user.DriverStatusChangeNotAllowedException;
-import org.example.vroom.exceptions.user.UserNotFoundException;
+import org.example.vroom.exceptions.user.*;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.mappers.RideMapper;
-import org.example.vroom.repositories.DriverRepository;
-import org.example.vroom.repositories.RideRepository;
-import org.example.vroom.repositories.UserRepository;
-import org.example.vroom.repositories.VehicleRepository;
+import org.example.vroom.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,21 +50,10 @@ public class DriverService {
     private UserRepository userRepository;
     @Autowired
     private VehicleRepository vehicleRepository;
-
-
-    public DriverDTO getById(Long id) {
-        Driver driver = driverRepository.findById(id)
-                .orElseThrow(() -> new DriverNotFoundException("Driver not found"));
-        return driverMapper.toDTO(driver);
-    }
-
-    public DriverDTO getByEmail(String email) {
-        Driver driver = driverRepository.findByEmail(email)
-                .orElseThrow(() -> new DriverNotFoundException("Driver not found"));
-        return driverMapper.toDTO(driver);
-    }
-
-
+    @Autowired
+    private DriverProfileUpdateRequestRepository updateRequestRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public List<DriverDTO> getAvailableDrivers() {
         List<Driver> drivers =
@@ -149,18 +136,30 @@ public class DriverService {
     }
 
     @Transactional
-    public DriverDTO updateMyProfile(String email, DriverDTO dto) {
+    public void requestProfileUpdate(String email, DriverDTO dto) {
 
         Driver driver = driverRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new DriverNotFoundException("Driver not found"));
+                .orElseThrow(() -> new DriverNotFoundException("Driver not found"));
 
-        driverProfileMapper.updateEntity(driver, dto);
+        if (updateRequestRepository.existsByDriverAndStatus(driver, RequestStatus.PENDING)) {
+            throw new PendingRequestExistsException("Already have a pending request");
+        }
 
-        return driverProfileMapper.toDTO(
-                driverRepository.save(driver)
-        );
+        DriverProfileUpdateRequest request = DriverProfileUpdateRequest.builder()
+                .driver(driver)
+                .status(RequestStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        try {
+            request.setPayload(objectMapper.writeValueAsString(dto));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize driver update request", e);
+        }
+
+        updateRequestRepository.save(request);
     }
+
 
     public Collection<RideHistoryResponseDTO> getDriverRides(Long driverId,
                                                              LocalDateTime startDate,

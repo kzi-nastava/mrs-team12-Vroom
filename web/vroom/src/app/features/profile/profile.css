@@ -102,3 +102,19 @@ h1 {
     color: #1a1a1a;
     cursor: pointer;
 }
+
+.message {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.message.success, .message.error {
+  transition: opacity 0.5s ease-out;
+}
+
+.message.hidden {
+  opacity: 0;
+  pointer-events: none;
+}

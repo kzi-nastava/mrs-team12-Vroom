@@ -2,8 +2,13 @@ package org.example.vroom.controllers;
 
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
+import org.example.vroom.entities.DriverProfileUpdateRequest;
+import org.example.vroom.enums.RequestStatus;
 import org.example.vroom.enums.RideStatus;
+import org.example.vroom.repositories.DriverProfileUpdateRequestRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -15,6 +20,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admins")
 public class AdminController {
+
+    @Autowired
+    private DriverProfileUpdateRequestRepository requestRepository;
 
     @GetMapping(path = "/users/{userID}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideHistoryResponseDTO>> getRides(
@@ -46,5 +54,12 @@ public class AdminController {
         return new ResponseEntity<Collection<RideHistoryResponseDTO>>(rides, HttpStatus.OK);
     }
 
-
+    @GetMapping("/admin/driver-update-requests")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<DriverProfileUpdateRequest> getPendingRequests() {
+        return requestRepository.findAll()
+                .stream()
+                .filter(r -> r.getStatus() == RequestStatus.PENDING)
+                .toList();
+    }
 }
