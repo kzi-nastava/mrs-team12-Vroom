@@ -5,6 +5,7 @@ import { GeolocationService } from '../../core/services/geolocation.service';
 import { StopRideRequestDTO } from '../../core/models/ride/requests/stop-ride-req.dto';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgToastService } from 'ng-angular-popup';
 
 @Component({
   selector: 'app-stop-ride',
@@ -21,7 +22,12 @@ export class StopRide implements OnInit{
 
   @Input() rideId: string = ''
 
-  constructor(private rideService: RideService, private geolocationService: GeolocationService, private cdr: ChangeDetectorRef){}
+  constructor(
+    private rideService: RideService, 
+    private geolocationService: GeolocationService, 
+    private cdr: ChangeDetectorRef,
+    private toastService: NgToastService
+  ){}
 
   ngOnInit(): void {
       this.role = localStorage.getItem('user_type') || ''
@@ -59,7 +65,16 @@ export class StopRide implements OnInit{
           error: (e) => {
             this.showPopup = false
             this.isLoading = false
-            alert("Error stopping ride");
+
+            this.toastService.danger(
+              "Failed to stop the ride. Try again.", 
+              'Stopping', 
+              5000, 
+              true, 
+              true, 
+              false
+            )
+
             this.cdr.detectChanges()
           }
         })
