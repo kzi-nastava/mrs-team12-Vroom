@@ -6,8 +6,7 @@ import { catchError, from, Observable, of, take, tap, throwError, timeout } from
 import { StopRideRequestDTO } from "../models/ride/requests/stop-ride-req.dto";
 import { PanicRequestDTO } from "../models/panic/requests/panic-request.dto";
 import { PanicNotificationDTO } from "../models/panic/responses/panic-notification.dto";
-import SockJS from "sockjs-client";
-import * as Stomp from "stompjs";
+
 
 @Injectable({
     providedIn: "root"

@@ -6,8 +6,9 @@ import { FormsModule, NgModel } from '@angular/forms';
 import { AddressSuggestionDTO } from '../../core/models/address/response/address-suggestion-response.dto';
 import { HttpClient } from '@angular/common/http';
 import { RouteQuoteEstimationDTO } from '../../core/models/address/response/route-quote-estimation.dto';
-import { debounceTime, distinctUntilChanged, lastValueFrom, map, Subject, switchMap, takeUntil } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, forkJoin, lastValueFrom, map, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { Stop } from '../../core/models/address/interfaces/stop-point.interface';
+import { NgToastService } from 'ng-angular-popup';
 
 @Component({
   selector: 'app-route-estimation',
@@ -57,7 +58,12 @@ export class RouteEstimation implements OnInit, OnDestroy{
   @Output() endCoordsChange = new EventEmitter<{lat:number,lng:number}>();
   @Output() stopsCoordsChange = new EventEmitter<Array<{ lat: number; lng: number }>>();
 
-  constructor(private mapService: MapService,private http: HttpClient, private eRef:ElementRef, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private mapService: MapService,
+    private eRef:ElementRef, 
+    private cdr: ChangeDetectorRef, 
+    private toastService: NgToastService
+  ) {}
 
   ngOnInit(): void {
       this.startSearchSubject.pipe(
@@ -142,100 +148,102 @@ export class RouteEstimation implements OnInit, OnDestroy{
     this.showEndSuggestions = false
   }
 
-  private async tryGeocode(type: 'start' | 'end'): Promise<boolean>{
+  private tryGeocode(type: 'start' | 'end'): Observable<boolean>{
     const address = type === 'start' ? this.startLocation.trim().toString() : this.endLocation.trim().toString();
     const query = `Novi Sad, ${address}`;
 
-    try {
-        const data = await lastValueFrom(this.mapService.geocodeLocation(query));
-        
+    return this.mapService.geocodeLocation(`Novi Sad, ${address}`).pipe(
+      map(data => {
         if (data) {
-            if (type === 'start') {
-                this.startCoords = { lat: data.lat, lng: data.lon };
-            } else {
-                this.endCoords = { lat: data.lat, lng: data.lon };
-            }
-        }else
-          return false
-        return true
-    } catch (error) {
-        console.error(`Geocoding failed for ${type}:`, error);
-        return false
-    }
+          const coords = { lat: data.lat, lng: data.lon };
+          type === 'start' ? this.startCoords = coords : this.endCoords = coords;
+          return true;
+        }
+        return false;
+      }),
+      catchError(() => of(false))
+    );
   }
 
-  private async tryStopGeocode(): Promise<boolean>{
-    for(let i = 0; i < this.stops.length; i++){
-      if (this.stops[i].coords) continue;
-      const query = `Novi Sad, ${this.stops[i].address}`;
-      try {
-          const data = await lastValueFrom(this.mapService.geocodeLocation(query));
+  private tryStopGeocode(): Observable<boolean>{
+    const stopTasks = this.stops.map((stop, i) => {
+    if (stop.coords) return of(true);
+    
+    return this.mapService.geocodeLocation(`Novi Sad, ${stop.address}`).pipe(
+        map(data => {
           if (data) {
-              this.stops[i].coords = {lat: data.lat, lng: data.lon}
-          }else
-            return false
-      } catch (error) {
-          return false
-      }
-    }
+            this.stops[i].coords = { lat: data.lat, lng: data.lon };
+            return true;
+          }
+          return false;
+        }),
+        catchError(() => of(false))
+      );
+    });
 
-    return true
+    if (stopTasks.length === 0) return of(true);
+    
+    return forkJoin(stopTasks).pipe(
+      map(results => results.every(res => res === true))
+    );
   }
 
 
-  async onSubmit(): Promise<void>{
+  onSubmit(): void{
     this.calculating = true;
+    this.error = '';
 
-    const startValid = this.startCoords || await this.tryGeocode('start');
-    const endValid = this.endCoords || await this.tryGeocode('end');
+    const startCheck$ = this.startCoords ? of(true) : this.tryGeocode('start');
+    const endCheck$ = this.endCoords ? of(true) : this.tryGeocode('end');
+    const stopsCheck$ = this.tryStopGeocode();
 
-    const stopsValid = await this.tryStopGeocode()
+    forkJoin([startCheck$, endCheck$, stopsCheck$]).pipe(
+      takeUntil(this.destroy$), // Sigurnost od memory leak-a
+      switchMap(([startValid, endValid, stopsValid]) => {
+        if (!startValid || !endValid || !stopsValid) {
+          throw new Error('invalid_locations');
+        }
 
-    if (!startValid || !endValid || !stopsValid) {
-      this.calculating = false;
-      this.error = 'Unable to get a quote for these locations, please try other ones or again later';
-      this.cdr.detectChanges();
-      return; 
-    }
+        const start = `${this.startCoords?.lat},${this.startCoords?.lng}`;
+        const end = `${this.endCoords?.lat},${this.endCoords?.lng}`;
+        const stops = this.stops.length > 0
+          ? this.stops.filter(s => s.coords).map(s => `${s.coords!.lat},${s.coords!.lng}`).join(';')
+          : undefined;
 
-    const start = this.startCoords?.lat+','+this.startCoords?.lng
-    const end = this.endCoords?.lat+','+this.endCoords?.lng
-
-    const stops = this.stops.length > 0
-        ? this.stops
-            .filter(stop => stop.coords)
-            .map(stop => `${stop.coords!.lat},${stop.coords!.lng}`)
-            .join(';')
-      : undefined;
-
-
-    this.mapService.routeQuote(start, end, stops).subscribe({
+        return this.mapService.routeQuote(start, end, stops);
+      })
+    ).subscribe({
       next: (data: RouteQuoteEstimationDTO) => {
-        this.price = data.price
-        this.time = data.time
-        this.calculating = false; 
-        this.error = ''
+        this.price = data.price;
+        this.time = data.time;
+        this.calculating = false;
 
         this.mapService.drawRoute(
-                this.startCoords, 
-                this.endCoords, 
-                this.stops.filter(s => s.coords).map(s => s.coords!)
+          this.startCoords, 
+          this.endCoords, 
+          this.stops.filter(s => s.coords).map(s => s.coords!)
         );
-
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
-        this.calculating = false; 
-        this.startCoords = undefined
-        this.endCoords = undefined
-        this.price = null
-        this.time = null
-        this.error = 'An error occurred'
+      error: (err) => {
+        this.calculating = false;
+        if (err.message === 'invalid_locations') {
+          this.error = 'Unable to get a quote for these locations...';
+        } else {
+          this.error = 'An error occurred';
+        }
 
-        this.mapService.clearMap()
-        this.cdr.detectChanges()
+        this.toastService.danger(
+          this.error.toString(),
+          'Error',
+          5000,
+          true,
+          true,
+          false
+        )
+        this.cdr.detectChanges();
       }
-    })
+    });
   }
 
   addStop() {
