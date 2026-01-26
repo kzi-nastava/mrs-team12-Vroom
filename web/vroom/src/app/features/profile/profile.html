@@ -19,7 +19,8 @@
         <div class="input-wrapper">
           <input type="text"
                  placeholder="Enter first name"
-                 [(ngModel)]="profileData.firstName"
+                 [ngModel]="profileData.firstName"
+                 (ngModelChange)="profileData.firstName = $event"
                  name="firstName"
                  [disabled]="!editMode">
         </div>
@@ -28,7 +29,8 @@
         <div class="input-wrapper">
           <input type="text"
                  placeholder="Enter last name"
-                 [(ngModel)]="profileData.lastName"
+                 [ngModel]="profileData.lastName"
+                 (ngModelChange)="profileData.lastName = $event"
                  name="lastName"
                  [disabled]="!editMode">
         </div>
@@ -37,7 +39,8 @@
         <div class="input-wrapper">
           <input type="text"
                  placeholder="Enter address"
-                 [(ngModel)]="profileData.address"
+                 [ngModel]="profileData.address"
+                 (ngModelChange)="profileData.address = $event"
                  name="address"
                  [disabled]="!editMode">
         </div>
@@ -46,7 +49,8 @@
         <div class="input-wrapper">
           <input type="tel"
                  placeholder="Enter phone number"
-                 [(ngModel)]="profileData.phoneNumber"
+                 [ngModel]="profileData.phoneNumber"
+                 (ngModelChange)="profileData.phoneNumber = $event"
                  name="phoneNumber"
                  [disabled]="!editMode">
         </div>
@@ -55,23 +59,28 @@
         <div class="input-wrapper">
           <input type="email"
                  placeholder="Enter email"
-                 [(ngModel)]="profileData.email"
+                 [ngModel]="profileData.email"
+                 (ngModelChange)="profileData.email = $event"
                  name="email"
                  [disabled]="!editMode">
         </div>
 
       </form>
 
-      <button class="change-button" (click)="onChange()">
+      <button
+        class="change-button"
+        (click)="onChange()">
         {{ editMode ? 'Save' : 'Change' }}
       </button>
+
+      <div *ngIf="successMessage" class="message success">{{ successMessage }}</div>
+      <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
 
     </section>
 
     <!-- DRIVER INFO -->
     <div class="driver-wrapper"
-     *ngIf="userRole === 'DRIVER' && profileData?.vehicle as vehicle">
-
+         *ngIf="userRole === 'DRIVER' && profileData?.vehicle as vehicle">
 
       <section class="profile-section">
         <h2>Driver Activity</h2>

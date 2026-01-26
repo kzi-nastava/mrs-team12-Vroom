@@ -35,15 +35,11 @@ public class DriverProfileController {
 
     @PutMapping("/me")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<DriverDTO> updateMyProfile(
+    public ResponseEntity<Void> requestUpdate(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody DriverDTO dto
     ) {
-        return ResponseEntity.ok(
-                driverService.updateMyProfile(
-                        userDetails.getUsername(),
-                        dto
-                )
-        );
+        driverService.requestProfileUpdate(userDetails.getUsername(), dto);
+        return ResponseEntity.accepted().build();
     }
 }
