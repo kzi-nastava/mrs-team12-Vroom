@@ -180,6 +180,10 @@ public class DriverService {
         if (driver.isEmpty() || driver.get().getStatus() == DriverStatus.BLOCKED)
             throw new DriverNotFoundException("Driver not found");
 
+        if(driver.get().getStatus().equals(status)){
+            throw new DriverStatusChangeNotAllowedException("Driver is blocked");
+        }
+
         driver.get().setStatus(status);
         driverRepository.save(driver.get());
     }

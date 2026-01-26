@@ -13,6 +13,5 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PanicRequestDTO {
     private Long rideId;
-    private Long userId;
     private LocalDateTime activatedAt;
 }

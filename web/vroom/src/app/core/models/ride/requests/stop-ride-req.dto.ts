@@ -1,5 +1,5 @@
 export class StopRideRequestDTO{
-    endTime!: string;
+    endTime!: string | Date;
     stopLat!: number;
     stopLng!: number;
 

@@ -86,7 +86,7 @@
                     <div class="form-group">
                         <label for="reenterPassword">Confirm Password</label>
                         <div class="input-wrapper password-wrapper">
-                            <input type="password" id="reenterPassword" name="rePassword" [(ngModel)]="rePassword">
+                            <input type="password" id="reenterPassword" name="confirmPassword" [(ngModel)]="confirmPassword">
                         </div>
                     </div>
                 </div>
@@ -94,10 +94,10 @@
                 <h2 class="error-message">{{error}}</h2>
                 <h2 class="sucess-message">{{success}}</h2>
 
-                <button type="button" class="register-btn" [disabled]="isLoading" (click)="onSubmit()">
-                    <span *ngIf="!isLoading">Register</span>
-                    <span *ngIf="isLoading" class="loader">Processing...</span>
-                </button>
+                <div *ngIf="isLoading" class="loader-container">
+                    <div class="spinner"></div>
+                </div>
+                <button type="button" class="register-btn" [disabled]="isLoading" (click)="onSubmit()" *ngIf="!isLoading">Register</button>
             </form>
         </div>
 

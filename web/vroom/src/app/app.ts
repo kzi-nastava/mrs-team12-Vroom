@@ -38,7 +38,7 @@ export class App implements OnInit, OnDestroy {
             driverId,
             position.coords.latitude,
             position.coords.longitude
-          );
+          ).subscribe();
         },(error) => {
           console.error('Error getting location: ', error);
         },

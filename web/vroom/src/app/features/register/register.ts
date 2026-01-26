@@ -28,7 +28,7 @@ export class Register {
     email: String = ''
     phoneNumber: String = ''
     password: String = ''
-    rePassword: String = ''
+    confirmPassword: String = ''
 
     profilePic: File | null = null
 
@@ -49,7 +49,7 @@ export class Register {
       this.error = '';
       this.success = '';
 
-      if(this.password !== this.rePassword){
+      if(this.password !== this.confirmPassword){
         this.error = 'Passwords must match'
         this.isLoading = false;
         return
@@ -70,6 +70,7 @@ export class Register {
       formData.append('address', `${this.street}, ${this.city}, ${this.country}`);
       formData.append('gender', this.gender.toString().toUpperCase());
       formData.append('password', String(this.password));
+      formData.append('confirmPassword', String(this.confirmPassword))
 
       if(this.profilePic){
         formData.append('profilePhoto', this.profilePic)
@@ -102,4 +103,5 @@ export class Register {
       })
     }
 
+    
 }

@@ -15,6 +15,7 @@ import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.FavoriteRoute;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.Route;
+import org.example.vroom.entities.User;
 import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.ride.*;
@@ -167,16 +168,15 @@ public class RideController {
 
     @PutMapping(path = "/{rideID}/cancel", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> cancelRide(
+            @AuthenticationPrincipal User user,
             @PathVariable Long rideID,
             @RequestBody CancelRideRequestDTO data
     ){
-        if(data==null) return new ResponseEntity<MessageResponseDTO>(
-                new MessageResponseDTO("Data is missing"),
-                HttpStatus.BAD_REQUEST
-        );
+        if(data==null)
+            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
 
         try{
-            rideService.cancelRide(rideID, data);
+            rideService.cancelRide(rideID, data.getReason(), user.getRoleName());
 
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Ride cancelled"),
