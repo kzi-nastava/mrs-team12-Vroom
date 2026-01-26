@@ -79,6 +79,7 @@ public class SecurityConfig {
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/drivers/rides").authenticated()
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/admins/**",
@@ -88,13 +89,11 @@ public class SecurityConfig {
                                 "/api/panics/**",
                                 "/api/profile/driver",
                                 "/api/profile/user",
-                                "/api/drivers/**",
                                 "/api/geo/**",
                                 "/h2-console/**",
                                 "/socket/**"
                         ).permitAll()
                         .requestMatchers("/api/auth/logout").authenticated()
-                        .requestMatchers("/api/drivers/rides").authenticated()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))

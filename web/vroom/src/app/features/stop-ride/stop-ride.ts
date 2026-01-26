@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { StoppedRideResponseDTO } from '../../core/models/ride/responses/sopped-ride-response.dto';
+import { StoppedRideResponseDTO } from '../../core/models/ride/responses/stopped-ride-response.dto';
 import { RideService } from '../../core/services/ride.service';
 import { GeolocationService } from '../../core/services/geolocation.service';
 import { StopRideRequestDTO } from '../../core/models/ride/requests/stop-ride-req.dto';

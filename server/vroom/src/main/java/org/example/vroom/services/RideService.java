@@ -1,15 +1,14 @@
 package org.example.vroom.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.RideDTO;
-import org.example.vroom.DTOs.requests.ride.CancelRideRequestDTO;
-import org.example.vroom.DTOs.requests.ride.LeaveReviewRequestDTO;
-import org.example.vroom.DTOs.requests.ride.RideRequestDTO;
-import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
+import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
+import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
@@ -24,6 +23,9 @@ import org.example.vroom.repositories.*;
 import org.example.vroom.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -67,6 +70,7 @@ public class RideService {
     private FavoriteRouteRepository favoriteRouteRepository;
 
     private static final Logger log = LoggerFactory.getLogger(RideService.class);
+    private final RestTemplate restTemplate = new RestTemplate();
 
 
     @Transactional
@@ -160,6 +164,11 @@ public class RideService {
                 .isScheduled(isScheduled)
                 .build();
 
+        String startAddress = decodeAddress(ride.getRoute().getStartLocationLat(), ride.getRoute().getStartLocationLng());
+        String endAddress = decodeAddress(ride.getRoute().getEndLocationLat(), ride.getRoute().getEndLocationLng());
+        ride.getRoute().setStartAddress(startAddress);
+        ride.getRoute().setEndAddress(endAddress);
+
         ride = rideRepository.save(ride);
         if (!isScheduled) {
             driver.setStatus(DriverStatus.UNAVAILABLE);
@@ -170,6 +179,40 @@ public class RideService {
 
         return dto;
     }
+
+    private String decodeAddress(Double lat, Double lng) {
+        String url = String.format("https://nominatim.openstreetmap.org/reverse?format=json&lat=%f&lon=%f", lat, lng);
+        try{
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("User-Agent", "example@gmail.com");
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            JsonNode response = restTemplate.exchange(url, HttpMethod.GET, entity, JsonNode.class).getBody();
+
+            if (response != null && response.has("display_name")) {
+                String fullAddress = response.get("display_name").asText();
+                String[] parts = fullAddress.split(",");
+
+                if (parts.length >= 2){
+                    return parts[0].trim() + "," + parts[1].trim();
+                }
+                return parts[0].trim();
+            }
+        }catch (Exception e){
+            return "Unknown Location";
+        }
+        return "Unknown Location";
+    }
+
+    public GetRouteResponseDTO getRoute(Long rideID){
+        Optional<Ride> rideOptional = this.rideRepository.findById(rideID);
+        if (rideOptional.isPresent()) {
+            Ride ride = rideOptional.get();
+            return routeMapper.getRouteDTO(ride.getRoute());
+        }
+        return null;
+    }
+
 
 
 
