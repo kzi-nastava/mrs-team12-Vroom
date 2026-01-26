@@ -1,36 +1,55 @@
-<section class="profile-section" *ngIf="ride$ | async as ride; else noRide">
+<section class="ride-card" *ngIf="ride$ | async as ride; else noRide">
 
-  <h2>Ride Information</h2>
+  <div class="ride-card-header">
+    <h2>Active Ride</h2>
+    <span class="status-badge">{{ ride.status }}</span>
+  </div>
 
-  <p><strong>Route:</strong></p>
-  <p>
-    {{ ride.route.startAddress }} → {{ ride.route.endAddress }}
-  </p>
+  <div class="ride-card-body">
 
-  <p><strong>Status:</strong> {{ ride.status }}</p>
+    <div class="info-row">
+      <span class="label">Route</span>
+      <span class="value">
+        {{ ride.route.startAddress }} → {{ ride.route.endAddress }}
+      </span>
+    </div>
 
-  <p><strong>Price:</strong> {{ ride.price }} RSD</p>
+    <div class="info-row">
+      <span class="label">Price</span>
+      <span class="value">{{ ride.price }} RSD</span>
+    </div>
 
-  <p><strong>Passengers:</strong></p>
-  <ul>
-    <li *ngFor="let p of ride.passengers">
-      {{ p }}
-    </li>
-  </ul>
+ <div class="info-row" *ngIf="ride.passengers as passengers">
+  <span class="label">Passengers</span>
+  <span class="value">{{ passengers.length }}</span>
+</div>
 
-  <p *ngIf="ride.vehicle">
-    <strong>Vehicle:</strong>
-    {{ ride.vehicle.brand }} {{ ride.vehicle.model }}
-    ({{ ride.vehicle.licenceNumber }})
-  </p>
+    <div class="info-row" *ngIf="ride.vehicle">
+      <span class="label">Vehicle</span>
+      <span class="value">
+        {{ ride.vehicle.brand }} {{ ride.vehicle.model }}
+        ({{ ride.vehicle.licenceNumber }})
+      </span>
+    </div>
 
-  <button (click)="startRide()">Start Ride</button>
-  <button (click)="finishRide()">Finish Ride</button>
+    <div class="passenger-list" *ngIf="ride.passengers?.length">
+      <p class="label">Passenger names</p>
+      <ul>
+        <li *ngFor="let p of ride.passengers">{{ p }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="ride-card-footer">
+    <button class="secondary" (click)="startRide()">Start Ride</button>
+    <button class="primary" (click)="finishRide()">Finish Ride</button>
+  </div>
 
 </section>
 
 <ng-template #noRide>
-  <section class="profile-section">
+  <section class="ride-card empty">
     <p>No active rides.</p>
   </section>
 </ng-template>

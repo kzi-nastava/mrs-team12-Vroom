@@ -1,5 +1,6 @@
 package org.example.vroom.DTOs.responses.route;
 
+import jakarta.persistence.Column;
 import lombok.*;
 
 import java.util.List;
@@ -14,5 +15,7 @@ public class GetRouteResponseDTO {
     Double startLocationLng;
     Double endLocationLat;
     Double endLocationLng;
+    String startAddress;
+    String endAddress;
     List<PointResponseDTO> stops;
 }

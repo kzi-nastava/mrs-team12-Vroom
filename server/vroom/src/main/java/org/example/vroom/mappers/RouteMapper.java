@@ -21,6 +21,8 @@ public class RouteMapper {
                 .endLocationLat(route.getEndLocationLat())
                 .endLocationLng(route.getEndLocationLng())
                 .stops(this.mapRoutePointsDTO(route.getStops()))
+                .startAddress(route.getStartAddress())
+                .endAddress(route.getEndAddress())
                 .build();
     }
 
@@ -52,6 +54,8 @@ public class RouteMapper {
         route.setStartLocationLng(dto.getStartLocationLng());
         route.setEndLocationLat(dto.getEndLocationLat());
         route.setEndLocationLng(dto.getEndLocationLng());
+        route.setStartAddress(dto.getStartAddress());
+        route.setEndAddress(dto.getEndAddress());
 
         List<Point> points;
         if (dto.getStops() != null) {
@@ -70,20 +74,6 @@ public class RouteMapper {
 
         return route;
     }
-
-    private List<Point> mapPointsFromDTO(List<PointResponseDTO> dtoPoints) {
-        if (dtoPoints == null) return new ArrayList<>();
-
-        List<Point> points = new ArrayList<>();
-        for (PointResponseDTO dto : dtoPoints) {
-            Point point = new Point();
-            point.setLat(dto.getLat());
-            point.setLng(dto.getLng());
-            points.add(point);
-        }
-        return points;
-    }
-
     public FavoriteRouteDTO favoriteRouteToDTO(FavoriteRoute favoriteRoute) {
         if (favoriteRoute == null) return null;
 
@@ -98,14 +88,6 @@ public class RouteMapper {
         }
 
         return dto;
-    }
-
-    public List<FavoriteRouteDTO> favoriteRoutesToDTOs(List<FavoriteRoute> routes) {
-        if (routes == null) return List.of();
-
-        return routes.stream()
-                .map(this::favoriteRouteToDTO)
-                .toList();
     }
 
 }

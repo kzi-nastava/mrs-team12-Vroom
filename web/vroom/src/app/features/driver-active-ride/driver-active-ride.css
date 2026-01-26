@@ -1,89 +1,123 @@
-.profile-container {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+/* Ride card */
+.ride-card {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  overflow: hidden;
 }
 
-h1 {
-    display: flex;
-    justify-content: center;
-    font-size: 48px;
-    font-weight: 600;
-}
-
-.profile-page {
-    width: 100%;
-    max-width: 440px;
-    margin: 0 auto;
-}
-
-.driver-wrapper {
-  max-width: 800px;  
-  margin: 30px auto;
+/* Header */
+.ride-card-header {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid #ececec;
 }
 
-.profile-section {
-    background: #d4e8d4;
-    padding: 10%;
-    border-radius: 12px;
-    margin-bottom: 5%;
+.ride-card-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
 }
 
-.avatar-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20%;
+/* Status badge */
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #e6f0e6;
+  color: #2f6b2f;
 }
 
-.avatar-placeholder {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    color: #666;
-    border: 2px dashed #8db48d;
+/* Body */
+.ride-card-body {
+  padding: 24px 28px;
 }
 
-.profile-form label {
-    display: block;
-    font-size: 20px;
-    font-weight: 500;
-    margin-bottom: 12px;
-    color: #1a1a1a;
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px dashed #e6e6e6;
 }
 
-.profile-form input {
-    width: 80%;
-    padding: 16px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    background: white;
-    margin-bottom: 24px;
-    outline: none;
+.info-row:last-child {
+  border-bottom: none;
 }
 
-.input-wrapper {
-    margin-bottom: 7.5%;
+.label {
+  font-size: 13px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.input-wrapper:last-child {
-    margin-bottom: 0;
+.value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: right;
 }
 
-.change-button {
-    width: 100%;
-    padding: 18px;
-    background: #8db48d;
-    border: none;
-    border-radius: 12px;
-    font-size: 20px;
-    font-weight: 600;
-    color: #1a1a1a;
-    cursor: pointer;
+/* Passengers */
+.passenger-list {
+  margin-top: 20px;
+}
+
+.passenger-list ul {
+  margin-top: 8px;
+  padding-left: 18px;
+}
+
+.passenger-list li {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+/* Footer */
+.ride-card-footer {
+  display: flex;
+  gap: 16px;
+  padding: 20px 28px;
+  background: #f7f9f7;
+  border-top: 1px solid #ececec;
+}
+
+.ride-card-footer button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Buttons */
+button.primary {
+  background: #8db48d;
+  color: #1a1a1a;
+}
+
+button.secondary {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Empty state */
+.ride-card.empty {
+  padding: 40px;
+  text-align: center;
+  color: #666;
 }

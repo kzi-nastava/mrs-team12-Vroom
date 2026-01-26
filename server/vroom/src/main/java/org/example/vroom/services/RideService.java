@@ -59,6 +59,8 @@ public class RideService {
     private RouteService routeService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private GeoService geoService;
 
 
     @Autowired
@@ -68,7 +70,7 @@ public class RideService {
 
 
     @Transactional
-    public GetRideResponseDTO orderRide(String userEmail, RideRequestDTO request) {
+    public GetRideResponseDTO orderRide(String userEmail, RideRequestDTO request) throws IOException {
         RegisteredUser user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -116,7 +118,18 @@ public class RideService {
         if (!driverHasWorkingTime(driver)) {
             throw new NoAvailableDriverException("Driver exceeded 8 working hours in last 24h");
         }
+        String startAddress = geoService.reverseGeocode(
+                route.getStartLocationLat(),
+                route.getStartLocationLng()
+        );
 
+        String endAddress = geoService.reverseGeocode(
+                route.getEndLocationLat(),
+                route.getEndLocationLng()
+        );
+
+        route.setStartAddress(startAddress);
+        route.setEndAddress(endAddress);
         // Start / End
         String startLocation = route.getStartLocationLat() + "," + route.getStartLocationLng();
         String endLocation = route.getEndLocationLat() + "," + route.getEndLocationLng();
