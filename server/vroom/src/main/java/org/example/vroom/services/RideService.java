@@ -353,22 +353,22 @@ public class RideService {
         return rideMapper.stopRide(ride, data, price);
     }
 
-    public GetRideResponseDTO startRide(Long rideId) {
+    public GetRideResponseDTO startRide(String driverEmail) {
 
-        Ride ride = rideRepository.findById(rideId)
-                .orElseThrow(() -> new RideNotFoundException("Ride not found"));
+        Driver driver = driverRepository.findByEmail(driverEmail)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
 
-        if (!ride.getStatus().equals(RideStatus.ACCEPTED)) {
-            throw new RuntimeException("Ride must be ACCEPTED to start");
-        }
+        Ride ride = rideRepository.findByDriverAndStatus(driver, RideStatus.ACCEPTED)
+                .orElseThrow(() -> new RideNotFoundException("No accepted ride for driver"));
 
         ride.setStartTime(LocalDateTime.now());
         ride.setStatus(RideStatus.ONGOING);
 
-        ride = rideRepository.save(ride);
+        rideRepository.save(ride);
 
         return rideMapper.getRideDTO(ride);
     }
+
 
 }
 
