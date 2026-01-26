@@ -18,6 +18,8 @@ export class Profile implements OnInit {
   profile$!: Observable<ProfileModel>;   
   profileData!: ProfileModel;             
   editMode = false;
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
 
   constructor(private profileService: ProfileService) { }
 
@@ -38,18 +40,29 @@ export class Profile implements OnInit {
       );
   }
 
-  onChange() {
-    if (this.editMode) {
-      this.profileService.updateMyProfile(this.profileData)
-        .subscribe({
-          next: updated => {
-            console.log('Profile saved', updated);
-            this.profileData = { ...updated }; 
-            this.loadProfile();
-          },
-          error: err => console.error('Error saving profile', err)
-        });
-    }
-    this.editMode = !this.editMode;
+onChange() {
+  this.successMessage = null;
+  this.errorMessage = null;
+
+  if (this.editMode) {
+    this.profileService.updateMyProfile(this.profileData)
+      .subscribe({
+        next: updatedProfile => {
+          // Force Angular change detection
+          this.profileData = { ...updatedProfile }; 
+          this.editMode = false;
+          this.successMessage = 'Your update request has been sent and is awaiting admin approval.';
+
+          setTimeout(() => this.successMessage = null, 3000);
+        },
+        error: err => {
+          this.errorMessage = err?.error?.message || 'Failed to submit update request.';
+          setTimeout(() => this.errorMessage = null, 5000);
+        }
+      });
+    return;
   }
+
+  this.editMode = true;
+}
 }
