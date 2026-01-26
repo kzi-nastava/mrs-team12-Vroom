@@ -42,9 +42,9 @@ public class RideMapper {
     public RideHistoryResponseDTO rideHistory(Ride ride) {
         return RideHistoryResponseDTO
                 .builder()
-                .route(routeMapper.getRouteDTO(ride.getRoute()))
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(ride.getRoute().getEndAddress())
                 .startTime(ride.getStartTime())
-                .endTime(ride.getEndTime())
                 .status(ride.getStatus())
                 .price(ride.getPrice())
                 .panicActivated(ride.getPanicActivated())

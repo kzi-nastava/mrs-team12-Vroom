@@ -35,9 +35,7 @@ public class AdminController {
 
         RideHistoryResponseDTO ride1 = RideHistoryResponseDTO
                 .builder()
-                .route(route1)
                 .startTime(LocalDateTime.of(2025, 1, 10, 14, 32))
-                .endTime(LocalDateTime.of(2025, 1, 10, 14, 55))
                 .status(RideStatus.FINISHED)
                 .price(980.50)
                 .panicActivated(false)

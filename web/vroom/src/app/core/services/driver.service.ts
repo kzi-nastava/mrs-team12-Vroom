@@ -7,6 +7,8 @@ import * as Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 import { LocationUpdate } from "../models/driver/location-update-response.dto";
 import { Subject } from "rxjs";
+import { RideHistoryResponseDTO } from "../models/driver/ride-history-response.dto";
+import { HttpParams } from "@angular/common/http";
 
 @Injectable({
     providedIn: 'root'
@@ -53,6 +55,25 @@ export class DriverService{
         if (this.stompClient) {
             this.stompClient.disconnect();
         }
+    }
+
+    getDriverRideHistory(
+        startDate?: any,
+        endDate?: any,
+        sortBy?: 'startTime,asc' | 'startTime,desc' | 'price,asc' | 'price,desc'
+    ): Observable<RideHistoryResponseDTO[]>{
+
+        let params = new HttpParams().set('sort', sortBy || 'startTime,desc');
+        if (startDate) {
+            const start = new Date(startDate);
+            params = params.set('startDate', start.toISOString());
+        }
+        if (endDate) {
+            const end = new Date(endDate);
+            params = params.set('endDate', end.toISOString());
+        }
+
+        return this.http.get<RideHistoryResponseDTO[]>(`${this.api}/rides`, { params })
     }
 
 
