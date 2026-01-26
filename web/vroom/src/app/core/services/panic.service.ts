@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { CancelRideRequestDTO } from "../models/ride/requests/cancel-ride-req.dto";
 import { MessageResponseDTO } from "../models/message-response.dto";
-import { Observable } from "rxjs";
+import { catchError, from, Observable, of, take, tap, throwError, timeout } from "rxjs";
 import { StopRideRequestDTO } from "../models/ride/requests/stop-ride-req.dto";
 import { PanicRequestDTO } from "../models/panic/requests/panic-request.dto";
 import { PanicNotificationDTO } from "../models/panic/responses/panic-notification.dto";
@@ -18,51 +18,79 @@ export class PanicService{
 
     constructor(private http: HttpClient) {}
 
-    initPanicWebSockets(): Promise<void>{
-        return new Promise((resolve, reject)=>{
-            const serverUrl = 'http://localhost:8080/socket';
-            const ws = new SockJS(serverUrl);
-            this.stompClient = Stomp.over(ws);
-            const token = localStorage.getItem('jwt');
+    initPanicWebSockets(): Observable<void>{
+        const serverUrl = 'http://localhost:8080/socket';
+        const ws = new SockJS(serverUrl);
+        this.stompClient = Stomp.over(ws);
+        const token = localStorage.getItem('jwt');
 
+        return new Observable<void>((observer)=>{
             this.stompClient.connect(
                 { 'Authorization': `Bearer ${token}` },
                 (frame: any) => {
                     console.log('Connected')
-                    resolve()
+                    observer.next()
+                    observer.complete()
                 },
                 (error: any) => {
                     console.error('Error: ', error)
-                    reject(error)
+                    observer.error(error)
                 }
-            );
-        })
+            )
+        }).pipe(
+            timeout(5000)
+        )
     }
 
-    async sendPanicWebSockets(data: PanicRequestDTO){
-        if(!this.stompClient)
-            await this.initPanicWebSockets()
-
-        if (this.stompClient && this.stompClient.connected) {
-            this.stompClient.send("/socket-subscriber/panic", {}, JSON.stringify(data))
-        } else {
-            console.error("STOMP didn't connect, please try again later")
-        }
+    sendPanicWebSockets(data: PanicRequestDTO): Observable<void>{
+        const connection$: Observable<any> = (this.stompClient && this.stompClient.connected) ? of(null) : this.initPanicWebSockets()
+        
+        return connection$.pipe(
+            tap(() => {
+                if (this.stompClient?.connected) {
+                    this.stompClient.send(
+                        "/socket-subscriber/panic", 
+                        {}, 
+                        JSON.stringify(data)
+                    );
+                    console.log('panic sent via websocket')
+                } else {
+                    throw new Error('websocket not connected after init')
+                }
+            }),
+            catchError((err: any) => {
+                console.error('Failed to send panic:', err)
+                return throwError(() => err)
+            })
+        )
     }
 
-     disconnectWebSocket(): Promise<void>{
-        return new Promise((resolve)=>{
+    disconnectWebSocket(): Observable<void>{
+        return new Observable<void>((observer)=>{
             if (this.stompClient && this.stompClient.connected) {
-                this.stompClient.disconnect(() => {
-                    this.stompClient = null;
-                    console.log("Socket disconnected");
-                    resolve();
+                try {
+                    this.stompClient.disconnect(() => {
+                        this.stompClient = null
+                        console.log("Socket disconnected")
+                        observer.next()
+                        observer.complete()
                 });
+                } catch (err) {
+                    this.stompClient = null
+                    observer.error(err)
+                }
             } else {
-                this.stompClient = null;
-                resolve();
+                this.stompClient = null
+                observer.next()
+                observer.complete()
             }
-        })
+        }).pipe(
+            timeout(2000),  
+            catchError((err) => {
+                this.stompClient = null;
+                return of(void 0);  
+            })
+        )
     }
 
 

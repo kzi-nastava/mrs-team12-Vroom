@@ -2,7 +2,7 @@ import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import {FormsModule} from '@angular/forms'
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable, forkJoin } from 'rxjs';
 import { LoginRequestDTO } from '../../core/models/auth/requests/login-request.dto';
 import { LoginResponseDTO } from '../../core/models/auth/responses/login-response.dto';
 import { isHttpError } from '../../core/utils/http-error.guard';
@@ -23,12 +23,13 @@ import { PanicService } from '../../core/services/panic.service';
 
 export class Login implements OnInit {
   status: string = '';
+  isLoadingLogin: boolean = false;
+  isLoadingForgotPassword: boolean = false;
 
   email: String = ''
   password: String = ''
   error: String = ''
   success: String = ''
-
 
   constructor(
     private router: Router, 
@@ -47,8 +48,10 @@ export class Login implements OnInit {
   }
 
   onForgotPassword(): void{
+    this.isLoadingForgotPassword = true
     if(this.email === ''){
       this.error = 'Email is missing'
+      this.isLoadingForgotPassword = false
       return
     }
     
@@ -58,11 +61,13 @@ export class Login implements OnInit {
       next: (response: MessageResponseDTO) => {
         this.success = response.message;  
         this.error = '';
+        this.isLoadingForgotPassword = false
 
         this.cdRef.detectChanges()
         setTimeout(()=>{ this.router.navigate(['/forgot-password']) }, 3000)
       },
       error: (e)=>{
+        this.isLoadingForgotPassword = false
         if (e.status === 404) {
           this.error = 'User not found. Please check your email'
         }
@@ -80,10 +85,12 @@ export class Login implements OnInit {
   }
 
   onLogin(): void{
+    this.isLoadingLogin = true
     this.error=''
 
     if(this.email === '' || this.password === ''){
       this.error = 'Data is missing'
+      this.isLoadingLogin = false
       return
     }
 
@@ -93,30 +100,37 @@ export class Login implements OnInit {
     }
 
     this.authService.createLoginRequest(data).subscribe({
-      next:async (response: LoginResponseDTO) =>{
+      next:(response: LoginResponseDTO) =>{
         // save login response data in localstorage
         localStorage.setItem('user_type', response.type)
         localStorage.setItem('jwt', response.token)
         this.error = ''
+        this.isLoadingLogin = false
         
+        const connectionTasks$: Observable<void>[] = []
+
         if(response.type==='REGISTERED_USER'){
-          await this.panicService.initPanicWebSockets();
+          connectionTasks$.push(this.panicService.initPanicWebSockets())
         }
         else if (response.type === 'DRIVER') {
-          await this.panicService.initPanicWebSockets();
-          this.driverService.initializeWebSocket();
+          connectionTasks$.push(this.panicService.initPanicWebSockets())
+          connectionTasks$.push(this.driverService.initializeWebSocket());
         }else if(response.type === 'ADMIN')
-          this.panicNotificationService.initalizeWebSocket()
+          connectionTasks$.push(this.panicNotificationService.initalizeWebSocket())
 
         this.cdRef.detectChanges()
         this.authService.updateStatus()
-        // redirect to main
-        this.router.navigate(['/'])
-        //   //window.location.reload(); 
 
+        // wait to open websocket connections 
+        forkJoin(connectionTasks$).subscribe(()=>{
+          // redirect to main
+          this.router.navigate(['/'])
+        })
       },
 
       error: (e)=>{
+        this.isLoadingLogin = false
+
         if (e.status === 401) {
           this.error = 'Invalid email or password' 
         } else if (e.status === 403) {

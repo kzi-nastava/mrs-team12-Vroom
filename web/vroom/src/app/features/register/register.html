@@ -94,10 +94,10 @@
                 <h2 class="error-message">{{error}}</h2>
                 <h2 class="sucess-message">{{success}}</h2>
 
-                <button type="button" class="register-btn" [disabled]="isLoading" (click)="onSubmit()">
-                    <span *ngIf="!isLoading">Register</span>
-                    <span *ngIf="isLoading" class="loader">Processing...</span>
-                </button>
+                <div *ngIf="isLoading" class="loader-container">
+                    <div class="spinner"></div>
+                </div>
+                <button type="button" class="register-btn" [disabled]="isLoading" (click)="onSubmit()" *ngIf="!isLoading">Register</button>
             </form>
         </div>
 
