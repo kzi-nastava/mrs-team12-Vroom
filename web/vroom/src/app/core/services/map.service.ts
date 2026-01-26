@@ -53,6 +53,13 @@ export class MapService{
         this.mapActionSource.next({ type: MapActionType.CLEAR_MAP });
     }
 
+    rideDurationInit(rideID: string) {
+        this.mapActionSource.next({ 
+          type: MapActionType.RIDE_DURATION,
+          payload: { rideID }
+        });
+    }
+
 
 async getRouteCoordinates(payload: any): Promise<RouteResponse | null> {
   const coordinates: [number, number][] = [];

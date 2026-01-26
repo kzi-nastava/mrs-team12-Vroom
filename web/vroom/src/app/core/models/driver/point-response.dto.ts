@@ -1,4 +1,4 @@
-export interface PointResponse {
-  lat: number;
-  lng: number;
+export interface PointResponseDTO {
+    lat: number;
+    lng: number;
 }

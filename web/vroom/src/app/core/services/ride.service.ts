@@ -4,9 +4,12 @@ import { CancelRideRequestDTO } from "../models/ride/requests/cancel-ride-req.dt
 import { MessageResponseDTO } from "../models/message-response.dto";
 import { Observable } from "rxjs";
 import { StopRideRequestDTO } from "../models/ride/requests/stop-ride-req.dto";
-import { StoppedRideResponseDTO } from "../models/ride/responses/sopped-ride-response.dto";
+import { StoppedRideResponseDTO } from "../models/ride/responses/stopped-ride-response.dto";
 import { LeaveReviewRequestDTO } from "../models/ride/requests/leave-review-req.dto";
 import { ComplaintRequestDTO } from "../models/ride/requests/complaint-req.dto";
+import { GetRouteResponseDTO } from "../models/ride/responses/get-route-response.dto";
+import { map } from "rxjs/operators";
+
 
 @Injectable({
     providedIn: "root"
@@ -37,4 +40,16 @@ export class RideService{
         return this.http.post<MessageResponseDTO>(this.rideUrl+`/${rideID}`+'/complaint', data)
     }
 
+    getRouteDetails(rideID: string): Observable<GetRouteResponseDTO>{
+        return this.http.get<GetRouteResponseDTO>(this.rideUrl+`/${rideID}`+'/route')
+    }
+
+    getAddress(lat: number, lng: number): Observable<string> {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+        return this.http.get<any>(url).pipe(
+        map(res => res.display_name.split(',').slice(0, 2).join(','))
+        );
+    }
+
+    
 }

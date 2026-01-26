@@ -6,8 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { CancelRideRequestDTO } from '../../core/models/ride/requests/cancel-ride-req.dto';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
 import { StopRideRequestDTO } from '../../core/models/ride/requests/stop-ride-req.dto';
-import { StoppedRideResponseDTO } from '../../core/models/ride/responses/sopped-ride-response.dto';
+import { StoppedRideResponseDTO } from '../../core/models/ride/responses/stopped-ride-response.dto';
 import { NgToastService } from 'ng-angular-popup';
+
 
 @Component({
   selector: 'app-cancel-ride',
