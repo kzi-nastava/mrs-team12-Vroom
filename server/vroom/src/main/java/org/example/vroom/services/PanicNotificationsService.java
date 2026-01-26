@@ -1,5 +1,6 @@
 package org.example.vroom.services;
 
+import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.panic.PanicRequestDTO;
 import org.example.vroom.DTOs.responses.panic.PanicNotificationResponseDTO;
 import org.example.vroom.entities.PanicNotification;
@@ -13,6 +14,7 @@ import org.example.vroom.repositories.PanicNotificationRepository;
 import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,10 +30,9 @@ public class PanicNotificationsService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private PanicNotificationRepository panicNotificationRepository;
-
-    @Autowired
     private PanicNotificationMapper panicNotificationMapper;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     private PanicNotification checkPanicExisting(Long panicID){
         Optional<PanicNotification> notificationOptional = notificationRepository.findById(panicID);
@@ -52,7 +53,7 @@ public class PanicNotificationsService {
     }
 
     public List<PanicNotificationResponseDTO> getPanics(boolean active){
-        List<PanicNotification> notifications = panicNotificationRepository
+        List<PanicNotification> notifications = notificationRepository
                 .findAll()
                 .stream()
                 .filter(n -> !active || !n.isResolved())
@@ -63,13 +64,14 @@ public class PanicNotificationsService {
     }
 
     public PanicNotificationResponseDTO getPanic(Long id){
-        PanicNotification notification = panicNotificationRepository.findById(id).orElse(null);
+        PanicNotification notification = notificationRepository.findById(id).orElse(null);
 
         if(notification == null) return null;
         else return panicNotificationMapper.createPanicResponseDTO(notification);
     }
 
-    public void activatePanic(PanicRequestDTO data, String email){
+    @Transactional
+    public void createPanicNotification(PanicRequestDTO data, String email){
         Ride ride = checkRideExisting(data.getRideId());
 
         Optional<User> user = userRepository.findByEmail(email);
@@ -87,14 +89,17 @@ public class PanicNotificationsService {
         ride.setPanicActivated(true);
         ride.setPanicNotification(panic);
 
-        panicNotificationRepository.save(panic);
+        messagingTemplate.convertAndSend("/socket-publisher/panic-notifications", data);
+
+        notificationRepository.save(panic);
         rideRepository.save(ride);
     }
 
+    @Transactional
     public void resolvePanic(Long panicID){
         PanicNotification panic = checkPanicExisting(panicID);
 
         panic.setResolved(true);
-        panicNotificationRepository.save(panic);
+        notificationRepository.save(panic);
     }
 }

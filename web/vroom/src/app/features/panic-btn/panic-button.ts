@@ -6,6 +6,7 @@ import { PanicService } from '../../core/services/panic.service';
 import { PanicRequestDTO } from '../../core/models/panic/requests/panic-request.dto';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
 import { ActivatedRoute } from '@angular/router';
+import { Message } from 'stompjs';
 
 @Component({
   selector: 'app-panic-btn',
@@ -51,8 +52,8 @@ export class PanicButton {
         activatedAt: new Date()
     }
 
-    this.panicService.sendPanicWebSockets(data).subscribe({
-        next: () => {
+    this.panicService.sendPanicRequest(data).subscribe({
+        next: (res: MessageResponseDTO) => {
           this.toastService.success(
             "Administrators are notified, please hang in there", 
             'PANIC', 
@@ -70,7 +71,7 @@ export class PanicButton {
             this.cdr.detectChanges()
           }, 1000)
         },
-        error: () => {
+        error: (err: MessageResponseDTO) => {
           this.toastService.danger(
             "Failed to send panic alert. Please try again", 
             'PANIC', 

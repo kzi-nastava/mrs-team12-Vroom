@@ -109,11 +109,8 @@ export class Login implements OnInit {
         
         const connectionTasks$: Observable<void>[] = []
 
-        if(response.type==='REGISTERED_USER'){
-          connectionTasks$.push(this.panicService.initPanicWebSockets())
-        }
-        else if (response.type === 'DRIVER') {
-          connectionTasks$.push(this.panicService.initPanicWebSockets())
+
+        if (response.type === 'DRIVER') {
           connectionTasks$.push(this.driverService.initializeWebSocket());
         }else if(response.type === 'ADMIN')
           connectionTasks$.push(this.panicNotificationService.initalizeWebSocket())

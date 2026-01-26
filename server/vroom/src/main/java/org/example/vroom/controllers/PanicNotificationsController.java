@@ -10,15 +10,10 @@ import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.services.PanicNotificationsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 
@@ -52,23 +47,35 @@ public class PanicNotificationsController {
         }
     }
 
-    @MessageMapping("panic")
-    @SendTo("/socket-publisher/panic-notifications")
-    public MessageResponseDTO panicRide(
-            Principal principal,
-            @Payload PanicRequestDTO data
+
+    @PostMapping
+    public ResponseEntity<MessageResponseDTO> createPanic(
+            @AuthenticationPrincipal User user,
+            @RequestBody PanicRequestDTO data
     ){
-        System.out.println("ovde");
-        if(data == null || data.getRideId() == null)  return new MessageResponseDTO("Invalid panic request data");
+        if(data == null || data.getRideId() == null)
+            return new ResponseEntity<MessageResponseDTO> (
+                new MessageResponseDTO("Invalid panic request data"),
+                HttpStatus.NO_CONTENT
+            );
 
         try{
-            panicNotificationsService.activatePanic(data, principal.getName());
+            panicNotificationsService.createPanicNotification(data, user.getEmail());
 
-            return new MessageResponseDTO("Administrators are notified, please hang in there while they resolve the issue");
+            return new ResponseEntity<MessageResponseDTO> (
+                    new MessageResponseDTO("Administrators are notified, please hang in there while they resolve the issue"),
+                    HttpStatus.CREATED
+            );
         }catch(RideNotFoundException | UserNotFoundException  e){
-            return new MessageResponseDTO("User or ride not found, please try again");
+            return new ResponseEntity<MessageResponseDTO> (
+                    new MessageResponseDTO("User or ride not found, please try again"),
+                    HttpStatus.NOT_FOUND
+            );
         }catch(Exception e){
-            return new MessageResponseDTO("System error occured");
+            return new ResponseEntity<MessageResponseDTO> (
+                new MessageResponseDTO("System error ocurred"),
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
 
