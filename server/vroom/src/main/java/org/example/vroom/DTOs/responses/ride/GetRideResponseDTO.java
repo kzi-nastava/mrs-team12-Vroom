@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class GetRideResponseDTO {
+    private Long rideID;
     private DriverRideResponseDTO driver;
     private GetRouteResponseDTO route;
 
