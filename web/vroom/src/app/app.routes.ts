@@ -30,13 +30,13 @@ export const routes: Routes = [
     {path: 'order-from-favorites', component: OrderFromFavorites},
     {path: 'register-driver', component: RegisterDriver},
     {path: 'panic', component: PanicButton},
-    {path: 'panic-feed', component: PanicFeed},
     {path: '', component: MainView, 
         children: [ 
             {path: 'route-estimation', component: RouteEstimation },
             {path: 'order-a-ride', component: OrderARide}, 
             {path: 'ride-duration', component: RideDuration},
-            {path: 'review', component: RideEnd}
+            {path: 'review', component: RideEnd},
+            {path: 'panic-feed', component: PanicFeed}
         ]
     },
     {path: 'cancel-ride', component:CancelRide},
