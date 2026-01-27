@@ -70,11 +70,11 @@
             <div class="details">
                 <div class="detail-item">
                     <span class="detail-label">Date & Time</span>
-                    <span class="detail-value">{{ ride.startTime.getDate() }} • {{ ride.startTime.getTime() }}</span>
+                    <span class="detail-value">{{ ride.startTime | date:'dd.MM.yyyy.' }} • {{ ride.startTime | date: 'HH:mm' }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Price</span>
-                    <span class="detail-value">{{ ride.price }} RSD</span>
+                    <span class="detail-value">{{ ride.price | number:'1.0-2' }} EUR</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Status</span>

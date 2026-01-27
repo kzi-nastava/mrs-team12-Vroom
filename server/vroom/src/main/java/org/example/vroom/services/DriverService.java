@@ -166,11 +166,14 @@ public class DriverService {
                                                              LocalDateTime endDate,
                                                              Sort sort)
     {
-        System.out.println("getDriverRides ovde +================================");
         List<Ride> rides = rideRepository.findDriverRideHistory(driverId, startDate, endDate, sort);
         Collection<RideHistoryResponseDTO> rideHistoryResponseDTOs = new ArrayList<>();
         for (Ride ride : rides) {
-            rideHistoryResponseDTOs.add(rideMapper.rideHistory(ride));
+            System.out.println("Ride ID: " + ride.getId());
+            RideHistoryResponseDTO dto = rideMapper.rideHistory(ride);
+            rideHistoryResponseDTOs.add(dto);
+            System.out.println("Ride: " + ride);
+            System.out.println(dto);
         }
         return rideHistoryResponseDTOs;
     }

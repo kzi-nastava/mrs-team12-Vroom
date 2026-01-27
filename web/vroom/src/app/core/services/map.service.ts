@@ -7,6 +7,7 @@ import { RouteQuoteEstimationDTO } from '../models/address/response/route-quote-
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { MapActionType } from '../models/map/enums/map-action-type.enum';
 import { MapAction } from '../models/map/interfaces/map-action.interface';
+import { ReplaySubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'  
@@ -14,7 +15,7 @@ import { MapAction } from '../models/map/interfaces/map-action.interface';
 export class MapService{
     private geoUrl = 'http://localhost:8080/api/geo'
     private routeUrl = 'http://localhost:8080/api/routes'
-    private mapActionSource = new BehaviorSubject<MapAction | null>(null);
+    private mapActionSource = new ReplaySubject<MapAction>(1);
     mapAction$ = this.mapActionSource.asObservable();
 
     constructor(private http: HttpClient) {}

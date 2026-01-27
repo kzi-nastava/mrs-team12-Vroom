@@ -23,27 +23,8 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.authService.isLoggedIn && this.authService.getCurrentUserType === 'DRIVER') {
-      const driverId = Number(localStorage.getItem('user_id'));
-      
       this.driverService.initializeWebSocket();
-      this.startTracking(driverId);
-    }
-  }
-
-  private startTracking(driverId: number) {
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(
-        (position) => {
-          this.driverService.sendCoordinates(
-            driverId,
-            position.coords.latitude,
-            position.coords.longitude
-          ).subscribe();
-        },(error) => {
-          console.error('Error getting location: ', error);
-        },
-          {enableHighAccuracy: true,}
-      );
+      this.driverService.startTracking();
     }
   }
 
