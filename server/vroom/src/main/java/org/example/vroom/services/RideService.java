@@ -38,10 +38,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -173,6 +170,24 @@ public class RideService {
         dto.setScheduledTime(scheduledTime);
 
         return dto;
+    }
+
+    public GetRideResponseDTO getUserRide(String userEmail) {
+        // Check if they are the person
+        Collection<RideStatus> statuses = new ArrayList<>();
+        statuses.add(RideStatus.ACCEPTED);
+        statuses.add(RideStatus.ONGOING);
+        Optional<Ride> creatorRide = this.rideRepository.findByPassengerEmailAndStatusIn(userEmail, statuses);
+        if (creatorRide.isPresent()) {
+            Ride ride = creatorRide.get();
+            return rideMapper.getRideDTO(ride);
+        }
+        Optional<Ride> passengerRide = this.rideRepository.findByPassengersContainingAndStatusIn(userEmail, statuses);
+        if (passengerRide.isPresent()) {
+            Ride ride = passengerRide.get();
+            return rideMapper.getRideDTO(ride);
+        }
+        return null;
     }
 
     public RideStatus getRideStatus(String rideId) {
