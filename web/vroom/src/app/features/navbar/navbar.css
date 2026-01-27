@@ -1,6 +1,6 @@
 header{
     position: relative;
-    
+    font-family: 'IBM Plex Sans';
 }
 
 .navbar {
@@ -32,8 +32,33 @@ header{
     gap: 20px;
 }
 
+.nav-right a:not(.icon-button):not(.logout-text) {
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    padding: 5px 0;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+
+.nav-right a:not(.icon-button):not(.logout-text)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #2A2C24;
+    transition: width 0.3s ease;
+}
+
+.nav-right a:not(.icon-button):not(.logout-text):hover::after {
+    width: 100%;
+}
+
 .login-text {
-    font-family: 'IBM Plex Sans';
+    
     text-decoration: none;
     font-size: 20px;
     color: #2A2C24;
@@ -56,22 +81,22 @@ header{
     margin-right: 0.0005%;
 }
 
-.logout-text {
+.logout-text{
     font-family: 'IBM Plex Sans';
-    text-decoration: none;
-    font-size: 20px;
+    background-color: #e74c3c;
     color: white;
-    background-color: red;
-    padding: 10px;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
     transition: all 0.3s ease;
-    margin-right: 0.0005%;
-
-    border-radius: 10px;
 }
 
 .logout-text:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .route-est-txt{
