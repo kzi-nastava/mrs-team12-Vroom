@@ -145,9 +145,6 @@ export class RideDuration implements OnInit, OnDestroy {
 
     this.rideService.finishRideRequest(this.rideID).subscribe({
       next:() => {
-        // implement new dto for scheduled ride from server
-        // if response is empty no scheduled rides redirect to main page 
-        // else load scheduled ride data
         alert('Ride finished successfully');
       }, error:(err) => {
         alert('There was a problem')

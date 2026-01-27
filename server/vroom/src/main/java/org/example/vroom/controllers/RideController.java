@@ -130,6 +130,17 @@ public class RideController {
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
+    @GetMapping(path="/user-active-ride")
+    public ResponseEntity<GetRideResponseDTO> getUserActiveRide(
+            @AuthenticationPrincipal UserDetails user
+    ){
+        GetRideResponseDTO dto = this.rideService.getUserRide(user.getUsername());
+        if (dto == null){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+
+    }
 
     @PutMapping(path = "/{rideID}/cancel", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> cancelRide(

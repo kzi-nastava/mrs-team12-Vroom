@@ -38,10 +38,6 @@ export class CancelRide implements OnInit {
 
   ngOnInit(): void {
       this.role = localStorage.getItem('user_type') || ''
-
-      this.route.queryParamMap.subscribe(params => {
-        this.rideId = params.get('rideId') || ''
-      })
   }
 
 
