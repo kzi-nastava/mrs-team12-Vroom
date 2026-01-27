@@ -66,12 +66,6 @@ export class MainView implements AfterViewInit {
     
     // setup map service listener when action happens there to update the map
     this.setupMapServiceListener();
-
-    const currentUrl = this.router.url;  
-    if (currentUrl === '/' || currentUrl === '') {
-      this.resetMap();
-      this.setupRealTimeLocationListener();
-    }
   }
 
   private centerOnUser(): void {
