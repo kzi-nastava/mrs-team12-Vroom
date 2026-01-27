@@ -111,7 +111,7 @@ public class FavoriteRouteService {
                 .driver(driver)
                 .route(route)
                 .startTime(request.getScheduledTime() != null ? request.getScheduledTime() : LocalDateTime.now())
-                .status(request.getScheduledTime() != null ? RideStatus.ACCEPTED : RideStatus.PENDING)
+                .status(RideStatus.ACCEPTED)
                 .price(quote.getPrice())
                 .panicActivated(false)
                 .isScheduled(request.getScheduledTime() != null)

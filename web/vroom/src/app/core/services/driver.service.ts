@@ -26,8 +26,12 @@ export class DriverService{
             const ws = new SockJS(serverUrl);
             this.stompClient = Stomp.over(ws);
 
+            const headers = {
+                Authorization: `Bearer ${localStorage.getItem('jwt')}`
+            };
+
             this.stompClient.connect(
-                {},
+                headers,
                 () => {
                     this.stompClient.subscribe('/socket-publisher/location-updates', 
                         (message: any) => {
@@ -55,9 +59,26 @@ export class DriverService{
                 return throwError(() => err)
             })
         )
+        
     }
 
-    sendCoordinates(driverId: number, lat: number, lng: number): Observable<void> {
+    startTracking() {
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(
+                (position) => {
+                    this.sendCoordinates(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    ).subscribe();
+                },(error) => {
+                    console.error('Error getting location: ', error);
+                },
+                    {enableHighAccuracy: true,}
+            );
+        }
+    }
+
+    sendCoordinates(lat: number, lng: number): Observable<void> {
         const connection$: Observable<any> = (this.stompClient && this.stompClient.connected) ? of(null) : this.initializeWebSocket();
 
         return connection$.pipe(
@@ -66,10 +87,9 @@ export class DriverService{
                     this.stompClient.send(
                         '/socket-subscriber/update-location', 
                         {}, 
-                        JSON.stringify({
-                            driverId: driverId,
-                            point: { lat: lat, lng: lng }
-                        })
+                        JSON.stringify(
+                            { lat, lng }
+                        )
                     );
                 } else {
                     throw new Error('websocket not connected after init')
@@ -110,6 +130,8 @@ export class DriverService{
             })
         )
     }
+
+
 
     getDriverRideHistory(
         startDate?: any,

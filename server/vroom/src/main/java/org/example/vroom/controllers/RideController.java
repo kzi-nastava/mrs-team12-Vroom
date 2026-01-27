@@ -31,6 +31,7 @@ import org.springframework.http.*;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -55,46 +56,10 @@ public class RideController {
     private FavoriteRouteService favoriteRouteService;
     @Autowired
     private RouteService routeService;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     private static final Logger log = LoggerFactory.getLogger(RideService.class);
-
-
-    @GetMapping(path="/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GetRideResponseDTO> getRide(@PathVariable Long rideID){
-        DriverRideResponseDTO driver = DriverRideResponseDTO.builder()
-                .firstName("Marko")
-                .lastName("Markovic")
-                .email("marko@example.com")
-                .gender(Gender.MALE)
-                .vehicle(null)
-                .build();
-
-        GetRouteResponseDTO route = GetRouteResponseDTO
-                .builder()
-                .startLocationLat(44.7866)
-                .startLocationLng(20.4489)
-                .endLocationLat(44.8125)
-                .endLocationLng(20.4612)
-                .stops(List.of())
-                .build();
-
-        GetRideResponseDTO ride = GetRideResponseDTO
-                .builder()
-                .route(route)
-                .startTime(LocalDateTime.of(2025, 1, 10, 14, 32))
-                .endTime(LocalDateTime.of(2025, 1, 10, 14, 55))
-                .status(RideStatus.FINISHED)
-                .price(980.50)
-                .panicActivated(false)
-                .driver(driver)
-                .passengers(new ArrayList<>(List.of("Jovana Petrovic", "Nikola Ilic")))
-                .complaints(new ArrayList<>(List.of()))
-                .driverRating(5)
-                .vehicleRating(4)
-                .build();
-
-        return new ResponseEntity<GetRideResponseDTO>(ride, HttpStatus.OK);
-    }
 
     @GetMapping(path="/{rideID}/route", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GetRouteResponseDTO> getRoute(@PathVariable Long rideID){
@@ -102,21 +67,21 @@ public class RideController {
         if (route == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<GetRouteResponseDTO>(route, HttpStatus.OK);
+        return new ResponseEntity<>(route, HttpStatus.OK);
     }
 
     @MessageMapping("ride-duration-update/{rideID}")
-    @SendTo("/socket-publisher/ride-duration-update/{rideID}")
-    public RideUpdateResponseDTO updateRideDuration(@DestinationVariable String rideID,
-                                                    PointResponseDTO currentLocation) {
+    public void updateRideDuration(@DestinationVariable String rideID,
+                                                    PointResponseDTO location) {
 
-        String start = this.routeService.coordinatesToString(currentLocation);
+        String start = this.routeService.coordinatesToString(location);
         String end = this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLat() + ","
                 + this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLng();
         RouteQuoteResponseDTO quoteResponseDTO = this.routeService.routeEstimation(start, end);
         Double estTime = quoteResponseDTO.getTime();
-        return new RideUpdateResponseDTO(currentLocation, estTime);
-
+        RideStatus status = this.rideService.getRideStatus(rideID);
+        RideUpdateResponseDTO updateResponseDTO = new RideUpdateResponseDTO(location, estTime, status);
+        messagingTemplate.convertAndSend("/socket-publisher/ride-duration-update/" + rideID, updateResponseDTO);
     }
 
     @PostMapping(path = "/{rideID}/complaint", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -244,17 +209,18 @@ public class RideController {
                 .body(new MessageResponseDTO("Ride order declined: " + ex.getMessage()));
     }
 
-    @PutMapping("/start")
+    @PutMapping("/start/{rideID}")
     public ResponseEntity<GetRideResponseDTO> startActiveRide(
-            @AuthenticationPrincipal UserDetails userDetails
+            @PathVariable Long rideID
     ) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        try{
+             GetRideResponseDTO dto = rideService.startRide(rideID);
+             return new ResponseEntity<>(dto, HttpStatus.OK);
+        }catch (RideNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        return ResponseEntity.ok(
-                rideService.startRide(userDetails.getUsername())
-        );
     }
 
 
@@ -293,8 +259,6 @@ public class RideController {
         return ResponseEntity.ok(rideResponse);
     }
 
-
-
     @GetMapping("/active")
     public ResponseEntity<GetRideResponseDTO> getActiveRide(
             @AuthenticationPrincipal UserDetails userDetails
@@ -313,7 +277,4 @@ public class RideController {
         }
         return ResponseEntity.ok(rideService.mapToDTO(ride));
     }
-
-
-
 }

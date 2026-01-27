@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
+import org.example.vroom.enums.RideStatus;
 
 @Getter
 @Setter
@@ -13,4 +14,5 @@ import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 public class RideUpdateResponseDTO {
     PointResponseDTO currentLocation;
     Double timeLeft;
+    RideStatus status;
 }

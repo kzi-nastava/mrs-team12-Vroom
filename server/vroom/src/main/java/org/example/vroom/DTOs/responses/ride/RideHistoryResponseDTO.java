@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class RideHistoryResponseDTO {
+    private Long rideId;
     private String startAddress;
     private String endAddress;
     private LocalDateTime startTime;
