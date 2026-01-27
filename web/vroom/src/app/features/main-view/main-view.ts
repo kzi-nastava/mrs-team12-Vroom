@@ -31,7 +31,8 @@ export class MainView implements AfterViewInit {
     '/route-estimation',
     '/order-a-ride',
     '/ride-duration',
-    '/ride-review'
+    '/ride-review',
+    'panic-feed'
   ];
   
   constructor(
