@@ -82,7 +82,7 @@ export class PanicButton {
       });
 
     // delete next line of code, this is only for testing purposes 
-    this.pns.handlePanicNotification()
+    // this.pns.handlePanicNotification()
 
   }
 }
