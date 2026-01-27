@@ -26,6 +26,8 @@ export class MainView implements AfterViewInit {
   private driverMarkers: Map<number, L.Marker> = new Map();
   
   private routesWithMap = [
+    '',
+    '/',
     '/route-estimation',
     '/order-a-ride',
     '/ride-duration',
@@ -102,6 +104,7 @@ export class MainView implements AfterViewInit {
         if (currentUrl === '/'  || currentUrl === '') {
           this.resetMap();
           this.setupRealTimeLocationListener();
+          this.map.setView(this.centroid, 16); 
         }else if (this.routesWithMap.some(route => currentUrl.includes(route))) {
           this.resetMap();
           this.map.setView(this.centroid, 14); 
