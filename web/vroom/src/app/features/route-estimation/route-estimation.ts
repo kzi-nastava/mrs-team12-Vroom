@@ -54,10 +54,6 @@ export class RouteEstimation implements OnInit, OnDestroy{
   @ViewChild('endInput', { static: false }) endInput?: ElementRef;
   @ViewChild('endDropdown', { static: false }) endDropdown?: ElementRef;
 
-  @Output() startCoordsChange = new EventEmitter<{lat:number,lng:number}>();
-  @Output() endCoordsChange = new EventEmitter<{lat:number,lng:number}>();
-  @Output() stopsCoordsChange = new EventEmitter<Array<{ lat: number; lng: number }>>();
-
   constructor(
     private mapService: MapService,
     private eRef:ElementRef, 
