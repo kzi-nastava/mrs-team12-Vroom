@@ -42,6 +42,7 @@ public class RideMapper {
     public RideHistoryResponseDTO rideHistory(Ride ride) {
         return RideHistoryResponseDTO
                 .builder()
+                .rideId(ride.getId())
                 .startAddress(ride.getRoute().getStartAddress())
                 .endAddress(ride.getRoute().getEndAddress())
                 .startTime(ride.getStartTime())
@@ -54,6 +55,7 @@ public class RideMapper {
     public GetRideResponseDTO getRideDTO(Ride ride){
         return GetRideResponseDTO
                 .builder()
+                .rideID(ride.getId())
                 .route(routeMapper.getRouteDTO(ride.getRoute()))
                 .driver(driverMapper.toDriverRideDTO(ride.getDriver()))
                 .startTime(ride.getStartTime())

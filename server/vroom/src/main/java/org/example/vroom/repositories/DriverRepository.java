@@ -35,6 +35,7 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
           AND (:babiesAllowed IS NULL OR d.vehicle.babiesAllowed = :babiesAllowed)
           AND (:petsAllowed IS NULL OR d.vehicle.petsAllowed = :petsAllowed)
         ORDER BY d.id ASC
+        LIMIT 1
     """)
     Optional<Driver> findFirstAvailableDriver(
             @Param("vehicleType") VehicleType vehicleType,

@@ -46,7 +46,7 @@ public class DriverController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String sort
     ) {
-        System.out.println("getRides AAAAAAAAAAAAAAAAAAA");
+        System.out.println("===========================================" + user.getId());
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -56,6 +56,7 @@ public class DriverController {
             sortOrder = Sort.by(Sort.Direction.fromString(split[split.length - 1]), split[0]);
         }
         Collection<RideHistoryResponseDTO> rides = driverService.getDriverRides(user.getId(), startDate, endDate, sortOrder);
+
         if (rides == null || rides.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
