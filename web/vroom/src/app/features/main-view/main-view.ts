@@ -9,6 +9,7 @@ import { DriverService } from '../../core/services/driver.service';
 import { LocationUpdate } from '../../core/models/driver/location-update-response.dto';
 import { RideUpdatesService } from '../../core/services/ride-update-service';
 import { RideService } from '../../core/services/ride.service';
+import { MapAction } from '../../core/models/map/interfaces/map-action.interface';
 
 @Component({
   selector: 'app-map',
@@ -101,12 +102,15 @@ export class MainView implements AfterViewInit {
 
   private setupMapServiceListener(): void{
     this.mapService.mapAction$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        filter((action): action is MapAction => action !== null)
+      )
       .subscribe(action => {
         switch (action.type) {
           case MapActionType.DRAW_ROUTE:
             this.routeLayer.clearLayers();
-            this.driverService.disconnectWebSocket();
+            this.driverService.disconnectWebSocket().subscribe();
             this.handleDrawRoute(action.payload);
             break;
           case MapActionType.CLEAR_MAP:
@@ -118,14 +122,19 @@ export class MainView implements AfterViewInit {
             break;
           case MapActionType.RIDE_DURATION:
             this.routeLayer.clearLayers();
-            this.driverService.disconnectWebSocket();
-            this.setUpRideTracking(action.payload.rideID);
+            this.driverService.disconnectWebSocket().subscribe();
+            this.setUpRideTracking(action.payload.rideID, "In Ride");
+            break;
+          case MapActionType.PANIC_RIDE:
+            this.routeLayer.clearLayers();
+            this.driverService.disconnectWebSocket().subscribe();
+            this.setUpRideTracking(action.payload.rideID, "PANIC");
             break;
         }
       });
   }
 
-  private setUpRideTracking(rideID: string): void {
+  private setUpRideTracking(rideID: string, type: string): void {
     this.rideUpdatesService.initRideUpdatesWebSocket(rideID);
 
     this.rideUpdatesService.getRideUpdates().pipe(
@@ -134,7 +143,7 @@ export class MainView implements AfterViewInit {
       this.updateSingleVehicleOnMap( 0,
         update.currentLocation.lat,
         update.currentLocation.lng,
-        "In Ride"
+        type
       );
     });
 
