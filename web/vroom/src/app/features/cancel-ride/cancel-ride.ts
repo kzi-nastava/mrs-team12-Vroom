@@ -32,8 +32,7 @@ export class CancelRide implements OnInit {
   constructor(
     private rideService: RideService, 
     private cdr: ChangeDetectorRef, 
-    private toastService: NgToastService,
-    private route: ActivatedRoute 
+    private toastService: NgToastService
   ){}
 
   ngOnInit(): void {
