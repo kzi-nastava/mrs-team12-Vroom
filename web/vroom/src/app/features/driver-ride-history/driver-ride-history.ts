@@ -4,6 +4,7 @@ import { OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RideHistoryResponseDTO } from '../../core/models/driver/ride-history-response.dto';
 import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-driver-ride-history',
@@ -19,7 +20,10 @@ export class DriverRideHistory implements OnInit {
   startDateFilter?: Date;
   endDateFilter?: Date;
 
-  constructor(private driverService: DriverService) {}
+  constructor(
+    private driverService: DriverService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadHistory();
@@ -30,14 +34,18 @@ export class DriverRideHistory implements OnInit {
     .getDriverRideHistory(this.startDateFilter, this.endDateFilter, this.currentSort)
     .subscribe({
       next:( history ) => {
+        console.log(history);
         this.rides = history;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching ride history:', err);
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
+    console.log(this.rides);
   }
 
   onSortChange(event: Event) : void {

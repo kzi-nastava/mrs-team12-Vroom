@@ -18,9 +18,9 @@ export class DriverActiveRideService {
     });
   }
 
-startRide(): Observable<Ride> {
+startRide(rideID : number): Observable<Ride> {
   const token = localStorage.getItem('jwtToken');
-  return this.http.put<Ride>(`${this.baseUrl}/start`, {}, {
+  return this.http.put<Ride>(`${this.baseUrl}/start/${rideID}`, {}, {
     headers: { Authorization: `Bearer ${token}` }
   });
 }

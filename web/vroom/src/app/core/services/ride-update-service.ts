@@ -19,31 +19,37 @@ export class RideUpdatesService{
 
     private rideUpdateSubject = new Subject<RideUpdateResponseDTO>();
 
-    constructor(private http: HttpClient) {}
+    constructor() {}
 
     getRideUpdates(): Observable<RideUpdateResponseDTO> {
         return this.rideUpdateSubject.asObservable();
     }
 
     initRideUpdatesWebSocket(rideID: string) {
+        const token = localStorage.getItem('jwt');
         if (this.stompClient && this.stompClient.connected) {
             this.stompClient.disconnect();
         }
         const ws = new SockJS(this.serverUrl);
         this.stompClient = Stomp.over(ws);
-        this.stompClient.connect({}, () => {
+        this.stompClient.connect({
+            Authorization: `Bearer ${token}`
+        }, () => {
             this.stompClient.subscribe(`/socket-publisher/ride-duration-update/${rideID}`, (message: any) => {
                 if (message.body) {
                     this.rideUpdateSubject.next(JSON.parse(message.body));
                 } 
             });
+        }, (error: any) => {
+            console.error('WebSocket connection error:', error);
         });
     }   
 
     sendCoordinates(rideID: string, point: PointResponseDTO) {
+        console.log('Sending coordinates:', point);
         if (this.stompClient && this.stompClient.connected) {
             this.stompClient.send(
-                `socket-subscriber/ride-duration-update/${rideID}`,
+                `/socket-subscriber/ride-duration-update/${rideID}`,
                 {},
                 JSON.stringify(point)
             );
