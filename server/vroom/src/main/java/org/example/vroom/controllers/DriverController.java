@@ -19,6 +19,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,6 +40,7 @@ public class DriverController {
         this.driverService = driverService;
     }
 
+    @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
     @GetMapping(path = "/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideHistoryResponseDTO>> getRides(
             @AuthenticationPrincipal User user,
@@ -63,7 +65,7 @@ public class DriverController {
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register/driver")
     public ResponseEntity<?> registerDriver(@RequestBody DriverRegistrationRequestDTO request) {
         try {
@@ -77,6 +79,7 @@ public class DriverController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
     @PutMapping(path = "/status")
     public ResponseEntity<MessageResponseDTO> changeStatus(
             @AuthenticationPrincipal User user,

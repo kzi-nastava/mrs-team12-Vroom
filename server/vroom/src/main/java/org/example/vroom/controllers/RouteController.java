@@ -1,5 +1,6 @@
 package org.example.vroom.controllers;
 
+import org.antlr.v4.runtime.misc.NotNull;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.services.RouteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,20 @@ public class RouteController {
     private RouteService routeService;
 
     @GetMapping(path="/quote")
-    @Cacheable(value = "route-estimation", key = "{#startLocation, #endLocation, #stops}")
+    @Cacheable(
+            value = "route-estimation",
+            key = "#startLocation + '-' + #endLocation + '-' + (#stops != null ? #stops.toString() : 'no-stops')"
+    )
     public ResponseEntity<RouteQuoteResponseDTO> getQuote(
             @RequestParam String startLocation,
             @RequestParam String endLocation,
             @RequestParam(required = false) String stops
             ) {
         // call geoapify routing API in service layer to get km and time in order to calculate price
+        if (startLocation == null || startLocation.trim().isEmpty() ||
+            endLocation == null || endLocation.trim().isEmpty())
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         try{
             RouteQuoteResponseDTO res = routeService.routeEstimation(startLocation, endLocation, stops);
             return new ResponseEntity<RouteQuoteResponseDTO>(

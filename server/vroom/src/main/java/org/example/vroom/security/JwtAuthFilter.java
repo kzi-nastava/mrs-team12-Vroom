@@ -92,24 +92,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-
-        // change this to ignore auth + main + route estimation endpoints
-        return path.startsWith("/api/auth/login")
-                || path.startsWith("/api/auth/register")
-                || path.startsWith("/api/auth/register/driver")
-                || path.startsWith("/api/auth/forgot-password")
-                || path.startsWith("/api/auth/reset-password")
-                || path.startsWith("/api/admins/")
-                //|| path.startsWith("/api/rides/")
-                || path.startsWith("/api/routes/")
-                || path.startsWith("/api/main/")
-//                || path.startsWith("/api/drivers/rides")
-                //|| path.startsWith("/api/profile/driver")
-               // || path.startsWith("/api/profile/user")
-                || path.startsWith("/api/geo");
-                //|| path.startsWith("/api/drivers/");
-    }
 }
