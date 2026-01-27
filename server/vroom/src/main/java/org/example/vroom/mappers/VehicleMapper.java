@@ -58,7 +58,7 @@ public class VehicleMapper {
                 .numberOfSeats(vehicle.getNumberOfSeats())
                 .babiesAllowed(vehicle.getBabiesAllowed())
                 .petsAllowed(vehicle.getPetsAllowed())
-                .rating((double) vehicle.getRatingSum() / vehicle.getRatingCount())
+                .rating(vehicle.getRating())
                 .build();
     }
 

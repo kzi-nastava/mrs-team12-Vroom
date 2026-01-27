@@ -19,7 +19,7 @@ public class DriverRegisterMapper {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-    public Driver toEntity(DriverRegisterRequestDTO dto) {
+    public Driver toEntity(DriverRegisterRequestDTO dto, DriverStatus status, String password) {
         Driver driver = new Driver();
 
         driver.setEmail(dto.getEmail());
@@ -28,8 +28,8 @@ public class DriverRegisterMapper {
         driver.setPhoneNumber(dto.getPhoneNumber());
         driver.setAddress(dto.getAddress());
         driver.setGender(dto.getGender());
-        driver.setStatus(DriverStatus.INACTIVE);
-        driver.setPassword(passwordEncoder.encode(dto.getPassword()));
+        driver.setStatus(status);
+        driver.setPassword(password);
 
         Vehicle vehicle = vehicleMapper.toEntity(dto.getVehicle());
         driver.setVehicle(vehicle);
