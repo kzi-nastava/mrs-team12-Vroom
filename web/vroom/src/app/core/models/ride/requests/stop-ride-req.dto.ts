@@ -3,7 +3,7 @@ export class StopRideRequestDTO{
     stopLat!: number;
     stopLng!: number;
 
-    getLocation(successCallback: () => void){
+    getLocation(successCallback: () => void, errorCallback: (err: string) => void){
         if(!navigator.geolocation) {
             alert('Geolocation is not supported by your browser')
             return
@@ -16,7 +16,8 @@ export class StopRideRequestDTO{
             successCallback()
         },
         (error) => {
-            alert('Failed to get location')
+            //alert('Failed to get location')
+            errorCallback('Failed to get location')
         },
         {
             enableHighAccuracy: true,
