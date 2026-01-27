@@ -93,7 +93,6 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/socket/**"
                         ).permitAll()
-                        .requestMatchers("/socket/**").permitAll()
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/drivers/rides").authenticated()
                         .anyRequest().authenticated()
