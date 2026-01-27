@@ -362,17 +362,22 @@ public class RideService {
             ride.setCancelReason(reason);
         }
 
+        if(ride.getDriver() != null){
+            Driver driver = ride.getDriver();
+            driver.setStatus(DriverStatus.AVAILABLE);
+
+            driverRepository.save(driver);
+        }
+
         rideRepository.save(ride);
     }
 
-    @Transactional
     public double calculatePrice(String startLocation, String endLocation){
         RouteQuoteResponseDTO data = routeService.routeEstimation(startLocation, endLocation);
 
         return data.getPrice();
     }
 
-    @Transactional
     public StoppedRideResponseDTO stopRide(Long rideID, StopRideRequestDTO data){
         Optional<Ride> rideOptional = rideRepository.findById(rideID);
         if(rideOptional.isEmpty())
@@ -399,7 +404,12 @@ public class RideService {
         String stopAddress = String.valueOf(data.getStopLat())+","+String.valueOf(data.getStopLng());
         double price = this.calculatePrice(startAddress, stopAddress);
 
+        if (ride.getDriver() != null) {
+            Driver driver = ride.getDriver();
+            driver.setStatus(DriverStatus.AVAILABLE);
 
+            driverRepository.save(driver);
+        }
         ride.setPrice(price);
         rideRepository.save(ride);
 
