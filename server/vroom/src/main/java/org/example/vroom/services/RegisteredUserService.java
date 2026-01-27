@@ -107,4 +107,13 @@ public class RegisteredUserService {
                 registeredUserRepository.save(user)
         );
     }
+
+    @Transactional
+    public void deleteAccount(Long userID){
+        Optional<RegisteredUser> user = registeredUserRepository.findById(userID);
+        if(user.isEmpty())
+            return;
+
+        registeredUserRepository.delete(user.get());
+    }
 }
