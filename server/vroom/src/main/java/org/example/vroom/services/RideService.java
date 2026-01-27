@@ -366,7 +366,11 @@ public class RideService {
     }
 
     @Transactional
-    public void calculatePrice(){}
+    public double calculatePrice(String startLocation, String endLocation){
+        RouteQuoteResponseDTO data = routeService.routeEstimation(startLocation, endLocation);
+
+        return data.getPrice();
+    }
 
     @Transactional
     public StoppedRideResponseDTO stopRide(Long rideID, StopRideRequestDTO data){
@@ -382,18 +386,24 @@ public class RideService {
 
         route.setEndLocationLat(data.getStopLat());
         route.setEndLocationLng(data.getStopLng());
+
+        String endAddress = decodeAddress(data.getStopLat(), data.getStopLng());
+        route.setEndAddress(endAddress);
         route.getStops().clear();
 
         ride.setEndTime(data.getEndTime());
         ride.setRoute(route);
         ride.setStatus(RideStatus.FINISHED);
-        //double price = this.calculatePrice();
-        double price=1;
+
+        String startAddress = String.valueOf(route.getStartLocationLat())+","+String.valueOf(route.getStartLocationLng());
+        String stopAddress = String.valueOf(data.getStopLat())+","+String.valueOf(data.getStopLng());
+        double price = this.calculatePrice(startAddress, stopAddress);
+
 
         ride.setPrice(price);
         rideRepository.save(ride);
 
-        return rideMapper.stopRide(ride, data, price);
+        return rideMapper.stopRide(ride, data, price, endAddress);
     }
 
 
