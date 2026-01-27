@@ -65,7 +65,7 @@ public class DriverController {
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register/driver")
     public ResponseEntity<?> registerDriver(@RequestBody DriverRegistrationRequestDTO request) {
         try {
