@@ -30,7 +30,7 @@ export class DriverActiveRide {
     this.ride$.subscribe({
       next: (res: Ride | null) => {
         if(res !== null){
-          this.rideId = String(res.id)
+          this.rideId = String(res.rideID)
         }
       }
     })

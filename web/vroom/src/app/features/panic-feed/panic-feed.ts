@@ -59,9 +59,7 @@ export class PanicFeed implements OnInit{
   }
 
   mapRedirect(rideID: string | number){
-    this.router.navigate(['/']).then(() => {
-      this.mapService.panicRideInit(String(rideID))
-    })
+    this.mapService.panicRideInit(String(rideID));
   }
 
 }
