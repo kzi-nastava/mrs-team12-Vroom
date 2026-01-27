@@ -37,7 +37,6 @@ export class CancelRide implements OnInit {
 
   ngOnInit(): void {
       this.role = localStorage.getItem('user_type') || ''
-
   }
 
 

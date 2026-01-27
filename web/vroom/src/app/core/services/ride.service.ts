@@ -10,6 +10,7 @@ import { ComplaintRequestDTO } from "../models/ride/requests/complaint-req.dto";
 import { GetRouteResponseDTO } from "../models/ride/responses/get-route-response.dto";
 import { map } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
+import { GetRideResponseDTO } from '../models/ride/responses/get-ride-response.dto'
 
 @Injectable({
     providedIn: "root"
@@ -18,6 +19,10 @@ export class RideService{
     private rideUrl = 'http://localhost:8080/api/rides'
 
     constructor(private http: HttpClient) {}
+
+    getUserRide(): Observable<GetRideResponseDTO> {
+        return this.http.get<GetRideResponseDTO>(this.rideUrl+"/user-active-ride")
+    }
 
     cancelRideRequest(rideID: string, data: CancelRideRequestDTO): Observable<MessageResponseDTO>{
         return this.http.put<MessageResponseDTO>(this.rideUrl+`/${rideID}`+'/cancel', data);
