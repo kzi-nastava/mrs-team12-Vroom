@@ -32,6 +32,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -84,6 +85,7 @@ public class RideController {
         messagingTemplate.convertAndSend("/socket-publisher/ride-duration-update/" + rideID, updateResponseDTO);
     }
 
+    @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(path = "/{rideID}/complaint", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> sendComplaint(
             @PathVariable Long rideID,
@@ -99,6 +101,7 @@ public class RideController {
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(path = "/{rideID}/review", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> leaveReview(
             @PathVariable Long rideID,
@@ -118,6 +121,7 @@ public class RideController {
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('DRIVER')")
     @PostMapping(path = "/{rideID}/finish")
     public ResponseEntity<MessageResponseDTO> finishRide(
             @PathVariable Long rideID
@@ -129,7 +133,6 @@ public class RideController {
         }
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
-
 
     @PutMapping(path = "/{rideID}/cancel", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> cancelRide(
@@ -156,6 +159,7 @@ public class RideController {
         }
     }
 
+    @PreAuthorize("hasRole('DRIVER')")
     @PutMapping(path="/{rideID}/stop",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StoppedRideResponseDTO> stopRide(
             @PathVariable Long rideID,
@@ -209,6 +213,7 @@ public class RideController {
                 .body(new MessageResponseDTO("Ride order declined: " + ex.getMessage()));
     }
 
+    // @PreAuthorize("hasRole('DRIVER')")
     @PutMapping("/start/{rideID}")
     public ResponseEntity<GetRideResponseDTO> startActiveRide(
             @PathVariable Long rideID
@@ -222,7 +227,6 @@ public class RideController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
 
     @GetMapping(
@@ -245,6 +249,7 @@ public class RideController {
         return ResponseEntity.ok(response);
     }
 
+    //@PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(
             path = "/order/favorite",
             consumes = MediaType.APPLICATION_JSON_VALUE,

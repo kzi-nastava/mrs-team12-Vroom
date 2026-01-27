@@ -9,6 +9,7 @@ import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
 import org.example.vroom.repositories.DriverRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.example.vroom.DTOs.responses.*;
@@ -174,36 +175,6 @@ public class AuthController {
                 .build();
     }
 
-
-    @PostMapping(
-            path = "/register/driver",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<RegisterResponseDTO> registerDriver(
-            @RequestBody DriverRegisterRequestDTO data
-    ) {
-        if (data == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-
-        Driver driver = driverRegisterMapper.toEntity(
-                data,
-                DriverStatus.INACTIVE,
-                passwordEncoder.encode(data.getPassword())
-        );
-        driverRepository.save(driver);
-
-        return new ResponseEntity<RegisterResponseDTO>(
-                new RegisterResponseDTO(
-                        1L,
-                        "Successfully created driver account, before login activate account"
-                ),
-                HttpStatus.CREATED
-        );
-    }
-
-
     @PostMapping(
             path="/logout",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -211,8 +182,7 @@ public class AuthController {
     )
     public ResponseEntity<MessageResponseDTO> logout(@AuthenticationPrincipal User user) {
         try{
-            System.out.println(user.getId());
-            authService.logout(Long.valueOf(user.getId()), user.getRoleName());
+            authService.logout(user);
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Logout successful"),
                     HttpStatus.OK

@@ -12,6 +12,7 @@ import org.example.vroom.services.PanicNotificationsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,7 @@ public class PanicNotificationsController {
     @Autowired
     private PanicNotificationsService panicNotificationsService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<List<PanicNotificationResponseDTO>> getPanicNotifications(
             @RequestParam boolean active
@@ -37,6 +39,7 @@ public class PanicNotificationsController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{panicID}")
     public ResponseEntity<PanicNotificationResponseDTO> getPanicNotifications(@PathVariable Long panicID) {
         try{
@@ -88,6 +91,7 @@ public class PanicNotificationsController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{panicID}/resolve")
     public ResponseEntity<MessageResponseDTO> resolvePanic(
         @PathVariable Long panicID
