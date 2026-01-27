@@ -2,13 +2,14 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import * as L from 'leaflet';
-import { filter, Subject, takeUntil } from 'rxjs';
+import { catchError, filter, Observable, of, Subject, take, takeUntil } from 'rxjs';
 import { MapService } from '../../core/services/map.service';
 import { MapActionType } from '../../core/models/map/enums/map-action-type.enum';
 import { DriverService } from '../../core/services/driver.service';
 import { LocationUpdate } from '../../core/models/driver/location-update-response.dto';
 import { RideUpdatesService } from '../../core/services/ride-update-service';
 import { RideService } from '../../core/services/ride.service';
+import { MapAction } from '../../core/models/map/interfaces/map-action.interface';
 
 @Component({
   selector: 'app-map',
@@ -25,6 +26,8 @@ export class MainView implements AfterViewInit {
   private driverMarkers: Map<number, L.Marker> = new Map();
   
   private routesWithMap = [
+    '',
+    '/',
     '/route-estimation',
     '/order-a-ride',
     '/ride-duration',
@@ -99,8 +102,12 @@ export class MainView implements AfterViewInit {
       )
       .subscribe((event: any) => {
         const currentUrl = event.urlAfterRedirects;
-        if (!this.routesWithMap.some(route => currentUrl.includes(route))) {
-          this.routeLayer.clearLayers();
+        if (currentUrl === '/'  || currentUrl === '') {
+          this.resetMap();
+          this.setupRealTimeLocationListener();
+          this.map.setView(this.centroid, 16); 
+        }else if (this.routesWithMap.some(route => currentUrl.includes(route))) {
+          this.resetMap();
           this.map.setView(this.centroid, 14); 
         }
       });
@@ -108,31 +115,54 @@ export class MainView implements AfterViewInit {
 
   private setupMapServiceListener(): void{
     this.mapService.mapAction$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        filter((action): action is MapAction => action !== null)
+      )
       .subscribe(action => {
         switch (action.type) {
           case MapActionType.DRAW_ROUTE:
-            this.routeLayer.clearLayers();
-            this.driverService.disconnectWebSocket();
+            this.driverService.disconnectWebSocket()
+            this.resetMap();
             this.handleDrawRoute(action.payload);
+            
+            //this.routeLayer.clearLayers();
             break;
           case MapActionType.CLEAR_MAP:
-            this.routeLayer.clearLayers();
+            //this.routeLayer.clearLayers();
+            this.resetMap()
             break;
           case MapActionType.SHOW_VEHICLES:
-            this.routeLayer.clearLayers();
+            this.driverService.disconnectWebSocket()
+            //this.routeLayer.clearLayers();
+            this.resetMap();
             this.setupRealTimeLocationListener();
+            
             break;
           case MapActionType.RIDE_DURATION:
-            this.routeLayer.clearLayers();
-            this.driverService.disconnectWebSocket();
-            this.setUpRideTracking(action.payload.rideID);
+            this.driverService.disconnectWebSocket()
+            //this.routeLayer.clearLayers();
+            this.resetMap();
+            this.setUpRideTracking(action.payload.rideID, "In Ride");
+            
+            break;
+          case MapActionType.PANIC_RIDE:
+            this.driverService.disconnectWebSocket()
+            this.resetMap();
+            this.setUpRideTracking(action.payload.rideID, "PANIC")
+
             break;
         }
       });
   }
 
-  private setUpRideTracking(rideID: string): void {
+  private resetMap(){
+    this.routeLayer.clearLayers()
+    this.vehiclesLayer.clearLayers();
+    this.driverMarkers.clear()
+  }
+
+  private setUpRideTracking(rideID: string, type: string): void {
     this.routeLayer.clearLayers();
 
     this.rideUpdatesService.getRideUpdates().pipe(
@@ -141,7 +171,7 @@ export class MainView implements AfterViewInit {
       this.updateSingleVehicleOnMap( -1,
         update.currentLocation.lat,
         update.currentLocation.lng,
-        "In Ride"
+        type
       );
     });
     this.rideService.getRouteDetails(rideID).subscribe({
@@ -160,13 +190,22 @@ export class MainView implements AfterViewInit {
   private setupRealTimeLocationListener(): void {
     this.driverService.locationUpdates$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((location: LocationUpdate) => {
-        this.updateSingleVehicleOnMap(
-          location.driverId,
-          location.point.lat,
-          location.point.lng,
-          location.status
-        );
+      .subscribe({
+          next: () => {
+              this.driverService.locationUpdates$
+                  .pipe(takeUntil(this.destroy$))
+                  .subscribe((location: LocationUpdate) => {
+                      this.updateSingleVehicleOnMap(
+                          location.driverId,
+                          location.point.lat,
+                          location.point.lng,
+                          location.status
+                      );
+                  });
+          },
+          error: (err) => {
+              console.error('WebSocket connection failed', err);
+          }
       });
     this.driverService.initializeWebSocket().subscribe();
   }
