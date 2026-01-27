@@ -51,7 +51,11 @@ public class RegisteredUserService {
         if(!passwordUtils.isPasswordValid(req.getPassword()) || !req.getPassword().equals(req.getConfirmPassword()))
             throw new InvalidPasswordException("Password doesn't match criteria");
 
-        RegisteredUser user = registeredUserMapper.createUser(req, profilePhoto);
+        RegisteredUser user = registeredUserMapper.createUser(
+                req,
+                profilePhoto,
+                passwordEncoder.encode(req.getPassword())
+        );
         user.setUserStatus(UserStatus.INACTIVE);
         user.setCreatedAt(LocalDateTime.now());
 

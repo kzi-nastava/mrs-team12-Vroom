@@ -45,4 +45,9 @@ public class Vehicle {
     @Column
     @Builder.Default
     private Long ratingSum = 0L;
+
+
+    public double getRating(){
+        return ratingCount !=0 ?  (double) ratingSum / ratingCount : 0;
+    }
 }

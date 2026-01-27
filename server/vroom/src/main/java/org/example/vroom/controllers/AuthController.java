@@ -5,6 +5,7 @@ import org.example.vroom.DTOs.requests.auth.*;
 import org.example.vroom.DTOs.requests.driver.DriverRegisterRequestDTO;
 import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
 import org.example.vroom.DTOs.responses.auth.RegisterResponseDTO;
+import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
 import org.example.vroom.repositories.DriverRepository;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,6 +44,8 @@ public class AuthController {
     private AuthenticationManager authManager;
     @Autowired
     private DriverRepository driverRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @PostMapping(
@@ -183,7 +187,11 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
-        Driver driver = driverRegisterMapper.toEntity(data);
+        Driver driver = driverRegisterMapper.toEntity(
+                data,
+                DriverStatus.INACTIVE,
+                passwordEncoder.encode(data.getPassword())
+        );
         driverRepository.save(driver);
 
         return new ResponseEntity<RegisterResponseDTO>(
