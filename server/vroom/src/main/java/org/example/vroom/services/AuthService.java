@@ -53,7 +53,6 @@ public class AuthService {
             throw new AccountStatusException("This account is inactive or blocked");
 
         String token = jwtService.generateToken(user);
-        long expiresIn = jwtService.extractExpiration(token).getTime() - System.currentTimeMillis();
 
         String type = switch (user) {
             case RegisteredUser u -> "REGISTERED_USER";

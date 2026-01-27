@@ -17,7 +17,7 @@ public class RegisteredUserMapper {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public RegisteredUser createUser(RegisterRequestDTO user, MultipartFile profilePhoto) throws IOException {
+    public RegisteredUser createUser(RegisterRequestDTO user, MultipartFile profilePhoto, String password) throws IOException {
         byte[] photoBytes = null;
         if (profilePhoto != null && !profilePhoto.isEmpty()) {
             photoBytes = profilePhoto.getBytes();
@@ -28,7 +28,7 @@ public class RegisteredUserMapper {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
-                .password(passwordEncoder.encode(user.getPassword()))
+                .password(password)
                 .address(user.getAddress())
                 .gender(user.getGender())
                 .profilePhoto(photoBytes)

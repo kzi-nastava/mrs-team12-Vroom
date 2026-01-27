@@ -141,11 +141,6 @@ export class Login implements OnInit {
                 console.error('Socket initialization failed', err);
                 this.router.navigate(['/']); // Still navigate or handle error
         }
-    });
-} else {
-    // No tasks (e.g., REGISTERED_USER), redirect immediately
-    this.router.navigate(['/']);
-}
       },
 
       error: (e)=>{

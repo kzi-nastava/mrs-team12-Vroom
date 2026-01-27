@@ -9,7 +9,7 @@ import { DriverService } from '../../core/services/driver.service';
   styleUrl: './change-driver-status.css',
 })
 export class ChangeDriverStatus implements OnInit{
-  status: 'AVAILABLE' | 'UNAVAILABLE' = 'AVAILABLE'
+  status: 'AVAILABLE' | 'INACTIVE' = 'AVAILABLE'
 
   constructor(private driverService: DriverService) {}
 
@@ -19,8 +19,8 @@ export class ChangeDriverStatus implements OnInit{
 
   onChangeStatus(){
     if(this.status === 'AVAILABLE')
-      this.status = 'UNAVAILABLE'
-    else if(this.status === 'UNAVAILABLE')
+      this.status = 'INACTIVE'
+    else if(this.status === 'INACTIVE')
       this.status = 'AVAILABLE'
 
     this.driverService

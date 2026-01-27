@@ -4,7 +4,7 @@ import * as L from 'leaflet'
 import { HttpParams } from '@angular/common/http';
 import { AddressSuggestionDTO } from '../models/address/response/address-suggestion-response.dto';
 import { RouteQuoteEstimationDTO } from '../models/address/response/route-quote-estimation.dto';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { MapActionType } from '../models/map/enums/map-action-type.enum';
 import { MapAction } from '../models/map/interfaces/map-action.interface';
 import { ReplaySubject } from 'rxjs';
@@ -59,6 +59,13 @@ export class MapService{
           type: MapActionType.RIDE_DURATION,
           payload: { rideID }
         });
+    }
+
+    panicRideInit(rideID: string) {
+      this.mapActionSource.next({
+        type: MapActionType.PANIC_RIDE,
+        payload: { rideID }
+      })
     }
 
 
