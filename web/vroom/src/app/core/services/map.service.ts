@@ -103,10 +103,10 @@ async getRouteCoordinates(payload: any): Promise<RouteResponse | null> {
 
 
 
-showVehicles() {
-  this.mapActionSource.next({ 
-    type: MapActionType.SHOW_VEHICLES 
-  });
-}
+  showVehicles() {
+    this.mapActionSource.next({ 
+      type: MapActionType.SHOW_VEHICLES 
+    });
+  }
 
 }

@@ -31,7 +31,8 @@ export class MainView implements AfterViewInit {
     '/route-estimation',
     '/order-a-ride',
     '/ride-duration',
-    '/ride-review'
+    '/ride-review',
+    'panic-feed'
   ];
   
   constructor(
@@ -102,11 +103,11 @@ export class MainView implements AfterViewInit {
       )
       .subscribe((event: any) => {
         const currentUrl = event.urlAfterRedirects;
-        if (currentUrl === '/'  || currentUrl === '') {
+        /*if (currentUrl === '/'  || currentUrl === '') {
           this.resetMap();
           this.setupRealTimeLocationListener();
           this.map.setView(this.centroid, 16); 
-        }else if (this.routesWithMap.some(route => currentUrl.includes(route))) {
+        }else*/ if (this.routesWithMap.some(route => currentUrl.includes(route))) {
           this.resetMap();
           this.map.setView(this.centroid, 14); 
         }
