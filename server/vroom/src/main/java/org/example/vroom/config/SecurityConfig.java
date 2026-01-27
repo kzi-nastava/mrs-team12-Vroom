@@ -80,10 +80,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/drivers/rides").authenticated()
+                        .requestMatchers("/api/rides/**").authenticated()
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/admins/**",
-                                "/api/rides/**",
                                 "/api/routes/**",
                                 "/api/main/**",
                                 "/api/panics/**",

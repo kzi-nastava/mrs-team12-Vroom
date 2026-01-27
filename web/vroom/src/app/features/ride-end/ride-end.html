@@ -8,9 +8,9 @@
       </div>
       
       <div class="route">
-        <div>Bulevar Patrijarha Pavla, 20</div>
+        <div>{{ startAddress }}</div>
         <div class="arrow">↓</div>
-        <div>Naučno-Tehnološki Park</div>
+        <div>{{ endAddress }}</div>
       </div>
     </div>
     <div class="right-section">
@@ -25,5 +25,6 @@
 <app-review-popup 
   class="popup"
   *ngIf="showReviewPopup"
+  [rideID]="rideID"
   (closePopup)="closeReviewForm()">
 </app-review-popup>

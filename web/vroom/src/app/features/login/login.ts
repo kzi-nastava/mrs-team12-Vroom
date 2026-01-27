@@ -130,14 +130,16 @@ export class Login implements OnInit {
         // wait to open websocket connections 
         if (connectionTasks$.length > 0) {
           forkJoin(connectionTasks$).subscribe({
-              next: () => this.router.navigate(['/']),
-              error: (err) => {
-                  console.error('Socket initialization failed', err);
-                  this.router.navigate(['/']); 
+            next: () => {
+              if (response.type === 'DRIVER') {
+                this.driverService.startTracking();
               }
-          });
-        } else {
-            this.router.navigate(['/']);
+              this.router.navigate(['/']);
+            },
+              
+            error: (err) => {
+                console.error('Socket initialization failed', err);
+                this.router.navigate(['/']); // Still navigate or handle error
         }
       },
 

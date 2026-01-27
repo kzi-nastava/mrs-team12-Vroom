@@ -53,6 +53,11 @@ export class MainView implements AfterViewInit {
     });
     this.centerOnUser();
 
+    this.map.createPane('routePane');
+    this.map.createPane('vehiclePane');
+    (this.map.getPane('routePane') as HTMLElement).style.zIndex = '399';
+    (this.map.getPane('vehiclePane') as HTMLElement).style.zIndex = '650';
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
@@ -66,6 +71,8 @@ export class MainView implements AfterViewInit {
     
     // setup map service listener when action happens there to update the map
     this.setupMapServiceListener();
+
+    this.setupRealTimeLocationListener();
   }
 
   private centerOnUser(): void {
@@ -156,18 +163,17 @@ export class MainView implements AfterViewInit {
   }
 
   private setUpRideTracking(rideID: string, type: string): void {
-    this.rideUpdatesService.initRideUpdatesWebSocket(rideID);
+    this.routeLayer.clearLayers();
 
     this.rideUpdatesService.getRideUpdates().pipe(
       takeUntil(this.destroy$)
     ).subscribe(update => {
-      this.updateSingleVehicleOnMap( 0,
+      this.updateSingleVehicleOnMap( -1,
         update.currentLocation.lat,
         update.currentLocation.lng,
         type
       );
     });
-
     this.rideService.getRouteDetails(rideID).subscribe({
       next: (ride) => {
         const payload = {
@@ -182,7 +188,7 @@ export class MainView implements AfterViewInit {
 
 
   private setupRealTimeLocationListener(): void {
-     this.driverService.initializeWebSocket()
+    this.driverService.locationUpdates$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
           next: () => {
@@ -201,11 +207,12 @@ export class MainView implements AfterViewInit {
               console.error('WebSocket connection failed', err);
           }
       });
+    this.driverService.initializeWebSocket().subscribe();
   }
 
 
 
-  private updateSingleVehicleOnMap(driverId: number, latitude: number, longitude: number, status: String): void {
+  public updateSingleVehicleOnMap(driverId: number, latitude: number, longitude: number, status: String): void {
     const existingMarker = this.driverMarkers.get(driverId);
 
     if (existingMarker) {
@@ -213,7 +220,8 @@ export class MainView implements AfterViewInit {
     } else {
       const marker = L.marker([latitude, longitude], {
         // later add different colored icons based on status
-        icon: this.showCarIcon()
+        icon: this.showCarIcon(),
+        pane: 'vehiclePane'
       }).addTo(this.vehiclesLayer);
 
       marker.bindPopup(
@@ -241,7 +249,8 @@ export class MainView implements AfterViewInit {
       L.polyline(routeCoordinates, { 
         color: '#2A2C24', 
         weight: 5,
-        opacity: 0.7 
+        opacity: 0.7,
+        pane: 'routePane'
       }).addTo(this.routeLayer);
       
       // add markers
