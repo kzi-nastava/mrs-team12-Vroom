@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +34,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             @Param("endDate") LocalDateTime endDate,
             Sort sort
     );
+
+    Optional<Ride> findByPassengerEmailAndStatusIn(String email, Collection<RideStatus> statuses);
+    Optional<Ride> findByPassengersContainingAndStatusIn(String email, Collection<RideStatus> statuses);
 
     @Query("""
     SELECT r FROM Ride r
