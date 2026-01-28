@@ -1,0 +1,69 @@
+<div class="container">
+
+  <h1>Driver Profile Update Requests</h1>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="success" class="success">{{ success }}</div>
+
+  <ng-container *ngIf="requests$ | async as requests; else loading">
+
+    <table *ngIf="requests.length > 0; else empty">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Driver</th>
+          <th>Created</th>
+          <th>Profile Data</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let r of requests">
+          <td>{{ r.id }}</td>
+          <td>{{ r.payload.firstName }} {{ r.payload.lastName }}</td>
+          <td>{{ r.createdAt | date:'short' }}</td>
+
+          <td class="payload">
+            <strong>Email:</strong> {{ r.payload.email }}<br>
+            <strong>Phone:</strong> {{ r.payload.phoneNumber }}<br>
+            <strong>Gender:</strong> {{ r.payload.gender }}<br>
+
+            <div class="vehicle">
+              <strong>Vehicle:</strong><br>
+              {{ r.payload.vehicle.brand }}
+              {{ r.payload.vehicle.model }}<br>
+              {{ r.payload.vehicle.type }},
+              seats: {{ r.payload.vehicle.numberOfSeats }}
+            </div>
+          </td>
+
+          <td class="actions">
+            <button class="approve" (click)="approve(r.id)">
+              Approve
+            </button>
+
+            <textarea
+              placeholder="Reject comment"
+              [(ngModel)]="rejectComment[r.id]"
+            ></textarea>
+
+            <button class="reject" (click)="reject(r.id)">
+              Reject
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="info">Loading...</div>
+  </ng-template>
+
+  <ng-template #empty>
+    <div class="info">No pending requests.</div>
+  </ng-template>
+
+</div>
