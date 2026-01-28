@@ -7,6 +7,8 @@ import { OnInit } from '@angular/core'
 import { RideService } from '../../core/services/ride.service'
 import { ActivatedRoute } from '@angular/router';
 import { ChangeDetectorRef } from '@angular/core';
+import { GetRouteResponseDTO } from '../../core/models/ride/responses/get-route-response.dto';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -34,13 +36,13 @@ export class RideEnd implements OnInit {
 
   ngOnInit(){
     this.rideService.getRouteDetails(this.rideID).subscribe({
-      next: (ride) => {
+      next: (ride: GetRouteResponseDTO) => {
         console.log('Route details:', ride);
         this.startAddress = ride.startAddress;
         this.endAddress = ride.endAddress;
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         console.error('Error fetching route details:', error);
       }
     });

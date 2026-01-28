@@ -8,6 +8,9 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { MapActionType } from '../models/map/enums/map-action-type.enum';
 import { MapAction } from '../models/map/interfaces/map-action.interface';
 import { ReplaySubject } from 'rxjs';
+import { Stop } from '../models/address/interfaces/stop-point.interface';
+import { PointResponseDTO } from '../models/driver/point-response.dto';
+import { MapRouteDTO } from '../models/map/interfaces/map-route.interface';
 
 @Injectable({
   providedIn: 'root'  
@@ -43,10 +46,10 @@ export class MapService{
     }
 
 
-    drawRoute(start: any, end: any, stops: any[]) {
+    drawRoute(data: MapRouteDTO) {
         this.mapActionSource.next({
             type: MapActionType.DRAW_ROUTE,
-            payload: { start, end, stops }
+            payload: { start: data.start, end: data.end, stops: data.stops }
         });
     }
 

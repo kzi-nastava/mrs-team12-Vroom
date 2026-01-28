@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef  } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { isHttpError } from '../../core/utils/http-error.guard';
 import { RegisterRequestDTO } from '../../core/models/auth/requests/register-request.dto';
@@ -83,7 +83,7 @@ export class Register {
           this.isLoading = false;
           this.cdRef.detectChanges()
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           switch (err.status) {
             case 409:
               this.error = err.error?.message || 'User already exists';

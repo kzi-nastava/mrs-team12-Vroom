@@ -1,4 +1,4 @@
-import { HttpInterceptorFn } from "@angular/common/http";
+import { HttpErrorResponse, HttpInterceptorFn } from "@angular/common/http";
 import { inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { catchError, throwError } from "rxjs";
@@ -18,7 +18,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
     }
 
     return next(authReq).pipe(
-        catchError((err) => {
+        catchError((err: HttpErrorResponse) => {
             if(err.status === 401){
                 localStorage.removeItem('jwt')
                 localStorage.removeItem('user_type')

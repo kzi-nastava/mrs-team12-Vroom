@@ -6,6 +6,7 @@ import {CommonModule} from '@angular/common'
 import {ChangeDetectorRef} from '@angular/core'
 import { CancelRide } from '../cancel-ride/cancel-ride';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -32,12 +33,12 @@ export class UserActiveRide implements OnInit {
   loadData(){
     this.isLoading = true;
     this.rideService.getUserRide().subscribe({
-      next: (data) => {
+      next: (data: GetRideResponseDTO) => {
         this.ride = data;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         console.error('Error fetching active ride:', err);
         this.isLoading = false;
       }
@@ -46,10 +47,6 @@ export class UserActiveRide implements OnInit {
 
   onTrackRide(){
     this.router.navigate(['/ride-duration'], {queryParams: {rideID: this.ride?.rideID}});
-  }
-
-  onCancel(){
-
   }
 
 }

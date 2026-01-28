@@ -13,6 +13,10 @@ import { StopRide } from '../stop-ride/stop-ride';
 import { Router } from '@angular/router';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
 import { ChangeDetectorRef } from '@angular/core';
+import { GetRouteResponseDTO } from '../../core/models/ride/responses/get-route-response.dto';
+import { PointResponseDTO } from '../../core/models/driver/point-response.dto';
+import { HttpErrorResponse } from '@angular/common/http';
+import { RideUpdateResponseDTO } from '../../core/models/ride/responses/ride-update-response.dto';
 
 
 @Component({
@@ -52,14 +56,14 @@ export class RideDuration implements OnInit, OnDestroy {
     this.mapService.rideDurationInit(this.rideID);
 
     this.rideService.getRouteDetails(this.rideID).subscribe({
-      next: (ride) => {
+      next: (ride: GetRouteResponseDTO) => {
         console.log('Route details:', ride);
         this.startAddress = ride.startAddress;
         this.endAddress = ride.endAddress;
         this.fetchAddresses(ride);
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         console.error('Error fetching route details:', error);
       }
     });
@@ -73,7 +77,7 @@ export class RideDuration implements OnInit, OnDestroy {
     
 
     this.rideUpdatesService.getRideUpdates().subscribe({
-      next: (update) => {
+      next: (update: RideUpdateResponseDTO) => {
         if (update.status == "FINISHED"){
           if (this.userRole === "DRIVER"){
             this.router.navigate(['/driver-active-ride']);
@@ -109,9 +113,9 @@ export class RideDuration implements OnInit, OnDestroy {
     );
   }
 
-  private fetchAddresses(ride: any): void {
+  private fetchAddresses(ride: GetRouteResponseDTO): void {
     const stops$ = ride.stops?.length > 0 
-      ? forkJoin(ride.stops.map((s: any) => this.rideService.getAddress(s.lat, s.lng)))
+      ? forkJoin(ride.stops.map((s: PointResponseDTO) => this.rideService.getAddress(s.lat, s.lng)))
       : of([]);
 
     forkJoin([stops$]).subscribe({
@@ -128,7 +132,7 @@ export class RideDuration implements OnInit, OnDestroy {
     console.log('Submitting complaint:', value);
     this.rideService.sendComplaintRequest(this.rideID, { complaint: value }).subscribe({
       next: () => this.complaintControl.reset(),
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
           this.complaintControl.reset();
           console.error(error);}
     });
@@ -146,7 +150,7 @@ export class RideDuration implements OnInit, OnDestroy {
     this.rideService.finishRideRequest(this.rideID).subscribe({
       next:() => {
         alert('Ride finished successfully');
-      }, error:(err) => {
+      }, error:() => {
         alert('There was a problem')
       }
     });
