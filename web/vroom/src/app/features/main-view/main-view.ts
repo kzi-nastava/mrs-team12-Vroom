@@ -2,13 +2,14 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import * as L from 'leaflet';
-import { filter, Subject, takeUntil } from 'rxjs';
+import { catchError, filter, Observable, of, Subject, take, takeUntil } from 'rxjs';
 import { MapService } from '../../core/services/map.service';
 import { MapActionType } from '../../core/models/map/enums/map-action-type.enum';
 import { DriverService } from '../../core/services/driver.service';
 import { LocationUpdate } from '../../core/models/driver/location-update-response.dto';
 import { RideUpdatesService } from '../../core/services/ride-update-service';
 import { RideService } from '../../core/services/ride.service';
+import { MapAction } from '../../core/models/map/interfaces/map-action.interface';
 
 @Component({
   selector: 'app-map',
@@ -25,10 +26,13 @@ export class MainView implements AfterViewInit {
   private driverMarkers: Map<number, L.Marker> = new Map();
   
   private routesWithMap = [
+    '',
+    '/',
     '/route-estimation',
     '/order-a-ride',
     '/ride-duration',
-    '/ride-review'
+    '/ride-review',
+    'panic-feed'
   ];
   
   constructor(
@@ -50,6 +54,11 @@ export class MainView implements AfterViewInit {
     });
     this.centerOnUser();
 
+    this.map.createPane('routePane');
+    this.map.createPane('vehiclePane');
+    (this.map.getPane('routePane') as HTMLElement).style.zIndex = '399';
+    (this.map.getPane('vehiclePane') as HTMLElement).style.zIndex = '650';
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
@@ -63,6 +72,8 @@ export class MainView implements AfterViewInit {
     
     // setup map service listener when action happens there to update the map
     this.setupMapServiceListener();
+
+    this.setupRealTimeLocationListener();
   }
 
   private centerOnUser(): void {
@@ -92,8 +103,12 @@ export class MainView implements AfterViewInit {
       )
       .subscribe((event: any) => {
         const currentUrl = event.urlAfterRedirects;
-        if (!this.routesWithMap.some(route => currentUrl.includes(route))) {
-          this.routeLayer.clearLayers();
+        /*if (currentUrl === '/'  || currentUrl === '') {
+          this.resetMap();
+          this.setupRealTimeLocationListener();
+          this.map.setView(this.centroid, 16); 
+        }else*/ if (this.routesWithMap.some(route => currentUrl.includes(route))) {
+          this.resetMap();
           this.map.setView(this.centroid, 14); 
         }
       });
@@ -101,43 +116,65 @@ export class MainView implements AfterViewInit {
 
   private setupMapServiceListener(): void{
     this.mapService.mapAction$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        filter((action): action is MapAction => action !== null)
+      )
       .subscribe(action => {
         switch (action.type) {
           case MapActionType.DRAW_ROUTE:
-            this.routeLayer.clearLayers();
-            this.driverService.disconnectWebSocket();
+            this.driverService.disconnectWebSocket()
+            this.resetMap();
             this.handleDrawRoute(action.payload);
+            
+            //this.routeLayer.clearLayers();
             break;
           case MapActionType.CLEAR_MAP:
-            this.routeLayer.clearLayers();
+            //this.routeLayer.clearLayers();
+            this.resetMap()
             break;
           case MapActionType.SHOW_VEHICLES:
-            this.routeLayer.clearLayers();
+            this.driverService.disconnectWebSocket()
+            //this.routeLayer.clearLayers();
+            this.resetMap();
             this.setupRealTimeLocationListener();
+            
             break;
           case MapActionType.RIDE_DURATION:
-            this.routeLayer.clearLayers();
-            this.driverService.disconnectWebSocket();
-            this.setUpRideTracking(action.payload.rideID);
+            this.driverService.disconnectWebSocket()
+            //this.routeLayer.clearLayers();
+            this.resetMap();
+            this.setUpRideTracking(action.payload.rideID, "In Ride");
+            
+            break;
+          case MapActionType.PANIC_RIDE:
+            this.driverService.disconnectWebSocket()
+            this.resetMap();
+            this.setUpRideTracking(action.payload.rideID, "PANIC")
+
             break;
         }
       });
   }
 
-  private setUpRideTracking(rideID: string): void {
-    this.rideUpdatesService.initRideUpdatesWebSocket(rideID);
+  private resetMap(){
+    this.routeLayer.clearLayers()
+    this.vehiclesLayer.clearLayers();
+    this.driverMarkers.clear()
+  }
+
+  private setUpRideTracking(rideID: string, type: string): void {
+    this.routeLayer.clearLayers();
 
     this.rideUpdatesService.getRideUpdates().pipe(
       takeUntil(this.destroy$)
     ).subscribe(update => {
-      this.updateSingleVehicleOnMap( 0,
+      this.updateSingleVehicleOnMap( -1,
         update.currentLocation.lat,
         update.currentLocation.lng,
-        "In Ride"
+        type
       );
     });
-
     this.rideService.getRouteDetails(rideID).subscribe({
       next: (ride) => {
         const payload = {
@@ -152,22 +189,31 @@ export class MainView implements AfterViewInit {
 
 
   private setupRealTimeLocationListener(): void {
-    this.driverService.initializeWebSocket();
     this.driverService.locationUpdates$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((location: LocationUpdate) => {
-        this.updateSingleVehicleOnMap(
-          location.driverId,
-          location.point.lat,
-          location.point.lng,
-          location.status
-        );
+      .subscribe({
+          next: () => {
+              this.driverService.locationUpdates$
+                  .pipe(takeUntil(this.destroy$))
+                  .subscribe((location: LocationUpdate) => {
+                      this.updateSingleVehicleOnMap(
+                          location.driverId,
+                          location.point.lat,
+                          location.point.lng,
+                          location.status
+                      );
+                  });
+          },
+          error: (err) => {
+              console.error('WebSocket connection failed', err);
+          }
       });
+    this.driverService.initializeWebSocket().subscribe();
   }
 
 
 
-  private updateSingleVehicleOnMap(driverId: number, latitude: number, longitude: number, status: String): void {
+  public updateSingleVehicleOnMap(driverId: number, latitude: number, longitude: number, status: String): void {
     const existingMarker = this.driverMarkers.get(driverId);
 
     if (existingMarker) {
@@ -175,7 +221,8 @@ export class MainView implements AfterViewInit {
     } else {
       const marker = L.marker([latitude, longitude], {
         // later add different colored icons based on status
-        icon: this.showCarIcon()
+        icon: this.showCarIcon(),
+        pane: 'vehiclePane'
       }).addTo(this.vehiclesLayer);
 
       marker.bindPopup(
@@ -203,7 +250,8 @@ export class MainView implements AfterViewInit {
       L.polyline(routeCoordinates, { 
         color: '#2A2C24', 
         weight: 5,
-        opacity: 0.7 
+        opacity: 0.7,
+        pane: 'routePane'
       }).addTo(this.routeLayer);
       
       // add markers

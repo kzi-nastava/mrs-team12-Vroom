@@ -22,7 +22,7 @@ public class DriverProfileController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('DRIVER')")
+    //@PreAuthorize("hasAnyRole('DRIVER')")
     public ResponseEntity<DriverDTO> getMyProfile(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
@@ -34,7 +34,7 @@ public class DriverProfileController {
     }
 
     @PutMapping("/me")
-    @PreAuthorize("hasRole('DRIVER')")
+    //@PreAuthorize("hasAnyRole('DRIVER')")
     public ResponseEntity<Void> requestUpdate(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody DriverDTO dto

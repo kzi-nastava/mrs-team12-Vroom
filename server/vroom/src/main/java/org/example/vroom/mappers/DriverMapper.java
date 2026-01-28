@@ -78,7 +78,7 @@ public class DriverMapper {
                 .lastName(driver.getLastName())
                 .email(driver.getEmail())
                 .gender(driver.getGender())
-                .rating((double) driver.getRatingSum()/ driver.getRatingCount())
+                .rating(driver.getRating())
                 .vehicle(vehicleMapper.toVehicleRideDTO(driver.getVehicle()))
                 .build();
     }

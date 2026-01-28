@@ -5,9 +5,11 @@ import org.example.vroom.DTOs.requests.auth.*;
 import org.example.vroom.DTOs.requests.driver.DriverRegisterRequestDTO;
 import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
 import org.example.vroom.DTOs.responses.auth.RegisterResponseDTO;
+import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
 import org.example.vroom.repositories.DriverRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.example.vroom.DTOs.responses.*;
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,6 +45,8 @@ public class AuthController {
     private AuthenticationManager authManager;
     @Autowired
     private DriverRepository driverRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @PostMapping(
@@ -170,32 +175,6 @@ public class AuthController {
                 .build();
     }
 
-
-    @PostMapping(
-            path = "/register/driver",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<RegisterResponseDTO> registerDriver(
-            @RequestBody DriverRegisterRequestDTO data
-    ) {
-        if (data == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-
-        Driver driver = driverRegisterMapper.toEntity(data);
-        driverRepository.save(driver);
-
-        return new ResponseEntity<RegisterResponseDTO>(
-                new RegisterResponseDTO(
-                        1L,
-                        "Successfully created driver account, before login activate account"
-                ),
-                HttpStatus.CREATED
-        );
-    }
-
-
     @PostMapping(
             path="/logout",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -203,8 +182,7 @@ public class AuthController {
     )
     public ResponseEntity<MessageResponseDTO> logout(@AuthenticationPrincipal User user) {
         try{
-            System.out.println(user.getId());
-            authService.logout(Long.valueOf(user.getId()), user.getRoleName());
+            authService.logout(user);
             return new ResponseEntity<MessageResponseDTO>(
                     new MessageResponseDTO("Logout successful"),
                     HttpStatus.OK

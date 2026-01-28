@@ -4,9 +4,10 @@ import * as L from 'leaflet'
 import { HttpParams } from '@angular/common/http';
 import { AddressSuggestionDTO } from '../models/address/response/address-suggestion-response.dto';
 import { RouteQuoteEstimationDTO } from '../models/address/response/route-quote-estimation.dto';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { MapActionType } from '../models/map/enums/map-action-type.enum';
 import { MapAction } from '../models/map/interfaces/map-action.interface';
+import { ReplaySubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'  
@@ -14,7 +15,7 @@ import { MapAction } from '../models/map/interfaces/map-action.interface';
 export class MapService{
     private geoUrl = 'http://localhost:8080/api/geo'
     private routeUrl = 'http://localhost:8080/api/routes'
-    private mapActionSource = new Subject<MapAction>();
+    private mapActionSource = new ReplaySubject<MapAction>(1);
     mapAction$ = this.mapActionSource.asObservable();
 
     constructor(private http: HttpClient) {}
@@ -60,6 +61,13 @@ export class MapService{
         });
     }
 
+    panicRideInit(rideID: string) {
+      this.mapActionSource.next({
+        type: MapActionType.PANIC_RIDE,
+        payload: { rideID }
+      })
+    }
+
 
 async getRouteCoordinates(payload: any): Promise<RouteResponse | null> {
   const coordinates: [number, number][] = [];
@@ -95,10 +103,10 @@ async getRouteCoordinates(payload: any): Promise<RouteResponse | null> {
 
 
 
-showVehicles() {
-  this.mapActionSource.next({ 
-    type: MapActionType.SHOW_VEHICLES 
-  });
-}
+  showVehicles() {
+    this.mapActionSource.next({ 
+      type: MapActionType.SHOW_VEHICLES 
+    });
+  }
 
 }

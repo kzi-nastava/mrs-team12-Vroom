@@ -58,32 +58,11 @@ export class PanicNotificationService{
         )
     }
 
-    disconnectWebSocket(): Observable<void>{
-        return new Observable<void>((observer)=>{
-            if (this.stompClient && this.stompClient.connected) {
-                try {
-                    this.stompClient.disconnect(() => {
-                        this.stompClient = null
-                        console.log("Socket disconnected")
-                        observer.next()
-                        observer.complete()
-                });
-                } catch (err) {
-                    this.stompClient = null
-                    observer.error(err)
-                }
-            } else {
-                this.stompClient = null
-                observer.next()
-                observer.complete()
-            }
-        }).pipe(
-            timeout(2000),  
-            catchError((err) => {
-                this.stompClient = null;
-                return of(void 0);  
-            })
-        )
+    disconnectWebSocket(): void{
+        if (this.stompClient) {
+            this.stompClient.disconnect();
+            this.stompClient = null
+        }
     }
 
     handlePanicNotification(){

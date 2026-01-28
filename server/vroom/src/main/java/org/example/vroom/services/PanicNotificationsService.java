@@ -99,7 +99,6 @@ public class PanicNotificationsService {
         rideRepository.save(ride);
     }
 
-    @Transactional
     public void resolvePanic(Long panicID){
         PanicNotification panic = checkPanicExisting(panicID);
 

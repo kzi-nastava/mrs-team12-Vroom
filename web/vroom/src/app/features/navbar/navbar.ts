@@ -19,24 +19,21 @@ export class Navbar {
     private router: Router, 
     private cdRef: ChangeDetectorRef,
     private driverService: DriverService,
-    private panicNotificationService: PanicNotificationService,
-    private panicService: PanicService
+    private panicNotificationService: PanicNotificationService
   ){}
-
-  connectionTasks$: Observable<void>[] = []
 
 
   onLogout() {
     this.authService.logout().subscribe({
         next: () => {
-          this.connectionTasks$.push(this.driverService.disconnectWebSocket());
-          this.connectionTasks$.push(this.panicNotificationService.disconnectWebSocket())
+          this.driverService.disconnectWebSocket()
+          this.panicNotificationService.disconnectWebSocket()
 
           this.finalizeLogout()
         },
         error: () => {
-            this.connectionTasks$.push(this.driverService.disconnectWebSocket());
-            this.connectionTasks$.push(this.panicNotificationService.disconnectWebSocket())
+            this.driverService.disconnectWebSocket()
+            this.panicNotificationService.disconnectWebSocket()
 
           this.finalizeLogout()   
         }
@@ -44,11 +41,8 @@ export class Navbar {
   }
 
   finalizeLogout(){
-    forkJoin(this.connectionTasks$).subscribe(()=>{
-        this.authService.updateStatus()
-        this.cdRef.detectChanges() 
-        this.router.navigate(['/'])
-    })
-
+    this.authService.updateStatus()
+    this.cdRef.detectChanges() 
+    this.router.navigate(['/'])
   }
 }

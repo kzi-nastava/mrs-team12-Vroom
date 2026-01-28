@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PanicService } from '../../core/services/panic.service';
 import { Router } from '@angular/router';
 import { PanicNotificationDTO } from '../../core/models/panic/responses/panic-notification.dto';
+import { MapService } from '../../core/services/map.service';
 
 @Component({
   selector: 'app-panic-feed',
@@ -15,7 +16,7 @@ export class PanicFeed implements OnInit{
   isResolving: boolean = false;
   panicAlerts: PanicNotificationDTO[] = [];
 
-  constructor(private panicService: PanicService, private router: Router, private cdr: ChangeDetectorRef){}
+  constructor(private panicService: PanicService, private router: Router, private cdr: ChangeDetectorRef, private mapService: MapService){}
 
   onResolved(panicID: string | number){
     this.isResolving = true
@@ -58,7 +59,7 @@ export class PanicFeed implements OnInit{
   }
 
   mapRedirect(rideID: string | number){
-    this.router.navigate(['/']) // change to map and send data
+    this.mapService.panicRideInit(String(rideID));
   }
 
 }

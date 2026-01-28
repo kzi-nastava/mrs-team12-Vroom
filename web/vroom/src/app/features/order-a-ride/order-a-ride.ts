@@ -289,6 +289,7 @@ this.mapService.getRouteCoordinates(payload)
   });
 
   this.error = '';
+  console.log('Sending ride request:', rideRequest);
   this.http.post('http://localhost:8080/api/rides', rideRequest, { headers })
     .subscribe({
       next: () => {

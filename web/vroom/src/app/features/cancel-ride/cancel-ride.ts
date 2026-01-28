@@ -32,16 +32,11 @@ export class CancelRide implements OnInit {
   constructor(
     private rideService: RideService, 
     private cdr: ChangeDetectorRef, 
-    private toastService: NgToastService,
-    private route: ActivatedRoute 
+    private toastService: NgToastService
   ){}
 
   ngOnInit(): void {
       this.role = localStorage.getItem('user_type') || ''
-
-      this.route.queryParamMap.subscribe(params => {
-        this.rideId = params.get('rideId') || ''
-      })
   }
 
 

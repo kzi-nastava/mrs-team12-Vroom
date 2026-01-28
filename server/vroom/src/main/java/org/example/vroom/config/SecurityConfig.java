@@ -78,22 +78,22 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/drivers/rides").authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll().requestMatchers("/api/drivers/**").authenticated()
+                        .requestMatchers("/api/rides/**").authenticated()
+                        .requestMatchers("/api/auth/logout").authenticated()
+                        .requestMatchers("/api/auth/register/driver").authenticated()
+                        .requestMatchers("/api/admins/**").authenticated()
+                        .requestMatchers("/api/panics/**").authenticated()
+                        .requestMatchers("/api/profile/driver").authenticated()
+                        .requestMatchers("/api/profile/user").authenticated()
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/admins/**",
-                                "/api/rides/**",
                                 "/api/routes/**",
                                 "/api/main/**",
-                                "/api/panics/**",
-                                "/api/profile/driver",
-                                "/api/profile/user",
                                 "/api/geo/**",
                                 "/h2-console/**",
                                 "/socket/**"
                         ).permitAll()
-                        .requestMatchers("/api/auth/logout").authenticated()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))

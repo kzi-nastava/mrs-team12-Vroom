@@ -94,6 +94,18 @@ export class StopRide implements OnInit{
             this.cdr.detectChanges()
           }
         })
+      },
+      (err: string)=>{
+          this.toastService.danger(
+              err, 
+              'Failed', 
+              5000, 
+              true, 
+              true, 
+              false
+          )
+          this.isLoading = false
+          this.cdr.detectChanges()
       })
     }
 
