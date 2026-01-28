@@ -107,6 +107,7 @@ public class RideService {
                 passengers.add(email);
             }
         }
+        List<String> complaints = new ArrayList<>();
 
         // Driver
         Driver driver = driverRepository.findFirstAvailableDriver(
@@ -152,6 +153,7 @@ public class RideService {
                 .passengers(passengers)
                 .driver(driver)
                 .route(route)
+                .complaints(complaints)
                 .status(status)
                 .price(quote.getPrice())
                 .panicActivated(false)
@@ -350,6 +352,9 @@ public class RideService {
             throw new RideNotFoundException("Ride not found");
         }
         Ride ride = rideOptional.get();
+        if (ride.getComplaints().isEmpty()){
+            ride.setComplaints(new ArrayList<>());
+        }
         ride.getComplaints().add(complaint.getComplaintBody());
         rideRepository.save(ride);
     }

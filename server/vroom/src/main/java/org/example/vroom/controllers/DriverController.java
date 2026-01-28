@@ -5,9 +5,11 @@ import org.example.vroom.DTOs.requests.driver.DriverChangeStatusRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.User;
+import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
 import org.example.vroom.exceptions.user.DriverStatusChangeNotAllowedException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
@@ -25,6 +27,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Map;
@@ -48,7 +51,6 @@ public class DriverController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String sort
     ) {
-        System.out.println("===========================================" + user.getId());
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -63,6 +65,22 @@ public class DriverController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(rides, HttpStatus.OK);
+    }
+
+    @GetMapping(path="/more-info/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideHistoryMoreInfoResponseDTO> getRideMoreInfo(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long rideID
+    ) {
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            RideHistoryMoreInfoResponseDTO rideInfo = driverService.getRideMoreInfo(rideID);
+            return new ResponseEntity<>(rideInfo, HttpStatus.OK);
+        }catch(RideNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // @PreAuthorize("hasRole('ADMIN')")

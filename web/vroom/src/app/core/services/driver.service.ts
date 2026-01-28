@@ -9,6 +9,7 @@ import { LocationUpdate } from "../models/driver/location-update-response.dto";
 import { Subject } from "rxjs";
 import { RideHistoryResponseDTO } from "../models/driver/ride-history-response.dto";
 import { HttpParams } from "@angular/common/http";
+import { HistoryMoreInfoDTO } from "../models/driver/history-more-info.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -26,9 +27,12 @@ export class DriverService{
             const ws = new SockJS(serverUrl);
             this.stompClient = Stomp.over(ws);
 
-            const headers = {
-                Authorization: `Bearer ${localStorage.getItem('jwt')}`
-            };
+            const token = localStorage.getItem('jwt');
+            const headers: any = {};
+
+            if (token){
+                headers['Authorization'] =`Bearer ${token}`;
+            }
 
             this.stompClient.connect(
                 headers,
@@ -108,6 +112,10 @@ export class DriverService{
             this.stompClient.disconnect();
             this.stompClient = null
         }
+    }
+
+    getRideHistoryMoreInfo(rideID : string) : Observable<HistoryMoreInfoDTO> {
+        return this.http.get<HistoryMoreInfoDTO>(`${this.api}/more-info/${rideID}`)
     }
 
 
