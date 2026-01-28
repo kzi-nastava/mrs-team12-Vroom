@@ -34,7 +34,7 @@ export class MainView implements AfterViewInit {
     '/order-a-ride',
     '/ride-duration',
     '/ride-review',
-    'panic-feed'
+    '/panic-feed'
   ];
   
   constructor(
@@ -153,6 +153,7 @@ export class MainView implements AfterViewInit {
             
             break;
           case MapActionType.PANIC_RIDE:
+            console.log('PANIC_RIDE action triggered with rideID:', action.payload.rideID);
             this.driverService.disconnectWebSocket()
             this.resetMap();
             this.setUpRideTracking(action.payload.rideID, "PANIC")

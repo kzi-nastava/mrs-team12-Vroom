@@ -25,7 +25,7 @@ public class PanicNotificationsController {
     @Autowired
     private PanicNotificationsService panicNotificationsService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+   // @PreAuthorize("hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<List<PanicNotificationResponseDTO>> getPanicNotifications(
             @RequestParam boolean active
@@ -39,7 +39,7 @@ public class PanicNotificationsController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{panicID}")
     public ResponseEntity<PanicNotificationResponseDTO> getPanicNotifications(@PathVariable Long panicID) {
         try{
