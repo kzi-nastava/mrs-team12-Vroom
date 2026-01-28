@@ -26,7 +26,7 @@ export class AdminDriverRequestsComponent {
   requests$: Observable<DriverUpdateRequest[]> = this.reload$.pipe(
     switchMap(() =>
       this.http.get<DriverUpdateRequest[]>(
-        'http://localhost:8080/api/admins/driver-update-requests'
+        'http://localhost:8080/api/admins/driver-update-requests'     
       ).pipe(
         catchError(() => {
           this.error = 'Failed to load requests.';
