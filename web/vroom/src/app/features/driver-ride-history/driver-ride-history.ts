@@ -29,11 +29,12 @@ export class DriverRideHistory implements OnInit {
     this.loadHistory();
   }
 
-  loadHistory() {this.isLoading = true;
+  loadHistory() {
+    this.isLoading = true;
     this.driverService
     .getDriverRideHistory(this.startDateFilter, this.endDateFilter, this.currentSort)
     .subscribe({
-      next:( history ) => {
+      next:( history: RideHistoryResponseDTO[] ) => {
         console.log(history);
         this.rides = history;
         this.isLoading = false;

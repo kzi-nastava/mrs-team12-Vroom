@@ -199,10 +199,10 @@ public class RideService {
     }
 
     private String decodeAddress(Double lat, Double lng) {
-        String url = String.format("https://nominatim.openstreetmap.org/reverse?format=json&lat=%f&lon=%f", lat, lng);
+        String url = String.format(Locale.US, "https://nominatim.openstreetmap.org/reverse?format=json&lat=%f&lon=%f", lat, lng);
         try{
             HttpHeaders headers = new HttpHeaders();
-            headers.set("User-Agent", "example@gmail.com");
+            headers.set("User-Agent", "Vroom (korda.isidora@gmail.com)");
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
             String rawResponse = restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
@@ -218,6 +218,7 @@ public class RideService {
                 return parts[0].trim();
             }
         }catch (Exception e){
+            e.printStackTrace();
             return "Unknown address";
         }
         return "Unknown address";

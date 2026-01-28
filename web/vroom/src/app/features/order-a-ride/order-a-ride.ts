@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
 import { MapService } from '../../core/services/map.service';
 import { ChangeDetectorRef, NgZone } from '@angular/core';
+import { MapRouteDTO } from '../../core/models/map/interfaces/map-route.interface';
 
 @Component({
   selector: 'app-order-a-ride',
@@ -189,11 +190,12 @@ this.mapService.getRouteCoordinates(payload)
   .then(route => {
     this.zone.run(() => {
       if (route) {
-        this.mapService.drawRoute(
-          payload.start!,
-          payload.end!,
-          payload.stops
-        );
+        const routeData: MapRouteDTO = {
+          start: payload.start!,
+          end: payload.end!,
+          stops: payload.stops
+        }
+        this.mapService.drawRoute(routeData);
       }
 
       this.calculating = false;

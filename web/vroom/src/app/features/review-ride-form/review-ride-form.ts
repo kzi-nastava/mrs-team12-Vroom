@@ -44,13 +44,13 @@ export class ReviewPopup {
     }
 
     this.rideService.leaveReviewRequest(this.rideID, data).subscribe({
-      next:(response: MessageResponseDTO) => {
+      next:() => {
         alert('Review submitted successfully');
-            this.driverRating = 0;
-            this.carRating = 0;
-            this.comment = '';
-            this.onClose();
-      }, error:(err) => {
+        this.driverRating = 0;
+        this.carRating = 0;
+        this.comment = '';
+        this.onClose();
+      }, error:() => {
         alert("Review couldn't be sent.");
       }
     });
