@@ -1,3 +1,3 @@
 export interface ComplaintRequestDTO{
-    complaint: String;
+    complaintBody: string;
 }

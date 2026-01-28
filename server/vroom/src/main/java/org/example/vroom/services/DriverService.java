@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.DriverProfileUpdateRequest;
@@ -12,6 +13,7 @@ import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RequestStatus;
 import org.example.vroom.enums.UserStatus;
+import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.*;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
@@ -176,6 +178,15 @@ public class DriverService {
             System.out.println(dto);
         }
         return rideHistoryResponseDTOs;
+    }
+
+    public RideHistoryMoreInfoResponseDTO getRideMoreInfo(Long rideID){
+        Optional<Ride> rideOpt = this.rideRepository.findById(rideID);
+        if (rideOpt.isPresent()) {
+            Ride ride = rideOpt.get();
+            return this.rideMapper.getRideHistoryMoreInfo(ride);
+        }
+        throw new RideNotFoundException("Ride not found");
     }
 
     public void changeStatus(Long driverID, DriverStatus status){
