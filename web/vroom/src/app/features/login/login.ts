@@ -13,6 +13,7 @@ import { DriverService } from '../../core/services/driver.service';
 import { PanicNotificationService } from '../../core/services/panic-notification.service';
 import { PanicService } from '../../core/services/panic.service';
 import { NgToastService } from 'ng-angular-popup';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -38,7 +39,6 @@ export class Login implements OnInit {
     private cdRef: ChangeDetectorRef, 
     private authService: AuthService,
     private driverService: DriverService,
-    private panicService: PanicService,
     private panicNotificationService: PanicNotificationService,
     private toastService: NgToastService
   ){}
@@ -71,7 +71,7 @@ export class Login implements OnInit {
         this.cdRef.detectChanges()
         setTimeout(()=>{ this.router.navigate(['/forgot-password']) }, 3000)
       },
-      error: (e)=>{
+      error: (e: HttpErrorResponse)=>{
         this.isLoadingForgotPassword = false
         if (e.status === 404) {
           this.error = 'User not found. Please check your email'
@@ -146,7 +146,7 @@ export class Login implements OnInit {
           this.router.navigate(['/'])
       },
 
-      error: (e)=>{
+      error: (e: HttpErrorResponse)=>{
         this.isLoadingLogin = false
 
         if (e.status === 401) {

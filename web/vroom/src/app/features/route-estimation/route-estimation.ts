@@ -9,6 +9,7 @@ import { RouteQuoteEstimationDTO } from '../../core/models/address/response/rout
 import { catchError, debounceTime, distinctUntilChanged, forkJoin, lastValueFrom, map, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { Stop } from '../../core/models/address/interfaces/stop-point.interface';
 import { NgToastService } from 'ng-angular-popup';
+import { MapRouteDTO } from '../../core/models/map/interfaces/map-route.interface';
 
 @Component({
   selector: 'app-route-estimation',
@@ -137,7 +138,7 @@ export class RouteEstimation implements OnInit, OnDestroy{
     this.showStartSuggestions = false
   }
 
-  selectEnd(location: any): void{
+  selectEnd(location: AddressSuggestionDTO): void{
     this.endLocation = String(location.label)
     this.endCoords = {lat: location.lat, lng: location.lon}
     this.endSuggestions = []
@@ -213,12 +214,14 @@ export class RouteEstimation implements OnInit, OnDestroy{
         this.price = data.price;
         this.time = data.time;
         this.calculating = false;
+        
+        const routeData: MapRouteDTO = {
+          start: this.startCoords,
+          end: this.endCoords,
+          stops: this.stops.filter(s => s.coords).map(s => s.coords!)
+        }
 
-        this.mapService.drawRoute(
-          this.startCoords, 
-          this.endCoords, 
-          this.stops.filter(s => s.coords).map(s => s.coords!)
-        );
+        this.mapService.drawRoute( routeData);
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -264,7 +267,7 @@ export class RouteEstimation implements OnInit, OnDestroy{
     this.stops[index].address = value;
   }
 
-  searchStop(i: any){
+  searchStop(i: number){
     const query = this.stops[i].address.trim();
 
     if (!query || query.length < 3) {

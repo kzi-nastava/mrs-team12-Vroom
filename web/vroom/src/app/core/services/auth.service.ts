@@ -3,6 +3,9 @@ import { Injectable } from "@angular/core";
 import { MessageResponseDTO } from "../models/message-response.dto";
 import { LoginResponseDTO } from "../models/auth/responses/login-response.dto";
 import { BehaviorSubject, finalize, Observable } from "rxjs";
+import { ResetPasswordRequestDTO } from "../models/auth/requests/reset-password-request.dto";
+import { ForgotPasswordRequestDTO } from "../models/auth/requests/forgot-password-request.dto";
+import { LoginRequestDTO } from "../models/auth/requests/login-request.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -14,19 +17,19 @@ export class AuthService{
 
     constructor(private http: HttpClient) {}
 
-    createForgotPasswordRequest(data: any): Observable<MessageResponseDTO>{
+    createForgotPasswordRequest(data: ForgotPasswordRequestDTO): Observable<MessageResponseDTO>{
         return this.http.post<MessageResponseDTO>(this.api+'/forgot-password', data);
     }
 
-    createLoginRequest(data: any): Observable<LoginResponseDTO>{
+    createLoginRequest(data: LoginRequestDTO): Observable<LoginResponseDTO>{
         return this.http.post<LoginResponseDTO>(this.api+'/login', data);
     }
 
-    createResetPasswordRequest(data: any): Observable<MessageResponseDTO>{
+    createResetPasswordRequest(data: ResetPasswordRequestDTO): Observable<MessageResponseDTO>{
         return this.http.put<MessageResponseDTO>(this.api+'/reset-password', data)
     }
 
-    createRegisterRequest(data: any): Observable<MessageResponseDTO> {
+    createRegisterRequest(data: FormData): Observable<MessageResponseDTO> {
         return this.http.post<MessageResponseDTO>(this.api+'/register', data)
     }
 
