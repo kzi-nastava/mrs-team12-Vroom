@@ -10,6 +10,8 @@ import { LocationUpdate } from '../../core/models/driver/location-update-respons
 import { RideUpdatesService } from '../../core/services/ride-update-service';
 import { RideService } from '../../core/services/ride.service';
 import { MapAction } from '../../core/models/map/interfaces/map-action.interface';
+import { MapRouteDTO } from '../../core/models/map/interfaces/map-route.interface';
+import { PointResponseDTO } from '../../core/models/driver/point-response.dto';
 
 @Component({
   selector: 'app-map',
@@ -101,7 +103,7 @@ export class MainView implements AfterViewInit {
         filter(event => event instanceof NavigationEnd),
         takeUntil(this.destroy$)
       )
-      .subscribe((event: any) => {
+      .subscribe((event: NavigationEnd) => {
         const currentUrl = event.urlAfterRedirects;
         /*if (currentUrl === '/'  || currentUrl === '') {
           this.resetMap();
@@ -263,14 +265,14 @@ export class MainView implements AfterViewInit {
     }
   }
 
-  private addRouteMarkers(payload: any): void{
+  private addRouteMarkers(payload: MapRouteDTO): void{
     if (payload.start) {
         L.marker([payload.start.lat, payload.start.lng], {
           icon: this.createCustomIcon('📍')
         }).addTo(this.routeLayer).bindPopup('Start');
       }
       
-      payload.stops?.forEach((stop: any, i: number) => {
+      payload.stops?.forEach((stop: PointResponseDTO, i: number) => {
         L.marker([stop.lat, stop.lng], {
           icon: this.createCustomIcon((i + 1).toString())
         }).addTo(this.routeLayer).bindPopup(`Stop ${i + 1}`);

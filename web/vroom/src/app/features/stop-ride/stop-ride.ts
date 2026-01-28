@@ -67,7 +67,7 @@ export class StopRide implements OnInit{
         stopRideData.endTime = this.getCETDate()
   
         this.rideService.stopRideRequest(this.rideId, stopRideData).subscribe({
-          next: (response) => {
+          next: (response: StoppedRideResponseDTO) => {
             this.stoppedRideData = {
               ...response,
               startTime: new Date(response.startTime.toString()),
@@ -78,7 +78,7 @@ export class StopRide implements OnInit{
             this.isLoading = false
             this.cdr.detectChanges()
           },
-          error: (e) => {
+          error: () => {
             this.showPopup = false
             this.isLoading = false
 

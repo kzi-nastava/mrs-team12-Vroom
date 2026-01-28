@@ -21,12 +21,12 @@ export class PanicFeed implements OnInit{
   onResolved(panicID: string | number){
     this.isResolving = true
     this.panicService.resolvePanicRequest(panicID).subscribe({
-        next: (response) => {
+        next: () => {
             this.isResolving = false
             this.panicAlerts = this.panicAlerts.filter(alert => alert.id !== panicID);
             this.cdr.detectChanges()
         },
-        error: (err) => {
+        error: () => {
             this.isResolving = false
             alert('Could not resolve panic alert.');
             this.cdr.detectChanges()
