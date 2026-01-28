@@ -18,6 +18,7 @@ import { ChangeDriverStatus } from './features/change-driver-status/change-drive
 import { PanicButton } from './features/panic-btn/panic-button';
 import { PanicFeed } from './features/panic-feed/panic-feed';
 import { StopRide } from './features/stop-ride/stop-ride';
+import { AdminDriverRequestsComponent } from './features/admin-driver-requests/admin-driver-requests.component';
  
 
 export const routes: Routes = [
@@ -30,6 +31,7 @@ export const routes: Routes = [
     {path: 'order-from-favorites', component: OrderFromFavorites},
     {path: 'register-driver', component: RegisterDriver},
     {path: 'panic', component: PanicButton},
+    { path: 'admin-driver-requests', component: AdminDriverRequestsComponent },
     {path: 'panic-feed', component: PanicFeed},
     {path: '', component: MainView, 
         children: [ 
