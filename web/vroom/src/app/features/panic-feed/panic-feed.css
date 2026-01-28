@@ -17,7 +17,7 @@
 
 .panic-feed-outer-container {
     pointer-events: auto; 
-    max-height: 60vh;
+    max-height: 40vh;
     overflow-y: auto;
 
     width: 100%;

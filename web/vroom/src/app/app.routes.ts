@@ -32,7 +32,6 @@ export const routes: Routes = [
     {path: 'register-driver', component: RegisterDriver},
     {path: 'panic', component: PanicButton},
     { path: 'admin-driver-requests', component: AdminDriverRequestsComponent },
-    {path: 'panic-feed', component: PanicFeed},
     {path: 'active', component: UserActiveRide},
     {path: '', component: MainView, 
         children: [ 
