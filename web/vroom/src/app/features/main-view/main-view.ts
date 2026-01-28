@@ -138,6 +138,9 @@ export class MainView implements AfterViewInit {
             //this.routeLayer.clearLayers();
             this.resetMap();
             this.setupRealTimeLocationListener();
+            if (localStorage.getItem('user_type') === 'DRIVER'){
+              this.driverService.startTracking();
+            }
             
             break;
           case MapActionType.RIDE_DURATION:
@@ -221,7 +224,7 @@ export class MainView implements AfterViewInit {
     } else {
       const marker = L.marker([latitude, longitude], {
         // later add different colored icons based on status
-        icon: this.showCarIcon(),
+        icon: this.showCarIcon(status),
         pane: 'vehiclePane'
       }).addTo(this.vehiclesLayer);
 
@@ -319,8 +322,19 @@ export class MainView implements AfterViewInit {
     });
   }
 
-  private showCarIcon(): L.DivIcon {
+  private showCarIcon(status : String): L.DivIcon {
+    if (status === "UNAVAILABLE" || status === "PANIC" || status === "In Ride"){
     return L.divIcon({
+      html: `<div style="width: 50px; height: 50px;">
+        <img src="../../assets/icons/unavailable-taxi.svg" style="width: 100%; height: 100%;" />
+        </div>
+      `,
+      className: 'available-taxi-icon',
+      iconSize: [50, 50],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, -20]
+    });}
+      return L.divIcon({
       html: `<div style="width: 50px; height: 50px;">
         <img src="../../assets/icons/available-taxi.svg" style="width: 100%; height: 100%;" />
         </div>
@@ -330,6 +344,7 @@ export class MainView implements AfterViewInit {
       iconAnchor: [20, 20],
       popupAnchor: [0, -20]
     });
+
   }
 
   ngOnDestroy() {

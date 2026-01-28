@@ -26,9 +26,12 @@ export class DriverService{
             const ws = new SockJS(serverUrl);
             this.stompClient = Stomp.over(ws);
 
-            const headers = {
-                Authorization: `Bearer ${localStorage.getItem('jwt')}`
-            };
+            const token = localStorage.getItem('jwt');
+            const headers: any = {};
+
+            if (token){
+                headers['Authorization'] =`Bearer ${token}`;
+            }
 
             this.stompClient.connect(
                 headers,
