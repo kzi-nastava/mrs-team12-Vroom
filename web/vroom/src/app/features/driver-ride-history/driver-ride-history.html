@@ -55,13 +55,11 @@
                 </button>
         </div>
 
-
-
         <div *ngIf="isLoading" class="loading-indicator">
             Loading ride history...
         </div>
 
-        <div *ngFor="let ride of rides" class="ride-card">
+        <div *ngFor="let ride of rides" class="ride-card" (click)="openPopup(ride.rideId)">
             <div class="route">
                 <span class="location">{{ ride.startAddress }}</span>
                 <span class="arrow">→</span>
@@ -87,8 +85,78 @@
                     </span>
                 </div>
             </div>
-            
         </div>
 
+    </div>
+
+    <!-- Popup -->
+    <div class="popup-overlay" *ngIf="showPopup && selectedRide" (click)="closePopup()">
+        <div class="popup-container" (click)="$event.stopPropagation()">
+            <button class="close-btn" (click)="closePopup()">×</button>
+            
+            <h2>Ride Details</h2>
+            
+            <div class="info-section">
+                <div class="info-item">
+                    <span class="info-label">Ride ID</span>
+                    <span class="info-value">#{{ selectedRide.rideID }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Status</span>
+                    <span class="status-badge" [ngClass]="getStatusClass(selectedRide.status)">
+                        {{ getStatusLabel(selectedRide.status) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="info-section" *ngIf="selectedRide.passengers.length > 0">
+                <h3>Passengers</h3>
+                <div class="passengers-list">
+                    <div class="passenger-item" *ngFor="let passenger of selectedRide.passengers">
+                        {{ passenger }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section" *ngIf="selectedRide.cancelReason">
+                <h3>Cancellation Reason</h3>
+                <p class="cancel-reason">{{ selectedRide.cancelReason }}</p>
+            </div>
+
+            <div class="info-section" *ngIf="selectedRide.complaints.length > 0">
+                <h3>Complaints</h3>
+                <div class="complaints-list">
+                    <div class="complaint-item" *ngFor="let complaint of selectedRide.complaints">
+                        {{ complaint }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section" *ngIf="selectedRide.driverRating || selectedRide.vehicleRating">
+                <h3>Ratings</h3>
+                <div class="ratings-grid">
+                    <div class="rating-item" *ngIf="selectedRide.driverRating">
+                        <span class="rating-label">Driver Rating</span>
+                        <div class="rating-stars">
+                            <span class="stars">{{ getStars(selectedRide.driverRating) }}</span>
+                            <span class="rating-number">{{ selectedRide.driverRating }}/5</span>
+                        </div>
+                    </div>
+                    <div class="rating-item" *ngIf="selectedRide.vehicleRating">
+                        <span class="rating-label">Vehicle Rating</span>
+                        <div class="rating-stars">
+                            <span class="stars">{{ getStars(selectedRide.vehicleRating) }}</span>
+                            <span class="rating-number">{{ selectedRide.vehicleRating }}/5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section" *ngIf="selectedRide.comment">
+                <h3>Comment</h3>
+                <p class="comment-text">{{ selectedRide.comment }}</p>
+            </div>
+        </div>
     </div>
 </body>
