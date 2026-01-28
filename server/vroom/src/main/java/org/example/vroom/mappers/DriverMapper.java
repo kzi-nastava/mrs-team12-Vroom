@@ -1,9 +1,13 @@
 package org.example.vroom.mappers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
+import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
 import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
 import org.example.vroom.entities.Driver;
+import org.example.vroom.entities.DriverProfileUpdateRequest;
 import org.example.vroom.entities.Vehicle;
 import org.example.vroom.enums.DriverStatus;
 import org.springframework.stereotype.Component;
@@ -14,9 +18,11 @@ import java.util.List;
 public class DriverMapper {
 
     private final VehicleMapper vehicleMapper;
+    private final ObjectMapper objectMapper;
 
-    public DriverMapper(VehicleMapper vehicleMapper) {
+    public DriverMapper(VehicleMapper vehicleMapper, ObjectMapper objectMapper) {
         this.vehicleMapper = vehicleMapper;
+        this.objectMapper = objectMapper;
     }
 
     public DriverDTO toDTO(Driver driver){
@@ -117,5 +123,28 @@ public class DriverMapper {
                 .build();
     }
 
+    public DriverUpdateRequestAdminDTO toAdminDTO(
+            DriverProfileUpdateRequest request
+    ) {
+        try {
+            DriverDTO dto = objectMapper.readValue(
+                    request.getPayload(),
+                    DriverDTO.class
+            );
+
+            return DriverUpdateRequestAdminDTO.builder()
+                    .id(request.getId())
+                    .driverId(request.getDriver().getId())
+                    .status(request.getStatus())
+                    .createdAt(request.getCreatedAt())
+                    .payload(dto)
+                    .build();
+
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(
+                    "Invalid payload JSON for request " + request.getId(), e
+            );
+        }
+    }
 
 }
