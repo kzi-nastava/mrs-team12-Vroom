@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import { RideHistoryResponseDTO } from '../../core/models/driver/ride-history-response.dto';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
+import { HistoryMoreInfoDTO } from '../../core/models/driver/history-more-info.dto';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-driver-ride-history',
@@ -15,6 +17,8 @@ import { ChangeDetectorRef } from '@angular/core';
 export class DriverRideHistory implements OnInit {
   rides: RideHistoryResponseDTO[] = [];
   isLoading: boolean = true;
+  showPopup: boolean = false;
+  selectedRide: HistoryMoreInfoDTO | null = null;
 
   currentSort: 'startTime,asc' | 'startTime,desc' | 'price,asc' | 'price,desc' = 'startTime,desc';
   startDateFilter?: Date;
@@ -29,7 +33,8 @@ export class DriverRideHistory implements OnInit {
     this.loadHistory();
   }
 
-  loadHistory() {this.isLoading = true;
+  loadHistory() {
+    this.isLoading = true;
     this.driverService
     .getDriverRideHistory(this.startDateFilter, this.endDateFilter, this.currentSort)
     .subscribe({
@@ -93,6 +98,30 @@ export class DriverRideHistory implements OnInit {
       default:
           return status;
     }
+  }
+
+  openPopup(rideID : number){
+    this.driverService.getRideHistoryMoreInfo(rideID.toString()).subscribe({
+      next: (ride: HistoryMoreInfoDTO) => {
+        this.selectedRide = ride;
+        this.showPopup = true;
+        this.cdr.detectChanges();
+        console.log(ride);
+      },
+      error: (error : HttpErrorResponse) => {
+        console.error('Error fetching ride details:', error);
+      }
+    });
+  }
+
+  closePopup(){
+    this.showPopup = false;
+    this.selectedRide = null;
+    this.cdr.detectChanges();
+  }
+
+  getStars(rating : number){
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
 
 }

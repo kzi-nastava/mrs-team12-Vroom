@@ -7,7 +7,7 @@ import { MapService } from '../../core/services/map.service';
 import { MapActionType } from '../../core/models/map/enums/map-action-type.enum';
 import { DriverService } from '../../core/services/driver.service';
 import { LocationUpdate } from '../../core/models/driver/location-update-response.dto';
-import { RideUpdatesService } from '../../core/services/ride-update-service';
+import { RideUpdatesService } from '../../core/services/ride-update.service';
 import { RideService } from '../../core/services/ride.service';
 import { MapAction } from '../../core/models/map/interfaces/map-action.interface';
 

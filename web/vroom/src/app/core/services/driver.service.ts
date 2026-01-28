@@ -9,6 +9,7 @@ import { LocationUpdate } from "../models/driver/location-update-response.dto";
 import { Subject } from "rxjs";
 import { RideHistoryResponseDTO } from "../models/driver/ride-history-response.dto";
 import { HttpParams } from "@angular/common/http";
+import { HistoryMoreInfoDTO } from "../models/driver/history-more-info.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -111,6 +112,10 @@ export class DriverService{
             this.stompClient.disconnect();
             this.stompClient = null
         }
+    }
+
+    getRideHistoryMoreInfo(rideID : string) : Observable<HistoryMoreInfoDTO> {
+        return this.http.get<HistoryMoreInfoDTO>(`${this.api}/more-info/${rideID}`)
     }
 
 

@@ -6,7 +6,7 @@ import { OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
-import { RideUpdatesService } from '../../core/services/ride-update-service';
+import { RideUpdatesService } from '../../core/services/ride-update.service';
 import { OnDestroy } from '@angular/core';
 import { MapService } from '../../core/services/map.service';
 import { StopRide } from '../stop-ride/stop-ride';
@@ -126,7 +126,7 @@ export class RideDuration implements OnInit, OnDestroy {
     const value = this.complaintControl.value?.trim();
     if (!value) return;
     console.log('Submitting complaint:', value);
-    this.rideService.sendComplaintRequest(this.rideID, { complaint: value }).subscribe({
+    this.rideService.sendComplaintRequest(this.rideID, { complaintBody: value }).subscribe({
       next: () => this.complaintControl.reset(),
       error: (error) => {
           this.complaintControl.reset();

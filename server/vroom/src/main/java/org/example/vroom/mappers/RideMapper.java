@@ -3,6 +3,7 @@ package org.example.vroom.mappers;
 import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
@@ -51,6 +52,20 @@ public class RideMapper {
                 .status(ride.getStatus())
                 .price(ride.getPrice())
                 .panicActivated(ride.getPanicActivated())
+                .build();
+    }
+
+    public RideHistoryMoreInfoResponseDTO getRideHistoryMoreInfo(Ride ride) {
+        return RideHistoryMoreInfoResponseDTO
+                .builder()
+                .rideID(ride.getId())
+                .passengers(ride.getPassengers())
+                .status(ride.getStatus())
+                .cancelReason(ride.getCancelReason())
+                .complaints(ride.getComplaints())
+                .driverRating(ride.getDriverRating())
+                .vehicleRating(ride.getVehicleRating())
+                .comment(ride.getComment())
                 .build();
     }
 
