@@ -86,8 +86,10 @@ public class SecurityConfig {
                         //.requestMatchers("/api/panics/**").authenticated()
                         .requestMatchers("/api/profile/driver").authenticated()
                         .requestMatchers("/api/profile/user").authenticated()
+                        .requestMatchers("/api/panics/**").authenticated()
+                        .requestMatchers("/api/profile/driver").authenticated()
+                        .requestMatchers("/api/profile/user").authenticated()
                         .requestMatchers(
-                                "/api/panics/**",
                                 "/api/admins/**",
                                 "/api/drivers/**",
                                 "/api/auth/**",
