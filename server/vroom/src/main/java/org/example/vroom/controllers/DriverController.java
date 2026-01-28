@@ -19,6 +19,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,6 +40,7 @@ public class DriverController {
         this.driverService = driverService;
     }
 
+    @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
     @GetMapping(path = "/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideHistoryResponseDTO>> getRides(
             @AuthenticationPrincipal User user,
@@ -46,7 +48,7 @@ public class DriverController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String sort
     ) {
-        System.out.println("getRides AAAAAAAAAAAAAAAAAAA");
+        System.out.println("===========================================" + user.getId());
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -56,13 +58,14 @@ public class DriverController {
             sortOrder = Sort.by(Sort.Direction.fromString(split[split.length - 1]), split[0]);
         }
         Collection<RideHistoryResponseDTO> rides = driverService.getDriverRides(user.getId(), startDate, endDate, sortOrder);
+
         if (rides == null || rides.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register/driver")
     public ResponseEntity<?> registerDriver(@RequestBody DriverRegistrationRequestDTO request) {
         try {
@@ -76,6 +79,7 @@ public class DriverController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
     @PutMapping(path = "/status")
     public ResponseEntity<MessageResponseDTO> changeStatus(
             @AuthenticationPrincipal User user,

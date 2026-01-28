@@ -5,5 +5,7 @@ export interface GetRouteResponseDTO {
   startLocationLng: number;
   endLocationLat: number;
   endLocationLng: number;
+  startAddress: string;
+  endAddress: string;
   stops: PointResponseDTO[];
 }

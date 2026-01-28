@@ -37,6 +37,9 @@ public class Driver extends User {
         return true;
     }*/
 
+    public double getRating(){
+        return ratingCount !=0 ?  (double) ratingSum / ratingCount : 0;
+    }
 }
 
 

@@ -28,6 +28,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
@@ -44,7 +45,6 @@ public class AuthService {
     @Autowired
     private PasswordUtils passwordUtils;
 
-
     public LoginResponseDTO login(User user, HttpServletResponse response) {
         if(user instanceof RegisteredUser && (
                 ((RegisteredUser) user).getUserStatus().equals(UserStatus.INACTIVE) ||
@@ -53,7 +53,6 @@ public class AuthService {
             throw new AccountStatusException("This account is inactive or blocked");
 
         String token = jwtService.generateToken(user);
-        long expiresIn = jwtService.extractExpiration(token).getTime() - System.currentTimeMillis();
 
         String type = switch (user) {
             case RegisteredUser u -> "REGISTERED_USER";
@@ -73,11 +72,8 @@ public class AuthService {
                 .build();
     }
 
-    public void logout(Long id, String type){
-        if(!type.equals("DRIVER")) return;
-
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public void logout(User user){
+        if(!user.getRoleName().equals("DRIVER")) return;
 
         if(user instanceof Driver driver){
             driver.setStatus(DriverStatus.INACTIVE);
@@ -85,7 +81,6 @@ public class AuthService {
         }
     }
 
-    @Transactional
     public void forgotPassword(String email){
         Optional<Token> tokenOptional = tokenRepository.findByUserEmail(email);
         if(tokenOptional.isPresent() && !tokenOptional.get().isExpired()){
@@ -119,7 +114,6 @@ public class AuthService {
         }
     }
 
-    @Transactional
     public void resetPassword(String email, String code, String password, String confirmPassword){
         Optional<Token> tokenOptional = tokenRepository.findByUserEmail(email);
         if(tokenOptional.isEmpty())

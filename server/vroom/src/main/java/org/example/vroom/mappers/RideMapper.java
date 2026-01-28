@@ -18,7 +18,7 @@ public class RideMapper {
     @Autowired
     DriverMapper driverMapper;
 
-    public StoppedRideResponseDTO stopRide(Ride ride, StopRideRequestDTO stopRideDTO, double price) {
+    public StoppedRideResponseDTO stopRide(Ride ride, StopRideRequestDTO stopRideDTO, double price, String endAddress) {
         GetRouteResponseDTO route = GetRouteResponseDTO
                 .builder()
                 .startLocationLat(ride.getRoute().getStartLocationLat())
@@ -26,6 +26,8 @@ public class RideMapper {
                 .endLocationLat(stopRideDTO.getStopLat())
                 .endLocationLng(stopRideDTO.getStopLng())
                 .stops(routeMapper.mapRoutePointsDTO(ride.getRoute().getStops()))
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(endAddress)
                 .build();
 
         return StoppedRideResponseDTO
@@ -42,6 +44,7 @@ public class RideMapper {
     public RideHistoryResponseDTO rideHistory(Ride ride) {
         return RideHistoryResponseDTO
                 .builder()
+                .rideId(ride.getId())
                 .startAddress(ride.getRoute().getStartAddress())
                 .endAddress(ride.getRoute().getEndAddress())
                 .startTime(ride.getStartTime())
@@ -54,6 +57,7 @@ public class RideMapper {
     public GetRideResponseDTO getRideDTO(Ride ride){
         return GetRideResponseDTO
                 .builder()
+                .rideID(ride.getId())
                 .route(routeMapper.getRouteDTO(ride.getRoute()))
                 .driver(driverMapper.toDriverRideDTO(ride.getDriver()))
                 .startTime(ride.getStartTime())
