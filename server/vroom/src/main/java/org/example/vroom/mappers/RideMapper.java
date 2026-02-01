@@ -2,10 +2,7 @@ package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
-import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
-import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.RideStatus;
@@ -52,6 +49,18 @@ public class RideMapper {
                 .status(ride.getStatus())
                 .price(ride.getPrice())
                 .panicActivated(ride.getPanicActivated())
+                .build();
+    }
+
+    public GetActiveRideInfoDTO getActiveRideInfo(Ride ride) {
+        return GetActiveRideInfoDTO
+                .builder()
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(ride.getRoute().getEndAddress())
+                .startTime(ride.getStartTime())
+                .creatorName(ride.getPassenger().getFirstName() + " " + ride.getPassenger().getLastName())
+                .driverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName())
+                .passengerEmails(ride.getPassengers())
                 .build();
     }
 

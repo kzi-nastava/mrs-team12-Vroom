@@ -5,6 +5,7 @@ import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
 import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
+import org.example.vroom.DTOs.responses.ride.GetActiveRideInfoDTO;
 import org.example.vroom.DTOs.responses.ride.RideUpdateResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
 import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
@@ -41,6 +42,7 @@ import org.example.vroom.services.RideService;
 import java.time.LocalDateTime;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -69,6 +71,30 @@ public class RideController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(route, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(path = "/{rideID}/active-ride-info", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GetActiveRideInfoDTO> getActiveRideInfo(@PathVariable Long rideID){
+        try{
+            GetActiveRideInfoDTO dto = rideService.getActiveRideInfo(rideID);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        }catch(RideNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(path = "/active-rides", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<GetRideResponseDTO>> getActiveRides(){
+        List<GetRideResponseDTO> rides = rideService.getAllActiveRides();
+        if (rides == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (rides.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
     @MessageMapping("ride-duration-update/{rideID}")
