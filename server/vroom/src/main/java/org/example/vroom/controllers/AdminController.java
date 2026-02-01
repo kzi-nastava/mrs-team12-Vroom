@@ -6,13 +6,16 @@ import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
 import org.example.vroom.DTOs.requests.driver.RejectRequestDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
 import org.example.vroom.entities.DriverProfileUpdateRequest;
 import org.example.vroom.enums.RequestStatus;
 import org.example.vroom.enums.RideStatus;
+import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.repositories.DriverProfileUpdateRequestRepository;
 import org.example.vroom.services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -35,34 +38,29 @@ public class AdminController {
     @Autowired
     private DriverMapper driverMapper;
 
-    @GetMapping(path = "/users/{userID}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RideHistoryResponseDTO>> getRides(
-            @PathVariable Long userID,
-            @RequestParam(required = false) LocalDateTime startDate,
-            @RequestParam(required = false) LocalDateTime endDate,
-            @RequestParam(required = false) String sort
+    @GetMapping(path = "/users/rides", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserRideHistoryResponseDTO>> getRides(
+            @RequestParam(required = false) String userEmail,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false, defaultValue = "0") int pageNumber,
+            @RequestParam(required = false, defaultValue = "10") int pageSize
     ) {
-        Collection<RideHistoryResponseDTO> rides = new ArrayList<RideHistoryResponseDTO>();
-        GetRouteResponseDTO route1 = GetRouteResponseDTO
-                .builder()
-                .startLocationLat(44.7866)
-                .startLocationLng(20.4489)
-                .endLocationLat(44.8125)
-                .endLocationLng(20.4612)
-                .stops(List.of())
-                .build();
+        try{
+            List<UserRideHistoryResponseDTO> rides;
 
-        RideHistoryResponseDTO ride1 = RideHistoryResponseDTO
-                .builder()
-                .startTime(LocalDateTime.of(2025, 1, 10, 14, 32))
-                .status(RideStatus.FINISHED)
-                .price(980.50)
-                .panicActivated(false)
-                .build();
+            if(userEmail != null && !userEmail.isEmpty())
+                rides = adminService.getUserRideHistory(userEmail, sort, startDate, endDate, pageNumber, pageSize);
+            else
+                rides = adminService.getUserRideHistory(sort, startDate, endDate, pageNumber, pageSize);
 
-        rides.add(ride1);
-
-        return new ResponseEntity<Collection<RideHistoryResponseDTO>>(rides, HttpStatus.OK);
+            return new ResponseEntity<List<UserRideHistoryResponseDTO>>(rides, HttpStatus.OK);
+        }catch(UserNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/driver-update-requests/{id}/reject")

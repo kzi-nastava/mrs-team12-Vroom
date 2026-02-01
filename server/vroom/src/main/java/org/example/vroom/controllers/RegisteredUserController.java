@@ -36,7 +36,7 @@ public class RegisteredUserController {
         List<UserRideHistoryResponseDTO> rides = registeredUserService.getUserRideHistory(
                 user, sort, startDate, endDate, pageNumber, pageSize
         );
-        
+
         return new ResponseEntity<List<UserRideHistoryResponseDTO>>(rides, HttpStatus.OK);
     }
 
