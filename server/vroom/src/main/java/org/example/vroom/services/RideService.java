@@ -6,6 +6,7 @@ import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.RideDTO;
+import org.example.vroom.DTOs.responses.ride.GetActiveRideInfoDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
@@ -172,6 +173,26 @@ public class RideService {
         dto.setScheduledTime(scheduledTime);
 
         return dto;
+    }
+
+    public GetActiveRideInfoDTO getActiveRideInfo(Long rideId) {
+        Optional<Ride> rideOpt = rideRepository.findById(rideId);
+        if (rideOpt.isPresent()) {
+            Ride ride = rideOpt.get();
+            GetActiveRideInfoDTO dto = rideMapper.getActiveRideInfo(ride);
+            return dto;
+        }
+        throw new RideNotFoundException("Ride not found");
+    }
+
+    public List<GetRideResponseDTO> getAllActiveRides() {
+        List<Ride> rides = rideRepository.findByStatus(RideStatus.ONGOING);
+        List<GetRideResponseDTO> dtos = new ArrayList<>();
+        for (Ride ride : rides) {
+            rideMapper.getRideDTO(ride);
+            dtos.add(rideMapper.getRideDTO(ride));
+        }
+        return dtos;
     }
 
     public GetRideResponseDTO getUserRide(String userEmail) {
