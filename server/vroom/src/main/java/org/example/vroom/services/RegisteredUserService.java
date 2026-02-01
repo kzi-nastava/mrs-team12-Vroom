@@ -20,6 +20,7 @@ import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.example.vroom.utils.EmailService;
 import org.example.vroom.utils.PasswordUtils;
+import org.example.vroom.utils.SortPaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.PageRequest;
@@ -58,6 +59,8 @@ public class RegisteredUserService {
     private PasswordUtils passwordUtils;
     @Autowired
     private RideMapper rideMapper;
+    @Autowired
+    private SortPaginationUtils sortPaginationUtils;
 
 
     @Transactional
@@ -142,15 +145,7 @@ public class RegisteredUserService {
     public List<UserRideHistoryResponseDTO> getUserRideHistory(User user, String sort, LocalDateTime startDate,
                                         LocalDateTime endDate, int pageNum, int pageSize){
 
-        Sort sortOrder = Sort.unsorted();
-
-        if (sort != null && sort.contains(",")) {
-            String[] split = sort.split(",");
-            sortOrder = Sort.by(Sort.Direction.fromString(split[split.length - 1]), split[0]);
-        }
-
-        Pageable page = PageRequest.of(pageNum, pageSize, sortOrder);
-
+        Pageable page = sortPaginationUtils.getPageable(pageNum, pageSize, sort);
         List<Ride> rides = rideRepository.userRideHistory(user.getId(), startDate, endDate, page);
 
         Stream<UserRideHistoryResponseDTO> rideHistory = rides.stream().map(ride -> {
