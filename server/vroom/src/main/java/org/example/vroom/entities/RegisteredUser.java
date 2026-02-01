@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public class RegisteredUser extends User{
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserStatus status;
+    @Column(nullable = true)
+    private UserStatus userStatus;
 
     
 
