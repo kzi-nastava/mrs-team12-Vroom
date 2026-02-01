@@ -123,8 +123,8 @@ public class AuthController {
         }catch(Exception e){
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
+
 
     @PostMapping(
             path="/register",
@@ -160,7 +160,7 @@ public class AuthController {
 
         try {
             registeredUserService.activateUser(userID);
-
+            
             targetUrl = "http://localhost:4200/login?status=activated";
         } catch (ActivationExpiredException e) {
             registeredUserService.deleteAccount(userID);
