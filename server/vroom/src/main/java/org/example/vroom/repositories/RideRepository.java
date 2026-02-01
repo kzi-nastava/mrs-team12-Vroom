@@ -68,4 +68,15 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             @Param("endDate") LocalDateTime endDate,
             Pageable pageable);
 
+
+    @Query( """
+        SELECT r 
+        FROM Ride r 
+        WHERE (:startDate IS NULL OR r.startTime >= :startDate)
+            AND (:endDate IS NULL OR r.startTime <= :endDate)
+    """)
+    List<Ride> userRideHistory(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable);
 }
