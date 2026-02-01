@@ -13,7 +13,7 @@ import org.example.vroom.enums.DriverStatus;
 @SuperBuilder
 public class Driver extends User {
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(nullable = false)
     private DriverStatus status;
 
     @Column
@@ -25,7 +25,7 @@ public class Driver extends User {
     private Long ratingSum = 0L;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name="vehicle_id", nullable = true)
+    @JoinColumn(name="vehicle_id", nullable = false)
     private Vehicle vehicle;
 
         @Override
