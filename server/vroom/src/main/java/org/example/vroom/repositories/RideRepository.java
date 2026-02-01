@@ -2,12 +2,15 @@ package org.example.vroom.repositories;
 
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Ride;
+import org.example.vroom.entities.User;
 import org.example.vroom.enums.RideStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -51,5 +54,18 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     );
 
     Optional<Ride> findByDriverAndStatus(Driver driver, RideStatus rideStatus);
+
+    @Query( """
+        SELECT r 
+        FROM Ride r 
+        WHERE r.passenger.id = :userId 
+            AND (:startDate IS NULL OR r.startTime >= :startDate)
+            AND (:endDate IS NULL OR r.startTime <= :endDate)
+    """)
+    List<Ride> userRideHistory(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable);
 
 }

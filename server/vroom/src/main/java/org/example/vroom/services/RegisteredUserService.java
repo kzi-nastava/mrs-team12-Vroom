@@ -3,7 +3,10 @@ package org.example.vroom.services;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.RegisteredUserDTO;
 import org.example.vroom.DTOs.requests.auth.RegisterRequestDTO;
+import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
 import org.example.vroom.entities.RegisteredUser;
+import org.example.vroom.entities.Ride;
+import org.example.vroom.entities.User;
 import org.example.vroom.enums.UserStatus;
 import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
@@ -11,18 +14,28 @@ import org.example.vroom.exceptions.user.UserAlreadyExistsException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RegisteredUserMapper;
 import org.example.vroom.mappers.RegisteredUserProfileMapper;
+import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.RegisteredUserRepository;
+import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.example.vroom.utils.EmailService;
 import org.example.vroom.utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class RegisteredUserService {
@@ -31,6 +44,8 @@ public class RegisteredUserService {
     private RegisteredUserRepository registeredUserRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RideRepository rideRepository;
     @Autowired
     private RegisteredUserMapper registeredUserMapper;
     @Autowired
@@ -41,6 +56,8 @@ public class RegisteredUserService {
     private RegisteredUserProfileMapper registeredUserProfileMapper;
     @Autowired
     private PasswordUtils passwordUtils;
+    @Autowired
+    private RideMapper rideMapper;
 
 
     @Transactional
@@ -119,5 +136,27 @@ public class RegisteredUserService {
             return;
 
         registeredUserRepository.delete(user.get());
+    }
+
+
+    public List<UserRideHistoryResponseDTO> getUserRideHistory(User user, String sort, LocalDateTime startDate,
+                                        LocalDateTime endDate, int pageNum, int pageSize){
+
+        Sort sortOrder = Sort.unsorted();
+
+        if (sort != null && sort.contains(",")) {
+            String[] split = sort.split(",");
+            sortOrder = Sort.by(Sort.Direction.fromString(split[split.length - 1]), split[0]);
+        }
+
+        Pageable page = PageRequest.of(pageNum, pageSize, sortOrder);
+
+        List<Ride> rides = rideRepository.userRideHistory(user.getId(), startDate, endDate, page);
+
+        Stream<UserRideHistoryResponseDTO> rideHistory = rides.stream().map(ride -> {
+            return rideMapper.createUserRideHistoryDTO(ride);
+        });
+
+        return rideHistory.toList();
     }
 }
