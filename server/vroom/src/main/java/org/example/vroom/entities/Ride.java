@@ -29,7 +29,7 @@ public class Ride {
     @JoinColumn(name = "passenger_id", nullable = false)
     private RegisteredUser passenger;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "routes_id", nullable = false)
     private Route route;
 
@@ -42,7 +42,7 @@ public class Ride {
 
     @ElementCollection
     @Column(nullable = true)
-    private ArrayList<String> passengers;
+    private List<String> passengers;
 
     @Column(nullable = true)
     private double price;
@@ -50,15 +50,23 @@ public class Ride {
     @Column(nullable = false)
     private RideStatus status;
 
+    @Column(nullable = true)
+    private String cancelReason;
+
     @Column(nullable = false)
     private Boolean isScheduled;
 
     @ElementCollection
     @Column(nullable = true)
-    private ArrayList<String> complaints;
+    private List<String> complaints;
 
     @Column(nullable = false)
-    private Boolean panicActivated;
+    @Builder.Default
+    private Boolean panicActivated = false;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "panic_notification_id")
+    private PanicNotification panicNotification;
 
     @Column(nullable = true)
     private Integer driverRating;

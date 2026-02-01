@@ -1,0 +1,46 @@
+<div class="active-ride-container">
+  <div *ngIf="isLoading" class="state-msg">
+    Locating your ride...
+  </div>
+
+  <div *ngIf="!isLoading && ride" class="ride-card">
+    <h2>Your Active Ride</h2>
+    
+    <div class="section">
+      <h3>Route</h3>
+      <p>{{ ride?.route?.startAddress }}</p>
+      <p><strong>↓</strong></p>
+      <p>{{ ride?.route?.endAddress }}</p>
+    </div>
+
+    <div class="section">
+      <h3>Driver & Vehicle</h3>
+      <p>{{ ride?.driver?.firstName }} {{ ride?.driver?.lastName }}</p>
+      <p class="sub-text">{{ ride?.driver?.vehicle?.brand }} {{ ride?.driver?.vehicle?.model }}</p>
+    </div>
+
+    <div class="payment-info">
+      <span class="price">{{ ride?.price | number:'1.1-2' }} EUR</span>
+      <span class="time" *ngIf="ride.scheduledTime">
+        {{ ride?.scheduledTime | date:'shortTime' }}
+      </span>
+    </div>
+
+    <div class="actions">
+        <app-cancel-ride
+        *ngIf="ride?.status === 'ACCEPTED'"
+        [rideId]="ride.rideID.toString()">
+        </app-cancel-ride>
+
+        <button
+        *ngIf="ride?.status === 'ONGOING'"
+        class="track-ride-btn"
+        (click)="onTrackRide()">Track Ride
+    </button>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !ride" class="state-msg">
+    You have no active rides at the moment.
+  </div>
+</div>

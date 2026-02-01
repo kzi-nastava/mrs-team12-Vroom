@@ -1,5 +1,6 @@
 package com.example.vroom.activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.*;
@@ -7,12 +8,24 @@ import android.widget.*;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.vroom.DTOs.MessageResponseDTO;
+import com.example.vroom.DTOs.auth.requests.RegisterUserRequestDTO;
 import com.example.vroom.R;
+import com.example.vroom.enums.Gender;
+import com.example.vroom.network.RetrofitClient;
+import com.example.vroom.utils.ImageUtils;
+import com.example.vroom.utils.PasswordUtils;
+import com.example.vroom.viewmodels.ForgotPasswordViewModel;
+import com.example.vroom.viewmodels.RegisterViewModel;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RegisterActivity extends BaseActivity {
     private EditText firstNameInput;
@@ -31,6 +44,8 @@ public class RegisterActivity extends BaseActivity {
     private ImageView profileImageView;
     private Button uploadImageBtn;
     private Uri selectedImage;
+
+    private RegisterViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +94,25 @@ public class RegisterActivity extends BaseActivity {
         profileImageView = findViewById(R.id.profileImage);
         uploadImageBtn = findViewById(R.id.uploadImageBtn);
         uploadImageBtn.setOnClickListener(v -> getContent.launch("image/*"));
+
+        viewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
+        observeViewModel();
+    }
+
+    private void observeViewModel(){
+        viewModel.getRegisterMessage().observe(this, message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        viewModel.getRegisterStatus().observe(this, success -> {
+            if (success != null && success) {
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     private final ActivityResultLauncher<String> getContent = registerForActivityResult(
@@ -91,56 +125,19 @@ public class RegisterActivity extends BaseActivity {
             }
     );
 
-    private void isPasswordValid() throws Exception{
+    private void register(){
+        String firstName = firstNameInput.getText().toString().trim();
+        String lastName = lastNameInput.getText().toString().trim();
+        String email = emailInput.getText().toString().trim();
+        String phone = phoneNumInput.getText().toString().trim();
+        String country = countrySpinner.getSelectedItem().toString();
+        String city = cityInput.getText().toString().trim();
+        String street = streetInput.getText().toString().trim();
         String pass = passInput.getText().toString();
         String rePass = rePassInput.getText().toString();
 
-        if (pass.length() < 8) {
-            throw new Exception("Password must be at least 8 characters long");
-        }
+        byte[] photo = ImageUtils.uriToByteArray(this, selectedImage);
 
-        if (!pass.matches(".*[0-9].*")) {
-            throw new Exception("Password must contain a number");
-        }
-
-        if (!pass.matches(".*[a-z].*")) {
-            throw new Exception("Password must contain a lowercase letter");
-        }
-
-        if (!pass.matches(".*[A-Z].*")) {
-            throw new Exception("Password must contain an uppercase letter");
-        }
-
-        if(!pass.equals(rePass))
-            throw new Exception("Password must match");
-    }
-
-    private void register(){
-        try{
-            String firstName = firstNameInput.getText().toString().trim();
-            String lastName = lastNameInput.getText().toString().trim();
-            String email = emailInput.getText().toString().trim();
-            String phone = phoneNumInput.getText().toString().trim();
-            String country = countrySpinner.getSelectedItem().toString();
-            String city = cityInput.getText().toString().trim();
-            String street = streetInput.getText().toString().trim();
-            String pass = passInput.getText().toString();
-            String rePass = rePassInput.getText().toString();
-
-            Toast.makeText(this, selectedGender, Toast.LENGTH_SHORT).show();
-
-            /*if(
-                    firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
-                    phone.isEmpty() || country.isEmpty() || city.isEmpty() ||
-                    street.isEmpty() || pass.isEmpty() || rePass.isEmpty() ||
-                    selectedGender==null
-            )
-                throw new Exception("Fields cannot be empty");
-
-            isPasswordValid();*/
-
-        }catch(Exception e){
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+        viewModel.register(firstName, lastName, email, phone, country, city, street, pass, rePass, selectedGender, photo);
     }
 }

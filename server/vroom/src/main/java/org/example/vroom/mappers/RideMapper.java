@@ -1,7 +1,12 @@
 package org.example.vroom.mappers;
 
-import org.example.vroom.DTOs.requests.*;
-import org.example.vroom.DTOs.responses.*;
+import org.example.vroom.DTOs.RideDTO;
+import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
+import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
+import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.RideStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +19,16 @@ public class RideMapper {
     @Autowired
     DriverMapper driverMapper;
 
-    public StoppedRideResponseDTO stopRide(Ride ride, StopRideRequestDTO stopRideDTO, double price) {
+    public StoppedRideResponseDTO stopRide(Ride ride, StopRideRequestDTO stopRideDTO, double price, String endAddress) {
         GetRouteResponseDTO route = GetRouteResponseDTO
                 .builder()
                 .startLocationLat(ride.getRoute().getStartLocationLat())
                 .startLocationLng(ride.getRoute().getStartLocationLng())
                 .endLocationLat(stopRideDTO.getStopLat())
-                .endLocationLng(stopRideDTO.getStopLat())
+                .endLocationLng(stopRideDTO.getStopLng())
                 .stops(routeMapper.mapRoutePointsDTO(ride.getRoute().getStops()))
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(endAddress)
                 .build();
 
         return StoppedRideResponseDTO
@@ -38,18 +45,34 @@ public class RideMapper {
     public RideHistoryResponseDTO rideHistory(Ride ride) {
         return RideHistoryResponseDTO
                 .builder()
-                .route(routeMapper.getRouteDTO(ride.getRoute()))
+                .rideId(ride.getId())
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(ride.getRoute().getEndAddress())
                 .startTime(ride.getStartTime())
-                .endTime(ride.getEndTime())
                 .status(ride.getStatus())
                 .price(ride.getPrice())
                 .panicActivated(ride.getPanicActivated())
                 .build();
     }
 
+    public RideHistoryMoreInfoResponseDTO getRideHistoryMoreInfo(Ride ride) {
+        return RideHistoryMoreInfoResponseDTO
+                .builder()
+                .rideID(ride.getId())
+                .passengers(ride.getPassengers())
+                .status(ride.getStatus())
+                .cancelReason(ride.getCancelReason())
+                .complaints(ride.getComplaints())
+                .driverRating(ride.getDriverRating())
+                .vehicleRating(ride.getVehicleRating())
+                .comment(ride.getComment())
+                .build();
+    }
+
     public GetRideResponseDTO getRideDTO(Ride ride){
         return GetRideResponseDTO
                 .builder()
+                .rideID(ride.getId())
                 .route(routeMapper.getRouteDTO(ride.getRoute()))
                 .driver(driverMapper.toDriverRideDTO(ride.getDriver()))
                 .startTime(ride.getStartTime())
@@ -63,4 +86,21 @@ public class RideMapper {
                 .vehicleRating(ride.getVehicleRating())
                 .build();
     }
+
+    public RideDTO toRideDTO(Ride ride) {
+        if (ride == null) return null;
+
+        return RideDTO.builder()
+                .id(ride.getId())
+                .status(ride.getStatus())
+                .driver(driverMapper.toDTO(ride.getDriver()))
+                .route(routeMapper.getRouteDTO(ride.getRoute()))
+                .startTime(ride.getStartTime())
+                .endTime(ride.getEndTime())
+                .passengers(ride.getPassengers())
+                .price(ride.getPrice())
+                .build();
+    }
+
+
 }

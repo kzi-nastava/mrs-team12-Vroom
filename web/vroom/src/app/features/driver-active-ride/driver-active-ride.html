@@ -1,0 +1,58 @@
+<section class="ride-card" *ngIf="ride$ | async as ride; else noRide">
+
+  <div class="ride-card-header">
+    <h2>Active Ride</h2>
+    <span class="status-badge">{{ ride.status }}</span>
+  </div>
+
+  <div class="ride-card-body">
+
+    <div class="info-row">
+      <span class="label">Route</span>
+      <span class="value">
+        {{ ride.route.startAddress }} → {{ ride.route.endAddress }}
+      </span>
+    </div>
+
+    <div class="info-row">
+      <span class="label">Price</span>
+      <span class="value">{{ ride.price }} RSD</span>
+    </div>
+
+ <div class="info-row" *ngIf="ride.passengers as passengers">
+  <span class="label">Passengers</span>
+  <span class="value">{{ passengers.length + 1 }}</span>
+</div>
+
+
+<!-- DTO ne mapira pravilno ovo se nikad nece prikazati jer DTO sa back-enda nema atribut vehicle -->
+ <!--- Izmeniti dto na front endu da se slaze sa back-endom --->
+    <div class="info-row" *ngIf="ride.vehicle">
+      <span class="label">Vehicle</span>
+      <span class="value">
+        {{ ride.vehicle.brand }} {{ ride.vehicle.model }}
+        ({{ ride.vehicle.licenceNumber }})
+      </span>
+    </div>
+
+    <div class="passenger-list" *ngIf="ride.passengers?.length">
+      <p class="label">Passenger names</p>
+      <ul>
+        <li *ngFor="let p of ride.passengers">{{ p }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="ride-card-footer">
+    <button class="secondary" (click)="startRide()">Start Ride</button>
+    <app-cancel-ride [rideId]="rideId"/>
+  </div>
+
+</section>
+
+<ng-template #noRide>
+  <section class="ride-card empty">
+    <p>No active rides.</p>
+  </section>
+</ng-template>

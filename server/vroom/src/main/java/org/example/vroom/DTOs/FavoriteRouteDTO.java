@@ -1,13 +1,11 @@
 package org.example.vroom.DTOs;
 
-import org.example.vroom.DTOs.responses.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
+import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 
 @Getter
 @Setter
@@ -18,4 +16,7 @@ public class FavoriteRouteDTO {
     private Long id;
     private String name;
     private GetRouteResponseDTO route;
+    private String startAddress;
+    private String endAddress;
+
 }

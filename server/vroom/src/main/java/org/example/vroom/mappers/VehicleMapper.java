@@ -1,8 +1,8 @@
 package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.VehicleDTO;
-import org.example.vroom.DTOs.requests.VehicleRequestDTO;
-import org.example.vroom.DTOs.responses.VehicleRideResponseDTO;
+import org.example.vroom.DTOs.requests.vehicle.VehicleRequestDTO;
+import org.example.vroom.DTOs.responses.ride.VehicleRideResponseDTO;
 import org.example.vroom.entities.Vehicle;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +17,7 @@ public class VehicleMapper {
         }
 
         return VehicleDTO.builder()
+                .brand(vehicle.getBrand())
                 .model(vehicle.getModel())
                 .type(vehicle.getType())
                 .licenceNumber(vehicle.getLicenceNumber())
@@ -34,6 +35,7 @@ public class VehicleMapper {
         }
 
         return Vehicle.builder()
+                .brand(vehicleDTO.getBrand())
                 .model(vehicleDTO.getModel())
                 .type(vehicleDTO.getType())
                 .licenceNumber(vehicleDTO.getLicenceNumber())
@@ -50,12 +52,13 @@ public class VehicleMapper {
 
         return VehicleRideResponseDTO
                 .builder()
+                .brand(vehicle.getBrand())
                 .model(vehicle.getModel())
                 .type(vehicle.getType())
                 .numberOfSeats(vehicle.getNumberOfSeats())
                 .babiesAllowed(vehicle.getBabiesAllowed())
                 .petsAllowed(vehicle.getPetsAllowed())
-                .rating((double) vehicle.getRatingSum() / vehicle.getRatingCount())
+                .rating(vehicle.getRating())
                 .build();
     }
 
@@ -75,6 +78,7 @@ public class VehicleMapper {
         }
 
         return Vehicle.builder()
+                .brand(vehicleRequestDTO.getBrand())
                 .model(vehicleRequestDTO.getModel())
                 .type(vehicleRequestDTO.getType())
                 .licenceNumber(vehicleRequestDTO.getLicenceNumber())

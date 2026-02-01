@@ -1,0 +1,18 @@
+export interface Vehicle {
+  brand: string;
+  model: string;
+  numberOfSeats: number;
+  licenceNumber: string;
+  babiesAllowed: boolean;
+  petsAllowed: boolean;
+}
+
+export interface Profile {
+  firstName: string;
+  lastName: string;
+  address: string;
+  phoneNumber: string;
+  email: string;
+  vehicle?: Vehicle | null;
+  activeHoursLast24h?: number;
+}

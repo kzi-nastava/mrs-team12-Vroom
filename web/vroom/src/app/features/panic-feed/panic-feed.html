@@ -1,0 +1,46 @@
+<section class="panic-feed">
+    <div class="panic-feed-outer-container">
+        <div class="panic-feed-inner-container">
+            <h2>Active PANIC Notifications</h2>
+            
+            <div *ngIf="isLoadingData" class="loader-container">
+                <div class="spinner"></div>
+            </div>
+
+            <div *ngIf="!isLoadingData && panicAlerts.length === 0" class="no-alerts">
+                No active panic alerts at the moment
+            </div>
+
+            <div class="panic-cards-container" *ngIf="!isLoadingData && panicAlerts.length > 0">
+                <div class="panic-card" *ngFor="let alert of panicAlerts">
+                    <div class="panic-header">
+                        <span class="route-info">Ride ID: <strong>#{{alert.rideID}}</strong></span>
+                    </div>
+
+                    <div class="panic-body">
+                        <div class="info-row">
+                            <div class="info-group">
+                                <label>Activated by:</label>
+                                <span class="data">{{alert.activatedBy}}</span>
+                            </div>
+                            
+                            <div class="info-group">
+                                <label>Time:</label>
+                                <span class="data">{{alert.activatedAt | date:'yyyy-MM-dd HH:mm'}}</span>
+                            </div>
+                        </div>
+
+                        <div class="panic-footer">
+                            <button type="button" class="map-redirect-btn" (click)="mapRedirect(alert.rideID)">
+                                Check on the map
+                            </button>
+                            <button type="button" class="panic-resolved-btn" (click)="onResolved(alert.id)" [disabled]="isResolving">
+                                {{ isResolving ? 'Resolving...' : 'Resolved' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

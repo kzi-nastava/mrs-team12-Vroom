@@ -18,7 +18,7 @@ h1 {
 
 .form-box {
     background-color: #DCEED3;
-    padding: 5%;
+    padding: 3%;
     border-radius: 10px;
 }
 
@@ -155,12 +155,17 @@ input[type="file"] {
     cursor: pointer;
     margin-top: 1%;
     font-weight: 600;
-    margin-bottom: 2%;
+    /*margin-bottom: 2%;*/
+    margin: 0;
 }
 
 .error-message{
     font-size: 20px;
     color: red;
+}
+.success-message{
+    font-size: 20px;
+    color: green;
 }
 
 
@@ -169,6 +174,19 @@ input[type="file"] {
         flex-direction: column;
         gap: 1.5em;
     }
+}
 
-    
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid black; 
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

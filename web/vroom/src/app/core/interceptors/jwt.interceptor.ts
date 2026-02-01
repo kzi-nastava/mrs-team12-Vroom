@@ -1,0 +1,32 @@
+import { HttpErrorResponse, HttpInterceptorFn } from "@angular/common/http";
+import { inject } from "@angular/core";
+import { Router } from "@angular/router";
+import { catchError, throwError } from "rxjs";
+import { AuthService } from "../services/auth.service";
+
+export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+    const router = inject(Router);
+    const token = localStorage.getItem('jwt')
+    let authReq = req
+
+    if(token){
+        authReq = req.clone({
+            setHeaders: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+    }
+
+    return next(authReq).pipe(
+        catchError((err: HttpErrorResponse) => {
+            if(err.status === 401){
+                localStorage.removeItem('jwt')
+                localStorage.removeItem('user_type')
+
+                router.navigate(['/login'])
+            }
+            
+            return throwError(() => err)
+        })
+    )
+}

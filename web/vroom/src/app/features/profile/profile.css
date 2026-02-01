@@ -1,3 +1,18 @@
+.success-popup {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 5px;
+  text-align: center;
+  animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
 .profile-container {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -86,4 +101,20 @@ h1 {
     font-weight: 600;
     color: #1a1a1a;
     cursor: pointer;
+}
+
+.message {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.message.success, .message.error {
+  transition: opacity 0.5s ease-out;
+}
+
+.message.hidden {
+  opacity: 0;
+  pointer-events: none;
 }

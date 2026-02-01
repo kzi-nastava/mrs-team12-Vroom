@@ -1,0 +1,90 @@
+ <section class="route-estimation">
+        <div class="route-estimation-outer-container">
+
+            <div class="route-estimation-inner-container">
+            <form (ngSubmit)="onSubmit(); $event.preventDefault()" id="route-form">
+                <div class="form-group from-address">
+                    <label for="start-location">Start location</label>
+                    <input
+                        type="text"
+                        id="start-location"
+                        [(ngModel)]="startLocation"
+                        (input)="searchStart()"
+                        #startInput
+                        name="start-location"
+                        placeholder="Street & Number"
+                        autocomplete="off"
+                        required
+                    />
+                    <ul class="suggestions-list" #startDropdown *ngIf="startSuggestions.length > 0 && showStartSuggestions">
+                        <li *ngFor="let s of startSuggestions" (click)="selectStart(s); $event.stopPropagation()">
+                            {{ s.label }}
+                        </li>
+                    </ul>
+                </div>
+
+                <div *ngFor="let stop of stops; let i = index; trackBy: trackByStopId"class="form-group stop-address">
+                    <label>Stop {{ i + 1 }}</label>
+
+                    <div class="input-container">
+                        <input
+                        type="text"
+                        [(ngModel)]="stop.address"
+                        name="stop-{{stop.id}}"
+                        (input)="searchStop(i)"
+                        placeholder="Street & Number"
+                        required
+                        />
+
+                        <button type="button" class="btn-remove" (click)="removeStop(i)">
+                        </button>
+
+                        <ul class="suggestions-list" *ngIf="stopSuggestions[i]?.length && showStopSuggestions[i]">
+                            <li *ngFor="let s of stopSuggestions[i]" (click)="selectStop(i, s) ; $event.stopPropagation()">
+                                {{ s.label }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group to-address">
+                    <label for="end-location">End location</label>
+                    <input
+                        type="text"
+                        id="end-location"
+                        name="end-location"
+                        [(ngModel)]="endLocation"
+                        (input)="searchEnd()"
+                        #endInput
+                        placeholder="Street & Number"
+                        autocomplete="off"
+                        required
+                    />
+                    <ul class="suggestions-list" #endDropdown *ngIf="endSuggestions.length > 0  && showEndSuggestions">
+                        <li *ngFor="let s of endSuggestions" (click)="selectEnd(s); $event.stopPropagation()">
+                            {{ s.label }}
+                        </li>
+                    </ul>
+                </div>
+
+                <div *ngIf="calculating" class="loader-container">
+                    <div class="spinner"></div>
+                </div>
+                <div *ngIf="time && price && !calculating" class="estimation-info">
+                    <span>Est Time: <strong>{{ time | number:'1.0-2' }} min</strong></span>
+                    <span>Est Price: <strong>{{ price | number:'1.2-2' }} RSD</strong></span>
+                </div>
+                
+                <button type="button" class="add-stop-btn" (click)="addStop()">Add more stops</button>
+
+                <!--<h2 class="error-message">{{error}}</h2>-->
+
+                
+
+                <button type="submit" [disabled]="calculating">
+                    {{ calculating ? 'Calculating...' : 'Calculate' }}
+                </button>
+            </form>
+            </div>
+        </div>
+    </section>

@@ -8,6 +8,30 @@ h1 {
     font-size: 48px;
     font-weight: 600;
 }
+.status-message {
+  display: block !important;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.status-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-message.expired {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
 
 .login-page {
     width: 100%;
@@ -96,4 +120,30 @@ h1 {
     font-weight: 600;
     color: #1a1a1a;
     cursor: pointer;
+    margin-bottom: 2px;
+}
+
+.error-message{
+    font-size: 20px;
+    color: red;
+}
+.success-message{
+    font-size: 16px;
+    color: black;
+}
+
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid black; 
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

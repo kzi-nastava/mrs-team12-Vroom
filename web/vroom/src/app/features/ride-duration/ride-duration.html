@@ -1,0 +1,53 @@
+
+<div class="duration-panel">
+  <div class="content-grid">
+    <div class="left-section">
+        <div class="container">
+            <div class="eta">ETA : {{eta}} minutes</div>
+                <div class="route">
+                    <div>{{ startAddress }}</div>
+                    
+                    <ng-container *ngFor="let stop of stops">
+                        <div class="arrow">↓</div>
+                        <div>{{stop}}</div>
+                    </ng-container>
+
+                    <div class="arrow">↓</div>
+                    <div>{{ endAddress }}</div>
+                </div>  
+        </div>
+
+    </div>
+
+    <div class="right-section" *ngIf="userRole === 'REGISTERED_USER'">
+        <div class="container">
+            <div class="complaint-header">
+                Have any complaints?<br>
+                Leave them here:
+            </div>
+
+            <textarea 
+                class="complaint-textarea" 
+                placeholder="..."
+                [formControl]="complaintControl"
+            ></textarea>
+
+            <button class="submit-button" (click)="onSubmitComplaint()" [disabled]="!complaintControl.value?.trim()">
+                Submit complaint
+            </button>
+
+            <app-panic-btn [rideId]="rideID"></app-panic-btn>
+            </div>
+    </div>
+
+    <div class="right-section" *ngIf="userRole === 'DRIVER'">
+        <div class="driver-actions">
+                <button class="finish-button" (click)="finishRide()">
+                    Finish Ride
+                </button>
+                <app-stop-ride [rideId]="rideID"></app-stop-ride>
+                <app-panic-btn [rideId]="rideID"></app-panic-btn>
+        </div>
+    </div>
+</div>
+

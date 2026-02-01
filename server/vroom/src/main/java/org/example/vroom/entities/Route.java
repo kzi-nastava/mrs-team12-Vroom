@@ -23,11 +23,18 @@ public class Route {
     @Column(nullable = false)
     private Double startLocationLng;
 
+    @Column(nullable = true)
+    private String startAddress;
+
+    @Column(nullable = true)
+    private String endAddress;
+
     @Column(nullable = false)
     private Double endLocationLat;
 
     @Column(nullable = false)
     private Double endLocationLng;
+
 
     @ElementCollection
     @CollectionTable(name = "route_path", joinColumns = @JoinColumn(name = "route_id"))

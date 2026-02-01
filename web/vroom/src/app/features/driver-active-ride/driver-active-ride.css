@@ -1,0 +1,123 @@
+/* Ride card */
+.ride-card {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Header */
+.ride-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid #ececec;
+}
+
+.ride-card-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Status badge */
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #e6f0e6;
+  color: #2f6b2f;
+}
+
+/* Body */
+.ride-card-body {
+  padding: 24px 28px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px dashed #e6e6e6;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-size: 13px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: right;
+}
+
+/* Passengers */
+.passenger-list {
+  margin-top: 20px;
+}
+
+.passenger-list ul {
+  margin-top: 8px;
+  padding-left: 18px;
+}
+
+.passenger-list li {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+/* Footer */
+.ride-card-footer {
+  display: flex;
+  gap: 16px;
+  padding: 20px 28px;
+  background: #f7f9f7;
+  border-top: 1px solid #ececec;
+}
+
+.ride-card-footer button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Buttons */
+button.primary {
+  background: #8db48d;
+  color: #1a1a1a;
+}
+
+button.secondary {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Empty state */
+.ride-card.empty {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+}

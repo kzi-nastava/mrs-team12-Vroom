@@ -1,7 +1,7 @@
 package org.example.vroom.controllers;
 
-import org.example.vroom.DTOs.responses.DriverPositionDTO;
-import org.example.vroom.DTOs.responses.PointResponseDTO;
+import org.example.vroom.DTOs.responses.driver.DriverPositionDTO;
+import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.enums.DriverStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,13 +20,13 @@ public class MainViewController {
     public ResponseEntity<Collection<DriverPositionDTO>> getDriverPositions() {
         Collection<DriverPositionDTO> driverPositions = new ArrayList<>();
         DriverPositionDTO driverPositionDTO = new DriverPositionDTO();
-        driverPositionDTO.setDriverId(1);
+        driverPositionDTO.setDriverId(1L);
         driverPositionDTO.setStatus(DriverStatus.AVAILABLE);
         driverPositionDTO.setPoint(new PointResponseDTO(45.0,45.0));
         driverPositions.add(driverPositionDTO);
 
         DriverPositionDTO driverPositionDTO2 = new DriverPositionDTO();
-        driverPositionDTO2.setDriverId(2);
+        driverPositionDTO2.setDriverId(2L);
         driverPositionDTO2.setStatus(DriverStatus.UNAVAILABLE);
         driverPositionDTO2.setPoint(new PointResponseDTO(49.76,41.32));
         driverPositions.add(driverPositionDTO2);

@@ -1,0 +1,170 @@
+<div class="ride-panel">
+  <h1>Order a ride</h1>
+
+  <form (ngSubmit)="calculateRoute()">
+
+    <!-- START + VEHICLE -->
+    <div class="row">
+      <div class="field">
+        <label>Start location</label>
+        <input
+          type="text"
+          [(ngModel)]="startLocation"
+          [ngModelOptions]="{ standalone: true }"
+          (input)="searchStart()"
+          placeholder="Street & Number"
+          autocomplete="off"
+        />
+        <ul class="suggestions-list" *ngIf="startSuggestions.length && showStartSuggestions">
+          <li *ngFor="let s of startSuggestions" (click)="selectStart(s); $event.stopPropagation()">
+            {{ s.label }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="field">
+        <label>Type of vehicle</label>
+        <select
+          [(ngModel)]="vehicleType"
+          [ngModelOptions]="{ standalone: true }"
+        >
+          <option value="LUXURY">Luxury</option>
+          <option value="STANDARD">Standard</option>
+          <option value="VAN">Van</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- END + OPTIONS -->
+    <div class="row">
+      <div class="field">
+        <label>End location</label>
+        <input
+          type="text"
+          [(ngModel)]="endLocation"
+          [ngModelOptions]="{ standalone: true }"
+          (input)="searchEnd()"
+          placeholder="Street & Number"
+          autocomplete="off"
+        />
+        <ul class="suggestions-list" *ngIf="endSuggestions.length && showEndSuggestions">
+          <li *ngFor="let s of endSuggestions" (click)="selectEnd(s); $event.stopPropagation()">
+            {{ s.label }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="field toggles">
+        <label>
+          <input
+            type="checkbox"
+            [(ngModel)]="childrenAllowed"
+            [ngModelOptions]="{ standalone: true }"
+          />
+          Children
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            [(ngModel)]="petsAllowed"
+            [ngModelOptions]="{ standalone: true }"
+          />
+          Pets
+        </label>
+      </div>
+    </div>
+<!-- SCHEDULE TIME -->
+<div class="row">
+  <div class="field">
+    <label>Schedule time (optional)</label>
+    <input
+      type="time"
+      [min]="getMinTime()"
+      [max]="getMaxTime()"
+      [(ngModel)]="scheduledTime"
+      [ngModelOptions]="{ standalone: true }"
+    />
+    <div class="hint">
+      You can schedule between now and 5 hours ahead
+    </div>
+  </div>
+</div>
+    <!-- STOPS -->
+    <div class="row">
+      <div class="field">
+        <label>Stations</label>
+
+        <div
+          *ngFor="let stop of stops; let i = index; trackBy: trackByStopId"
+          class="station-row"
+        >
+          <input
+            type="text"
+            [(ngModel)]="stop.address"
+            [ngModelOptions]="{ standalone: true }"
+            (input)="searchStop(i)"
+            placeholder="Street & Number"
+          />
+          <button type="button" (click)="removeStop(i)">X</button>
+
+          <ul
+            class="suggestions-list"
+            *ngIf="stopSuggestions[i]?.length && showStopSuggestions[i]"
+          >
+            <li
+              *ngFor="let s of stopSuggestions[i]"
+              (click)="selectStop(i, s); $event.stopPropagation()"
+            >
+              {{ s.label }}
+            </li>
+          </ul>
+        </div>
+
+        <button type="button" (click)="addStop()">+ Add station</button>
+      </div>
+    </div>
+
+    <!-- EMAIL -->
+    <div class="row">
+      <div class="field">
+        <label>Others (Email)</label>
+        <input
+          type="email"
+          [(ngModel)]="otherEmail"
+          [ngModelOptions]="{ standalone: true }"
+          placeholder="Enter email"
+        />
+      </div>
+    </div>
+
+    <!-- ESTIMATES -->
+    <div class="estimates" *ngIf="!calculating && price !== null && time !== null">
+      <div>⏱ {{ time | number:'1.0-2' }} min</div>
+      <div>{{ price | number:'1.2-2' }} EUR</div>
+    </div>
+
+    <!-- STATES -->
+    <div *ngIf="calculating" class="loader">Calculating...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+
+    <!-- SUBMIT -->
+    <button class="order-btn" type="submit" [disabled]="calculating">
+      {{ calculating ? 'Calculating...' : 'Calculate route' }}
+    </button>
+
+  </form>
+
+  <!-- ORDER -->
+<div class="row">
+  <div class="field">
+    <button
+      class="order-btn confirm"
+      (click)="orderRide()"
+      [disabled]="price === null || time === null"
+    >
+      Order a ride
+    </button>
+  </div>
+</div>
+</div>

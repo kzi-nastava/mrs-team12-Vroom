@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @DiscriminatorValue("REGISTERED_USER")
 @Getter
@@ -16,5 +19,12 @@ public class RegisteredUser extends User{
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;
+
+    
+
+    @Override
+    public String getRoleName() {
+        return "REGISTERED_USER";
+    }
 
 }

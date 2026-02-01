@@ -1,0 +1,18 @@
+<section class="panic">
+
+    <div class="panic-confirmation" *ngIf="showPanicPopup">
+        <div class="panic-confirmation-container">
+            <h2>Confirm you are in danger</h2>
+            <div *ngIf="isLoading" class="loader-container">
+                <div class="spinner"></div>
+            </div>
+            <div *ngIf="!isLoading">
+                <button class="confirm-panic" (click)="notifyPanic()" [disabled]="isLoading">{{ isLoading ? 'Processing...' : 'Confirm' }}</button>
+                <button class="cancel-btn" (click)="closePanicPopup()">Cancel</button>
+
+            </div>
+        </div>
+    </div>
+
+    <button class="panic-btn" (click)="openPanicPopup()">PANIC</button>
+</section>

@@ -1,52 +1,123 @@
 package org.example.vroom.controllers;
 
-import org.example.vroom.DTOs.responses.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.RideHistoryResponseDTO;
-import org.example.vroom.enums.RideStatus;
+import org.example.vroom.DTOs.DriverDTO;
+import org.example.vroom.DTOs.requests.driver.DriverChangeStatusRequestDTO;
+import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
+import org.example.vroom.DTOs.responses.MessageResponseDTO;
+import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
+import org.example.vroom.entities.Ride;
+import org.example.vroom.entities.User;
+import org.example.vroom.exceptions.ride.RideNotFoundException;
+import org.example.vroom.exceptions.user.DriverAlreadyExistsException;
+import org.example.vroom.exceptions.user.DriverStatusChangeNotAllowedException;
+import org.example.vroom.exceptions.user.UserNotFoundException;
+import org.example.vroom.mappers.RideMapper;
+import org.example.vroom.services.DriverService;
+import org.example.vroom.services.RideService;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/drivers")
 public class DriverController {
 
-    @GetMapping(path = "/{driverID}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
+    private final DriverService driverService;
+
+
+    public DriverController(DriverService driverService, RideService rideService, RideMapper rideMapper) {
+        this.driverService = driverService;
+    }
+
+    @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
+    @GetMapping(path = "/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideHistoryResponseDTO>> getRides(
-            @PathVariable Long driverID,
-            @RequestParam(required = false) LocalDateTime startDate,
-            @RequestParam(required = false) LocalDateTime endDate,
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String sort
     ) {
-        Collection<RideHistoryResponseDTO> rides = new ArrayList<RideHistoryResponseDTO>();
-        GetRouteResponseDTO route1 = GetRouteResponseDTO
-                .builder()
-                .startLocationLat(44.7866)
-                .startLocationLng(20.4489)
-                .endLocationLat(44.8125)
-                .endLocationLng(20.4612)
-                .stops(List.of())
-                .build();
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        Sort sortOrder = Sort.unsorted();
+        if (sort != null && sort.contains(",")) {
+            String[] split = sort.split(",");
+            sortOrder = Sort.by(Sort.Direction.fromString(split[split.length - 1]), split[0]);
+        }
+        Collection<RideHistoryResponseDTO> rides = driverService.getDriverRides(user.getId(), startDate, endDate, sortOrder);
 
-        RideHistoryResponseDTO ride1 = RideHistoryResponseDTO
-                .builder()
-                .route(route1)
-                .startTime(LocalDateTime.of(2025, 1, 10, 14, 32))
-                .endTime(LocalDateTime.of(2025, 1, 10, 14, 55))
-                .status(RideStatus.FINISHED)
-                .price(980.50)
-                .panicActivated(false)
-                .build();
-
-        rides.add(ride1);
-
+        if (rides == null || rides.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
+    @GetMapping(path="/more-info/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideHistoryMoreInfoResponseDTO> getRideMoreInfo(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long rideID
+    ) {
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            RideHistoryMoreInfoResponseDTO rideInfo = driverService.getRideMoreInfo(rideID);
+            return new ResponseEntity<>(rideInfo, HttpStatus.OK);
+        }catch(RideNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/register/driver")
+    public ResponseEntity<?> registerDriver(@RequestBody DriverRegistrationRequestDTO request) {
+        try {
+            DriverDTO driver = driverService.registerDriver(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(driver);
+        } catch (DriverAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
+    @PutMapping(path = "/status")
+    public ResponseEntity<MessageResponseDTO> changeStatus(
+            @AuthenticationPrincipal User user,
+            @RequestBody DriverChangeStatusRequestDTO data
+    ){
+        if(data == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        try {
+            driverService.changeStatus(user.getId(), data.getStatus());
+
+            return new ResponseEntity<MessageResponseDTO>(
+                    new MessageResponseDTO("Status changed"),
+                    HttpStatus.OK
+            );
+        }catch(UserNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        catch(DriverStatusChangeNotAllowedException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
