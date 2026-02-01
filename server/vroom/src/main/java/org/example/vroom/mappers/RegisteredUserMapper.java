@@ -48,7 +48,7 @@ public class RegisteredUserMapper {
                 .address(user.getAddress())
                 .profilePhoto(user.getProfilePhoto())
                 .blockedReason(user.getBlockedReason())
-                .status(user.getStatus())
+                .status(user.getUserStatus())
                 .build();
     }
 
@@ -65,7 +65,7 @@ public class RegisteredUserMapper {
                 .address(user.getAddress())
                 .profilePhoto(user.getProfilePhoto())
                 .blockedReason(user.getBlockedReason())
-                .status(user.getStatus())
+                .userStatus(user.getStatus())
                 .build();
     }
 
