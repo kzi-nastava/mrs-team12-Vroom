@@ -421,6 +421,10 @@ public class RideService {
     }
 
     public StoppedRideResponseDTO stopRide(Long rideID, StopRideRequestDTO data){
+        if (data.getStopLat() < -90 || data.getStopLat() > 90 || data.getStopLng() < -180 || data.getStopLng() > 180) {
+            throw new StopRideException("Invalid coordinates");
+        }
+
         Optional<Ride> rideOptional = rideRepository.findById(rideID);
         if(rideOptional.isEmpty())
             throw new RideNotFoundException("Ride not found");
