@@ -1,5 +1,7 @@
 package org.example.vroom.repositories;
 
+
+import org.example.vroom.DTOs.responses.ride.DailyRideReportDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.User;
@@ -79,4 +81,81 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             Pageable pageable);
+
+
+    @Query("""
+    SELECT CAST(r.startTime AS date), COUNT(r), COALESCE(SUM(r.price), 0)
+    FROM Ride r
+    WHERE
+        r.passenger.id = :userId
+        AND r.status = org.example.vroom.enums.RideStatus.FINISHED
+        AND r.startTime BETWEEN :from AND :to
+    GROUP BY CAST(r.startTime AS date)
+    ORDER BY CAST(r.startTime AS date)
+""")
+
+    List<Object[]> passengerStatsRaw(
+            @Param("userId") Long userId,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
+    @Query("""
+SELECT CAST(r.startTime AS date), COUNT(r), COALESCE(SUM(r.price), 0)
+FROM Ride r
+WHERE
+    r.driver.id = :driverId
+    AND r.status = org.example.vroom.enums.RideStatus.FINISHED
+    AND r.startTime BETWEEN :from AND :to
+GROUP BY CAST(r.startTime AS date)
+ORDER BY CAST(r.startTime AS date)
+""")
+    List<Object[]> driverStatsRaw(
+            @Param("driverId") Long driverId,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
+    @Query("""
+    SELECT FUNCTION('DATE', r.startTime), COUNT(r), COALESCE(SUM(r.price), 0)
+    FROM Ride r
+    WHERE
+        r.status = org.example.vroom.enums.RideStatus.FINISHED
+        AND r.startTime BETWEEN :from AND :to
+    GROUP BY FUNCTION('DATE', r.startTime)
+    ORDER BY FUNCTION('DATE', r.startTime)
+""")
+    List<Object[]> adminStatsRaw(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
+
+    @Query("""
+    SELECT r FROM Ride r
+    JOIN FETCH r.route
+    WHERE r.passenger.id = :userId
+      AND r.status = org.example.vroom.enums.RideStatus.FINISHED
+      AND r.startTime BETWEEN :from AND :to
+""")
+    List<Ride> findPassengerRidesWithRoute(
+            @Param("userId") Long userId,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
+    @Query("""
+SELECT r
+FROM Ride r
+JOIN FETCH r.route rt
+WHERE
+    r.driver.id = :driverId
+    AND r.status = org.example.vroom.enums.RideStatus.FINISHED
+    AND r.startTime BETWEEN :from AND :to
+""")
+    List<Ride> findDriverRidesWithRoute(
+            @Param("driverId") Long driverId,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
 }
