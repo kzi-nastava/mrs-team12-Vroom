@@ -1,5 +1,6 @@
 package org.example.vroom.controllers;
 
+import jakarta.validation.Valid;
 import org.example.vroom.DTOs.FavoriteRouteDTO;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
 import org.example.vroom.DTOs.RideDTO;
@@ -37,6 +38,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.example.vroom.services.RideService;
 import java.time.LocalDateTime;
@@ -48,6 +50,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/rides")
+@Validated
 public class RideController {
     @Autowired
     private RideService rideService;
@@ -201,10 +204,10 @@ public class RideController {
     @PutMapping(path="/{rideID}/stop",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StoppedRideResponseDTO> stopRide(
             @PathVariable Long rideID,
-            @RequestBody StopRideRequestDTO data
+            @Valid @RequestBody StopRideRequestDTO data
     ){
         if(data == null)
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         try{
             StoppedRideResponseDTO responseDTO = rideService.stopRide(rideID, data);

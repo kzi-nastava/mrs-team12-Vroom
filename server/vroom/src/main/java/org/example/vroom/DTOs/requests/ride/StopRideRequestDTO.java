@@ -1,5 +1,6 @@
 package org.example.vroom.DTOs.requests.ride;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class StopRideRequestDTO {
+    @NotNull
     private LocalDateTime endTime;
+    @NotNull
     private double stopLat;
+    @NotNull
     private double stopLng;
 }
