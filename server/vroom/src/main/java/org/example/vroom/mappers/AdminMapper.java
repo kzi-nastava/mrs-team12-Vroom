@@ -1,7 +1,9 @@
 package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.AdminDTO;
+import org.example.vroom.DTOs.responses.AdminUserDTO;
 import org.example.vroom.entities.Admin;
+import org.example.vroom.entities.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -48,6 +50,17 @@ public class AdminMapper {
         return admins.stream()
                 .map(this::toDTO)
                 .toList();
+    }
+
+    public AdminUserDTO toAdminDTO(User user) {
+        AdminUserDTO dto = new AdminUserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setBlockedReason(user.getBlockedReason());
+        dto.setBlocked(
+                user.getBlockedReason() != null && !user.getBlockedReason().isBlank()
+        );
+        return dto;
     }
 }
 

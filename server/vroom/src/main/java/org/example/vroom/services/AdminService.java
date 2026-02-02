@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
+import org.example.vroom.DTOs.responses.AdminUserDTO;
 import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.DriverProfileUpdateRequest;
@@ -12,6 +13,7 @@ import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.User;
 import org.example.vroom.enums.RequestStatus;
 import org.example.vroom.exceptions.user.UserNotFoundException;
+import org.example.vroom.mappers.AdminMapper;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.mappers.RideMapper;
@@ -52,6 +54,9 @@ public class AdminService {
     private SortPaginationUtils sortPaginationUtils;
     @Autowired
     private RideMapper rideMapper;
+    @Autowired
+    private AdminMapper adminMapper;
+
 
     @Transactional
     public DriverDTO approveRequest(Long requestId) throws JsonProcessingException {
@@ -127,5 +132,28 @@ public class AdminService {
         });
 
         return rideHistory.toList();
+    }
+
+    public List<AdminUserDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(adminMapper::toAdminDTO)
+                .toList();
+    }
+
+    @Transactional
+    public void blockUser(Long userId, String reason) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setBlockedReason(reason);
+    }
+
+    @Transactional
+    public void unblockUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setBlockedReason(null);
     }
 }

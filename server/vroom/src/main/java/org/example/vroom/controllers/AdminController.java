@@ -2,8 +2,10 @@ package org.example.vroom.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.SneakyThrows;
+import org.example.vroom.DTOs.BlockUserRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
 import org.example.vroom.DTOs.requests.driver.RejectRequestDTO;
+import org.example.vroom.DTOs.responses.AdminUserDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
@@ -90,6 +92,30 @@ public class AdminController {
         } catch (JsonProcessingException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid payload");
         }
+    }
+
+    @GetMapping("/users")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<AdminUserDTO>> getAllUsers() {
+        return ResponseEntity.ok(adminService.getAllUsers());
+    }
+
+
+    @PutMapping("/users/{id}/block")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> blockUser(
+            @PathVariable Long id,
+            @RequestBody BlockUserRequestDTO dto
+    ) {
+        adminService.blockUser(id, dto.getReason());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/users/{id}/unblock")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> unblockUser(@PathVariable Long id) {
+        adminService.unblockUser(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
