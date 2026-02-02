@@ -3,7 +3,9 @@ package com.example.vroom.network;
 import android.content.Context;
 
 import com.example.vroom.services.AuthService;
+import com.example.vroom.services.DriverProfileService;
 import com.example.vroom.services.DriverService;
+import com.example.vroom.services.UserProfileService;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -35,4 +37,14 @@ public class RetrofitClient {
         return getClient().create(AuthService.class);
     }
     public static DriverService getDriverService() {return getClient().create(DriverService.class);}
+    public static UserProfileService getUserProfileService() {
+        return getClient().create(UserProfileService.class);
+    }
+
+    public static UserProfileService getUserService() {
+        return getClient().create(UserProfileService.class);
+    }
+    public static DriverProfileService getDriverProfileService() {
+        return getClient().create(DriverProfileService.class);
+    }
 }

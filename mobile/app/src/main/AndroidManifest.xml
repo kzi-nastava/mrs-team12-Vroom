@@ -46,6 +46,10 @@
             android:name=".activities.ProfileActivity"
             android:exported="true"
             android:label="Profile" />
+        <activity
+            android:name=".activities.DriverProfileActivity"
+            android:exported="true"
+            android:label="DriverProfile"/>
     </application>
 
 </manifest>
