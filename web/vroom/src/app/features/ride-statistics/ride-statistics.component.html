@@ -21,6 +21,9 @@
         Driver ID:
         <input type="number" formControlName="driverId">
       </label>
+
+        <button type="button" (click)="fetchAllUsersReport()">Fetch All Users</button>
+  <button type="button" (click)="fetchAllDriversReport()">Fetch All Drivers</button>
     </ng-container>
 
     <button type="submit">Fetch Report</button>
@@ -60,7 +63,7 @@
 
     <div style="margin-top: 40px;">
       <h4>Rides per Day</h4>
-      <canvas baseChart
+      <canvas #ridesChart baseChart
         [data]="ridesChartData"
         [options]="ridesChartOptions"
         chartType="bar">
@@ -69,7 +72,7 @@
 
     <div style="margin-top: 40px;">
       <h4>Money per Day</h4>
-      <canvas baseChart
+      <canvas #moneyChart baseChart
         [data]="moneyChartData"
         [options]="moneyChartOptions"
         chartType="bar">
@@ -78,7 +81,7 @@
 
     <div style="margin-top: 40px;">
       <h4>Distance per Day (km)</h4>
-      <canvas baseChart
+      <canvas #kmChart baseChart
         [data]="kmChartData"
         [options]="kmChartOptions"
         chartType="bar">

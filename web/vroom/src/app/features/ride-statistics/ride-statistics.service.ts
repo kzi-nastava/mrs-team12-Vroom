@@ -1,4 +1,3 @@
-// ride-statistics.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -23,10 +22,37 @@ getDriverReport(driverId: number, from: string, to: string): Observable<RideRepo
   );
 }
 
-getAdminReport(from: string, to: string): Observable<RideReportDTO> {
+getAdminUserReport(userId: number, from: string, to: string): Observable<RideReportDTO> {
+  const token = localStorage.getItem('jwt'); 
   return this.http.get<RideReportDTO>(
-    `${this.baseUrl}/admin?from=${from}&to=${to}`
+    `${this.baseUrl}/admin/user/${userId}?from=${from}&to=${to}`,
+    {
+      headers: { Authorization: `Bearer ${token}` }
+    }
   );
 }
+
+getAdminDriverReport(driverId: number, from: string, to: string): Observable<RideReportDTO> {
+  const token = localStorage.getItem('jwt');
+  return this.http.get<RideReportDTO>(
+    `${this.baseUrl}/admin/driver/${driverId}?from=${from}&to=${to}`,
+    {
+      headers: { Authorization: `Bearer ${token}` }
+    }
+  );
+}
+
+getAdminAllUsersReport(from: string, to: string): Observable<RideReportDTO> {
+  return this.http.get<RideReportDTO>(
+    `${this.baseUrl}/admin/users?from=${from}&to=${to}`
+  );
+}
+
+getAdminAllDriversReport(from: string, to: string): Observable<RideReportDTO> {
+  return this.http.get<RideReportDTO>(
+    `${this.baseUrl}/admin/drivers?from=${from}&to=${to}`
+  );
+}
+
 
 }
