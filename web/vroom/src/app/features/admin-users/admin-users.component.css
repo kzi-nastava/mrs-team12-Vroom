@@ -1,0 +1,104 @@
+.container {
+  background: #dceed3;
+  padding: 24px;
+  border-radius: 24px;
+  box-shadow: 4px 4px 6px 6px rgba(42, 44, 36, 0.25);
+  font-family: 'IBM Plex Sans';
+}
+
+h1 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #99c2a2;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+th {
+  text-align: left;
+  padding: 14px;
+  background: #88b395;
+  font-weight: 600;
+}
+
+td {
+  padding: 14px;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+tr:not(:last-child) {
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.payload textarea {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+button {
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans';
+}
+
+button.approve {
+  background: #4caf50;
+  color: white;
+}
+
+button.reject {
+  background: #e57373;
+  color: white;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 60px;
+  padding: 10px;
+  border-radius: 12px;
+  border: none;
+  background: #cfe5d2;
+}
+
+.info {
+  margin-top: 12px;
+  text-align: center;
+  color: #444;
+  font-weight: 500;
+}
+
+.error {
+  margin-top: 12px;
+  padding: 12px 16px;
+  color: #b71c1c;
+  background-color: #fdecea;
+  border: 1px solid #f5c2c7;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.success {
+  margin-top: 12px;
+  padding: 12px 16px;
+  color: #1b5e20;
+  background-color: #e6f4ea;
+  border: 1px solid #a5d6a7;
+  border-radius: 12px;
+  font-weight: 600;
+}
