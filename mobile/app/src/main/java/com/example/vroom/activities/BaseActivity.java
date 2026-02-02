@@ -163,7 +163,16 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void onProfileButtonClicked(){
-        Intent intent = new Intent(this, ProfileActivity.class);
+        StorageManager.getSharedPreferences(this);
+        String userType = StorageManager.getData("user_type", null);
+
+        Intent intent;
+        if ("DRIVER".equals(userType)) {
+            intent = new Intent(this, DriverProfileActivity.class);
+        } else {
+            intent = new Intent(this, ProfileActivity.class);
+        }
+
         startActivity(intent);
     }
 
