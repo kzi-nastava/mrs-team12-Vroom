@@ -20,6 +20,7 @@ import { PanicFeed } from './features/panic-feed/panic-feed';
 import { StopRide } from './features/stop-ride/stop-ride';
 import { AdminDriverRequestsComponent } from './features/admin-driver-requests/admin-driver-requests.component';
 import {UserActiveRide} from './features/user-active-ride/user-active-ride';
+import { AdminUsersComponent } from './features/admin-users/admin-users.component';
 
 export const routes: Routes = [
     {path: 'login', component: Login},
@@ -32,6 +33,7 @@ export const routes: Routes = [
     {path: 'register-driver', component: RegisterDriver},
     {path: 'panic', component: PanicButton},
     { path: 'admin-driver-requests', component: AdminDriverRequestsComponent },
+    { path: 'admin-users', component: AdminUsersComponent},
     {path: 'active', component: UserActiveRide},
     {path: '', component: MainView, 
         children: [ 
