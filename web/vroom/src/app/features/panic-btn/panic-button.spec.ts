@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Panic } from './panic';
+import { PanicButton } from './panic-button';
 
 describe('Panic', () => {
-  let component: Panic;
-  let fixture: ComponentFixture<Panic>;
+  let component: PanicButton;
+  let fixture: ComponentFixture<PanicButton>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Panic]
+      imports: [PanicButton]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Panic);
+    fixture = TestBed.createComponent(PanicButton);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
