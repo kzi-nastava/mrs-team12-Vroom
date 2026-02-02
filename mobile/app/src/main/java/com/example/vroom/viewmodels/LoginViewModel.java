@@ -87,7 +87,9 @@ public class LoginViewModel extends ViewModel {
                     if(response.isSuccessful() && response.body() != null){
                         StorageManager.saveData("user_type", response.body().getType());
                         StorageManager.saveData("jwt", response.body().getToken());
-                        StorageManager.saveLong("expires", response.body().getExpires());
+                        if (response.body() != null && response.body().getExpires() != null) {
+                            StorageManager.saveLong("expires", response.body().getExpires());
+                        }
 
                         loginMessage.postValue("Login successful");
                         loginStatus.postValue(true);
