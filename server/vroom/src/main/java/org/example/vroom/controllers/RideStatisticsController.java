@@ -97,36 +97,79 @@ public class RideStatisticsController {
     }
 
     @GetMapping("/admin/user/{userId}")
-    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RideReportDTO> adminUserReport(
             @PathVariable Long userId,
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime from,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
 
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime to
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to
     ) {
+        LocalDateTime fromDT = from != null ? from.atStartOfDay() : null;
+        LocalDateTime toDT = to != null ? to.atTime(23, 59, 59) : null;
+
         return ResponseEntity.ok(
-                statisticsService.passengerReport(userId, from, to)
+                statisticsService.passengerReport(userId, fromDT, toDT)
         );
     }
 
     @GetMapping("/admin/driver/{driverId}")
-    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RideReportDTO> adminDriverReport(
             @PathVariable Long driverId,
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime from,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
 
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime to
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to
     ) {
+        LocalDateTime fromDT = from != null ? from.atStartOfDay() : null;
+        LocalDateTime toDT = to != null ? to.atTime(23, 59, 59) : null;
+
         return ResponseEntity.ok(
-                statisticsService.driverReport(driverId, from, to)
+                statisticsService.driverReport(driverId, fromDT, toDT)
         );
     }
+
+
+    @GetMapping("/admin/users")
+    public ResponseEntity<RideReportDTO> adminAllUsersReport(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to
+    ) {
+        LocalDateTime fromDT = from != null ? from.atStartOfDay() : null;
+        LocalDateTime toDT = to != null ? to.atTime(23, 59, 59) : null;
+
+        return ResponseEntity.ok(
+                statisticsService.adminAllUsersReport(fromDT, toDT)
+        );
+    }
+
+
+    @GetMapping("/admin/drivers")
+    public ResponseEntity<RideReportDTO> adminAllDriversReport(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to
+    ) {
+        LocalDateTime fromDT = from != null ? from.atStartOfDay() : null;
+        LocalDateTime toDT = to != null ? to.atTime(23, 59, 59) : null;
+
+        return ResponseEntity.ok(
+                statisticsService.adminAllDriversReport(fromDT, toDT)
+        );
+    }
+
 }

@@ -56,6 +56,17 @@ public class RideStatisticsService {
     private RideReportDTO buildReportFromRaw(List<Object[]> rows) {
         return buildReportFromRaw(rows, List.of());
     }
+    public RideReportDTO adminAllUsersReport(LocalDateTime from, LocalDateTime to) {
+        List<Object[]> rows = rideRepository.adminAllUsersStatsRaw(from, to);
+        List<Ride> rides = rideRepository.findAllUsersRidesWithRoute(from, to);
+        return buildReportFromRaw(rows, rides);
+    }
+
+    public RideReportDTO adminAllDriversReport(LocalDateTime from, LocalDateTime to) {
+        List<Object[]> rows = rideRepository.adminAllDriversStatsRaw(from, to);
+        List<Ride> rides = rideRepository.findAllDriversRidesWithRoute(from, to);
+        return buildReportFromRaw(rows, rides);
+    }
 
     private RideReportDTO buildReportFromRaw(
             List<Object[]> rows,

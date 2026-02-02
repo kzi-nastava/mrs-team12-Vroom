@@ -158,4 +158,62 @@ WHERE
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
+
+    // Svi korisnici sa detaljima ruta
+    @Query("""
+SELECT r
+FROM Ride r
+JOIN FETCH r.route
+WHERE r.passenger IS NOT NULL
+  AND r.status = org.example.vroom.enums.RideStatus.FINISHED
+  AND r.startTime BETWEEN :from AND :to
+""")
+    List<Ride> findAllUsersRidesWithRoute(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
+    // Svi vozači sa detaljima ruta
+    @Query("""
+SELECT r
+FROM Ride r
+JOIN FETCH r.route
+WHERE r.driver IS NOT NULL
+  AND r.status = org.example.vroom.enums.RideStatus.FINISHED
+  AND r.startTime BETWEEN :from AND :to
+""")
+    List<Ride> findAllDriversRidesWithRoute(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
+    // Statistik za sve korisnike (po datumu)
+    @Query("""
+    SELECT CAST(r.startTime AS date), COUNT(r), COALESCE(SUM(r.price), 0)
+    FROM Ride r
+    WHERE r.passenger IS NOT NULL
+      AND r.status = org.example.vroom.enums.RideStatus.FINISHED
+      AND r.startTime BETWEEN :from AND :to
+    GROUP BY CAST(r.startTime AS date)
+    ORDER BY CAST(r.startTime AS date)
+""")
+    List<Object[]> adminAllUsersStatsRaw(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
+    // Statistik za sve vozače (po datumu)
+    @Query("""
+    SELECT CAST(r.startTime AS date), COUNT(r), COALESCE(SUM(r.price), 0)
+    FROM Ride r
+    WHERE r.driver IS NOT NULL
+      AND r.status = org.example.vroom.enums.RideStatus.FINISHED
+      AND r.startTime BETWEEN :from AND :to
+    GROUP BY CAST(r.startTime AS date)
+    ORDER BY CAST(r.startTime AS date)
+""")
+    List<Object[]> adminAllDriversStatsRaw(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
 }
