@@ -11,6 +11,7 @@ import { ReplaySubject } from 'rxjs';
 import { Stop } from '../models/address/interfaces/stop-point.interface';
 import { PointResponseDTO } from '../models/driver/point-response.dto';
 import { MapRouteDTO } from '../models/map/interfaces/map-route.interface';
+import { RouteResponse } from '../models/map/interfaces/route-response.interface';
 
 @Injectable({
   providedIn: 'root'  

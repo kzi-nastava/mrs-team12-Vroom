@@ -1,4 +1,4 @@
-interface RouteResponse {
+export interface RouteResponse {
   geometry: {
     coordinates: number[][];
   };

@@ -8,6 +8,7 @@ import { RegisterRequestDTO } from '../../core/models/auth/requests/register-req
 import { AuthService } from '../../core/services/auth.service';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
 
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -44,6 +45,9 @@ export class Register {
 
 
     onSubmit(){
+      if(this.isLoading)
+        return
+      
       this.isLoading = true; 
       this.cdRef.detectChanges();
       this.error = '';
@@ -103,5 +107,4 @@ export class Register {
       })
     }
 
-    
 }
