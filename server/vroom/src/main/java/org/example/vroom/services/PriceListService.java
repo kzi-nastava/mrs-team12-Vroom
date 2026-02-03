@@ -1,6 +1,6 @@
 package org.example.vroom.services;
 
-import org.example.vroom.DTOs.PricelistDTO;
+import org.example.vroom.DTOs.requests.PricelistDTO;
 import org.example.vroom.entities.Pricelist;
 import org.example.vroom.enums.VehicleType;
 import org.example.vroom.exceptions.pricelist.InvalidVehicleTypeException;
@@ -40,13 +40,13 @@ public class PriceListService {
         Pricelist pricelist = pricelistOptional.get();
         switch (type){
             case STANDARD -> {
-                return pricelist.getPrice_standard();
+                return pricelist.getPriceStandard();
             }
             case LUXURY -> {
-                return pricelist.getPrice_luxury();
+                return pricelist.getPriceLuxury();
             }
             case MINIVAN -> {
-                return pricelist.getPrice_minivan();
+                return pricelist.getPriceMinivan();
             }
             case null, default -> {
                 throw new InvalidVehicleTypeException("Invalid vehicle type");

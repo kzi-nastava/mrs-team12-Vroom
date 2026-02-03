@@ -1,12 +1,7 @@
 package org.example.vroom.entities;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.vroom.enums.VehicleType;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Entity
 @Table(name = "pricelists")
@@ -25,13 +20,13 @@ public class Pricelist {
     private boolean valid;
 
     @Column(nullable = false)
-    private double price_standard;
+    private double priceStandard;
 
     @Column(nullable = false)
-    private double price_luxury;
+    private double priceLuxury;
 
     @Column(nullable = false)
-    private double price_minivan;
+    private double priceMinivan;
 
 }
 

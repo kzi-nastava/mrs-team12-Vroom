@@ -1,6 +1,6 @@
 package org.example.vroom.mappers;
 
-import org.example.vroom.DTOs.PricelistDTO;
+import org.example.vroom.DTOs.requests.PricelistDTO;
 import org.example.vroom.entities.Pricelist;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +12,9 @@ public class PricelistMapper {
             return null;
 
         return PricelistDTO.builder()
-                .price_luxury(pricelist.getPrice_luxury())
-                .price_standard(pricelist.getPrice_standard())
-                .price_minivan(pricelist.getPrice_minivan())
+                .priceLuxury(pricelist.getPriceLuxury())
+                .priceStandard(pricelist.getPriceStandard())
+                .priceMinivan(pricelist.getPriceMinivan())
                 .build();
     }
 
@@ -24,9 +24,9 @@ public class PricelistMapper {
 
         return Pricelist.builder()
                 .valid(true)
-                .price_luxury(pricelistDTO.getPrice_luxury())
-                .price_standard(pricelistDTO.getPrice_standard())
-                .price_minivan(pricelistDTO.getPrice_minivan())
+                .priceLuxury(pricelistDTO.getPriceLuxury())
+                .priceStandard(pricelistDTO.getPriceStandard())
+                .priceMinivan(pricelistDTO.getPriceMinivan())
                 .build();
     }
 
