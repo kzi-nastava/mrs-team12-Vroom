@@ -84,8 +84,7 @@ public class RouteEstimationFragment extends BottomSheetDialogFragment {
     }
 
     private void performCalculation() {
-        // Ovde ide tvoja logika pozivanja servisa preko ViewModel-a
-        // npr. mViewModel.calculateRoute(start, end, allStops);
+        
     }
 
 }
