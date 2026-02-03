@@ -39,6 +39,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.example.vroom.services.RideService;
 import java.time.LocalDateTime;
@@ -46,6 +47,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -230,23 +232,54 @@ public class RideController {
            consumes = MediaType.APPLICATION_JSON_VALUE,
            produces = MediaType.APPLICATION_JSON_VALUE
    )
-   public ResponseEntity<GetRideResponseDTO> orderRide(
+   public ResponseEntity<?> orderRide(
            @AuthenticationPrincipal UserDetails userDetails,
            @RequestBody RideRequestDTO request
    ) {
-       GetRideResponseDTO response = null;
        try {
-           response = rideService.orderRide(userDetails.getUsername(), request);
+           if (request == null ||
+                   request.getRoute() == null ||
+                   request.getVehicleType() == null ||
+                   request.getBabiesAllowed() == null ||
+                   request.getPetsAllowed() == null ||
+
+                   request.getRoute().getStartLocationLat() == null ||
+                   request.getRoute().getStartLocationLng() == null ||
+                   request.getRoute().getEndLocationLat() == null ||
+                   request.getRoute().getEndLocationLng() == null
+           ) {
+               return ResponseEntity
+                       .badRequest()
+                       .body(Map.of("message", "Invalid ride request"));
+           }
+
+           GetRideResponseDTO response =
+                   rideService.orderRide(userDetails.getUsername(), request);
+
+           return ResponseEntity
+                   .status(HttpStatus.CREATED)
+                   .body(response);
+
+       } catch (NoAvailableDriverException e) {
+           return ResponseEntity
+                   .status(HttpStatus.CONFLICT)
+                   .body(Map.of("message", e.getMessage()));
+
+       } catch (TooManyPassengersException e) {
+           return ResponseEntity
+                   .status(HttpStatus.CONFLICT)
+                   .body(Map.of("message", e.getMessage()));
+       }catch (RuntimeException e) {
+           return ResponseEntity
+                   .badRequest()
+                   .body(Map.of("message", e.getMessage()));
        } catch (Exception e) {
-           log.error("Exception u rideService.orderRide: ", e);
-           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+           log.error("Unexpected exception in orderRide", e);
+           return ResponseEntity
+                   .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                   .build();
        }
-
-       return ResponseEntity
-               .status(HttpStatus.CREATED)
-               .body(response);
    }
-
     @ExceptionHandler(NoAvailableDriverException.class)
     public ResponseEntity<MessageResponseDTO> handleNoDriver(NoAvailableDriverException ex) {
         return ResponseEntity

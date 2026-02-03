@@ -1,6 +1,7 @@
 package org.example.vroom.repositories;
 
 import org.example.vroom.entities.Driver;
+import org.example.vroom.entities.RegisteredUser;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.User;
 import org.example.vroom.enums.RideStatus;
@@ -79,4 +80,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             Pageable pageable);
+
+    boolean existsByPassengerAndStatusIn(
+            RegisteredUser passenger,
+            List<RideStatus> statuses
+    );
 }
