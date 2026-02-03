@@ -1,19 +1,13 @@
 package org.example.vroom.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.SneakyThrows;
 import org.example.vroom.DTOs.BlockUserRequestDTO;
-import org.example.vroom.DTOs.PricelistDTO;
+import org.example.vroom.DTOs.requests.PricelistDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
 import org.example.vroom.DTOs.requests.driver.RejectRequestDTO;
 import org.example.vroom.DTOs.responses.AdminUserDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
-import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
-import org.example.vroom.entities.DriverProfileUpdateRequest;
-import org.example.vroom.enums.RequestStatus;
-import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.repositories.DriverProfileUpdateRequestRepository;
@@ -22,12 +16,9 @@ import org.example.vroom.services.PriceListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
