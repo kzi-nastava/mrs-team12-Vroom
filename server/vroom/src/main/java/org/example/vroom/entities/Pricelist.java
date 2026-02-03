@@ -1,5 +1,6 @@
 package org.example.vroom.entities;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.vroom.enums.VehicleType;
@@ -20,20 +21,17 @@ public class Pricelist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ElementCollection
     @Column(nullable = false)
-    @Builder.Default
-    private Map<VehicleType, Float> typePrice = new HashMap<>();
-    
-    @Column(nullable = false)
-    private float pricePerKm;
+    private boolean valid;
 
-    protected Pricelist(
-            Map<VehicleType, Float> typePrice,
-            float pricePerKm
-    ) {
-        this.typePrice = typePrice;
-        this.pricePerKm = pricePerKm;
-    }
+    @Column(nullable = false)
+    private double price_standard;
+
+    @Column(nullable = false)
+    private double price_luxury;
+
+    @Column(nullable = false)
+    private double price_minivan;
+
 }
 
