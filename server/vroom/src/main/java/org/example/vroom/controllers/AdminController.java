@@ -1,30 +1,24 @@
 package org.example.vroom.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.SneakyThrows;
 import org.example.vroom.DTOs.BlockUserRequestDTO;
+import org.example.vroom.DTOs.requests.PricelistDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
 import org.example.vroom.DTOs.requests.driver.RejectRequestDTO;
 import org.example.vroom.DTOs.responses.AdminUserDTO;
-import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
-import org.example.vroom.entities.DriverProfileUpdateRequest;
-import org.example.vroom.enums.RequestStatus;
-import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.repositories.DriverProfileUpdateRequestRepository;
 import org.example.vroom.services.AdminService;
+import org.example.vroom.services.PriceListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -39,6 +33,8 @@ public class AdminController {
     private AdminService adminService;
     @Autowired
     private DriverMapper driverMapper;
+    @Autowired
+    private PriceListService priceListService;
 
     @GetMapping(path = "/users/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserRideHistoryResponseDTO>> getRides(
@@ -116,6 +112,15 @@ public class AdminController {
     public ResponseEntity<Void> unblockUser(@PathVariable Long id) {
         adminService.unblockUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/new-pricelist")
+    //@Pre-Authorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponseDTO> setPricelist(
+            @RequestBody PricelistDTO newPricelistDTO
+    ){
+        priceListService.setNewPriceList(newPricelistDTO);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
 }
