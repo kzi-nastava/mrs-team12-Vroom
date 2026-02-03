@@ -43,6 +43,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     private FrameLayout contentFrame;
     private DrawerLayout drawer;
     private NavigationViewModel viewModel;
+    private RouteEstimationFragment routeEstimationFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,8 +194,10 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         }else if (id == R.id.nav_logout && StorageManager.getData("jwt", null) != null){
             viewModel.logout();
         }else if(id == R.id.nav_route_estimation){
-            RouteEstimationFragment fragment = RouteEstimationFragment.newInstance();
-            fragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
+            if(routeEstimationFragment == null)
+                routeEstimationFragment = RouteEstimationFragment.newInstance();
+
+            routeEstimationFragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
         }
 
         drawer.closeDrawer(GravityCompat.START);
