@@ -125,7 +125,9 @@ public class AdminController {
 
     @PostMapping("/new-pricelist")
     //@Pre-Authorize("hasRole('ADMIN')")
-    public ResponseEntity<MessageResponseDTO> setPricelist(PricelistDTO newPricelistDTO){
+    public ResponseEntity<MessageResponseDTO> setPricelist(
+            @RequestBody PricelistDTO newPricelistDTO
+    ){
         priceListService.setNewPriceList(newPricelistDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
