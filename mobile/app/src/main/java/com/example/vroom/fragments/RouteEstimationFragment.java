@@ -102,8 +102,8 @@ public class RouteEstimationFragment extends BottomSheetDialogFragment {
                 TextView timeTxt = view.findViewById(R.id.text_est_time);
                 TextView priceTxt = view.findViewById(R.id.text_est_price);
 
-                timeTxt.setText(quote.getTime() + " min");
-                priceTxt.setText(quote.getPrice() + " RSD");
+                timeTxt.setText(String.format("%.2f min", quote.getTime()));
+                priceTxt.setText(String.format("%.2f RSD", quote.getPrice()));
             }
         });
     }
@@ -157,7 +157,10 @@ public class RouteEstimationFragment extends BottomSheetDialogFragment {
     private void setInputFocusChangeListener(EditText input, RecyclerView recycler){
         input.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
+                hideAllSuggestions();
+
                 String query = input.getText().toString().trim();
+
                 if (query.length() > 3) {
                     routeEstVM.setActiveRecyclerId(input.getId());
                     routeEstVM.getAddressSuggestions(query);
