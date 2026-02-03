@@ -26,6 +26,7 @@ import com.example.vroom.DTOs.driver.requests.DriverChangeStatusRequestDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
+import com.example.vroom.fragments.RouteEstimationFragment;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
@@ -155,6 +156,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         menu.findItem(R.id.login_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.register_navbar_item).setVisible(!isLoggedIn);
+        menu.findItem(R.id.nav_route_estimation).setVisible(!isLoggedIn);
     }
 
     public void onLogoButtonClicked(){
@@ -190,6 +192,9 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             startActivity(intent);
         }else if (id == R.id.nav_logout && StorageManager.getData("jwt", null) != null){
             viewModel.logout();
+        }else if(id == R.id.nav_route_estimation){
+            RouteEstimationFragment fragment = RouteEstimationFragment.newInstance();
+            fragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
         }
 
         drawer.closeDrawer(GravityCompat.START);
