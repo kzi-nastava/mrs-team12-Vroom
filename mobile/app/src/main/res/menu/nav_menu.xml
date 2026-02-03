@@ -14,6 +14,11 @@
         android:icon="@drawable/ic_calendar"
         android:id="@+id/driver_ride_history_item"/>
 
+    <item
+        android:id="@+id/nav_route_estimation"
+        android:icon="@drawable/ic_route"
+        android:title="Estimate Route" />
+
     <group android:id="@+id/nav_footer" android:checkableBehavior="none">
         <item
             android:id="@+id/nav_status_switch"
