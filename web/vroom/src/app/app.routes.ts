@@ -21,6 +21,7 @@ import { StopRide } from './features/stop-ride/stop-ride';
 import { AdminDriverRequestsComponent } from './features/admin-driver-requests/admin-driver-requests.component';
 import {UserActiveRide} from './features/user-active-ride/user-active-ride';
 import { AdminUsersComponent } from './features/admin-users/admin-users.component';
+import { RideStatisticsComponent } from './features/ride-statistics/ride-statistics.model';
 
 export const routes: Routes = [
     {path: 'login', component: Login},
@@ -35,6 +36,7 @@ export const routes: Routes = [
     { path: 'admin-driver-requests', component: AdminDriverRequestsComponent },
     { path: 'admin-users', component: AdminUsersComponent},
     {path: 'active', component: UserActiveRide},
+    {path: "ride-statistics", component: RideStatisticsComponent},
     {path: '', component: MainView, 
         children: [ 
             {path: 'route-estimation', component: RouteEstimation },
