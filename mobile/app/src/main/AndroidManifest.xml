@@ -18,18 +18,14 @@
         <activity
             android:name=".activities.MainActivity"
             android:exported="true" >
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".activities.BaseActivity"
             android:exported="true"/>
-        <activity
-            android:name=".activities.DriverRideHistoryActivity"
-            android:exported="true" />
         <activity
             android:name=".activities.RegisterActivity"
             android:exported="true"
@@ -50,6 +46,7 @@
             android:name=".activities.DriverProfileActivity"
             android:exported="true"
             android:label="DriverProfile"/>
+
     </application>
 
 </manifest>
