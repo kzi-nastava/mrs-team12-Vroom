@@ -1,0 +1,92 @@
+<div class="ride-statistics">
+  <form [formGroup]="form" (ngSubmit)="fetchReport()">
+
+    <label>
+      From:
+      <input type="date" formControlName="from">
+    </label>
+
+    <label>
+      To:
+      <input type="date" formControlName="to">
+    </label>
+
+    <ng-container *ngIf="role === 'ADMIN'">
+      <label>
+        User ID:
+        <input type="number" formControlName="userId">
+      </label>
+
+      <label>
+        Driver ID:
+        <input type="number" formControlName="driverId">
+      </label>
+
+        <button type="button" (click)="fetchAllUsersReport()">Fetch All Users</button>
+  <button type="button" (click)="fetchAllDriversReport()">Fetch All Drivers</button>
+    </ng-container>
+
+    <button type="submit">Fetch Report</button>
+  </form>
+
+
+  <div *ngIf="report">
+    <h3>Report</h3>
+
+    <p>Total Rides: {{ totalRides() }}</p>
+    <p>Total Money: {{ totalMoney() }}</p>
+    <p>Total Distance (km): {{ totalKm() }}</p>
+
+    <h4>Average per Day</h4>
+    <p>Avg Rides / Day: {{ averageRidesPerDay() }}</p>
+    <p>Avg Money / Day: {{ averageMoneyPerDay() }}</p>
+    <p>Avg Distance / Day (km): {{ averageKmPerDay() }}</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Rides</th>
+          <th>Money</th>
+          <th>Distance (km)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let day of report.daily">
+          <td>{{ day.date | date }}</td>
+          <td>{{ day.rideCount }}</td>
+          <td>{{ day.money | number:'1.2-2' }}</td>
+          <td>{{ day.km | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 40px;">
+      <h4>Rides per Day</h4>
+      <canvas #ridesChart baseChart
+        [data]="ridesChartData"
+        [options]="ridesChartOptions"
+        chartType="bar">
+      </canvas>
+    </div>
+
+    <div style="margin-top: 40px;">
+      <h4>Money per Day</h4>
+      <canvas #moneyChart baseChart
+        [data]="moneyChartData"
+        [options]="moneyChartOptions"
+        chartType="bar">
+      </canvas>
+    </div>
+
+    <div style="margin-top: 40px;">
+      <h4>Distance per Day (km)</h4>
+      <canvas #kmChart baseChart
+        [data]="kmChartData"
+        [options]="kmChartOptions"
+        chartType="bar">
+      </canvas>
+    </div>
+
+  </div>
+</div>

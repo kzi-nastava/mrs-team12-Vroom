@@ -26,6 +26,8 @@ import com.example.vroom.DTOs.driver.requests.DriverChangeStatusRequestDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
+import com.example.vroom.fragments.RideHistoryFragment;
+import com.example.vroom.fragments.RouteEstimationFragment;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
@@ -42,6 +44,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     private FrameLayout contentFrame;
     private DrawerLayout drawer;
     private NavigationViewModel viewModel;
+    private RouteEstimationFragment routeEstimationFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +158,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         menu.findItem(R.id.login_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.register_navbar_item).setVisible(!isLoggedIn);
+        menu.findItem(R.id.nav_route_estimation).setVisible(!isLoggedIn);
     }
 
     public void onLogoButtonClicked(){
@@ -186,10 +190,17 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             Intent intent = new Intent(this, RegisterActivity.class);
             startActivity(intent);
         }else if (id == R.id.driver_ride_history_item){
-            Intent intent = new Intent(this, DriverRideHistoryActivity.class);
-            startActivity(intent);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new RideHistoryFragment())
+                    .addToBackStack(null)
+                    .commit();
         }else if (id == R.id.nav_logout && StorageManager.getData("jwt", null) != null){
             viewModel.logout();
+        }else if(id == R.id.nav_route_estimation){
+            if(routeEstimationFragment == null)
+                routeEstimationFragment = RouteEstimationFragment.newInstance();
+
+            routeEstimationFragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
         }
 
         drawer.closeDrawer(GravityCompat.START);

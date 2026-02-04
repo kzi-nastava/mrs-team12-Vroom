@@ -1,10 +1,8 @@
 package org.example.vroom.mappers;
 
-import org.example.vroom.DTOs.PricelistDTO;
+import org.example.vroom.DTOs.requests.PricelistDTO;
 import org.example.vroom.entities.Pricelist;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class PricelistMapper {
@@ -14,27 +12,22 @@ public class PricelistMapper {
             return null;
 
         return PricelistDTO.builder()
-                .typePrice(pricelist.getTypePrice())
-                .pricePerKm(pricelist.getPricePerKm())
+                .priceLuxury(pricelist.getPriceLuxury())
+                .priceStandard(pricelist.getPriceStandard())
+                .priceMinivan(pricelist.getPriceMinivan())
                 .build();
     }
 
-    public Pricelist toEntity(PricelistDTO pricelistDTO) {
+    public Pricelist newPricelist(PricelistDTO pricelistDTO) {
         if (pricelistDTO == null)
             return null;
 
         return Pricelist.builder()
-                .typePrice(pricelistDTO.getTypePrice())
-                .pricePerKm(pricelistDTO.getPricePerKm())
+                .valid(true)
+                .priceLuxury(pricelistDTO.getPriceLuxury())
+                .priceStandard(pricelistDTO.getPriceStandard())
+                .priceMinivan(pricelistDTO.getPriceMinivan())
                 .build();
     }
 
-    public List<PricelistDTO> toDTOList(List<Pricelist> pricelists) {
-        if (pricelists == null)
-            return null;
-
-        return pricelists.stream()
-                .map(this::toDTO)
-                .toList();
-    }
 }
