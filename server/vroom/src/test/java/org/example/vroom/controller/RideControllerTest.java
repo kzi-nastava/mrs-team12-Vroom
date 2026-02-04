@@ -15,6 +15,7 @@ import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.enums.VehicleType;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
+import org.example.vroom.repositories.DriverLocationRepository;
 import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.RegisteredUserRepository;
 import org.example.vroom.repositories.RideRepository;
@@ -66,12 +67,23 @@ public class RideControllerTest {
     private RegisteredUserRepository registeredUserRepository;
     @Autowired
     private RideRepository rideRepository;
+    @Autowired
+    private DriverLocationRepository driverLocationRepository;
 
     private Driver driver;
     private RegisteredUser passenger;
     private Ride ongoingRide;
     private Long ongoingRideId;
 
+    private DriverLocation createDriverLocation(Driver driver, Double lat, Double lng) {
+        DriverLocation location = DriverLocation.builder()
+                .driver(driver)
+                .latitude(lat)
+                .longitude(lng)
+                .lastUpdated(LocalDateTime.now())
+                .build();
+        return driverLocationRepository.save(location);
+    }
     private Driver createDriver(){
         Vehicle vehicle = Vehicle.builder()
                 .brand("Toyota")
@@ -126,6 +138,9 @@ public class RideControllerTest {
     private void setupTestData() {
         driver = createDriver();
         driver = driverRepository.save(driver);
+
+        DriverLocation location = createDriverLocation(driver, 45.2551, 19.8451);
+        driverLocationRepository.save(location);
 
         passenger = RegisteredUser.builder()
                 .firstName("Jovan")
