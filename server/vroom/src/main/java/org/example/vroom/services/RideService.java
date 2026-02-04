@@ -116,7 +116,9 @@ public class RideService {
         Driver driver = driverRepository.findFirstAvailableDriver(
                 request.getVehicleType(),
                 request.getBabiesAllowed(),
-                request.getPetsAllowed()
+                request.getPetsAllowed(),
+                route.getStartLocationLat(),
+                route.getStartLocationLng()
         ).orElseThrow(() -> new NoAvailableDriverException("No available drivers"));
         int vehicleCapacity = driver.getVehicle().getNumberOfSeats();
         int totalPassengers = 1 + passengers.size();
