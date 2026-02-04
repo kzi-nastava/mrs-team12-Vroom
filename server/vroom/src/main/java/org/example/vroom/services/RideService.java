@@ -355,7 +355,9 @@ public class RideService {
         } catch (MessagingException | IOException e) {
             throw new RuntimeException(e);
         }
-        for (String email : ride.getPassengers()) {
+        List<String> passengers = Optional.ofNullable(ride.getPassengers())
+                .orElse(Collections.emptyList());
+        for (String email : passengers) {
             try {
                 emailService.sendRideEndMail(email);
             }catch (MessagingException | IOException e) {
