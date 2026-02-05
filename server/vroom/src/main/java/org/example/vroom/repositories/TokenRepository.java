@@ -16,4 +16,5 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     @Modifying(clearAutomatically = true)
     @Query("delete from Token t where t.expiresAt < :expiresAt")
     void deleteByExpiresAt(@Param("expiresAt") LocalDateTime expiresAt);
+
 }
