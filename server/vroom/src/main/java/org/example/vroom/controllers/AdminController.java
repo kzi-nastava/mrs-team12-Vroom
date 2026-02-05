@@ -7,7 +7,7 @@ import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
 import org.example.vroom.DTOs.requests.driver.RejectRequestDTO;
 import org.example.vroom.DTOs.responses.AdminUserDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
-import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.repositories.DriverProfileUpdateRequestRepository;
@@ -37,7 +37,7 @@ public class AdminController {
     private PriceListService priceListService;
 
     @GetMapping(path = "/users/rides", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserRideHistoryResponseDTO>> getRides(
+    public ResponseEntity<List<RideResponseDTO>> getRides(
             @RequestParam(required = false) String userEmail,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -46,14 +46,14 @@ public class AdminController {
             @RequestParam(required = false, defaultValue = "10") int pageSize
     ) {
         try{
-            List<UserRideHistoryResponseDTO> rides;
+            List<RideResponseDTO> rides;
 
             if(userEmail != null && !userEmail.isEmpty())
                 rides = adminService.getUserRideHistory(userEmail, sort, startDate, endDate, pageNumber, pageSize);
             else
                 rides = adminService.getUserRideHistory(sort, startDate, endDate, pageNumber, pageSize);
 
-            return new ResponseEntity<List<UserRideHistoryResponseDTO>>(rides, HttpStatus.OK);
+            return new ResponseEntity<List<RideResponseDTO>>(rides, HttpStatus.OK);
         }catch(UserNotFoundException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }catch(Exception e){

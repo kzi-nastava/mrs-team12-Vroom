@@ -1,6 +1,6 @@
 package org.example.vroom.controllers;
 
-import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.User;
 import org.example.vroom.services.RegisteredUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class RegisteredUserController {
     private RegisteredUserService registeredUserService;
 
     @GetMapping("/rides")
-    public ResponseEntity<List<UserRideHistoryResponseDTO>> getRideHistory(
+    public ResponseEntity<List<RideResponseDTO>> getRideHistory(
             @AuthenticationPrincipal User user,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -33,11 +33,11 @@ public class RegisteredUserController {
             @RequestParam(required = false, defaultValue = "0") int pageNumber,
             @RequestParam(required = false, defaultValue = "10") int pageSize
     ){
-        List<UserRideHistoryResponseDTO> rides = registeredUserService.getUserRideHistory(
+        List<RideResponseDTO> rides = registeredUserService.getUserRideHistory(
                 user, sort, startDate, endDate, pageNumber, pageSize
         );
 
-        return new ResponseEntity<List<UserRideHistoryResponseDTO>>(rides, HttpStatus.OK);
+        return new ResponseEntity<List<RideResponseDTO>>(rides, HttpStatus.OK);
     }
 
 }
