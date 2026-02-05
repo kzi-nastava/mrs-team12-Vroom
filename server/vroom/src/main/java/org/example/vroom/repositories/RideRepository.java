@@ -86,6 +86,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     boolean existsByPassengerAndStatusIn(
             RegisteredUser passenger,
             List<RideStatus> statuses
+    );
 
     @Query("""
     SELECT CAST(r.startTime AS date), COUNT(r), COALESCE(SUM(r.price), 0)
