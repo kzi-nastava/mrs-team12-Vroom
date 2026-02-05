@@ -2,6 +2,7 @@ package org.example.vroom.services;
 
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.DriverLocation;
+import org.example.vroom.exceptions.user.DriverNotFoundException;
 import org.example.vroom.repositories.DriverLocationRepository;
 import org.example.vroom.repositories.DriverRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +36,7 @@ public class DriverLocationService {
         location.setLatitude(lat);
         location.setLongitude(lng);
         location.setLastUpdated(LocalDateTime.now());
-
-        locationRepo.save(location);
+        locationRepo.saveAndFlush(location);
     }
 
     public List<DriverLocation> getAllLocations() {

@@ -32,9 +32,7 @@ export class RideUpdatesService{
         }
         const ws = new SockJS(this.serverUrl);
         this.stompClient = Stomp.over(ws);
-        this.stompClient.connect({
-            Authorization: `Bearer ${token}`
-        }, () => {
+        this.stompClient.connect({}, () => {
             this.stompClient.subscribe(`/socket-publisher/ride-duration-update/${rideID}`, (message: any) => {
                 if (message.body) {
                     this.rideUpdateSubject.next(JSON.parse(message.body));

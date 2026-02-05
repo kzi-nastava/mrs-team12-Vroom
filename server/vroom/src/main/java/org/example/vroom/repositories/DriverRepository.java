@@ -37,10 +37,10 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
       AND (:petsAllowed IS NULL OR d.vehicle.petsAllowed = :petsAllowed)
     ORDER BY (
         6371 * acos(
-            cos(radians(:pickupLat)) * 
-            cos(radians(dl.latitude)) * 
-            cos(radians(dl.longitude) - radians(:pickupLon)) + 
-            sin(radians(:pickupLat)) * 
+            cos(radians(:pickupLat)) *
+            cos(radians(dl.latitude)) *
+            cos(radians(dl.longitude) - radians(:pickupLon)) +
+            sin(radians(:pickupLat)) *
             sin(radians(dl.latitude))
         )
     ) ASC
