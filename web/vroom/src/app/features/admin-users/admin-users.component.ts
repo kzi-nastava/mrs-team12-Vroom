@@ -5,6 +5,7 @@ import { AdminUserService } from './admin-user.service';
 import { AdminUser } from './admin-user.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-users',
@@ -25,7 +26,7 @@ private refresh$ = new Subject<void>();
 
   blockReason: { [key: number]: string } = {};
 
-  constructor(private adminUserService: AdminUserService) {}
+  constructor(private adminUserService: AdminUserService, private router: Router) {}
 
 ngOnInit(): void {
   this.users$ = this.refresh$.pipe(
@@ -74,4 +75,10 @@ unblock(user: AdminUser): void {
     }
   });
 }
+
+  redirectToUserHistory(user: AdminUser){
+    this.router.navigate(['/ride-history'], { 
+      queryParams: { email: user.email } 
+    });
+  }
 }

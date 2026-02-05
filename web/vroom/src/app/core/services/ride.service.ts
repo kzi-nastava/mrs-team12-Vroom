@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { CancelRideRequestDTO } from "../models/ride/requests/cancel-ride-req.dto";
 import { MessageResponseDTO } from "../models/message-response.dto";
@@ -11,6 +11,7 @@ import { GetRouteResponseDTO } from "../models/ride/responses/get-route-response
 import { map } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
 import { GetRideResponseDTO } from '../models/ride/responses/get-ride-response.dto'
+import { RideResponseDTO } from "../models/ride/responses/ride-respose.dto";
 
 @Injectable({
     providedIn: "root"
@@ -62,5 +63,8 @@ export class RideService{
         );
     }
 
-    
+    getRide(rideId: string | number | undefined): Observable<RideResponseDTO>{
+        let params = new HttpParams().set('rideId', rideId!);
+        return this.http.get<RideResponseDTO>(this.rideUrl, {params})
+    }
 }

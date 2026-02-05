@@ -42,7 +42,7 @@
                     </select>
                 </div>
 
-                <div class="filter-item" *ngIf="(authService.isLoggedIn$ | async) && authService.getCurrentUserType === 'ADMIN'">
+                <div class="filter-item" *ngIf="authService.getCurrentUserType === 'ADMIN'">
                     <label for="userEmail">User's Email</label>
                     <input 
                         type="email" 
@@ -93,9 +93,9 @@
                                     {{ ride.panicActivated ? 'Panic' : 'Safe' }}
                                 </span>
                             </div>
-                            <div>
-                                <button>Show on map</button>
-                            </div>
+                            <button type="button" class="map-redirect-btn" (click)="$event.stopPropagation();  showOnMapRoute(ride.rideId)">
+                                Check on the map
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -152,6 +152,21 @@
                                 {{ complaint }}
                             </div>
                         </div>
+                    </div>
+
+                    <div 
+                        class="rating-section" 
+                        *ngIf="!(selectedRide.driverRating || selectedRide.vehicleRating) 
+                            && canLeaveReview(selectedRide.endTime) 
+                            && (authService.isLoggedIn$ | async) 
+                            && authService.getCurrentUserType === 'REGISTERED_USER'"
+                    >
+                        <button class="leave-review-btn" (click)="openLeaveReview()">Leave a review</button>
+                        <app-review-popup 
+                            *ngIf="isReviewFormShowed" 
+                            [rideID]="selectedRide.rideId.toString()"
+                            (closePopup)="closeLeaveReview()">
+                        </app-review-popup>
                     </div>
 
                     <div class="info-section" *ngIf="selectedRide.driverRating || selectedRide.vehicleRating">

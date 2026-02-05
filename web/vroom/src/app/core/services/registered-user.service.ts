@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
-import { UserRideHistoryResponseDTO } from "../models/ride/responses/user-ride-history-respose.dto";
+import { RideResponseDTO } from "../models/ride/responses/ride-respose.dto";
 import { Observable } from "rxjs";
 
 @Injectable({
@@ -15,7 +15,7 @@ export class RegisteredUserService{
         startDate?: any,
         endDate?: any,
         sortBy?: 'startTime,asc' | 'startTime,desc' | 'price,asc' | 'price,desc'
-    ): Observable<UserRideHistoryResponseDTO[]>{
+    ): Observable<RideResponseDTO[]>{
         let params = new HttpParams().set('sort', sortBy || 'startTime,desc');
         if (startDate) {
             const start = new Date(startDate);
@@ -25,6 +25,6 @@ export class RegisteredUserService{
             const end = new Date(endDate);
             params = params.set('endDate', end.toISOString());
         }
-        return this.http.get<UserRideHistoryResponseDTO[]>(`${this.api}/rides`, { params })
+        return this.http.get<RideResponseDTO[]>(`${this.api}/rides`, { params })
     } 
 }
