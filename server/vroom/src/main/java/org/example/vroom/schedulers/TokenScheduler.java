@@ -10,6 +10,7 @@ public class TokenScheduler {
     @Autowired
     private TokenService tokenService;
 
+    // cheking expired tokens every 3h
     @Scheduled(cron = "0 0 */3 * * ?")
     public void deleteExpiredTokens(){
         tokenService.deleteExpiredTokens();
