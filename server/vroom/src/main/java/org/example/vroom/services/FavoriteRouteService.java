@@ -79,10 +79,12 @@ public class FavoriteRouteService {
         Driver driver = driverRepository.findFirstAvailableDriver(
                 request.getVehicleType(),
                 request.getBabiesAllowed(),
-                request.getPetsAllowed()
-        ).orElseThrow(() -> new NoAvailableDriverException("No available driver"));
+                request.getPetsAllowed(),
+                route.getStartLocationLat(),
+                route.getStartLocationLng()
+        ).orElseThrow(() -> new NoAvailableDriverException("No available drivers"));
 
-        // --- Provera radnog vremena vozača ---
+
         if (!driverHasWorkingTime(driver)) {
             throw new RuntimeException("Driver exceeded 8 working hours in last 24h");
         }

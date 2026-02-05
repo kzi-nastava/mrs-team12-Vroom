@@ -4,6 +4,7 @@ import lombok.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
 import org.example.vroom.enums.RideStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 public class GetRideResponseDTO {
     private Long rideID;
     private DriverRideResponseDTO driver;
+    @NotNull
     private GetRouteResponseDTO route;
 
     private List<String> passengers;
