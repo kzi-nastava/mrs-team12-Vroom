@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { UserRideHistoryResponseDTO } from "../models/ride/responses/user-ride-history-respose.dto";
+import { RideResponseDTO } from "../models/ride/responses/ride-respose.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -16,7 +16,7 @@ export class AdminService{
         endDate?: any,
         sortBy?: 'startTime,asc' | 'startTime,desc' | 'price,asc' | 'price,desc',
         userEmail?: string
-    ): Observable<UserRideHistoryResponseDTO[]>{
+    ): Observable<RideResponseDTO[]>{
         let params = new HttpParams().set('sort', sortBy || 'startTime,desc');
         if (startDate) {
             const start = new Date(startDate);
@@ -28,9 +28,9 @@ export class AdminService{
         }
 
         if(userEmail){
-            params = params.set('userEmail', userEmail)
+            params = params.set('email', userEmail)
         }
 
-        return this.http.get<UserRideHistoryResponseDTO[]>(`${this.api}/users/rides`, { params })
+        return this.http.get<RideResponseDTO[]>(`${this.api}/users/rides`, { params })
     } 
 }

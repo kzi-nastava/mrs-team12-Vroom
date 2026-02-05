@@ -82,7 +82,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/drivers/**").authenticated()
                         .requestMatchers("/api/rides/**").authenticated()
                         .requestMatchers("/api/auth/logout").authenticated()
-                        //.requestMatchers("/api/admins/**").permitAll()
+                        .requestMatchers("/api/admins/**").authenticated()
                         //.requestMatchers("/api/panics/**").authenticated()
                         .requestMatchers("/api/profile/driver").authenticated()
                         .requestMatchers("/api/profile/user").authenticated()

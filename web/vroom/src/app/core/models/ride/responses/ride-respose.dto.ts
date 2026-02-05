@@ -1,7 +1,7 @@
 import { RideStatus } from "../../../../features/driver-active-ride/ride.model";
 import { GetRouteResponseDTO } from "./get-route-response.dto";
 
-export interface UserRideHistoryResponseDTO{
+export interface RideResponseDTO{
     rideId: number;
 
     driverFirstName: string;

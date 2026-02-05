@@ -33,7 +33,6 @@ export const routes: Routes = [
     {path: 'driver-active-ride', component: DriverActiveRide},
     {path: 'order-from-favorites', component: OrderFromFavorites},
     {path: 'register-driver', component: RegisterDriver},
-    {path: 'panic', component: PanicButton},
     { path: 'admin-driver-requests', component: AdminDriverRequestsComponent },
     { path: 'admin-users', component: AdminUsersComponent},
     {path: 'active', component: UserActiveRide},
@@ -47,7 +46,5 @@ export const routes: Routes = [
             {path: 'panic-feed', component: PanicFeed},
             {path: 'ride-history', component: RideHistory}
         ]
-    },
-    {path: 'cancel-ride', component:CancelRide},
-    {path: 'stop', component:StopRide}
+    }
 ];

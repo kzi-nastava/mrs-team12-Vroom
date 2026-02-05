@@ -1,4 +1,4 @@
-package org.example.vroom.DTOs.responses.user;
+package org.example.vroom.DTOs.responses.ride;
 
 import lombok.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserRideHistoryResponseDTO {
+public class RideResponseDTO {
     private Long rideId;
 
     private String driverFirstName;

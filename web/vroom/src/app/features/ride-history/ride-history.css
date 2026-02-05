@@ -379,3 +379,35 @@ h1 {
     color: #666;
     font-style: italic;
 }
+
+
+.map-redirect-btn, .leave-review-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    background-color: #ffffff;
+    border: 1.5px solid #99C2A2;
+    color: #2A2C24;
+    margin-top: 1.5em;
+    margin-right: 1.5em;
+}
+
+.leave-review-btn{
+    margin: 0 auto;
+}
+
+.map-redirect-btn:hover, .leave-review-btn:hover {
+    background-color: #99C2A2;
+    color: white;
+}
+
+.rating-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+    width: 100%;            
+    margin: 20px 0;         
+}
