@@ -24,6 +24,7 @@ export class PanicFeed implements OnInit{
         next: () => {
             this.isResolving = false
             this.panicAlerts = this.panicAlerts.filter(alert => alert.id !== panicID);
+            this.mapService.clearMap()
             this.cdr.detectChanges()
         },
         error: () => {
