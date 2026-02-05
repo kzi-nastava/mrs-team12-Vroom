@@ -6,7 +6,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="tokens")
+@Table(name="tokens", indexes = {
+        @Index(name = "index_token_expires_at", columnList = "expiresAt")
+})
 @Getter
 @Setter
 @NoArgsConstructor
