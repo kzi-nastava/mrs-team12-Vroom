@@ -28,6 +28,7 @@ public class UserRideHistoryResponseDTO {
     private Integer driverRating;
     private Integer vehicleRating;
     private String comment;
+    private String cancelReason;
 
     private GetRouteResponseDTO route;
 }

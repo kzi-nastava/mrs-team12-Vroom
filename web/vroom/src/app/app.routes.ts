@@ -22,6 +22,7 @@ import { AdminDriverRequestsComponent } from './features/admin-driver-requests/a
 import {UserActiveRide} from './features/user-active-ride/user-active-ride';
 import { AdminUsersComponent } from './features/admin-users/admin-users.component';
 import { RideStatisticsComponent } from './features/ride-statistics/ride-statistics.model';
+import { RideHistory } from './features/ride-history/ride-history';
 
 export const routes: Routes = [
     {path: 'login', component: Login},
@@ -43,7 +44,8 @@ export const routes: Routes = [
             {path: 'order-a-ride', component: OrderARide}, 
             {path: 'ride-duration', component: RideDuration},
             {path: 'review', component: RideEnd},
-            {path: 'panic-feed', component: PanicFeed}
+            {path: 'panic-feed', component: PanicFeed},
+            {path: 'ride-history', component: RideHistory}
         ]
     },
     {path: 'cancel-ride', component:CancelRide},

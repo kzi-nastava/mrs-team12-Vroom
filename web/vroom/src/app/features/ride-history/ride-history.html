@@ -1,0 +1,185 @@
+<section class="ride-history">
+    <div class="ride-history-outer-container">
+        <div class="container">
+            <h1>Ride History</h1>
+
+            <div class="filter-controls">
+
+                <div class="filter-item">
+                    <label for="startDate">Start Date</label>
+                    <input 
+                        type="date" 
+                        id="startDate"
+                        [(ngModel)]="startDateFilter" 
+                        (change)="onFilterChange()"
+                        class="date-input"
+                    />
+                </div>
+
+                <div class="filter-item">
+                    <label for="endDate">End Date</label>
+                    <input 
+                        type="date" 
+                        id="endDate"
+                        [(ngModel)]="endDateFilter" 
+                        (change)="onFilterChange()"
+                        class="date-input"
+                    />
+                </div>
+
+                <div class="filter-item">
+                    <label for="sortBy">Sort By</label>
+                    <select 
+                        id="sortBy" 
+                        [(ngModel)]="currentSort" 
+                        (change)="onSortChange($event)"
+                        class="sort-select"
+                    >
+                        <option value="startTime,desc">Date: Newest First</option>
+                        <option value="startTime,asc">Date: Oldest First</option>
+                        <option value="price,desc">Price: High to Low</option>
+                        <option value="price,asc">Price: Low to High</option>
+                    </select>
+                </div>
+
+                <div class="filter-item" *ngIf="(authService.isLoggedIn$ | async) && authService.getCurrentUserType === 'ADMIN'">
+                    <label for="userEmail">User's Email</label>
+                    <input 
+                        type="email" 
+                        id="userEmail"
+                        name="userEmail"
+                        [(ngModel)]="userEmailFilter" 
+                        (input)="onFilterChange()"
+                        placeholder="user@example.com"
+                        class="date-input"
+                    />
+                </div>
+
+                <button 
+                    *ngIf="startDateFilter || endDateFilter || userEmailFilter" 
+                    (click)="clearFilters()"
+                    class="clear-filters-btn">
+                        Clear Filters
+                </button>
+            </div>
+
+                <div *ngIf="isLoading" class="loader-container">
+                    <div class="spinner"></div>
+                </div>
+
+                <div *ngIf="!isLoading && rides.length > 0; else noData">
+                    <div *ngFor="let ride of rides" class="ride-card" (click)="openPopup(ride.rideId)">
+                        <div class="route">
+                            <span class="location">{{ ride.route.startAddress }}</span>
+                            <span class="arrow">→</span>
+                            <span class="location">{{ ride.route.endAddress }}</span>
+                        </div>
+                        <div class="details">
+                            <div class="detail-item">
+                                <span class="detail-label">Date & Time</span>
+                                <span class="detail-value">{{ ride.startTime | date:'dd.MM.yyyy.' }} • {{ ride.startTime | date: 'HH:mm' }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Price</span>
+                                <span class="detail-value">{{ ride.price | number:'1.0-2' }} EUR</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Status</span>
+                                <span class="status-badge" [ngClass]="getStatusClass(ride.status)">{{ getStatusLabel(ride.status) }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Safety</span>
+                                <span class="status-badge" [ngClass]="ride.panicActivated ? 'panic' : 'safe'">
+                                    {{ ride.panicActivated ? 'Panic' : 'Safe' }}
+                                </span>
+                            </div>
+                            <div>
+                                <button>Show on map</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <ng-template #noData>
+                <div *ngIf="!isLoading" class="no-rides-container">
+                    <p>No rides found</p>
+                </div>
+            </ng-template>
+                
+
+            </div>
+
+            <!-- Popup -->
+            <div class="popup-overlay" *ngIf="showPopup && selectedRide" (click)="closePopup()">
+                <div class="popup-container" (click)="$event.stopPropagation()">
+                    <button class="close-btn" (click)="closePopup()">×</button>
+                    
+                    <h2>Ride Details</h2>
+                    
+                    <div class="info-section">
+                        <div class="info-item">
+                            <span class="info-label">Ride ID</span>
+                            <span class="info-value">#{{ selectedRide.rideId }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">Status</span>
+                            <span class="status-badge" [ngClass]="getStatusClass(selectedRide.status)">
+                                {{ getStatusLabel(selectedRide.status) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="info-section" *ngIf="selectedRide.passengers.length > 0">
+                        <h3>Passengers</h3>
+                        <div class="passengers-list">
+                            <div class="passenger-item" *ngFor="let passenger of selectedRide.passengers">
+                                {{ passenger }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section" *ngIf="selectedRide.cancelReason">
+                        <h3>Cancellation Reason</h3>
+                        <p class="cancel-reason">{{ selectedRide.cancelReason }}</p>
+                    </div>
+
+                    <div class="info-section" *ngIf="selectedRide.complaints.length > 0">
+                        <h3>Complaints</h3>
+                        <div class="complaints-list">
+                            <div class="complaint-item" *ngFor="let complaint of selectedRide.complaints">
+                                {{ complaint }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section" *ngIf="selectedRide.driverRating || selectedRide.vehicleRating">
+                        <h3>Ratings</h3>
+                        <div class="ratings-grid">
+                            <div class="rating-item" *ngIf="selectedRide.driverRating">
+                                <span class="rating-label">Driver Rating</span>
+                                <div class="rating-stars">
+                                    <span class="stars">{{ getStars(selectedRide.driverRating) }}</span>
+                                    <span class="rating-number">{{ selectedRide.driverRating }}/5</span>
+                                </div>
+                            </div>
+                            <div class="rating-item" *ngIf="selectedRide.vehicleRating">
+                                <span class="rating-label">Vehicle Rating</span>
+                                <div class="rating-stars">
+                                    <span class="stars">{{ getStars(selectedRide.vehicleRating) }}</span>
+                                    <span class="rating-number">{{ selectedRide.vehicleRating }}/5</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section" *ngIf="selectedRide.comment">
+                        <h3>Comment</h3>
+                        <p class="comment-text">{{ selectedRide.comment }}</p>
+                    </div>
+                </div>
+            </div>
+    </div>
+    
+</section>

@@ -129,6 +129,7 @@ public class RideMapper {
                 .driverRating(ride.getDriverRating())
                 .vehicleRating(ride.getVehicleRating())
                 .comment(ride.getComment())
+                .cancelReason(ride.getCancelReason())
                 .route(routeMapper.getRouteDTO(ride.getRoute()))
                 .build();
     }
