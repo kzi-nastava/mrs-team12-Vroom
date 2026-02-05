@@ -13,7 +13,7 @@ public class TokenService {
     private TokenRepository tokenRepository;
 
     @Transactional
-    public void deleteExpiredTokens(){
-        tokenRepository.deleteByExpiresAt(LocalDateTime.now());
+    public void deleteExpiredTokens(LocalDateTime threshold){
+        tokenRepository.deleteByExpiresAt(threshold);
     }
 }

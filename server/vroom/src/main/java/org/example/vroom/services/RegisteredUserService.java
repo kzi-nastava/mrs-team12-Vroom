@@ -149,4 +149,9 @@ public class RegisteredUserService {
 
         return rideHistory.toList();
     }
+
+    @Transactional
+    public void deleteExpiredAccounts(LocalDateTime threshold){
+        registeredUserRepository.deleteRegisteredUsersByCreatedAt(threshold);
+    }
 }
