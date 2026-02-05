@@ -63,6 +63,8 @@ public class RideService {
     private EmailService emailService;
     @Autowired
     private GeoService geoService;
+    @Autowired
+    private RouteRepository routeRepository;
 
 
     @Autowired
@@ -78,7 +80,6 @@ public class RideService {
         RegisteredUser user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        // Validacija zakazanog vremena
         LocalDateTime scheduledTime = null;
         boolean isScheduled = request.getScheduled() != null && request.getScheduled() && request.getScheduledTime() != null;
 
@@ -97,26 +98,36 @@ public class RideService {
             scheduledTime = request.getScheduledTime();
         }
 
-        // Konvertovanje rute iz DTO
-        Route route = routeMapper.fromDTO(request.getRoute());
 
-        // Putnici
-        List<String> passengers = new ArrayList<>();
+        Route route = routeMapper.fromDTO(request.getRoute());
+        route = routeRepository.save(route);
+
+        Set<String> uniquePassengers = new LinkedHashSet<>();
         if (request.getPassengersEmails() != null) {
             for (String email : request.getPassengersEmails()) {
-                if (email == null || email.isBlank()) continue;
-                passengers.add(email);
+                if (email != null && !email.isBlank()) {
+                    uniquePassengers.add(email);
+                }
             }
         }
+        List<String> passengers = new ArrayList<>(uniquePassengers);
         List<String> complaints = new ArrayList<>();
 
-        // Driver
         Driver driver = driverRepository.findFirstAvailableDriver(
                 request.getVehicleType(),
                 request.getBabiesAllowed(),
-                request.getPetsAllowed()
+                request.getPetsAllowed(),
+                route.getStartLocationLat(),
+                route.getStartLocationLng()
         ).orElseThrow(() -> new NoAvailableDriverException("No available drivers"));
+        int vehicleCapacity = driver.getVehicle().getNumberOfSeats();
+        int totalPassengers = 1 + passengers.size();
 
+        if (totalPassengers > vehicleCapacity) {
+            throw new TooManyPassengersException(
+                    "Vehicle capacity exceeded: max " + vehicleCapacity + ", requested " + totalPassengers
+            );
+        }
 //        if (!driverHasWorkingTime(driver)) {
 //            throw new NoAvailableDriverException("Driver exceeded 8 working hours in last 24h");
 //        }
@@ -148,7 +159,10 @@ public class RideService {
 
         RideStatus status = RideStatus.ACCEPTED;
         driver.setStatus(DriverStatus.UNAVAILABLE);
-
+        if (route.getStartLocationLat().equals(route.getEndLocationLat()) &&
+                route.getStartLocationLng().equals(route.getEndLocationLng())) {
+            throw new IllegalArgumentException("Start and end locations cannot be the same");
+        }
         Ride ride = Ride.builder()
                 .passenger(user)
                 .passengers(passengers)
@@ -168,7 +182,6 @@ public class RideService {
 
         ride = rideRepository.save(ride);
 
-        // DTO
         GetRideResponseDTO dto = rideMapper.getRideDTO(ride);
         dto.setScheduledTime(scheduledTime);
 

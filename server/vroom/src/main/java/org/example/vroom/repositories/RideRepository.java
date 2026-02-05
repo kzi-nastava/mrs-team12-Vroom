@@ -3,6 +3,7 @@ package org.example.vroom.repositories;
 
 import org.example.vroom.DTOs.responses.ride.DailyRideReportDTO;
 import org.example.vroom.entities.Driver;
+import org.example.vroom.entities.RegisteredUser;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.User;
 import org.example.vroom.enums.RideStatus;
@@ -82,6 +83,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             @Param("endDate") LocalDateTime endDate,
             Pageable pageable);
 
+    boolean existsByPassengerAndStatusIn(
+            RegisteredUser passenger,
+            List<RideStatus> statuses
 
     @Query("""
     SELECT CAST(r.startTime AS date), COUNT(r), COALESCE(SUM(r.price), 0)

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class StopRideRequestDTO {
-    @NotNull
+    @org.jetbrains.annotations.NotNull
     private LocalDateTime endTime;
     @NotNull
     private double stopLat;
