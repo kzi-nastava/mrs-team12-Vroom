@@ -89,15 +89,15 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     );
 
     @Query("""
-    SELECT CAST(r.startTime AS date), COUNT(r), COALESCE(SUM(r.price), 0)
-    FROM Ride r
-    WHERE
-        r.passenger.id = :userId
-        AND r.status = org.example.vroom.enums.RideStatus.FINISHED
-        AND r.startTime BETWEEN :from AND :to
-    GROUP BY CAST(r.startTime AS date)
-    ORDER BY CAST(r.startTime AS date)
-""")
+        SELECT CAST(r.startTime AS date), COUNT(r), COALESCE(SUM(r.price), 0)
+        FROM Ride r
+        WHERE
+            r.passenger.id = :userId
+            AND r.status = org.example.vroom.enums.RideStatus.FINISHED
+            AND r.startTime BETWEEN :from AND :to
+        GROUP BY CAST(r.startTime AS date)
+        ORDER BY CAST(r.startTime AS date)
+    """)
 
     List<Object[]> passengerStatsRaw(
             @Param("userId") Long userId,

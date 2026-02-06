@@ -3,22 +3,19 @@ package org.example.vroom.controllers;
 import jakarta.validation.Valid;
 import org.example.vroom.DTOs.FavoriteRouteDTO;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
-import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetActiveRideInfoDTO;
 import org.example.vroom.DTOs.responses.ride.RideUpdateResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
-import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.FavoriteRoute;
 import org.example.vroom.entities.Ride;
-import org.example.vroom.entities.Route;
 import org.example.vroom.entities.User;
-import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.ride.*;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
@@ -32,19 +29,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.example.vroom.services.RideService;
-import java.time.LocalDateTime;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -355,5 +348,21 @@ public class RideController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(rideService.mapToDTO(ride));
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER', 'ADMIN')")
+    public ResponseEntity<RideResponseDTO> getRide(
+            @RequestParam(value = "rideId", required = true) Long rideId
+    ){
+        try{
+            RideResponseDTO ride = rideService.getRide(rideId);
+
+            return new ResponseEntity<>(ride, HttpStatus.OK);
+        }catch(RideNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
