@@ -12,11 +12,17 @@ export class RegisteredUserService{
     constructor(private http: HttpClient){}
 
     getRideHistoryRequest(
+        pageNum: number,
+        pageSize: number,
         startDate?: any,
         endDate?: any,
         sortBy?: 'startTime,asc' | 'startTime,desc' | 'price,asc' | 'price,desc'
     ): Observable<RideResponseDTO[]>{
-        let params = new HttpParams().set('sort', sortBy || 'startTime,desc');
+        let params = new HttpParams()
+            .set('sort', sortBy || 'startTime,desc')
+            .set('pageNumber', pageNum.toString())
+            .set('pageSize', pageSize.toString())
+            
         if (startDate) {
             const start = new Date(startDate);
             params = params.set('startDate', start.toISOString());

@@ -1,7 +1,7 @@
 <section class="ride-history">
     <div class="ride-history-outer-container">
         <div class="container">
-            <h1>Ride History</h1>
+            <h1 id="title">Ride History</h1>
 
             <div class="filter-controls">
 
@@ -101,11 +101,31 @@
                 </div>
 
                 
-                <ng-template #noData>
+            <ng-template #noData>
                 <div *ngIf="!isLoading" class="no-rides-container">
                     <p>No rides found</p>
                 </div>
             </ng-template>
+
+            <div class="pagination-container" *ngIf="!isLoading && (rides.length > 0 || pageNum > 0)">
+                <button 
+                    class="page-btn" 
+                    id="back-btn"
+                    (click)="backPage()" 
+                    [disabled]="!backPageAvailable">
+                    Previous
+                </button>
+                
+                <span class="page-indicator">Page {{ pageNum + 1 }}</span>
+                
+                <button 
+                    class="page-btn" 
+                    id="next-btn"
+                    (click)="nextPage()" 
+                    [disabled]="!nextPageAvailable">
+                    Next 
+                </button>
+            </div>
                 
 
             </div>

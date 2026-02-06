@@ -84,7 +84,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/rides/ride-duration-update/**").permitAll()
                         .requestMatchers("/api/rides/route/**").permitAll()
                         .requestMatchers("/api/rides/**").authenticated()
-
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/admins/**").authenticated()
                         //.requestMatchers("/api/panics/**").authenticated()
