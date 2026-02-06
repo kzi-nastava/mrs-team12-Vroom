@@ -9,6 +9,13 @@ import com.example.vroom.services.GeoLocationService;
 import com.example.vroom.services.RideService;
 import com.example.vroom.services.RouteService;
 import com.example.vroom.services.UserProfileService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
+
+import java.time.LocalDateTime;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -22,8 +29,19 @@ public class RetrofitClient {
     public static void init(Context context) {
         mContext = context;
     }
+
+    private static Gson createGson(){
+        return new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>) (src, typeOfSrc, context) ->
+                        new JsonPrimitive(src.toString()))
+                .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) ->
+                        LocalDateTime.parse(json.getAsString()))
+                .create();
+    }
     private static Retrofit getClient() {
         if (retrofit == null) {
+            Gson gson = createGson();
+
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .addInterceptor(new AuthInterceptor(mContext))
                     .build();
@@ -31,7 +49,7 @@ public class RetrofitClient {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .client(okHttpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }
         return retrofit;
