@@ -7,7 +7,7 @@
     android:fillViewport="true">
 
     <LinearLayout
-        android:id="@+id/stop_ride_root"
+        android:id="@+id/cancel_ride_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -21,15 +21,33 @@
             android:layout_marginBottom="24dp"/>
 
         <TextView
-            android:id="@+id/stop_title"
+            android:id="@+id/cancel_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Are you sure you want to stop the ride?"
+            android:text="Are you sure you want to cancel the ride?"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="@color/black"
             android:textAlignment="center"
-            android:layout_marginBottom="32dp"/>
+            android:layout_marginBottom="24dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/reason"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Reason for stopping"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"
+            app:boxStrokeColor="@color/light_grey"
+            app:hintTextColor="@color/black">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/cancel_reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <ProgressBar
             android:id="@+id/loading_spinner"
