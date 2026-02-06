@@ -11,12 +11,11 @@ import org.example.vroom.DTOs.responses.ride.GetActiveRideInfoDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
-import org.example.vroom.enums.VehicleType;
 import org.example.vroom.exceptions.ride.*;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
@@ -25,15 +24,10 @@ import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.*;
 import org.example.vroom.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
@@ -518,6 +512,15 @@ public class RideService {
         rideRepository.save(ride);
 
         return rideMapper.getRideDTO(ride);
+    }
+
+    public RideResponseDTO getRide(long rideID){
+        Optional<Ride> rideOpt = rideRepository.findById(rideID);
+        if (rideOpt.isEmpty()) {
+            throw new RideNotFoundException("Ride not found");
+        }
+
+        return rideMapper.createUserRideHistoryDTO(rideOpt.get());
     }
 
 }

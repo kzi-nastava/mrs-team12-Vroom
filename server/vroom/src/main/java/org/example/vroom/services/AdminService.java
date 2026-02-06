@@ -6,7 +6,7 @@ import lombok.SneakyThrows;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
 import org.example.vroom.DTOs.responses.AdminUserDTO;
-import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.DriverProfileUpdateRequest;
 import org.example.vroom.entities.Ride;
@@ -23,9 +23,7 @@ import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.example.vroom.utils.SortPaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,8 +103,8 @@ public class AdminService {
                 .toList();
     }
 
-    public List<UserRideHistoryResponseDTO> getUserRideHistory(String userEmail, String sort, LocalDateTime startDate,
-                                                               LocalDateTime endDate, int pageNum, int pageSize){
+    public List<RideResponseDTO> getUserRideHistory(String userEmail, String sort, LocalDateTime startDate,
+                                                    LocalDateTime endDate, int pageNum, int pageSize){
         Optional<User> userOptional = userRepository.findByEmail(userEmail);
         if(userOptional.isEmpty())
             throw new UserNotFoundException("This user isn't registered in system");
@@ -115,19 +113,19 @@ public class AdminService {
         Pageable page = sortPaginationUtils.getPageable(pageNum, pageSize, sort);
         List<Ride> rides = rideRepository.userRideHistory(userId, startDate, endDate, page);
 
-        Stream<UserRideHistoryResponseDTO> rideHistory = rides.stream().map(ride -> {
+        Stream<RideResponseDTO> rideHistory = rides.stream().map(ride -> {
             return rideMapper.createUserRideHistoryDTO(ride);
         });
 
         return rideHistory.toList();
     }
 
-    public List<UserRideHistoryResponseDTO> getUserRideHistory(String sort, LocalDateTime startDate,
-                                                           LocalDateTime endDate, int pageNum, int pageSize){
+    public List<RideResponseDTO> getUserRideHistory(String sort, LocalDateTime startDate,
+                                                    LocalDateTime endDate, int pageNum, int pageSize){
         Pageable page = sortPaginationUtils.getPageable(pageNum, pageSize, sort);
         List<Ride> rides = rideRepository.userRideHistory(startDate, endDate, page);
 
-        Stream<UserRideHistoryResponseDTO> rideHistory = rides.stream().map(ride -> {
+        Stream<RideResponseDTO> rideHistory = rides.stream().map(ride -> {
             return rideMapper.createUserRideHistoryDTO(ride);
         });
 

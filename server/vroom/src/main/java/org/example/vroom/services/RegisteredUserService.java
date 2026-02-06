@@ -3,7 +3,7 @@ package org.example.vroom.services;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.RegisteredUserDTO;
 import org.example.vroom.DTOs.requests.auth.RegisterRequestDTO;
-import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.RegisteredUser;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.User;
@@ -22,18 +22,13 @@ import org.example.vroom.utils.EmailService;
 import org.example.vroom.utils.PasswordUtils;
 import org.example.vroom.utils.SortPaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -142,16 +137,21 @@ public class RegisteredUserService {
     }
 
 
-    public List<UserRideHistoryResponseDTO> getUserRideHistory(User user, String sort, LocalDateTime startDate,
-                                        LocalDateTime endDate, int pageNum, int pageSize){
+    public List<RideResponseDTO> getUserRideHistory(User user, String sort, LocalDateTime startDate,
+                                                    LocalDateTime endDate, int pageNum, int pageSize){
 
         Pageable page = sortPaginationUtils.getPageable(pageNum, pageSize, sort);
         List<Ride> rides = rideRepository.userRideHistory(user.getId(), startDate, endDate, page);
 
-        Stream<UserRideHistoryResponseDTO> rideHistory = rides.stream().map(ride -> {
+        Stream<RideResponseDTO> rideHistory = rides.stream().map(ride -> {
             return rideMapper.createUserRideHistoryDTO(ride);
         });
 
         return rideHistory.toList();
+    }
+
+    @Transactional
+    public void deleteExpiredAccounts(LocalDateTime threshold){
+        registeredUserRepository.deleteRegisteredUsersByCreatedAt(threshold);
     }
 }

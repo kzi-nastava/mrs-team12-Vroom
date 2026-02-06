@@ -4,7 +4,7 @@ import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
 import org.example.vroom.DTOs.responses.ride.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.user.UserRideHistoryResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.RideStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,10 +122,10 @@ public class RideMapper {
                 .build();
     }
 
-    public UserRideHistoryResponseDTO createUserRideHistoryDTO(Ride ride){
+    public RideResponseDTO createUserRideHistoryDTO(Ride ride){
         if(ride == null) return null;
 
-        return UserRideHistoryResponseDTO.builder()
+        return RideResponseDTO.builder()
                 .rideId(ride.getId())
                 .driverFirstName(ride.getDriver().getFirstName())
                 .driverLastName(ride.getDriver().getLastName())
@@ -139,6 +139,7 @@ public class RideMapper {
                 .driverRating(ride.getDriverRating())
                 .vehicleRating(ride.getVehicleRating())
                 .comment(ride.getComment())
+                .cancelReason(ride.getCancelReason())
                 .route(routeMapper.getRouteDTO(ride.getRoute()))
                 .build();
     }
