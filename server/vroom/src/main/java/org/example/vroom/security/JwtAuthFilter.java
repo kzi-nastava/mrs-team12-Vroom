@@ -76,9 +76,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if(email != null && !email.equals("")){
                     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                     if(jwtService.validateToken(token, userDetails)){
-                        JWTBasedAuthentication authentication = new JWTBasedAuthentication(userDetails);
-                        authentication.setToken(token);
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        token,
+                                        userDetails.getAuthorities()
+                                );
+
+                        authentication.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
+
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+
                         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                         System.out.println("SPRING AUTH USER: " + auth.getName());
                         System.out.println("SPRING AUTHORITIES: " + auth.getAuthorities());
