@@ -16,7 +16,7 @@ import java.util.List;
 
 @Entity
 @Table(name="users", indexes = {
-        @Index(name = "index_unactivated_user_cleanup", columnList = "create_at, userStatus")
+        @Index(name = "index_unactivated_user_cleanup", columnList = "created_at, userStatus")
 })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)

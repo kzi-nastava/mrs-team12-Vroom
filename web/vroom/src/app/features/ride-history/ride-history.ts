@@ -34,6 +34,11 @@ export class RideHistory implements OnInit {
 
   isReviewFormShowed: boolean = false
 
+  pageNum: number = 0
+  pageSize: number = 10
+  nextPageAvailable: boolean = true
+  backPageAvailable: boolean = false
+
   constructor(
     public authService: AuthService,
     private userService: RegisteredUserService,
@@ -58,36 +63,57 @@ export class RideHistory implements OnInit {
     else if(this.authService.getCurrentUserType === 'ADMIN')
       this.loadAllUserHistory()
     
-    this.isLoading = false
-    this.cdr.detectChanges;
-    
-    console.log(this.rides);
   }
 
 
   private loadUserHistory(){
-    this.userService.getRideHistoryRequest(this.startDateFilter, this.endDateFilter, this.currentSort).subscribe({
+    this.userService.getRideHistoryRequest(
+      this.pageNum,
+      this.pageSize,
+      this.startDateFilter, 
+      this.endDateFilter, 
+      this.currentSort
+    ).subscribe({
       next: (history: RideResponseDTO[]) => {
         console.log(history)
         this.rides = history
+
+        this.nextPageAvailable = history.length === this.pageSize;
+        this.backPageAvailable = this.pageNum > 0;
+
+        this.isLoading = false
         this.cdr.detectChanges()
       },
       error: (err) => {
-          this.createFailureToast('Server error', 'Unable to get history of ride')
+          this.rides = []
+          this.isLoading = false
           this.cdr.detectChanges()
       }
     })
   }
 
   private loadAllUserHistory(){
-    this.adminService.getRideHistoryRequest(this.startDateFilter, this.endDateFilter, this.currentSort, this.userEmailFilter).subscribe({
+    this.adminService.getRideHistoryRequest(
+      this.pageNum, 
+      this.pageSize,
+      this.startDateFilter, 
+      this.endDateFilter, 
+      this.currentSort, 
+      this.userEmailFilter
+    ).subscribe({
       next: (history: RideResponseDTO[]) => {
         console.log(history)
         this.rides = history
+
+        this.nextPageAvailable = history.length === this.pageSize;
+        this.backPageAvailable = this.pageNum > 0;
+
+        this.isLoading = false
         this.cdr.detectChanges()
       },
       error: (err) => {
-          this.createFailureToast('Server error', 'Unable to get history of ride')
+          this.rides = []
+          this.isLoading = false
           this.cdr.detectChanges()
       }
     })
@@ -101,6 +127,7 @@ export class RideHistory implements OnInit {
   }
 
   onFilterChange() : void {
+    this.pageNum = 0
     this.loadHistory();
   }
 
@@ -215,6 +242,28 @@ export class RideHistory implements OnInit {
           this.cdr.detectChanges()
       }
     })
+  }
+
+  
+
+  nextPage(){
+    if(this.rides.length < 10){
+      this.nextPageAvailable = false
+      return
+    }
+    
+    this.pageNum++
+    this.loadHistory()
+  }
+
+  backPage(){
+    if(this.pageNum == 0){
+      this.backPageAvailable = false
+      return
+    }
+    
+    this.pageNum--
+    this.loadHistory()
   }
 
   private createFailureToast(title: string, desc: string){

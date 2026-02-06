@@ -12,12 +12,18 @@ export class AdminService{
     constructor(private http: HttpClient){}
 
     getRideHistoryRequest(
+        pageNum: number,
+        pageSize: number,
         startDate?: any,
         endDate?: any,
         sortBy?: 'startTime,asc' | 'startTime,desc' | 'price,asc' | 'price,desc',
         userEmail?: string
     ): Observable<RideResponseDTO[]>{
-        let params = new HttpParams().set('sort', sortBy || 'startTime,desc');
+        let params = new HttpParams()
+            .set('sort', sortBy || 'startTime,desc')
+            .set('pageNumber', pageNum.toString())
+            .set('pageSize', pageSize.toString())
+
         if (startDate) {
             const start = new Date(startDate);
             params = params.set('startDate', start.toISOString());
@@ -28,7 +34,7 @@ export class AdminService{
         }
 
         if(userEmail){
-            params = params.set('email', userEmail)
+            params = params.set('userEmail', userEmail)
         }
 
         return this.http.get<RideResponseDTO[]>(`${this.api}/users/rides`, { params })
