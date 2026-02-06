@@ -18,3 +18,5 @@ server/vroom/data/*.mv.db
 *.mv.db
 *.lock.db
 *.trace.db
+server/vroom/pom.xml
+server/vroom/src/main/resources/application.properties
