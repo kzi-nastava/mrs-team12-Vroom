@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 public class TokenScheduler {
     @Autowired
@@ -13,6 +15,6 @@ public class TokenScheduler {
     // cheking expired tokens every 3h
     @Scheduled(cron = "0 0 */3 * * ?")
     public void deleteExpiredTokens(){
-        tokenService.deleteExpiredTokens();
+        tokenService.deleteExpiredTokens(LocalDateTime.now().minusDays(1));
     }
 }
