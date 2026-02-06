@@ -23,6 +23,8 @@ import {UserActiveRide} from './features/user-active-ride/user-active-ride';
 import { AdminUsersComponent } from './features/admin-users/admin-users.component';
 import { RideStatisticsComponent } from './features/ride-statistics/ride-statistics.model';
 import { RideHistory } from './features/ride-history/ride-history';
+import { AdminHomePage } from './features/admin-home-page/admin-home-page';
+import { AdminDefinePricelist } from './features/admin-define-pricelist/admin-define-pricelist'
 
 export const routes: Routes = [
     {path: 'login', component: Login},
@@ -37,6 +39,8 @@ export const routes: Routes = [
     { path: 'admin-users', component: AdminUsersComponent},
     {path: 'active', component: UserActiveRide},
     {path: "ride-statistics", component: RideStatisticsComponent},
+    {path: 'admin', component: AdminHomePage},
+    {path: 'pricelist', component: AdminDefinePricelist},
     {path: '', component: MainView, 
         children: [ 
             {path: 'route-estimation', component: RouteEstimation },
