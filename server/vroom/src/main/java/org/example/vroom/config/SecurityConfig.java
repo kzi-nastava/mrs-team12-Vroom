@@ -79,8 +79,12 @@ public class SecurityConfig {
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/drivers/**").authenticated()
+//                        .requestMatchers("/api/drivers/**").authenticated()
+                        .requestMatchers("/api/rides/complaint/**").permitAll()
+                        .requestMatchers("/api/rides/ride-duration-update/**").permitAll()
+                        .requestMatchers("/api/rides/route/**").permitAll()
                         .requestMatchers("/api/rides/**").authenticated()
+
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/admins/**").authenticated()
                         //.requestMatchers("/api/panics/**").authenticated()

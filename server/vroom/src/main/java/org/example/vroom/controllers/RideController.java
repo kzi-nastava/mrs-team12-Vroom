@@ -62,7 +62,7 @@ public class RideController {
 
     private static final Logger log = LoggerFactory.getLogger(RideService.class);
 
-    @GetMapping(path="/{rideID}/route", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path="/route/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GetRouteResponseDTO> getRoute(@PathVariable Long rideID){
         GetRouteResponseDTO route = this.rideService.getRoute(rideID);
         if (route == null){
@@ -110,7 +110,7 @@ public class RideController {
     }
 
     @PreAuthorize("hasRole('REGISTERED_USER')")
-    @PostMapping(path = "/{rideID}/complaint", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/complaint/{rideID}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> sendComplaint(
             @PathVariable Long rideID,
             @RequestBody ComplaintRequestDTO complaint
