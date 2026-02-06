@@ -97,6 +97,16 @@ public class RideMapper {
                 .build();
     }
 
+    public AcceptedRideDTO acceptedRide(Ride ride) {
+        return AcceptedRideDTO.builder()
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(ride.getRoute().getEndAddress())
+                .driverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName())
+                .vehicleInfo(ride.getDriver().getVehicle().getBrand() + " " + ride.getDriver().getVehicle().getModel())
+                .licensePlate(ride.getDriver().getVehicle().getLicenceNumber())
+                .build();
+    }
+
     public RideDTO toRideDTO(Ride ride) {
         if (ride == null) return null;
 

@@ -43,12 +43,12 @@ export class RideService{
     }
 
     sendComplaintRequest(rideID: string, data: ComplaintRequestDTO): Observable<MessageResponseDTO>{
-        return this.http.post<MessageResponseDTO>(this.rideUrl+`/${rideID}`+'/complaint', data)
+        return this.http.post<MessageResponseDTO>(this.rideUrl+'/complaint'+`/${rideID}`, data)
     }
 
     getRouteDetails(rideID: string): Observable<GetRouteResponseDTO>{
         console.log('Fetching route details for rideID:', this.rideUrl+`/${rideID}`+'/route');
-        return this.http.get<GetRouteResponseDTO>(this.rideUrl+`/${rideID}`+'/route')
+        return this.http.get<GetRouteResponseDTO>(this.rideUrl+'/route'+`/${rideID}`)
     }
 
     getAddress(lat: number, lng: number): Observable<string> {

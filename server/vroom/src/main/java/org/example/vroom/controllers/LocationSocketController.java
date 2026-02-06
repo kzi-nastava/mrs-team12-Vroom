@@ -5,6 +5,7 @@ import org.example.vroom.DTOs.responses.ride.RideUpdateResponseDTO;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.entities.User;
 import org.example.vroom.enums.DriverStatus;
+import org.example.vroom.services.DriverLocationService;
 import org.example.vroom.services.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -23,6 +24,9 @@ public class LocationSocketController {
     @Autowired
     DriverService driverService;
 
+    @Autowired
+    DriverLocationService driverLocationService;
+
     @MessageMapping("update-location")
     @SendTo("/socket-publisher/location-updates")
     public DriverPositionDTO handleLocationUpdate(SimpMessageHeaderAccessor headerAccessor, @Payload PointResponseDTO location) {
@@ -31,6 +35,8 @@ public class LocationSocketController {
             return null;
         }
         User user = (User) auth.getPrincipal();
+
+        driverLocationService.updateLocation(user.getId(), location.getLat(), location.getLng());
 
         Optional<DriverStatus> statusOpt = this.driverService.getDriverStatus(user.getId());
         DriverPositionDTO driverPositionDTO = new DriverPositionDTO();

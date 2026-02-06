@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.ride.*;
+import org.example.vroom.DTOs.RideDTO;
+import org.example.vroom.DTOs.responses.ride.AcceptedRideDTO;
 import org.example.vroom.DTOs.responses.ride.GetActiveRideInfoDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
@@ -178,6 +180,19 @@ public class RideService {
         GetRideResponseDTO dto = rideMapper.getRideDTO(ride);
         dto.setScheduledTime(scheduledTime);
 
+        AcceptedRideDTO emailContent = rideMapper.acceptedRide(ride);
+        try{
+            emailService.sendRideAcceptedMail(ride.getPassenger().getEmail(), emailContent);
+        }catch(IOException | MessagingException e){
+            throw new RuntimeException(e);
+        }
+        for(String passengerEmail : uniquePassengers) {
+            try{
+                emailService.sendRideAcceptedMail(passengerEmail, emailContent);
+            } catch (IOException | MessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return dto;
     }
 
@@ -481,6 +496,19 @@ public class RideService {
         ride.setStartTime(LocalDateTime.now());
         ride.setStatus(RideStatus.ONGOING);
         ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
+        try{
+            emailService.sendRideStartedMail(ride.getPassenger().getEmail(), rideID.toString());
+        }catch(IOException | MessagingException e){
+            throw new RuntimeException(e);
+        }
+        for (String email : ride.getPassengers()){
+            try{
+                emailService.sendRideStartedMail(email, rideID.toString());
+            }catch(IOException | MessagingException e){
+                throw new RuntimeException(e);
+            }
+        }
+
         rideRepository.save(ride);
 
         return rideMapper.getRideDTO(ride);

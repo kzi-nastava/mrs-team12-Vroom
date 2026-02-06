@@ -19,7 +19,7 @@
 
     </div>
 
-    <div class="right-section" *ngIf="userRole === 'REGISTERED_USER'">
+    <div class="right-section" *ngIf="userRole === 'REGISTERED_USER' || userRole == null">
         <div class="container">
             <div class="complaint-header">
                 Have any complaints?<br>
