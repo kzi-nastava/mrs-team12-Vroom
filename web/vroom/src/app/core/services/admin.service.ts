@@ -2,6 +2,8 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { RideResponseDTO } from "../models/ride/responses/ride-respose.dto";
+import { PricelistDTO } from '../models/admin/pricelist.dto';
+import { MessageResponseDTO } from "../models/message-response.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -39,4 +41,12 @@ export class AdminService{
 
         return this.http.get<RideResponseDTO[]>(`${this.api}/users/rides`, { params })
     } 
+
+    getActivePricelist(){
+        return this.http.get<PricelistDTO>(`${this.api}/get-pricelist`)
+    }
+
+    setPricelist(pricelist : PricelistDTO) : Observable<MessageResponseDTO> {
+        return this.http.post<MessageResponseDTO>(`${this.api}/new-pricelist`, pricelist)
+    }
 }

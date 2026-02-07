@@ -123,4 +123,13 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @GetMapping("/get-pricelist")
+    public ResponseEntity<PricelistDTO> getActivePricelist() {
+        PricelistDTO pricelistDTO = priceListService.getPriceList();
+        if (pricelistDTO == null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(pricelistDTO, HttpStatus.OK);
+    }
+
 }
