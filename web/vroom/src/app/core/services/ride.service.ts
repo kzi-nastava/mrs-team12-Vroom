@@ -12,6 +12,7 @@ import { map } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
 import { GetRideResponseDTO } from '../models/ride/responses/get-ride-response.dto'
 import { RideResponseDTO } from "../models/ride/responses/ride-respose.dto";
+import { GetActiveRideInfoDTO } from "../models/admin/get-active-ride-info.dto";
 
 @Injectable({
     providedIn: "root"
@@ -66,5 +67,9 @@ export class RideService{
     getRide(rideId: string | number | undefined): Observable<RideResponseDTO>{
         //let params = new HttpParams().set('rideId', rideId!);
         return this.http.get<RideResponseDTO>(`this.rideUrl/${rideId}`)
+    }
+
+    getActiveRides() : Observable<GetActiveRideInfoDTO[]> {
+        return this.http.get<GetActiveRideInfoDTO[]>(`${this.rideUrl}/active-rides`)
     }
 }

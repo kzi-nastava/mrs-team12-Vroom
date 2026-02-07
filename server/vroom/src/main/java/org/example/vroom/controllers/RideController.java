@@ -85,8 +85,8 @@ public class RideController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/active-rides", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<GetRideResponseDTO>> getActiveRides(){
-        List<GetRideResponseDTO> rides = rideService.getAllActiveRides();
+    public ResponseEntity<Collection<GetActiveRideInfoDTO>> getActiveRides(){
+        List<GetActiveRideInfoDTO> rides = rideService.getAllActiveRides();
         if (rides == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

@@ -56,12 +56,13 @@ public class RideMapper {
     public GetActiveRideInfoDTO getActiveRideInfo(Ride ride) {
         return GetActiveRideInfoDTO
                 .builder()
+                .rideId(ride.getId())
                 .startAddress(ride.getRoute().getStartAddress())
                 .endAddress(ride.getRoute().getEndAddress())
                 .startTime(ride.getStartTime())
                 .creatorName(ride.getPassenger().getFirstName() + " " + ride.getPassenger().getLastName())
                 .driverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName())
-                .passengerEmails(ride.getPassengers())
+                .profilePicture(ride.getDriver().getProfilePhoto())
                 .build();
     }
 

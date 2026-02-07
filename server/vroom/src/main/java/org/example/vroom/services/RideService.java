@@ -206,12 +206,11 @@ public class RideService {
         throw new RideNotFoundException("Ride not found");
     }
 
-    public List<GetRideResponseDTO> getAllActiveRides() {
+    public List<GetActiveRideInfoDTO> getAllActiveRides() {
         List<Ride> rides = rideRepository.findByStatus(RideStatus.ONGOING);
-        List<GetRideResponseDTO> dtos = new ArrayList<>();
+        List<GetActiveRideInfoDTO> dtos = new ArrayList<>();
         for (Ride ride : rides) {
-            rideMapper.getRideDTO(ride);
-            dtos.add(rideMapper.getRideDTO(ride));
+            dtos.add(rideMapper.getActiveRideInfo(ride));
         }
         return dtos;
     }
