@@ -25,6 +25,7 @@ import { RideStatisticsComponent } from './features/ride-statistics/ride-statist
 import { RideHistory } from './features/ride-history/ride-history';
 import { AdminHomePage } from './features/admin-home-page/admin-home-page';
 import { AdminDefinePricelist } from './features/admin-define-pricelist/admin-define-pricelist'
+import { AdminActiveRides } from './features/admin-active-rides/admin-active-rides';
 
 export const routes: Routes = [
     {path: 'login', component: Login},
@@ -41,6 +42,7 @@ export const routes: Routes = [
     {path: "ride-statistics", component: RideStatisticsComponent},
     {path: 'admin', component: AdminHomePage},
     {path: 'pricelist', component: AdminDefinePricelist},
+    {path: 'active-rides', component: AdminActiveRides},
     {path: '', component: MainView, 
         children: [ 
             {path: 'route-estimation', component: RouteEstimation },

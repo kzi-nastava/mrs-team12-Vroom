@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { RideResponseDTO } from "../models/ride/responses/ride-respose.dto";
 import { PricelistDTO } from '../models/admin/pricelist.dto';
 import { MessageResponseDTO } from "../models/message-response.dto";
+import { GetActiveRideInfoDTO } from "../models/admin/get-active-ride-info.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -49,4 +50,6 @@ export class AdminService{
     setPricelist(pricelist : PricelistDTO) : Observable<MessageResponseDTO> {
         return this.http.post<MessageResponseDTO>(`${this.api}/new-pricelist`, pricelist)
     }
+
+
 }
