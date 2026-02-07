@@ -1,0 +1,106 @@
+body {
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+.container {
+  padding: 50px 20px 100px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+.title {
+  font-family: 'IBM Plex Sans';
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.searchBar-container {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  width: 100%;
+}
+
+.searchBar {
+  font-family: 'IBM Plex Sans';
+  font-size: 20px;
+  background-color: #dceed3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  height: 50px;
+  border-radius: 25px;
+  padding: 0 20px;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.searchBar:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  background: rgba(220, 238, 211, 0.9);
+}
+
+.searchBar:focus {
+  outline: none;
+  outline-offset: 2px;
+}
+
+.cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  align-items: center;
+}
+
+.cards-container {
+  background-color:rgba(220, 238, 211, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  border-radius: 30px;
+  padding: 30px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.cards-container:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  background: rgba(220, 238, 211, 0.9);
+}
+
+.ride-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.text {
+  font-family: 'IBM Plex Sans';
+  font-size: 18px;
+  color: #2d3e2d;
+}
+
+.text:first-child {
+  font-weight: 600;
+  font-size: 22px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 50px 20px;
+  }
+  .searchBar, .cards-container {
+    width: 100%;
+  }
+}

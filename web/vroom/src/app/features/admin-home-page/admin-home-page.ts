@@ -42,4 +42,8 @@ export class AdminHomePage {
   pricelist(){
     this.router.navigate(["/pricelist"]);
   }
+
+  activeRides(){
+    this.router.navigate(["/active-rides"]);
+  }
 }

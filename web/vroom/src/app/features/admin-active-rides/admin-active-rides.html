@@ -1,0 +1,28 @@
+<body>
+    <div class="container">
+    <div class="title">CURRENTLY ACTIVE RIDES</div>
+
+    <div class="searchBar-container">
+        <input 
+        type="text" 
+        [(ngModel)]="searchText" 
+        placeholder="Search Driver..." 
+        class="searchBar"
+        >
+    </div>
+
+    <div class="cards-list">
+        @for (ride of filteredRides; track ride.rideId) {
+        <div class="cards-container" (click)="moreInfo(ride.rideId)">
+            <div class="ride-card">
+            <span class="text">{{ ride.driverName }}</span>
+            <span class="text">{{ ride.startAddress }} -> {{ ride.endAddress }}</span>
+            <span class="text">Start Time: {{ ride.startTime | date:'shortTime' }}</span>
+            </div>
+        </div>
+        } @empty {
+        <div class="text">No active rides matching your search.</div>
+        }
+    </div>
+    </div>
+</body>
