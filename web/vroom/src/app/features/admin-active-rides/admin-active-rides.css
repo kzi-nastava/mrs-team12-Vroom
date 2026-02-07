@@ -23,9 +23,8 @@ body {
 }
 
 .searchBar-container {
-  align-items: center;
-  justify-content: center;
   display: flex;
+  justify-content: center;
   width: 100%;
 }
 
@@ -51,7 +50,6 @@ body {
 
 .searchBar:focus {
   outline: none;
-  outline-offset: 2px;
 }
 
 .cards-list {
@@ -63,12 +61,12 @@ body {
 }
 
 .cards-container {
-  background-color:rgba(220, 238, 211, 0.5);
+  background-color: rgba(220, 238, 211, 0.5);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 600px;
   border-radius: 30px;
-  padding: 30px;
+  padding: 25px;
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -81,24 +79,46 @@ body {
 
 .ride-card {
   display: flex;
+  gap: 30px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.card-body {
+  display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
+}
+
+.profile-picture {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.driver {
+  font-family: 'IBM Plex Sans';
+  font-weight: 600;
+  font-size: 22px;
+  color: #2A2C24;
 }
 
 .text {
   font-family: 'IBM Plex Sans';
-  font-size: 18px;
-  color: #2d3e2d;
-}
-
-.text:first-child {
-  font-weight: 600;
-  font-size: 22px;
+  font-size: 16px;
+  color: #2A2C24;
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 50px 20px;
+    padding: 30px 15px;
   }
   .searchBar, .cards-container {
     width: 100%;

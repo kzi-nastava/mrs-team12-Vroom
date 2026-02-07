@@ -62,6 +62,7 @@ public class RideMapper {
                 .startTime(ride.getStartTime())
                 .creatorName(ride.getPassenger().getFirstName() + " " + ride.getPassenger().getLastName())
                 .driverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName())
+                .profilePicture(ride.getDriver().getProfilePhoto())
                 .build();
     }
 

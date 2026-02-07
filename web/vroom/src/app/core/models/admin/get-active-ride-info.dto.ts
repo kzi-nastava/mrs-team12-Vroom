@@ -5,4 +5,5 @@ export interface GetActiveRideInfoDTO{
     startTime : Date;
     driverName : String;
     creatorName : String;
+    profilePicture : String;
 }
