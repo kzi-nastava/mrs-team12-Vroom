@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 
 @Component
@@ -17,12 +19,7 @@ public class RegisteredUserMapper {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public RegisteredUser createUser(RegisterRequestDTO user, MultipartFile profilePhoto, String password) throws IOException {
-        byte[] photoBytes = null;
-        if (profilePhoto != null && !profilePhoto.isEmpty()) {
-            photoBytes = profilePhoto.getBytes();
-        }
-
+    public RegisteredUser createUser(RegisterRequestDTO user, byte[] profilePhoto, String password) throws IOException {
         return RegisteredUser.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
@@ -31,7 +28,7 @@ public class RegisteredUserMapper {
                 .password(password)
                 .address(user.getAddress())
                 .gender(user.getGender())
-                .profilePhoto(photoBytes)
+                .profilePhoto(profilePhoto)
                 .build();
     }
 

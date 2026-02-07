@@ -28,7 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -66,9 +68,17 @@ public class RegisteredUserService {
         if(!passwordUtils.isPasswordValid(req.getPassword()) || !req.getPassword().equals(req.getConfirmPassword()))
             throw new InvalidPasswordException("Password doesn't match criteria");
 
+        String dataUrl = null;
+
+        if (profilePhoto != null && !profilePhoto.isEmpty()) {
+            String base64 = Base64.getEncoder().encodeToString(profilePhoto.getBytes());
+
+            dataUrl = "data:" + profilePhoto.getContentType() + ";base64," + base64;
+        }
+
         RegisteredUser user = registeredUserMapper.createUser(
                 req,
-                profilePhoto,
+                dataUrl.getBytes(StandardCharsets.UTF_8),
                 passwordEncoder.encode(req.getPassword())
         );
         user.setUserStatus(UserStatus.INACTIVE);

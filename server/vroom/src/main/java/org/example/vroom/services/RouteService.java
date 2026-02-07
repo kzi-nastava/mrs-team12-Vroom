@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.responses.geocode.GeoapifyRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
+import org.example.vroom.entities.Pricelist;
 import org.example.vroom.repositories.PriceListRepository;
 import org.example.vroom.repositories.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RouteService {
@@ -79,8 +81,13 @@ public class RouteService {
             double distanceKm = (double)route.getFeatures().get(0).getProperties().getDistance() / 1000.0;
             double time = (double)route.getFeatures().get(0).getProperties().getTime() / 60.0;
 
-            float pricePerKm = 5;
-            double price = distanceKm * (double)pricePerKm;
+
+            Optional<Pricelist> pricelist = priceListRepository.findFirstByValidTrue();
+            if(pricelist.isEmpty())
+                throw new Exception("Pricelist is not defined");
+
+            double pricePerKm = pricelist.get().getPriceStandard();
+            double price = distanceKm * pricePerKm;
 
             return new RouteQuoteResponseDTO(price, time);
         }catch(Exception e){
