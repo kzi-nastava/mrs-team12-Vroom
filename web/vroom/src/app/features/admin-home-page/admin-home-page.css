@@ -1,0 +1,115 @@
+       * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .background {
+            height: 100%;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title{
+            align-items: center;
+            justify-content: center;
+            display:flex;
+            padding-bottom: 20px;
+            padding-top:20px;
+        }
+
+        .title{
+            font-size: 40px;
+            font-weight:600;
+            letter-spacing: 1px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            padding: 20px;
+        }
+
+        .card-container {
+            background: rgba(220, 238, 211, 0.5);
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card-container:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background: rgba(220, 238, 211, 0.8);
+        }
+
+        .card-content {
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            height: 15vh;
+            min-height: 120px;
+            transition: background-color 0.3s ease;
+        }
+        .card-container img{
+            max-width: 70%;
+            max-height: 70%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .card-container:hover .card-content {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .card-container:hover .card-content img {
+            transform: scale(1.1);
+        }
+
+        .footer {
+            background-color: #dceed3;
+            padding: 16px 24px;
+            transition: background-color 0.3s ease;
+        }
+
+        .card-container:hover .footer {
+            background-color: #c8e4bc;
+        }
+
+        .card-title {
+            color: #000;
+            justify-content: center;
+            align-items: center;
+            font-family: "IBM Plex Sans", sans-serif;
+            font-size: 19px;
+            font-weight: 600;
+            display: flex;
+            transition: transform 0.3s ease;
+        }
+
+        .card-container:hover .card-title {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 1024px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }

@@ -26,10 +26,22 @@ public class PriceListService {
         if (pricelistOptional.isPresent()) {
             Pricelist pricelist = pricelistOptional.get();
             pricelist.setValid(false);
-            priceListRepository.save(pricelist);
+            priceListRepository.saveAndFlush(pricelist);
         }
         Pricelist newPricelist = priceListMapper.newPricelist(pricelistDTO);
-        priceListRepository.save(newPricelist);
+        priceListRepository.saveAndFlush(newPricelist);
+    }
+
+    public PricelistDTO getPriceList() {
+        Optional<Pricelist> pricelistOptional = priceListRepository.findFirstByValidTrue();
+        if (pricelistOptional.isPresent()) {
+            Pricelist pricelist = pricelistOptional.get();
+            return priceListMapper.toDTO(pricelist);
+        }return PricelistDTO.builder()
+                .priceStandard(0)
+                .priceLuxury(0)
+                .priceMinivan(0)
+                .build();
     }
 
     public double getPricePerType(VehicleType type){

@@ -1,0 +1,56 @@
+<div class="all-container">
+    <div class="container">
+        <div class="pricelist-container">
+            <h2 class="pricelist-title">CURRENT PRICELIST</h2>
+            <div class="pricelist-items">
+                <div class="pricelist-row">
+                    <span class="service-name">STANDARD</span>
+                    <span class="service-price">{{ currentStandard }} RSD</span>
+                </div>
+                <div class="pricelist-row">
+                    <span class="service-name">LUXURY</span>
+                    <span class="service-price">{{ currentLuxury }} RSD</span>
+                </div>
+                <div class="pricelist-row">
+                    <span class="service-name">MINIVAN</span>
+                    <span class="service-price">{{ currentMinivan }} RSD</span>
+                </div>
+            </div>
+        </div>
+
+        <span class="text">➔</span>
+
+        <div class="pricelist-container">
+            <h2 class="pricelist-title">NEW PRICELIST</h2>
+            <div class="pricelist-items">
+                <div class="pricelist-row">
+                    <label class="service-name" for="standard-price">STANDARD</label>
+                    <div class="price">
+                        <input type="number" id="standard-price" step="0.01" min="0" 
+                        class="input-field" [(ngModel)]="newStandard">
+                        <span class="value">RSD</span>
+                    </div>
+                </div>
+                <div class="pricelist-row">
+                    <label class="service-name" for="luxury-price">LUXURY</label>
+                    <div class="price">
+                        <input type="number" id="luxury-price" step="0.01" min="0" 
+                        class="input-field" [(ngModel)]="newLuxury">
+                        <span class="value">RSD</span>
+                    </div>
+                </div>
+                <div class="pricelist-row">
+                    <label class="service-name" for="minivan-price">MINIVAN</label>
+                    <div class="price">
+                        <input type="number" id="minivan-price" step="0.01" min="0" 
+                        class="input-field" [(ngModel)]="newMinivan">
+                        <span class="value">RSD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="button-container">
+        <button class="button" (click)="savePricelist()">SUBMIT</button>
+    </div>
+</div>

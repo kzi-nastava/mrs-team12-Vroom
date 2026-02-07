@@ -134,7 +134,11 @@ export class Login implements OnInit {
               if (response.type === 'DRIVER') {
                 this.driverService.startTracking();
               }
-              this.router.navigate(['/']);
+              if (response.type === "ADMIN"){
+                this.router.navigate(['/admin']);
+              }else{
+                this.router.navigate(['/']);
+              }
             },
               
             error: (err) => {
@@ -142,8 +146,11 @@ export class Login implements OnInit {
                 this.router.navigate(['/']); 
             }
           })
-        }else 
+        }else if (response.type === 'ADMIN'){
+          this.router.navigate(['/admin'])
+        }else {
           this.router.navigate(['/'])
+        }
       },
 
       error: (e: HttpErrorResponse)=>{
