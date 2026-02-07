@@ -10,36 +10,38 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class NavbarPage {
+public class AdminHomePage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    @FindBy(className = "logout-text")
-    private WebElement logoutBtn;
+    @FindBy(xpath = "//span[text()='Past Rides']")
+    private WebElement pastRidesLink;
 
-    @FindBy(id = "admin-ride-history")
-    private WebElement adminRideHistoryLink;
+    @FindBy(className = "title")
+    private WebElement titletext;
 
-    public NavbarPage(WebDriver driver) {
+    public AdminHomePage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         PageFactory.initElements(driver, this);
     }
 
-    public boolean isLoggedIn(){
+    public boolean isLoaded(){
         try{
-            wait.until(ExpectedConditions.visibilityOf(logoutBtn));
+            wait.until(ExpectedConditions.textToBePresentInElement(titletext, "Administrator Dashboard"));
+            wait.until(ExpectedConditions.visibilityOf(pastRidesLink));
+
             return true;
-        }catch (Exception e){
+        }catch(Exception e){
             return false;
         }
     }
 
     public void navigateToAdminRideHistory(){
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("admin-ride-history")));
-        wait.until(ExpectedConditions.elementToBeClickable(adminRideHistoryLink));
+        wait.until(ExpectedConditions.visibilityOf(pastRidesLink));
+        wait.until(ExpectedConditions.elementToBeClickable(pastRidesLink));
 
-        adminRideHistoryLink.click();
+        pastRidesLink.click();
     }
 }

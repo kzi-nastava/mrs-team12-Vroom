@@ -48,8 +48,8 @@
                         type="email" 
                         id="userEmail"
                         name="userEmail"
-                        [(ngModel)]="userEmailFilter" 
-                        (input)="onFilterChange()"
+                        [value]="userEmailFilter || ''" 
+                        (input)="onEmailFilterChange($event.target.value)"
                         placeholder="user@example.com"
                         class="date-input"
                     />
