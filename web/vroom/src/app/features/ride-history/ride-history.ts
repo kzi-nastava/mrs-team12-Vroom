@@ -14,6 +14,7 @@ import { ReviewPopup } from '../review-ride-form/review-ride-form';
 import { RideService } from '../../core/services/ride.service';
 import { NgToastService } from 'ng-angular-popup';
 import { ActivatedRoute } from '@angular/router';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-ride-history',
@@ -31,6 +32,7 @@ export class RideHistory implements OnInit {
   startDateFilter?: Date;
   endDateFilter?: Date;
   userEmailFilter?: string;
+  private emailFilterSubject = new Subject<string | undefined>();
 
   isReviewFormShowed: boolean = false
 
@@ -52,6 +54,16 @@ export class RideHistory implements OnInit {
 
   ngOnInit(): void {
     this.userEmailFilter = this.route.snapshot.queryParamMap.get('email') ?? undefined;
+    
+    this.emailFilterSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(value => {
+      this.userEmailFilter = value
+      this.pageNum = 0
+      this.loadHistory()
+    })
+
     this.loadHistory();
   }
 
@@ -117,6 +129,11 @@ export class RideHistory implements OnInit {
           this.cdr.detectChanges()
       }
     })
+  }
+
+  onEmailFilterChange(value: string) {
+    const filterValue = value.trim() === '' ? undefined : value.trim();
+    this.emailFilterSubject.next(filterValue);
   }
 
 
