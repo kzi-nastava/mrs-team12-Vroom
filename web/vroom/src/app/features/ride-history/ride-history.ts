@@ -56,7 +56,7 @@ export class RideHistory implements OnInit {
     this.userEmailFilter = this.route.snapshot.queryParamMap.get('email') ?? undefined;
     
     this.emailFilterSubject.pipe(
-      debounceTime(300),
+      debounceTime(500),
       distinctUntilChanged()
     ).subscribe(value => {
       this.userEmailFilter = value
