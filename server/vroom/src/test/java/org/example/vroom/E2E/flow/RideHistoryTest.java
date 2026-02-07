@@ -2,7 +2,7 @@ package org.example.vroom.E2E.flow;
 
 import org.example.vroom.E2E.base.BaseTest;
 import org.example.vroom.E2E.pages.LoginPage;
-import org.example.vroom.E2E.pages.NavbarPage;
+import org.example.vroom.E2E.pages.AdminHomePage;
 import org.example.vroom.E2E.pages.RideHistoryPage;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,15 +23,15 @@ public class RideHistoryTest extends BaseTest {
     @Test
     void adminShouldBeAbleToFilterAndViewHistory(){
         LoginPage loginPage = new LoginPage(driver);
-        NavbarPage navbarPage = new NavbarPage(driver);
+        AdminHomePage adminHomePage = new AdminHomePage(driver);
 
         loginPage.enterEmail(EMAIL);
         loginPage.enterPassword(PASSWORD);
         loginPage.clickLoginButton();
 
-        assertTrue("User should be logged in",navbarPage.isLoggedIn());
+        assertTrue("User should be logged in", adminHomePage.isLoaded());
 
-        navbarPage.navigateToAdminRideHistory();
+        adminHomePage.navigateToAdminRideHistory();
         RideHistoryPage rideHistoryPage = new RideHistoryPage(driver);
         assertTrue("Ride history page should be loaded", rideHistoryPage.isLoaded());
 
@@ -50,15 +50,15 @@ public class RideHistoryTest extends BaseTest {
     @Test
     void adminShouldBeAbleToFilterByDateOnly(){
         LoginPage loginPage = new LoginPage(driver);
-        NavbarPage navbarPage = new NavbarPage(driver);
+        AdminHomePage adminHomePage = new AdminHomePage(driver);
 
         loginPage.enterEmail(EMAIL);
         loginPage.enterPassword(PASSWORD);
         loginPage.clickLoginButton();
 
-        assertTrue("User should be logged in", navbarPage.isLoggedIn());
+        assertTrue("User should be logged in", adminHomePage.isLoaded());
 
-        navbarPage.navigateToAdminRideHistory();
+        adminHomePage.navigateToAdminRideHistory();
         RideHistoryPage rideHistoryPage = new RideHistoryPage(driver);
         assertTrue("Ride history page should be loaded", rideHistoryPage.isLoaded());
 
