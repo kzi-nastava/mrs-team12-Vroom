@@ -23,6 +23,7 @@ import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.services.FavoriteRouteService;
 import org.example.vroom.services.RouteService;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -350,10 +351,10 @@ public class RideController {
         return ResponseEntity.ok(rideService.mapToDTO(ride));
     }
 
-    @GetMapping
+    @GetMapping("/{rideId}")
     @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER', 'ADMIN')")
     public ResponseEntity<RideResponseDTO> getRide(
-            @RequestParam(value = "rideId", required = true) Long rideId
+            @PathVariable Long rideId
     ){
         try{
             RideResponseDTO ride = rideService.getRide(rideId);
