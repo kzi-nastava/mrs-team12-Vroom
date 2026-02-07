@@ -1,5 +1,7 @@
 package com.example.vroom.services;
 
+import com.example.vroom.DTOs.MessageResponseDTO;
+import com.example.vroom.DTOs.ride.requests.CancelRideRequestDTO;
 import com.example.vroom.DTOs.ride.requests.StopRideRequestDTO;
 import com.example.vroom.DTOs.ride.responses.RideHistoryResponseDTO;
 import com.example.vroom.DTOs.ride.responses.StoppedRideResponseDTO;
@@ -20,6 +22,12 @@ public interface RideService {
             @Query("startDate") String startDate,
             @Query("endDate") String endDate,
             @Query("sort") String sort
+    );
+
+    @PUT("api/rides/{rideID}/cancel")
+    Call<MessageResponseDTO> cancelRide(
+            @Path("rideID") Long rideId,
+            @Body CancelRideRequestDTO data
     );
 
     @PUT("api/rides/{rideID}/stop")

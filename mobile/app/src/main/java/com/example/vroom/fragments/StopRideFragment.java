@@ -65,11 +65,11 @@ public class StopRideFragment extends BottomSheetDialogFragment {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         ViewGroup rootContainer = view.findViewById(R.id.stop_ride_root);
-        Button btnConfirm = view.findViewById(R.id.btnConfirm);
-        Button btnCancel = view.findViewById(R.id.btnCancel);
+        Button btnConfirm = view.findViewById(R.id.btn_confirm);
+        Button btnCancel = view.findViewById(R.id.btn_cancel);
 
-        ProgressBar spinner = view.findViewById(R.id.loadingSpinner);
-        TextView title = view.findViewById(R.id.tvTitle);
+        ProgressBar spinner = view.findViewById(R.id.loading_spinner);
+        TextView title = view.findViewById(R.id.stop_title);
 
         btnConfirm.setOnClickListener(v -> {
             TransitionManager.beginDelayedTransition(rootContainer);
