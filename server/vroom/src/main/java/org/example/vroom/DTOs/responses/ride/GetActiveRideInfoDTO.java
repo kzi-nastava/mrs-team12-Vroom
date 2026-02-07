@@ -17,5 +17,5 @@ public class GetActiveRideInfoDTO {
     private LocalDateTime startTime;
     private String driverName;
     private String creatorName;
-
+    private byte[] profilePicture;
 }

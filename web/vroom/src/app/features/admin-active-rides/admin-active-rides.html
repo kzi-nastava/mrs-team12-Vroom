@@ -1,28 +1,38 @@
-<body>
-    <div class="container">
-    <div class="title">CURRENTLY ACTIVE RIDES</div>
+<div class="container">
+  <div class="title">CURRENTLY ACTIVE RIDES</div>
 
-    <div class="searchBar-container">
-        <input 
-        type="text" 
-        [(ngModel)]="searchText" 
-        placeholder="Search Driver..." 
-        class="searchBar"
-        >
-    </div>
+  <div class="searchBar-container">
+    <input 
+      type="text" 
+      [(ngModel)]="searchText" 
+      placeholder="Search Driver..." 
+      class="searchBar"
+    >
+  </div>
 
-    <div class="cards-list">
-        @for (ride of filteredRides; track ride.rideId) {
-        <div class="cards-container" (click)="moreInfo(ride.rideId)">
-            <div class="ride-card">
-            <span class="text">{{ ride.driverName }}</span>
-            <span class="text">{{ ride.startAddress }} -> {{ ride.endAddress }}</span>
-            <span class="text">Start Time: {{ ride.startTime | date:'shortTime' }}</span>
+  <div class="cards-list">
+    @for (ride of filteredRides; track ride.rideId) {
+      <div class="cards-container" (click)="moreInfo(ride.rideId)">
+        <div class="ride-card">
+          <div class="card-header">
+            @if (ride.profilePicture) {
+              <img [src]="'data:image/jpeg;base64,' + ride.profilePicture" class="profile-picture">
+            } @else {
+              <img src="assets/icons/profile-photo.jpeg" class="profile-picture">
+            }
+            
+          </div>
+          
+          <div class="card-body">
+            <span class="driver">{{ ride.driverName }}</span>
+            <span class="text">{{ ride.startAddress }}  →  {{ ride.endAddress }}</span>
+            <span class="text">Start Time: {{ ride.startTime | date:'HH:mm' }}</span>
+            <span class="text">Passenger: {{ ride.creatorName }}</span>
             </div>
         </div>
-        } @empty {
-        <div class="text">No active rides matching your search.</div>
-        }
-    </div>
-    </div>
-</body>
+      </div>
+    } @empty {
+      <div class="text">No active rides matching your search.</div>
+    }
+  </div>
+</div>
