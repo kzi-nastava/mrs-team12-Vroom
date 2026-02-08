@@ -12,4 +12,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/main_green</item>
     </style>
+    <style name="CustomPopupTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
+    </style>
 </resources>
