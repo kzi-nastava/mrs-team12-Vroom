@@ -26,8 +26,10 @@ import com.example.vroom.DTOs.driver.requests.DriverChangeStatusRequestDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
+import com.example.vroom.fragments.PanicFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
+import com.example.vroom.fragments.StopRideFragment;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
@@ -201,6 +203,9 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 routeEstimationFragment = RouteEstimationFragment.newInstance();
 
             routeEstimationFragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
+        }else if(id == R.id.stop){
+            PanicFragment ride = PanicFragment.newInstance(8L);
+            ride.show(getSupportFragmentManager(), "PanicFragment");
         }
 
         drawer.closeDrawer(GravityCompat.START);

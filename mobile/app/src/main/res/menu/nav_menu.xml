@@ -19,6 +19,10 @@
         android:icon="@drawable/ic_route"
         android:title="Estimate Route" />
 
+    <item
+        android:id="@+id/stop"
+        android:title="Stop ride" />
+
     <group android:id="@+id/nav_footer" android:checkableBehavior="none">
         <item
             android:id="@+id/nav_status_switch"
