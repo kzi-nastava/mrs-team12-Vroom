@@ -47,7 +47,6 @@ public class PanicFragment extends BottomSheetDialogFragment {
             this.rideId = getArguments().getLong(ARG_RIDE_ID);
         }
 
-        StorageManager.saveData("jwt","eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJrby5tYXJrb3ZpYzFAZ21haWwuY29tIiwiaWQiOjMsInR5cGUiOiJEcml2ZXIiLCJpYXQiOjE3NzA1NDg3MzQsImV4cCI6MTgwMjA4NDczNH0.vevRgSPLijBcfq5CjxpX8YzP2lXYF1dWnfMWTVptDMA");
     }
 
 
