@@ -6,6 +6,7 @@ import com.example.vroom.services.AuthService;
 import com.example.vroom.services.DriverProfileService;
 import com.example.vroom.services.DriverService;
 import com.example.vroom.services.GeoLocationService;
+import com.example.vroom.services.PanicNotificationService;
 import com.example.vroom.services.RideService;
 import com.example.vroom.services.RouteService;
 import com.example.vroom.services.UserProfileService;
@@ -78,11 +79,8 @@ public class RetrofitClient {
         return getClient().create(DriverProfileService.class);
     }
 
-    public static RouteService getRouteService(){
-        return getClient().create(RouteService.class);
-    }
+    public static RouteService getRouteService(){ return getClient().create(RouteService.class); }
+    public static GeoLocationService getGeoLocationService(){ return getClient().create(GeoLocationService.class); }
 
-    public static GeoLocationService getGeoLocationService(){
-        return getClient().create(GeoLocationService.class);
-    }
+    public static PanicNotificationService getPanicNotificationService(){ return getClient().create(PanicNotificationService.class); }
 }
