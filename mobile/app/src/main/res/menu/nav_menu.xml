@@ -20,8 +20,9 @@
         android:title="Estimate Route" />
 
     <item
-        android:id="@+id/stop"
-        android:title="Stop ride" />
+        android:id="@+id/nav_panic_feed"
+        android:title="Panic Feed"
+        android:visible="false" />
 
     <group android:id="@+id/nav_footer" android:checkableBehavior="none">
         <item
