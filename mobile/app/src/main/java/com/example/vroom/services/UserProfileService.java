@@ -1,4 +1,5 @@
 package com.example.vroom.services;
+import com.example.vroom.DTOs.auth.requests.ChangePasswordRequestDTO;
 import com.example.vroom.DTOs.registeredUser.RegisteredUserDTO;
 import com.example.vroom.DTOs.registeredUser.UpdateProfileRequestDTO;
 
@@ -16,4 +17,7 @@ public interface UserProfileService {
 
     @PUT("/api/profile/user/me")
     Call<Void> updateProfile(@Body UpdateProfileRequestDTO dto);
+
+    @PUT("/api/profile/user/change-password")
+    Call<String> changePassword(@Body ChangePasswordRequestDTO dto);
 }

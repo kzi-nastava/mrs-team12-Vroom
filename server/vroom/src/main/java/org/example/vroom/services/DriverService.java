@@ -13,12 +13,14 @@ import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RequestStatus;
 import org.example.vroom.enums.UserStatus;
+import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.*;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.*;
+import org.example.vroom.utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,6 +58,8 @@ public class DriverService {
     private DriverProfileUpdateRequestRepository updateRequestRepository;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private PasswordUtils passwordUtils;
 
     public List<DriverDTO> getAvailableDrivers() {
         List<Driver> drivers =
@@ -201,5 +205,28 @@ public class DriverService {
         driver.get().setStatus(status);
         driverRepository.save(driver.get());
     }
+    @Transactional
+    public void changePassword(String email, String oldPassword, String newPassword, String confirmNewPassword) {
+        Driver driver = driverRepository.findByEmail(email)
+                .orElseThrow(() -> new DriverNotFoundException("Driver not found"));
 
+        if (!passwordEncoder.matches(oldPassword, driver.getPassword())) {
+            throw new InvalidPasswordException("Old password is incorrect");
+        }
+
+        if (!passwordUtils.isPasswordValid(newPassword)) {
+            throw new InvalidPasswordException("New password doesn't match criteria");
+        }
+
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new InvalidPasswordException("New passwords do not match");
+        }
+
+        if (passwordEncoder.matches(newPassword, driver.getPassword())) {
+            throw new InvalidPasswordException("New password must be different from the old password");
+        }
+
+        driver.setPassword(passwordEncoder.encode(newPassword));
+        driverRepository.save(driver);
+    }
 }

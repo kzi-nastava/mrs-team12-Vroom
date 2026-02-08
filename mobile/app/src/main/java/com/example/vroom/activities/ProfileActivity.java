@@ -1,23 +1,19 @@
 package com.example.vroom.activities;
 
-import android.content.Intent;
+import android.app.Dialog;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.Observer;
-import android.widget.TextView;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
+
+import com.example.vroom.DTOs.auth.requests.ChangePasswordRequestDTO;
 import com.example.vroom.DTOs.registeredUser.UpdateProfileRequestDTO;
 import com.example.vroom.R;
-import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.ProfileViewModel;
 
 public class ProfileActivity extends BaseActivity {
@@ -30,8 +26,8 @@ public class ProfileActivity extends BaseActivity {
     private EditText emailInfo;
     private boolean editMode = false;
 
-
     private Button profileChangeButton;
+    private Button changePasswordButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +48,10 @@ public class ProfileActivity extends BaseActivity {
         emailInfo = findViewById(R.id.EmailInfo);
 
         profileChangeButton = findViewById(R.id.profileChangeButton);
+        changePasswordButton = findViewById(R.id.changePasswordButton);
+
         disableEditMode();
         setEditable(emailInfo, false);
-
 
         profileChangeButton.setOnClickListener(v -> {
             if (!editMode) {
@@ -64,11 +61,49 @@ public class ProfileActivity extends BaseActivity {
             }
         });
 
+        changePasswordButton.setOnClickListener(v -> showChangePasswordDialog());
 
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
 
         observeProfile();
         loadProfile();
+    }
+
+    private void showChangePasswordDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_change_password);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        EditText oldPasswordInput = dialog.findViewById(R.id.oldPasswordInput);
+        EditText newPasswordInput = dialog.findViewById(R.id.newPasswordInput);
+        EditText confirmPasswordInput = dialog.findViewById(R.id.confirmPasswordInput);
+        Button cancelButton = dialog.findViewById(R.id.cancelButton);
+        Button changeButton = dialog.findViewById(R.id.changePasswordButton);
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        changeButton.setOnClickListener(v -> {
+            String oldPassword = oldPasswordInput.getText().toString();
+            String newPassword = newPasswordInput.getText().toString();
+            String confirmPassword = confirmPasswordInput.getText().toString();
+
+            if (oldPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
+                Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            ChangePasswordRequestDTO dto = new ChangePasswordRequestDTO(
+                    oldPassword,
+                    newPassword,
+                    confirmPassword
+            );
+
+            profileViewModel.changePassword(dto);
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     private void setEditable(EditText et, boolean editable) {
@@ -77,6 +112,7 @@ public class ProfileActivity extends BaseActivity {
         et.setFocusableInTouchMode(editable);
         et.setCursorVisible(editable);
     }
+
     private void enableEditMode() {
         editMode = true;
 
@@ -87,6 +123,7 @@ public class ProfileActivity extends BaseActivity {
 
         profileChangeButton.setText("Save");
     }
+
     private void disableEditMode() {
         editMode = false;
 
@@ -97,6 +134,7 @@ public class ProfileActivity extends BaseActivity {
 
         profileChangeButton.setText("Change");
     }
+
     private void saveChanges() {
         UpdateProfileRequestDTO dto = new UpdateProfileRequestDTO(
                 firstNameInfo.getText().toString(),
@@ -111,6 +149,7 @@ public class ProfileActivity extends BaseActivity {
     private void loadProfile() {
         profileViewModel.loadProfile();
     }
+
     private void observeProfile() {
         profileViewModel.getProfile().observe(this, user -> {
             if (user != null) {
@@ -120,13 +159,14 @@ public class ProfileActivity extends BaseActivity {
                 phoneInfo.setText(user.getPhoneNumber());
                 emailInfo.setText(user.getEmail());
             }
-        } );
+        });
 
         profileViewModel.getError().observe(this, errorMsg -> {
             if (errorMsg != null) {
                 Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
             }
         });
+
         profileViewModel.getUpdateSuccess().observe(this, success -> {
             if (success == null) return;
 
@@ -135,10 +175,18 @@ public class ProfileActivity extends BaseActivity {
                 Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-    @Override
-    public void onProfileButtonClicked(){
-        Toast.makeText(this, "You're already Here !", Toast.LENGTH_SHORT).show();
+
+        profileViewModel.getPasswordChangeSuccess().observe(this, success -> {
+            if (success == null) return;
+
+            if (success) {
+                Toast.makeText(this, "Password changed successfully!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
+    @Override
+    public void onProfileButtonClicked() {
+        Toast.makeText(this, "You're already Here!", Toast.LENGTH_SHORT).show();
+    }
 }

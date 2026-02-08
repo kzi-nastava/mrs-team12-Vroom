@@ -1,6 +1,7 @@
 package org.example.vroom.controllers;
 
 import org.example.vroom.DTOs.DriverDTO;
+import org.example.vroom.DTOs.requests.auth.ChangePasswordRequestDTO;
 import org.example.vroom.services.DriverService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,5 +42,20 @@ public class DriverProfileController {
     ) {
         driverService.requestProfileUpdate(userDetails.getUsername(), dto);
         return ResponseEntity.accepted().build();
+    }
+
+    @PutMapping("/change-password")
+    //@PreAuthorize("hasAnyRole('DRIVER')")
+    public ResponseEntity<String> changePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ChangePasswordRequestDTO dto
+    ) {
+        driverService.changePassword(
+                userDetails.getUsername(),
+                dto.getOldPassword(),
+                dto.getNewPassword(),
+                dto.getConfirmNewPassword()
+        );
+        return ResponseEntity.ok("Password changed successfully");
     }
 }

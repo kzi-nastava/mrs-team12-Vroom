@@ -1,6 +1,7 @@
 package org.example.vroom.controllers;
 
 import org.example.vroom.DTOs.RegisteredUserDTO;
+import org.example.vroom.DTOs.requests.auth.ChangePasswordRequestDTO;
 import org.example.vroom.services.RegisteredUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,5 +47,19 @@ public class UserProfileController {
                         dto
                 )
         );
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ChangePasswordRequestDTO dto
+    ) {
+        registeredUserService.changePassword(
+                userDetails.getUsername(),
+                dto.getOldPassword(),
+                dto.getNewPassword(),
+                dto.getConfirmNewPassword()
+        );
+        return ResponseEntity.ok("Password changed successfully");
     }
 }

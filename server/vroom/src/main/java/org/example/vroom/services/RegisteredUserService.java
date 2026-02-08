@@ -164,4 +164,33 @@ public class RegisteredUserService {
     public void deleteExpiredAccounts(LocalDateTime threshold){
         registeredUserRepository.deleteRegisteredUsersByCreatedAt(threshold);
     }
+
+    @Transactional
+    public void changePassword(String email, String oldPassword, String newPassword, String confirmNewPassword) {
+
+        RegisteredUser user = registeredUserRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new InvalidPasswordException("Old password is incorrect");
+        }
+
+
+        if (!passwordUtils.isPasswordValid(newPassword)) {
+            throw new InvalidPasswordException("New password doesn't match criteria");
+        }
+
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new InvalidPasswordException("New passwords do not match");
+        }
+
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new InvalidPasswordException("New password must be different from the old password");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        registeredUserRepository.save(user);
+    }
 }
