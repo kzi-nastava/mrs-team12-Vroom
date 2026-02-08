@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="40dp"
     app:cardElevation="2dp"
     app:cardBackgroundColor="@color/main_green">
 
@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,7 +30,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/arrow"
+                android:text="↓"
+                android:layout_marginVertical="2dp"
                 android:textColor="@color/brown_black"
                 android:textStyle="bold" />
 
@@ -38,56 +39,81 @@
                 android:id="@+id/tvEndLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
                 android:textColor="@color/brown_black"
                 android:textStyle="bold"
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <GridLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="16dp">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.6" />
 
             <LinearLayout
+                android:id="@+id/containerDate"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:orientation="vertical">
-                <TextView android:text="@string/datetime_title" android:textSize="12sp"
-                    android:layout_height="wrap_content" android:layout_width="match_parent"/>
-                <TextView android:id="@+id/tvDateTime" android:textStyle="bold"
-                    android:layout_height="wrap_content" android:layout_width="match_parent"/>
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toTopOf="parent">
+                <TextView android:text="Date &amp; Time" android:textColor="@color/light_text" android:textSize="12sp"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tvDateTime" android:textColor="@color/brown_black" android:textStyle="bold"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/containerPrice"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:orientation="vertical">
-                <TextView android:text="@string/price_title" android:textSize="12sp"
-                    android:layout_height="wrap_content" android:layout_width="match_parent"/>
-                <TextView android:id="@+id/tvPrice" android:textStyle="bold"
-                    android:layout_height="wrap_content" android:layout_width="match_parent"/>
+                android:orientation="vertical"
+                app:layout_constraintStart_toEndOf="@+id/guideline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <TextView android:text="Price" android:textColor="@color/light_text" android:textSize="12sp"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tvPrice" android:textColor="@color/brown_black" android:textStyle="bold"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:padding="5dp"
-                android:textStyle="bold" />
+                android:layout_marginTop="12dp"
+                android:minWidth="90dp"
+                android:gravity="center"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="6dp"
+                android:background="@drawable/status_badge_rounded"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/containerDate"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/tvSafety"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_gravity="end"
-                android:padding="5dp"
-                android:textStyle="bold" />
-        </GridLayout>
+                android:layout_marginTop="12dp"
+                android:minWidth="90dp"
+                android:gravity="center"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="6dp"
+                android:background="@drawable/status_badge_rounded"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/containerPrice"
+                app:layout_constraintStart_toEndOf="@id/guideline" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

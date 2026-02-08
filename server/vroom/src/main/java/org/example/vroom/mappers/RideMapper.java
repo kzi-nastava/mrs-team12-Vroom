@@ -10,6 +10,9 @@ import org.example.vroom.enums.RideStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class RideMapper {
     @Autowired
@@ -67,10 +70,22 @@ public class RideMapper {
     }
 
     public RideHistoryMoreInfoResponseDTO getRideHistoryMoreInfo(Ride ride) {
-        return RideHistoryMoreInfoResponseDTO
-                .builder()
+        List<String> allPassengers = new ArrayList<>();
+
+        if (ride.getPassengers() != null) {
+            allPassengers.addAll(ride.getPassengers());
+        }
+
+        if (ride.getPassenger() != null && ride.getPassenger().getEmail() != null) {
+            String creatorEmail = ride.getPassenger().getEmail();
+            if (!allPassengers.contains(creatorEmail)) {
+                allPassengers.add(creatorEmail);
+            }
+        }
+
+        return RideHistoryMoreInfoResponseDTO.builder()
                 .rideID(ride.getId())
-                .passengers(ride.getPassengers())
+                .passengers(allPassengers)
                 .status(ride.getStatus())
                 .cancelReason(ride.getCancelReason())
                 .complaints(ride.getComplaints())
