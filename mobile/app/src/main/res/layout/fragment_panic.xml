@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
+    tools:context=".fragments.PanicFragment">
+
+    <LinearLayout
+        android:id="@+id/panic_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:background="@color/light_grey"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:id="@+id/panic_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Confirm you are in danger"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textAlignment="center"
+            android:layout_marginBottom="32dp"/>
+
+        <ProgressBar
+            android:id="@+id/panic_loading_spinner"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:visibility="gone"
+            android:indeterminateTint="@color/red"
+            android:layout_marginBottom="24dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_send_panic"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="YES, PANIC"
+            app:cornerRadius="12dp"
+            android:backgroundTint="@color/red"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:insetBottom="0dp"
+            android:insetTop="0dp"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_panic_cancel"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="CANCEL"
+            app:cornerRadius="12dp"
+            android:backgroundTint="@color/main_green"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:insetBottom="0dp"
+            android:insetTop="0dp"/>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

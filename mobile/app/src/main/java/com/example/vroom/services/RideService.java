@@ -17,13 +17,6 @@ import retrofit2.http.Query;
 
 public interface RideService {
 
-    @GET("api/drivers/rides")
-    Call<List<RideHistoryResponseDTO>> getRides(
-            @Query("startDate") String startDate,
-            @Query("endDate") String endDate,
-            @Query("sort") String sort
-    );
-
     @PUT("api/rides/{rideID}/cancel")
     Call<MessageResponseDTO> cancelRide(
             @Path("rideID") Long rideId,

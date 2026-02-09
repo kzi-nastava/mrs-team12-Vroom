@@ -19,6 +19,11 @@
         android:icon="@drawable/ic_route"
         android:title="Estimate Route" />
 
+    <item
+        android:id="@+id/nav_panic_feed"
+        android:title="Panic Feed"
+        android:visible="false" />
+
     <group android:id="@+id/nav_footer" android:checkableBehavior="none">
         <item
             android:id="@+id/nav_status_switch"

@@ -1,74 +1,101 @@
 package com.example.vroom.adapters;
-import com.example.vroom.R;
 
+import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.vroom.DTOs.ride.responses.RideHistoryResponseDTO;
+import com.example.vroom.R;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class RideHistoryAdapter extends RecyclerView.Adapter<RideHistoryAdapter.ViewHolder> {
-    private List<RideHistoryResponseDTO> rides;
+public class RideHistoryAdapter extends RecyclerView.Adapter<RideHistoryAdapter.RideViewHolder> {
+    private List<RideHistoryResponseDTO> rides = new ArrayList<>();
+    private final OnRideClickListener listener;
 
-    public RideHistoryAdapter(List<RideHistoryResponseDTO> rides) {
+    public interface OnRideClickListener {
+        void onRideClick(Long rideId);
+    }
+    public RideHistoryAdapter(OnRideClickListener listener){
+        this.listener = listener;
+    }
+    public void setRides(List<RideHistoryResponseDTO> rides) {
         this.rides = rides;
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RideViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.ride_history_card, parent, false);
-        return new ViewHolder(view);
+        return new RideViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RideViewHolder holder, int position) {
         RideHistoryResponseDTO ride = rides.get(position);
+        Context context = holder.itemView.getContext();
 
-        holder.startLoc.setText(ride.getStartAddress());
-        holder.endLoc.setText(ride.getEndAddress());
-        holder.price.setText(String.format("%s RSD", ride.getPrice()));
-        holder.status.setText(ride.getStatus().name());
-        holder.dateTime.setText(ride.getStartTime().toString());
+        holder.tvStart.setText(ride.getStartAddress());
+        holder.tvEnd.setText(ride.getEndAddress());
 
-        if (ride.isPanicActivated()) {
-            holder.safety.setText("PANIC");
-            holder.safety.setBackgroundColor(Color.parseColor("#FFCDD2"));
-            holder.safety.setTextColor(Color.RED);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy. • HH:mm");
+        holder.tvDate.setText(ride.getStartTime().format(formatter));
+
+        holder.tvPrice.setText(String.format("%.2f RSD", ride.getPrice()));
+
+        String status = ride.getStatus().toString();
+        holder.tvStatus.setText(status);
+
+        if ("CANCELLED".equalsIgnoreCase(status) || "REJECTED".equalsIgnoreCase(status)) {
+            holder.tvStatus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.cancelled_background)));
+            holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.cancelled_text));
         } else {
-            holder.safety.setText("Safe");
-            holder.safety.setBackgroundColor(Color.parseColor("#C8E6C9"));
-            holder.safety.setTextColor(Color.parseColor("#2E7D32"));
+            holder.tvStatus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.safe_background)));
+            holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.safe_text));
         }
+
+        if (ride.getPanicActivated()) {
+            holder.tvSafety.setText("Panic");
+            holder.tvSafety.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.panic_background)));
+            holder.tvSafety.setTextColor(ContextCompat.getColor(context, R.color.panic_text));
+        } else {
+            holder.tvSafety.setText("Safe");
+            holder.tvSafety.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.safe_background)));
+            holder.tvSafety.setTextColor(ContextCompat.getColor(context, R.color.safe_text));
+        }
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onRideClick(ride.getRideId());
+        });
     }
 
     @Override
     public int getItemCount() {
-        return rides != null ? rides.size() : 0;
+        return rides.size();
     }
 
-    public void setRides(List<RideHistoryResponseDTO> rides) {
-        this.rides = rides;
-    }
+    static class RideViewHolder extends RecyclerView.ViewHolder {
+        TextView tvStart, tvEnd, tvDate, tvPrice, tvStatus, tvSafety;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView startLoc, endLoc, dateTime, price, status, safety;
-
-        public ViewHolder(@NonNull View itemView) {
+        RideViewHolder(View itemView) {
             super(itemView);
-            startLoc = itemView.findViewById(R.id.tvStartLocation);
-            endLoc = itemView.findViewById(R.id.tvEndLocation);
-            dateTime = itemView.findViewById(R.id.tvDateTime);
-            price = itemView.findViewById(R.id.tvPrice);
-            status = itemView.findViewById(R.id.tvStatus);
-            safety = itemView.findViewById(R.id.tvSafety);
+            tvStart = itemView.findViewById(R.id.tvStartLocation);
+            tvEnd = itemView.findViewById(R.id.tvEndLocation);
+            tvDate = itemView.findViewById(R.id.tvDateTime);
+            tvPrice = itemView.findViewById(R.id.tvPrice);
+            tvStatus = itemView.findViewById(R.id.tvStatus);
+            tvSafety = itemView.findViewById(R.id.tvSafety);
         }
     }
 }

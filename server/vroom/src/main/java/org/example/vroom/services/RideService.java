@@ -153,7 +153,7 @@ public class RideService {
         RouteQuoteResponseDTO quote = routeService.routeEstimation(startLocation, endLocation, stops);
 
         RideStatus status = RideStatus.ACCEPTED;
-        driver.setStatus(DriverStatus.UNAVAILABLE);
+
         if (route.getStartLocationLat().equals(route.getEndLocationLat()) &&
                 route.getStartLocationLng().equals(route.getEndLocationLng())) {
             throw new IllegalArgumentException("Start and end locations cannot be the same");
@@ -170,12 +170,14 @@ public class RideService {
                 .isScheduled(isScheduled)
                 .build();
 
+        ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
+
         String startAddress = decodeAddress(ride.getRoute().getStartLocationLat(), ride.getRoute().getStartLocationLng());
         String endAddress = decodeAddress(ride.getRoute().getEndLocationLat(), ride.getRoute().getEndLocationLng());
         ride.getRoute().setStartAddress(startAddress);
         ride.getRoute().setEndAddress(endAddress);
 
-        ride = rideRepository.save(ride);
+        rideRepository.saveAndFlush(ride);
 
         GetRideResponseDTO dto = rideMapper.getRideDTO(ride);
         dto.setScheduledTime(scheduledTime);
