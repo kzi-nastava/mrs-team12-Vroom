@@ -67,7 +67,7 @@
                     <div class="spinner"></div>
                 </div>
 
-                <div *ngIf="!isLoading && rides.length > 0; else noData">
+                <div *ngIf="!isLoading && rides.length > 0; else noData" id="rideCardsContainer">
                     <div *ngFor="let ride of rides" class="ride-card" (click)="openPopup(ride.rideId)">
                         <div class="route">
                             <span class="location">{{ ride.route.startAddress }}</span>
@@ -181,7 +181,7 @@
                             && (authService.isLoggedIn$ | async) 
                             && authService.getCurrentUserType === 'REGISTERED_USER'"
                     >
-                        <button class="leave-review-btn" (click)="openLeaveReview()">Leave a review</button>
+                        <button class="leave-review-btn" (click)="openLeaveReview()" id=leaveReviewButton>Leave a review</button>
                         <app-review-popup 
                             *ngIf="isReviewFormShowed" 
                             [rideID]="selectedRide.rideId.toString()"
@@ -189,21 +189,21 @@
                         </app-review-popup>
                     </div>
 
-                    <div class="info-section" *ngIf="selectedRide.driverRating || selectedRide.vehicleRating">
+                    <div class="info-section" *ngIf="selectedRide.driverRating || selectedRide.vehicleRating" id="reviewInfo">
                         <h3>Ratings</h3>
                         <div class="ratings-grid">
                             <div class="rating-item" *ngIf="selectedRide.driverRating">
                                 <span class="rating-label">Driver Rating</span>
                                 <div class="rating-stars">
                                     <span class="stars">{{ getStars(selectedRide.driverRating) }}</span>
-                                    <span class="rating-number">{{ selectedRide.driverRating }}/5</span>
+                                    <span class="rating-number" id="driverRating">{{ selectedRide.driverRating }}/5</span>
                                 </div>
                             </div>
                             <div class="rating-item" *ngIf="selectedRide.vehicleRating">
                                 <span class="rating-label">Vehicle Rating</span>
                                 <div class="rating-stars">
                                     <span class="stars">{{ getStars(selectedRide.vehicleRating) }}</span>
-                                    <span class="rating-number">{{ selectedRide.vehicleRating }}/5</span>
+                                    <span class="rating-number" id="vehicleRating">{{ selectedRide.vehicleRating }}/5</span>
                                 </div>
                             </div>
                         </div>
@@ -211,7 +211,7 @@
 
                     <div class="info-section" *ngIf="selectedRide.comment">
                         <h3>Comment</h3>
-                        <p class="comment-text">{{ selectedRide.comment }}</p>
+                        <p class="comment-text" id="comment">{{ selectedRide.comment }}</p>
                     </div>
                 </div>
             </div>

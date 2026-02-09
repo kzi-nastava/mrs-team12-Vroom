@@ -8,7 +8,7 @@
 
       <div class="rating-group">
         <label class="rating-label">Rate the driver:</label>
-        <div class="stars">
+        <div class="stars" id="driverRating">
           <span *ngFor="let star of [1,2,3,4,5]" 
                 class="star" 
                 [class.selected]="driverRating >= star"
@@ -18,7 +18,7 @@
 
       <div class="rating-group">
         <label class="rating-label">Rate the car:</label>
-        <div class="stars">
+        <div class="stars" id="vehicleRating">
           <span *ngFor="let star of [1,2,3,4,5]" 
                 class="star" 
                 [class.selected]="carRating >= star"
@@ -27,6 +27,7 @@
       </div>
 
       <textarea 
+        id="commentInput"
         class="review-textarea" 
         placeholder="Comment..."
         [(ngModel)]="comment"
