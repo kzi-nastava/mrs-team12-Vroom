@@ -1,6 +1,7 @@
 package org.example.vroom.E2E.base;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.example.vroom.E2E.utils.DbUtils;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -17,17 +18,19 @@ public class BaseTest {
 
         FirefoxOptions options = new FirefoxOptions();
 
-        FirefoxProfile profile = new FirefoxProfile();
-        profile.setPreference("geo.enabled", true);
-        profile.setPreference("geo.provider.use_corelocation", true);
-        profile.setPreference("geo.prompt.testing", true);
-        profile.setPreference("geo.prompt.testing.allow", true);
+        options.addPreference("geo.enabled", true);
+        options.addPreference("geo.provider.use_corelocation", true);
+        options.addPreference("geo.prompt.testing", true);
+        options.addPreference("geo.prompt.testing.allow", true);
 
         driver = new FirefoxDriver(options);
 
         driver.manage().window().maximize();
         driver.manage().deleteAllCookies();
+        DbUtils.insertFinishedRide(6L, 7L, 1L);
     }
+
+
 
     @AfterEach
     void tearDown(){
