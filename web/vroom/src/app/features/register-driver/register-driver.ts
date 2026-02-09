@@ -26,8 +26,6 @@ export class RegisterDriver{
   gender = '';
   email = '';
   phoneNumber = '';
-  password = '';
-  rePassword = '';
 
   profilePic: File | null = null;
 
@@ -76,20 +74,7 @@ export class RegisterDriver{
     return;
   }
 
-  // PASSWORD MATCH
-  if (this.password !== this.rePassword) {
-    this.error = 'Passwords must match.';
-    this.isLoading = false;
-    return;
-  }
-
-  // PASSWORD RULES (tvoj servis)
-  const pwdError = this.registerService.isPasswordValid(this.password);
-  if (pwdError) {
-    this.error = pwdError;
-    this.isLoading = false;
-    return;
-  }
+  
 
   // DRIVER PREFS
   const prefError = this.registerService.validateDriverPreferences(
@@ -122,7 +107,6 @@ export class RegisterDriver{
     phoneNumber: this.phoneNumber.trim(),
     address: `${this.street}, ${this.city}, ${this.country}`,
     gender: this.gender,
-    password: this.password,
     profilePhoto: photoBase64,
 
     brand: this.vehicleBrand.trim(),
@@ -138,7 +122,7 @@ export class RegisterDriver{
     const response = await firstValueFrom(
       this.registerService.createRequest(data)
     );
-    this.success = response.message || 'Driver registered successfully!';
+    this.success = response.message || 'Driver registered! Activation mail sent.';
   } catch (err) {
     if (isHttpError(err)) {
       this.error =
@@ -172,8 +156,6 @@ private validateRequiredFields(): string | null {
     this.isEmpty(this.gender) ||
     this.isEmpty(this.email) ||
     this.isEmpty(this.phoneNumber) ||
-    this.isEmpty(this.password) ||
-    this.isEmpty(this.rePassword) ||
     this.isEmpty(this.vehicleBrand) ||
     this.isEmpty(this.vehicleModel) ||
     this.isEmpty(this.vehicleType) ||

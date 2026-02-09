@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestDTO;
+import org.example.vroom.DTOs.requests.driver.SetPasswordRequestDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Driver;
@@ -20,6 +21,7 @@ import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.*;
+import org.example.vroom.utils.EmailService;
 import org.example.vroom.utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -60,6 +62,8 @@ public class DriverService {
     private ObjectMapper objectMapper;
     @Autowired
     private PasswordUtils passwordUtils;
+    @Autowired
+    private EmailService emailService;
 
     public List<DriverDTO> getAvailableDrivers() {
         List<Driver> drivers =
@@ -96,15 +100,6 @@ public class DriverService {
         }
 
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-
-
-        Driver driver = driverMapper.toEntity(request, encodedPassword);
-
-
-        driver.setStatus(DriverStatus.INACTIVE);
-
-
         if (request.getNumberOfSeats() == null || request.getNumberOfSeats() <= 0) {
             throw new IllegalArgumentException("Number of seats must be positive");
         }
@@ -115,23 +110,58 @@ public class DriverService {
             throw new IllegalArgumentException("Babies preference must be selected");
         }
 
-
-        System.out.println("Registering driver: " + driver);
         if (vehicleRepository.existsByLicenceNumber(request.getLicenceNumber())) {
             throw new IllegalArgumentException("Vehicle with this licence number already exists");
         }
 
+        Driver driver = driverMapper.toEntity(request, "aaffa4sfa6534f6asasf");
+        driver.setStatus(DriverStatus.INACTIVE);
+        driver.setPassword("adaisjdoiasjdasoidjaoisjdasd");
 
         driver = driverRepository.saveAndFlush(driver);
 
-        System.out.println("Driver saved with ID: " + driver.getId());
 
+        try {
+            System.out.println("Attempting to send email to: " + driver.getEmail());
+            emailService.sendDriverActivationMail(driver.getEmail(), String.valueOf(driver.getId()));
+            System.out.println("Email sent successfully!");
+        } catch (Exception e) {
+            System.err.println("EMAIL ERROR: " + e.getClass().getName());
+            System.err.println("EMAIL ERROR MESSAGE: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Driver created but activation email failed to send");
+        }
 
         return driverMapper.toDTO(driver);
     }
 
 
+    @Transactional
+    public void setDriverPassword(Long driverId, SetPasswordRequestDTO request) {
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new IllegalArgumentException("Driver not found"));
 
+        if (driver.getStatus() == DriverStatus.UNAVAILABLE) {
+            throw new IllegalArgumentException("Account is already activated");
+        }
+
+        if (driver.getCreatedAt().plusHours(24).isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Activation link has expired");
+        }
+
+        if (!passwordUtils.isPasswordValid(request.getPassword())) {
+            throw new InvalidPasswordException("Password doesn't match criteria");
+        }
+
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new InvalidPasswordException("Passwords don't match");
+        }
+
+        driver.setPassword(passwordEncoder.encode(request.getPassword()));
+        driver.setStatus(DriverStatus.UNAVAILABLE);
+
+        driverRepository.save(driver);
+    }
     public DriverDTO getMyProfile(String email) {
 
         Driver driver = driverRepository.findByEmail(email)
