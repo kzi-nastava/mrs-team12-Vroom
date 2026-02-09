@@ -50,15 +50,23 @@ public class RideHistoryAdapter extends RecyclerView.Adapter<RideHistoryAdapter.
         holder.tvStart.setText(ride.getStartAddress());
         holder.tvEnd.setText(ride.getEndAddress());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy. • HH:mm");
-        holder.tvDate.setText(ride.getStartTime().format(formatter));
+        if (ride.getStartTime() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy. • HH:mm");
+            holder.tvDate.setText(ride.getStartTime().format(formatter));
+        } else {
+            holder.tvDate.setText("N/A");
+        }
 
-        holder.tvPrice.setText(String.format("%.2f RSD", ride.getPrice()));
+        if (ride.getPrice() != 0) {
+            holder.tvPrice.setText(String.format("%.2f RSD", ride.getPrice()));
+        } else {
+            holder.tvPrice.setText("---");
+        }
 
-        String status = ride.getStatus().toString();
+        String status = ride.getStatus() != null ? ride.getStatus().toString() : "UNKNOWN";
         holder.tvStatus.setText(status);
 
-        if ("CANCELLED".equalsIgnoreCase(status) || "REJECTED".equalsIgnoreCase(status)) {
+        if ("CANCELLED_BY_USER".equalsIgnoreCase(status) || "CANCELLED_BY_DRIVER".equalsIgnoreCase(status )) {
             holder.tvStatus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.cancelled_background)));
             holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.cancelled_text));
         } else {
@@ -75,6 +83,7 @@ public class RideHistoryAdapter extends RecyclerView.Adapter<RideHistoryAdapter.
             holder.tvSafety.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.safe_background)));
             holder.tvSafety.setTextColor(ContextCompat.getColor(context, R.color.safe_text));
         }
+
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) listener.onRideClick(ride.getRideId());
         });

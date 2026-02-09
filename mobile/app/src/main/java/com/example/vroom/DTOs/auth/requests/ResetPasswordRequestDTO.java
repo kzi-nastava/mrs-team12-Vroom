@@ -5,13 +5,25 @@ public class ResetPasswordRequestDTO {
     private String code;
     private String password;
 
-    public ResetPasswordRequestDTO(String email, String code, String password) {
+    private String confirmPassword;
+
+    public ResetPasswordRequestDTO(String email, String code, String password, String confirmPassword) {
         this.email = email;
         this.code = code;
         this.password = password;
+        this.confirmPassword = confirmPassword;
+
     }
 
     public ResetPasswordRequestDTO() {
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 
     public String getEmail() {
