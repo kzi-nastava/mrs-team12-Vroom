@@ -141,7 +141,7 @@ this.http.post(
     
     if (length < 8) return 'weak';
     if (strength < 3) return 'weak';
-    if (strength === 3) return 'medium';
+    if (strength === 2) return 'medium';
     return 'strong';
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core"
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from "rxjs";
 import { MessageResponseDTO } from "../../core/models/message-response.dto";
 
@@ -11,46 +11,43 @@ export class RegisterDriverService{
     
     constructor(private http: HttpClient) {}
 
-   
-        validateDriverPreferences(
-  numberOfSeats: number| null,
-  petsAllowed: boolean | null,
-  babiesAllowed: boolean | null
-): string | null {
+    validateDriverPreferences(
+      numberOfSeats: number | null,
+      petsAllowed: boolean | null,
+      babiesAllowed: boolean | null
+    ): string | null {
+      if (numberOfSeats === null || numberOfSeats === undefined) {
+        return 'Number of seats is required when vehicle information is provided';
+      }
 
-  if (numberOfSeats === null || numberOfSeats === undefined) {
-    return 'Number of seats is required';
-  }
+      const seats = Number(numberOfSeats);
 
-  const seats = Number(numberOfSeats);
+      if (isNaN(seats)) {
+        return 'Number of seats must be a number';
+      }
 
-  if (isNaN(seats)) {
-    return 'Number of seats must be a number';
-  }
+      if (seats <= 0) {
+        return 'Number of seats must be a positive number';
+      }
 
-  if (seats <= 0) {
-    return 'Number of seats must be a positive number';
-  }
+      if (petsAllowed === null) {
+        return 'You must select whether pets are allowed when vehicle information is provided';
+      }
 
- 
-  if (petsAllowed === null) {
-    return 'You must select whether pets are allowed';
-  }
+      if (babiesAllowed === null) {
+        return 'You must select whether babies are allowed when vehicle information is provided';
+      }
 
+      return null; 
+    }
 
-  if (babiesAllowed === null) {
-    return 'You must select whether babies are allowed';
-  }
-
-  return null; 
-}
     getFileValidationError(file: File): string | null {
         if (!file.type.startsWith('image/')) {
-        return 'Please select a valid image file (png, jpg, etc.)';
+          return 'Please select a valid image file (png, jpg, etc.)';
         }
 
         if (file.size > 2 * 1024 * 1024) {
-        return 'Image size must be less than 2MB';
+          return 'Image size must be less than 2MB';
         }
 
         return null;
@@ -71,6 +68,17 @@ export class RegisterDriverService{
     }
 
     createRequest(data: any): Observable<MessageResponseDTO> {
-        return this.http.post<MessageResponseDTO>(this.apiUrl+'/register/driver', data)
+        const token = localStorage.getItem('token');
+        
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        });
+
+        return this.http.post<MessageResponseDTO>(
+            this.apiUrl + '/register/driver', 
+            data,
+            { headers }
+        );
     }
 }

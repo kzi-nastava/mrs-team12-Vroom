@@ -100,18 +100,22 @@ public class DriverService {
         }
 
 
-        if (request.getNumberOfSeats() == null || request.getNumberOfSeats() <= 0) {
-            throw new IllegalArgumentException("Number of seats must be positive");
-        }
-        if (request.getPetsAllowed() == null) {
-            throw new IllegalArgumentException("Pets preference must be selected");
-        }
-        if (request.getBabiesAllowed() == null) {
-            throw new IllegalArgumentException("Babies preference must be selected");
-        }
+        boolean hasVehicleData = hasCompleteVehicleData(request);
 
-        if (vehicleRepository.existsByLicenceNumber(request.getLicenceNumber())) {
-            throw new IllegalArgumentException("Vehicle with this licence number already exists");
+        if (hasVehicleData) {
+            if (request.getNumberOfSeats() == null || request.getNumberOfSeats() <= 0) {
+                throw new IllegalArgumentException("Number of seats must be positive");
+            }
+            if (request.getPetsAllowed() == null) {
+                throw new IllegalArgumentException("Pets preference must be selected");
+            }
+            if (request.getBabiesAllowed() == null) {
+                throw new IllegalArgumentException("Babies preference must be selected");
+            }
+
+            if (vehicleRepository.existsByLicenceNumber(request.getLicenceNumber())) {
+                throw new IllegalArgumentException("Vehicle with this licence number already exists");
+            }
         }
 
         Driver driver = driverMapper.toEntity(request, "aaffa4sfa6534f6asasf");
@@ -119,7 +123,6 @@ public class DriverService {
         driver.setPassword("adaisjdoiasjdasoidjaoisjdasd");
 
         driver = driverRepository.saveAndFlush(driver);
-
 
         try {
             System.out.println("Attempting to send email to: " + driver.getEmail());
@@ -133,6 +136,16 @@ public class DriverService {
         }
 
         return driverMapper.toDTO(driver);
+    }
+
+    private boolean hasCompleteVehicleData(DriverRegistrationRequestDTO request) {
+        return request.getBrand() != null && !request.getBrand().trim().isEmpty() &&
+                request.getModel() != null && !request.getModel().trim().isEmpty() &&
+                request.getType() != null &&
+                request.getLicenceNumber() != null && !request.getLicenceNumber().trim().isEmpty() &&
+                request.getNumberOfSeats() != null &&
+                request.getPetsAllowed() != null &&
+                request.getBabiesAllowed() != null;
     }
 
 
