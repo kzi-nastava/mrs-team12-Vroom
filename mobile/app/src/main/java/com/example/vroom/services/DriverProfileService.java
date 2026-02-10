@@ -1,5 +1,6 @@
 package com.example.vroom.services;
 
+import com.example.vroom.DTOs.auth.requests.ChangePasswordRequestDTO;
 import com.example.vroom.DTOs.driver.requests.DriverDTO;
 
 import retrofit2.Call;
@@ -13,4 +14,7 @@ public interface DriverProfileService {
 
     @PUT("/api/profile/driver/me")
     Call<Void> requestUpdate(@Body DriverDTO dto);
+
+    @PUT("/api/profile/driver/change-password")
+    Call<String> changePassword(@Body ChangePasswordRequestDTO dto);
 }

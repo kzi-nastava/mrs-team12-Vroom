@@ -79,7 +79,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profileBackground" />
-
+    <Button
+        android:id="@+id/changePasswordButton"
+        android:layout_width="167dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="159dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="159dp"
+        android:backgroundTint="#7DA47D"
+        android:text="Change Password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profileChangeButton" />
     <TextView
         android:id="@+id/FirstNameLabel"
         android:layout_width="wrap_content"
@@ -194,7 +205,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profileChangeButton" />
+        app:layout_constraintTop_toBottomOf="@+id/changePasswordButton" />
 
     <TextView
         android:id="@+id/LicensePlateInfo"

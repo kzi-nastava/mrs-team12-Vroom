@@ -3,6 +3,7 @@ package org.example.vroom.controllers;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverChangeStatusRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
+import org.example.vroom.DTOs.requests.driver.SetPasswordRequestDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
@@ -92,6 +93,20 @@ public class DriverController {
         } catch (DriverAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
         } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/driver/set-password/{driverId}")
+    public ResponseEntity<?> setDriverPassword(
+            @PathVariable Long driverId,
+            @RequestBody SetPasswordRequestDTO request) {
+
+        try {
+            driverService.setDriverPassword(driverId, request);
+            return ResponseEntity.ok(Map.of("message", "Password set successfully"));
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
         }
