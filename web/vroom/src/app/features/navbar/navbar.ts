@@ -7,6 +7,8 @@ import { DriverService } from '../../core/services/driver.service';
 import { PanicNotificationService } from '../../core/services/panic-notification.service';
 import { PanicService } from '../../core/services/panic.service';
 import { forkJoin, Observable } from 'rxjs';
+import { ChatService } from '../../core/services/chat.service';
+import { SocketProviderService } from '../../core/services/socket-provider.service';
 @Component({
   selector: 'app-navbar',
   imports: [RouterModule, CommonModule, ChangeDriverStatus],
@@ -19,7 +21,9 @@ export class Navbar {
     private router: Router, 
     private cdRef: ChangeDetectorRef,
     private driverService: DriverService,
-    private panicNotificationService: PanicNotificationService
+    private panicNotificationService: PanicNotificationService,
+    private chatService: ChatService,
+    private socketProvider: SocketProviderService
   ){}
 
 
@@ -28,12 +32,14 @@ export class Navbar {
         next: () => {
           this.driverService.disconnectWebSocket()
           this.panicNotificationService.disconnectWebSocket()
+          this.socketProvider.disconnect();
 
           this.finalizeLogout()
         },
         error: () => {
             this.driverService.disconnectWebSocket()
             this.panicNotificationService.disconnectWebSocket()
+            this.socketProvider.disconnect()
 
           this.finalizeLogout()   
         }

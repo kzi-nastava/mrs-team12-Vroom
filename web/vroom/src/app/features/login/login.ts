@@ -14,6 +14,8 @@ import { PanicNotificationService } from '../../core/services/panic-notification
 import { PanicService } from '../../core/services/panic.service';
 import { NgToastService } from 'ng-angular-popup';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ChatService } from '../../core/services/chat.service';
+import { SocketProviderService } from '../../core/services/socket-provider.service';
 
 @Component({
   selector: 'app-login',
@@ -40,7 +42,9 @@ export class Login implements OnInit {
     private authService: AuthService,
     private driverService: DriverService,
     private panicNotificationService: PanicNotificationService,
-    private toastService: NgToastService
+    private toastService: NgToastService,
+    private chatService: ChatService,
+    private socketProvider: SocketProviderService
   ){}
 
   ngOnInit(): void {
@@ -113,44 +117,68 @@ export class Login implements OnInit {
         // save login response data in localstorage
         localStorage.setItem('user_type', response.type)
         localStorage.setItem('jwt', response.token)
+        localStorage.setItem('user_id', response.userId.toString())
         this.error = ''
         this.isLoadingLogin = false
         
-        const connectionTasks$: Observable<void>[] = []
+      this.socketProvider.initConnection().subscribe({
+        next: () => {
+          let chatInit$: Observable<void> = of(undefined);
+          
+          if (response.type === "ADMIN") {
+            chatInit$ = this.chatService.initAdminChatWebSocket();
+          } else if (response.type === "REGISTERED_USER") {
+            chatInit$ = this.chatService.initUserChatWebSocket(response.userId.toString());
+          }
 
+          chatInit$.subscribe(() => {
+            const path = response.type === 'ADMIN' ? '/admin' : '/';
+            this.router.navigate([path]);
+          });
+        },
+        error: (err) => {
+          console.error("Connection failed", err);
+          this.router.navigate(['/']);
+        }
+      });
 
-        if (response.type === 'DRIVER') {
-          connectionTasks$.push(this.driverService.initializeWebSocket());
-        }else if(response.type === 'ADMIN')
-          connectionTasks$.push(this.panicNotificationService.initalizeWebSocket())
-
-        this.cdRef.detectChanges()
-        this.authService.updateStatus()
+      this.cdRef.detectChanges();
+      this.authService.updateStatus();
 
         // wait to open websocket connections 
-        if (connectionTasks$.length > 0) {
-          forkJoin(connectionTasks$).subscribe({
-            next: () => {
-              if (response.type === 'DRIVER') {
-                this.driverService.startTracking();
-              }
-              if (response.type === "ADMIN"){
-                this.router.navigate(['/admin']);
-              }else{
-                this.router.navigate(['/']);
-              }
-            },
-              
-            error: (err) => {
-                console.error('Socket initialization failed', err);
-                this.router.navigate(['/']); 
-            }
-          })
-        }else if (response.type === 'ADMIN'){
-          this.router.navigate(['/admin'])
-        }else {
-          this.router.navigate(['/'])
-        }
+
+        // forkJoin(connectionTasks$).subscribe({
+        //   // next: () => {
+        //   //   if (response.type === 'DRIVER') {
+        //   //     this.driverService.startTracking();
+        //   //   }
+        //   //   else if (response.type === "ADMIN"){
+        //   //     this.chatService.initAdminChatWebSocket();
+        //   //     this.router.navigate(['/admin']);
+        //   //   }else if (response.type === "REGISTERED_USER") {
+        //   //     this.chatService.initUserChatWebSocket(response.userId.toString());
+        //   //   }else{
+        //   //     this.router.navigate(['/']);
+        //   //   }
+        //   // },
+        //   next:() =>{
+        //     if (chatTask$) {
+        //       chatTask$.subscribe({
+        //         next : () => {
+        //           this.router.navigate(['/'])
+        //         },error: (err) =>{
+        //           console.error('Chat subscription failed', err)
+        //           this.router.navigate(['/'])
+        //         }
+        //       })
+        //     }
+        //   },
+            
+        //   error: (err) => {
+        //       console.error('Socket initialization failed', err);
+        //       this.router.navigate(['/']); 
+        //   }
+        // })
       },
 
       error: (e: HttpErrorResponse)=>{

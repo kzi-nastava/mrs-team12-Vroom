@@ -9,7 +9,7 @@
 
         <div class="nav-right" *ngIf="(authService.isLoggedIn$ | async) && authService.getCurrentUserType === 'REGISTERED_USER'">
             <a class="logout-text" (click)="onLogout()" style="cursor: pointer;">Logout</a>
-
+            <a class="route-est-txt" routerLink="/chat">Chat</a>
             <a class="route-est-txt" routerLink="/order-a-ride">Order a Ride</a>
             <a class="route-est-txt" routerLink="/active">Active Rides</a>
 

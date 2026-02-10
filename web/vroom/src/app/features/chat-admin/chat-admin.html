@@ -1,0 +1,46 @@
+<div class="admin-dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>Active Chats</h2>
+    </div>
+    <div class="chat-list">
+      @for (chat of chats; track chat.chatId) {
+        <div class="chat-item" 
+             [class.active]="selectedChatId === chat.chatId.toString()" 
+             (click)="selectChat(chat.chatId)">
+          <div class="chat-info">
+            <span class="username">{{chat.userName}}</span>
+            <span class="last-time">{{chat.lastMessageTime | date:'HH:mm'}}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </aside>
+
+  <main class="chat-main">
+    @if (selectedChatId) {
+      <div class="chat-container">
+        <div class="messages">
+          @for (msg of currentMessages; track $index) {
+            <div [ngClass]="msg.sentByAdmin ? 'sent-message-container' : 'received-message-container'">
+              <img src="assets/icons/profile-photo.jpeg" class="profile-photo" alt="avatar">
+              <div [ngClass]="msg.sentByAdmin ? 'sent-message' : 'received-message'">
+                {{msg.content}}
+              </div>
+            </div>
+          }
+        </div>
+        
+        <div class="footer">
+          <input class="input" type="text" [(ngModel)]="newMessage" 
+                 (keyup.enter)="sendMessage()" placeholder="Message...">
+          <button class="button" (click)="sendMessage()">Send</button>
+        </div>
+      </div>
+    } @else {
+      <div class="placeholder">
+        <p>Select a user to start messaging</p>
+      </div>
+    }
+  </main>
+</div>

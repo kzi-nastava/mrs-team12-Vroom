@@ -67,6 +67,7 @@ public class AuthService {
             driverRepository.save(d);
         }
         return LoginResponseDTO.builder()
+                .userId(user.getId())
                 .type(type)
                 .token(token)
                 .build();

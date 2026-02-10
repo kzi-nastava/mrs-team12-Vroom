@@ -1,0 +1,17 @@
+<div class="chat">
+  <div class="messages">
+    @for (msg of messages; track $index) {
+      <div [ngClass]="(!msg.sentByAdmin) ? 'sent-message-container' : 'received-message-container'">
+        <img src="assets/icons/profile-photo.jpeg" class="profile-photo" alt="avatar">
+        <div [ngClass]="(!msg.sentByAdmin) ? 'sent-message' : 'received-message'">
+          {{msg.content}}
+        </div>
+      </div>
+    }
+  </div>
+  
+  <div class="footer">
+    <input class="input" type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Message...">
+    <button class="button" (click)="sendMessage()">Send</button>
+  </div>
+</div>

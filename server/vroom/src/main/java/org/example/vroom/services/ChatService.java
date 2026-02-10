@@ -6,6 +6,7 @@ import org.example.vroom.DTOs.responses.chat.ChatResponseDTO;
 import org.example.vroom.entities.Chat;
 import org.example.vroom.entities.Message;
 import org.example.vroom.entities.User;
+import org.example.vroom.exceptions.chat.ChatNotFoundException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.ChatMapper;
 import org.example.vroom.repositories.ChatRepository;
@@ -29,7 +30,7 @@ public class ChatService {
     private ChatMapper chatMapper;
 
     public List<ChatMessageResponseDTO> getMessagesByUserId(Long userId) {
-        Optional<Chat> chatOptional = chatRepository.findById(userId);
+        Optional<Chat> chatOptional = chatRepository.findByUserId(userId);
         if (chatOptional.isPresent()) {
             Chat chat = chatOptional.get();
             List<Message> messages = chat.getMessages();
@@ -42,8 +43,24 @@ public class ChatService {
         return new ArrayList<>();
     }
 
+    public List<ChatMessageResponseDTO> getMessagesByChatId(Long chatId) {
+        Optional<Chat> chatOptional = chatRepository.findById(chatId);
+        if (chatOptional.isPresent()) {
+            Chat chat = chatOptional.get();
+            List<Message> messages = chat.getMessages();
+            List<ChatMessageResponseDTO> responseDTOs = new ArrayList<>();
+            for (Message message : messages) {
+                responseDTOs.add(chatMapper.mapToDTO(message));
+            }
+            return responseDTOs;
+        }
+        return new ArrayList<>();
+    }
+
+
     @Transactional
-    public ChatMessageResponseDTO sendMessage(Long userId, ChatMessageRequestDTO messageRequestDTO) {
+    public ChatMessageResponseDTO userSendMessage(Long userId, ChatMessageRequestDTO messageRequestDTO) {
+        System.out.println("USER SENDING MESSAGE =================================================================");
         Optional<Chat> chatOptional = chatRepository.findByUserId(userId);
         Chat chat = new Chat();
         if (chatOptional.isPresent()) {
@@ -55,22 +72,40 @@ public class ChatService {
             }
             chat.setUser(userOptional.get());
             chat.setMessages(new ArrayList<>());
-            //set administrator (find a random administrator)
         }
         Message message = chatMapper.dtoToMessage(messageRequestDTO);
-        if (message.isSentByAdmin()){
-            message.setSenderName(chat.getAdministrator().getFirstName() + " " + chat.getAdministrator().getLastName());
-        }else{
-            message.setSenderName(chat.getUser().getFirstName() + " " + chat.getUser().getLastName());
-        }
+        message.setSenderName(chat.getUser().getFirstName() + " " + chat.getUser().getLastName());
         chat.getMessages().add(message);
         chat.setLastMessageTime(message.getTimeSent());
-        chatRepository.save(chat);
+        chatRepository.saveAndFlush(chat);
         return chatMapper.mapToDTO(message);
     }
 
-    public List<ChatResponseDTO> getChatsByAdministrator(Long administratorId) {
-        List<Chat> chats = chatRepository.findAllByAdministratorId(administratorId);
+    @Transactional
+    public ChatMessageResponseDTO adminSendMessage(Long chatID, ChatMessageRequestDTO messageRequestDTO) {
+        Optional<Chat> chatOptional = chatRepository.findById(chatID);
+        if (chatOptional.isEmpty()) {
+            throw new ChatNotFoundException("Chat not found");
+        }
+        Chat chat = chatOptional.get();
+        Message message = chatMapper.dtoToMessage(messageRequestDTO);
+        message.setSenderName("Administrator");
+        chat.getMessages().add(message);
+        chat.setLastMessageTime(message.getTimeSent());
+        chatRepository.saveAndFlush(chat);
+        return chatMapper.mapToDTO(message);
+    }
+
+    public Long getUserId(Long chatId) {
+        Optional<Chat> chatOptional = chatRepository.findById(chatId);
+        if (chatOptional.isPresent()) {
+            return chatOptional.get().getUser().getId();
+        }
+        return null;
+    }
+
+    public List<ChatResponseDTO> getAllChats() {
+        List<Chat> chats = chatRepository.findAll();
         List<ChatResponseDTO> responseDTOs = new ArrayList<>();
         for (Chat chat : chats) {
             responseDTOs.add(chatMapper.chatToDTO(chat));

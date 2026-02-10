@@ -26,7 +26,6 @@ export class RideUpdatesService{
     }
 
     initRideUpdatesWebSocket(rideID: string) {
-        const token = localStorage.getItem('jwt');
         if (this.stompClient && this.stompClient.connected) {
             this.stompClient.disconnect();
         }
