@@ -2,6 +2,7 @@ package com.example.vroom.network;
 
 import android.content.Context;
 
+import com.example.vroom.services.AdminService;
 import com.example.vroom.services.AuthService;
 import com.example.vroom.services.DriverProfileService;
 import com.example.vroom.services.DriverService;
@@ -84,4 +85,6 @@ public class RetrofitClient {
     public static GeoLocationService getGeoLocationService(){ return getClient().create(GeoLocationService.class); }
 
     public static PanicNotificationService getPanicNotificationService(){ return getClient().create(PanicNotificationService.class); }
+
+    public static AdminService getAdminService(){ return getClient().create(AdminService.class); }
 }

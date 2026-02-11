@@ -14,11 +14,34 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
+import com.example.vroom.fragments.BlockUserFragment;
 import com.google.android.material.navigation.NavigationView;
 
 public class AdminActivity extends AppCompatActivity {
 
     private DrawerLayout drawer;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_admin);
+
+        setupDrawer();
+        loadDashboard();
+        setupClickListeners();
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (drawer.isDrawerOpen(androidx.core.view.GravityCompat.START)) {
+                    drawer.closeDrawer(androidx.core.view.GravityCompat.START);
+                } else {
+                    finish();
+                }
+            }
+        });
+    }
+
     private void setupDrawer() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -42,6 +65,12 @@ public class AdminActivity extends AppCompatActivity {
             }
             return false;
         });
+
+
+        // getSupportFragmentManager()
+        //         .beginTransaction()
+        //         .replace(R.id.content_frame, new BlockUserFragment())
+        //         .commit();
     }
 
     private void loadDashboard() {
@@ -53,30 +82,29 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
+        findViewById(R.id.cardManageUsers).setOnClickListener(v -> {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_frame, new BlockUserFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+
         findViewById(R.id.cardActiveRides).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
-
         findViewById(R.id.cardPastRides).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
-
         findViewById(R.id.cardPanic).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
-
         findViewById(R.id.cardAddDriver).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
-
-        findViewById(R.id.cardManageUsers).setOnClickListener(v ->
-                startActivity(new Intent(this, MockActivity.class)));
-
         findViewById(R.id.cardProfileRequests).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
-
         findViewById(R.id.cardPricelist).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
-
         findViewById(R.id.cardChat).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
-
         findViewById(R.id.cardReports).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
     }
@@ -92,26 +120,5 @@ public class AdminActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin);
-
-        setupDrawer();
-        loadDashboard();
-        setupClickListeners();
-
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (drawer.isDrawerOpen(androidx.core.view.GravityCompat.START)) {
-                    drawer.closeDrawer(androidx.core.view.GravityCompat.START);
-                } else {
-                    finish();
-                }
-            }
-        });
     }
 }

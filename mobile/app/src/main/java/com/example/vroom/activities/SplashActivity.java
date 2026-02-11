@@ -2,21 +2,9 @@ package com.example.vroom.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-
-
-import android.content.Intent;
-import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.vroom.data.local.StorageManager;
-
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-import androidx.appcompat.app.AppCompatActivity;
-import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.network.RetrofitClient;
 
 public class SplashActivity extends AppCompatActivity {

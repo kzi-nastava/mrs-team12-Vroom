@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="6dp"
+    app:cardBackgroundColor="#99c2a2">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/user_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="user@example.com"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#2A2C24" />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="#2A2C24"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/user_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Active"
+            android:textColor="#1b5e20"
+            android:layout_marginTop="4dp" />
+
+        <EditText
+            android:id="@+id/block_reason_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Reason for blocking *"
+            android:minHeight="60dp"
+            android:background="#cfe5d2"
+            android:padding="10dp"
+            android:layout_marginTop="8dp"
+            android:inputType="textMultiLine" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="8dp"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/block_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Block"
+                android:backgroundTint="#e57373"
+                android:textColor="#fff"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/unblock_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Unblock"
+                android:backgroundTint="#4caf50"
+                android:textColor="#fff"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
