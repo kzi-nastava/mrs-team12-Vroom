@@ -26,8 +26,11 @@ import com.example.vroom.DTOs.driver.requests.DriverChangeStatusRequestDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
+import com.example.vroom.fragments.PanicFeedFragment;
+import com.example.vroom.fragments.PanicFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
+import com.example.vroom.fragments.StopRideFragment;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
@@ -156,6 +159,8 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         menu.findItem(R.id.driver_ride_history_item).setVisible(isLoggedIn);
         menu.findItem(R.id.nav_status_switch).setVisible(isLoggedIn && userType.equals("DRIVER"));
 
+        menu.findItem(R.id.nav_panic_feed).setVisible(isLoggedIn && userType.equals("ADMIN"));
+
         menu.findItem(R.id.login_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.register_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.nav_route_estimation).setVisible(!isLoggedIn);
@@ -201,6 +206,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 routeEstimationFragment = RouteEstimationFragment.newInstance();
 
             routeEstimationFragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
+        }else if(id == R.id.nav_panic_feed){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new PanicFeedFragment())
+                    .addToBackStack(null)
+                    .commit();
         }
 
         drawer.closeDrawer(GravityCompat.START);

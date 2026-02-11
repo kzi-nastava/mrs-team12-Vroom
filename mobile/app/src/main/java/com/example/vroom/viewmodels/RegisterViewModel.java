@@ -68,6 +68,8 @@ public class RegisterViewModel extends ViewModel {
             String selectedGender,
             byte[] photo
     ){
+        pass = pass.trim();
+        rePass = rePass.trim();
         try{
             if(
                     firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
@@ -86,13 +88,15 @@ public class RegisterViewModel extends ViewModel {
             RequestBody phoneBody = RequestBody.create(MediaType.parse("text/plain"), phone);
             RequestBody addressBody = RequestBody.create(MediaType.parse("text/plain"), address);
             RequestBody passBody = RequestBody.create(MediaType.parse("text/plain"), pass);
+            RequestBody confirmPassBody = RequestBody.create(MediaType.parse("text/plain"), rePass);
             RequestBody genderBody = RequestBody.create(MediaType.parse("text/plain"), getGender(selectedGender).name());
+
 
             MultipartBody.Part photoPart = getPhoto(photo);
 
             RetrofitClient.getAuthService().registerUser(
                     fNameBody, lNameBody, emailBody, phoneBody,
-                    addressBody, genderBody, passBody, photoPart
+                    addressBody, genderBody, passBody, confirmPassBody, photoPart
             ).enqueue(new Callback<MessageResponseDTO>() {
                 @Override
                 public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {

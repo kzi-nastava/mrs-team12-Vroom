@@ -11,8 +11,9 @@ public class RegisterUserRequestDTO {
     private Gender gender;
     private byte[] profilePhoto;
     private String password;
+    private String confirmPassword;
 
-    public RegisterUserRequestDTO(String firstName, String lastName, String email, String phoneNumber, String address, Gender gender, byte[] profilePhoto, String password) {
+    public RegisterUserRequestDTO(String firstName, String lastName, String email, String phoneNumber, String address, Gender gender, byte[] profilePhoto, String password, String confirmPassword) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -21,9 +22,18 @@ public class RegisterUserRequestDTO {
         this.gender = gender;
         this.profilePhoto = profilePhoto;
         this.password = password;
+        this.confirmPassword = confirmPassword;
     }
 
     public RegisterUserRequestDTO() {
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 
     public String getFirstName() {

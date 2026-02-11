@@ -102,4 +102,23 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
+    public void sendDriverActivationMail(String to, String driverId) throws MessagingException, IOException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setFrom("teodor.perun@gmail.com");
+        helper.setTo(to);
+        helper.setSubject("Aktivacija vozačkog naloga");
+
+        String activationUrl = "http://localhost:4200/driver/set-password/" + driverId;
+
+        ClassPathResource resource = new ClassPathResource("templates/driver-activation.html");
+        String htmlContent = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8)
+                .replace("{{URL}}", activationUrl);
+
+        helper.setText(htmlContent, true);
+        mailSender.send(message);
+    }
+
 }

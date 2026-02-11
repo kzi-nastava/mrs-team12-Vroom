@@ -45,12 +45,12 @@ public class ForgotPasswordActivity extends BaseActivity {
             return insets;
         });
 
-        emailInput = findViewById(R.id.emailInput);
-        codeInput = findViewById(R.id.codeInput);
-        passInput = findViewById(R.id.passwordInput);
-        rePassInput = findViewById(R.id.confirmPasswordInput);
+        emailInput = findViewById(R.id.email_input);
+        codeInput = findViewById(R.id.code_input);
+        passInput = findViewById(R.id.password_input);
+        rePassInput = findViewById(R.id.confirm_password_input);
 
-        submitBtn = findViewById(R.id.submitButton);
+        submitBtn = findViewById(R.id.submit_button);
 
         submitBtn.setOnClickListener(v -> resetPass());
 

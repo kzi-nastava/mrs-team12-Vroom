@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestDTO;
+import org.example.vroom.DTOs.requests.driver.SetPasswordRequestDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
 import org.example.vroom.entities.Driver;
@@ -13,12 +14,15 @@ import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RequestStatus;
 import org.example.vroom.enums.UserStatus;
+import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.*;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.*;
+import org.example.vroom.utils.EmailService;
+import org.example.vroom.utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,6 +60,10 @@ public class DriverService {
     private DriverProfileUpdateRequestRepository updateRequestRepository;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private PasswordUtils passwordUtils;
+    @Autowired
+    private EmailService emailService;
 
     public List<DriverDTO> getAvailableDrivers() {
         List<Driver> drivers =
@@ -92,42 +100,81 @@ public class DriverService {
         }
 
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        boolean hasVehicleData = hasCompleteVehicleData(request);
 
+        if (hasVehicleData) {
+            if (request.getNumberOfSeats() == null || request.getNumberOfSeats() <= 0) {
+                throw new IllegalArgumentException("Number of seats must be positive");
+            }
+            if (request.getPetsAllowed() == null) {
+                throw new IllegalArgumentException("Pets preference must be selected");
+            }
+            if (request.getBabiesAllowed() == null) {
+                throw new IllegalArgumentException("Babies preference must be selected");
+            }
 
-        Driver driver = driverMapper.toEntity(request, encodedPassword);
+            if (vehicleRepository.existsByLicenceNumber(request.getLicenceNumber())) {
+                throw new IllegalArgumentException("Vehicle with this licence number already exists");
+            }
+        }
 
-
+        Driver driver = driverMapper.toEntity(request, "aaffa4sfa6534f6asasf");
         driver.setStatus(DriverStatus.INACTIVE);
-
-
-        if (request.getNumberOfSeats() == null || request.getNumberOfSeats() <= 0) {
-            throw new IllegalArgumentException("Number of seats must be positive");
-        }
-        if (request.getPetsAllowed() == null) {
-            throw new IllegalArgumentException("Pets preference must be selected");
-        }
-        if (request.getBabiesAllowed() == null) {
-            throw new IllegalArgumentException("Babies preference must be selected");
-        }
-
-
-        System.out.println("Registering driver: " + driver);
-        if (vehicleRepository.existsByLicenceNumber(request.getLicenceNumber())) {
-            throw new IllegalArgumentException("Vehicle with this licence number already exists");
-        }
-
+        driver.setPassword("adaisjdoiasjdasoidjaoisjdasd");
 
         driver = driverRepository.saveAndFlush(driver);
 
-        System.out.println("Driver saved with ID: " + driver.getId());
-
+        try {
+            System.out.println("Attempting to send email to: " + driver.getEmail());
+            emailService.sendDriverActivationMail(driver.getEmail(), String.valueOf(driver.getId()));
+            System.out.println("Email sent successfully!");
+        } catch (Exception e) {
+            System.err.println("EMAIL ERROR: " + e.getClass().getName());
+            System.err.println("EMAIL ERROR MESSAGE: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Driver created but activation email failed to send");
+        }
 
         return driverMapper.toDTO(driver);
     }
 
+    private boolean hasCompleteVehicleData(DriverRegistrationRequestDTO request) {
+        return request.getBrand() != null && !request.getBrand().trim().isEmpty() &&
+                request.getModel() != null && !request.getModel().trim().isEmpty() &&
+                request.getType() != null &&
+                request.getLicenceNumber() != null && !request.getLicenceNumber().trim().isEmpty() &&
+                request.getNumberOfSeats() != null &&
+                request.getPetsAllowed() != null &&
+                request.getBabiesAllowed() != null;
+    }
 
 
+    @Transactional
+    public void setDriverPassword(Long driverId, SetPasswordRequestDTO request) {
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new IllegalArgumentException("Driver not found"));
+
+        if (driver.getStatus() == DriverStatus.UNAVAILABLE) {
+            throw new IllegalArgumentException("Account is already activated");
+        }
+
+        if (driver.getCreatedAt().plusHours(24).isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Activation link has expired");
+        }
+
+        if (!passwordUtils.isPasswordValid(request.getPassword())) {
+            throw new InvalidPasswordException("Password doesn't match criteria");
+        }
+
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new InvalidPasswordException("Passwords don't match");
+        }
+
+        driver.setPassword(passwordEncoder.encode(request.getPassword()));
+        driver.setStatus(DriverStatus.UNAVAILABLE);
+
+        driverRepository.save(driver);
+    }
     public DriverDTO getMyProfile(String email) {
 
         Driver driver = driverRepository.findByEmail(email)
@@ -201,5 +248,28 @@ public class DriverService {
         driver.get().setStatus(status);
         driverRepository.save(driver.get());
     }
+    @Transactional
+    public void changePassword(String email, String oldPassword, String newPassword, String confirmNewPassword) {
+        Driver driver = driverRepository.findByEmail(email)
+                .orElseThrow(() -> new DriverNotFoundException("Driver not found"));
 
+        if (!passwordEncoder.matches(oldPassword, driver.getPassword())) {
+            throw new InvalidPasswordException("Old password is incorrect");
+        }
+
+        if (!passwordUtils.isPasswordValid(newPassword)) {
+            throw new InvalidPasswordException("New password doesn't match criteria");
+        }
+
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new InvalidPasswordException("New passwords do not match");
+        }
+
+        if (passwordEncoder.matches(newPassword, driver.getPassword())) {
+            throw new InvalidPasswordException("New password must be different from the old password");
+        }
+
+        driver.setPassword(passwordEncoder.encode(newPassword));
+        driverRepository.save(driver);
+    }
 }

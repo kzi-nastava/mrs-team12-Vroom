@@ -28,9 +28,11 @@ import { AdminDefinePricelist } from './features/admin-define-pricelist/admin-de
 import { AdminActiveRides } from './features/admin-active-rides/admin-active-rides';
 import { ChatUser } from './features/chat-user/chat-user';
 import { ChatAdmin } from './features/chat-admin/chat-admin';
+import { DriverSetPasswordComponent } from './features/driver-set-password/driver-set-password.component';
 
 export const routes: Routes = [
     {path: 'login', component: Login},
+    {path: 'driver/set-password/:driverId', component: DriverSetPasswordComponent},
     {path:'forgot-password', component: ForgotPassword},
     { path: 'profile', component: Profile },
     {path: 'register', component: Register},

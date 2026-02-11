@@ -1,6 +1,8 @@
 package com.example.vroom.activities;
 
+import android.app.Dialog;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -8,10 +10,11 @@ import android.widget.Toast;
 
 import androidx.lifecycle.ViewModelProvider;
 
+
+import com.example.vroom.DTOs.auth.requests.ChangePasswordRequestDTO;
 import com.example.vroom.DTOs.driver.requests.DriverDTO;
 import com.example.vroom.R;
 import com.example.vroom.viewmodels.DriverProfileViewModel;
-
 
 public class DriverProfileActivity extends BaseActivity {
 
@@ -25,6 +28,7 @@ public class DriverProfileActivity extends BaseActivity {
 
     private boolean editMode = false;
     private Button profileChangeButton;
+    private Button changePasswordButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,8 @@ public class DriverProfileActivity extends BaseActivity {
             }
         });
 
+        changePasswordButton.setOnClickListener(v -> showChangePasswordDialog());
+
         viewModel.loadProfile();
     }
 
@@ -67,6 +73,44 @@ public class DriverProfileActivity extends BaseActivity {
         petsInfo = findViewById(R.id.PetsInfo);
 
         profileChangeButton = findViewById(R.id.profileChangeButton);
+        changePasswordButton = findViewById(R.id.changePasswordButton);
+    }
+
+    private void showChangePasswordDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_change_password);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        EditText oldPasswordInput = dialog.findViewById(R.id.oldPasswordInput);
+        EditText newPasswordInput = dialog.findViewById(R.id.newPasswordInput);
+        EditText confirmPasswordInput = dialog.findViewById(R.id.confirmPasswordInput);
+        Button cancelButton = dialog.findViewById(R.id.cancelButton);
+        Button changeButton = dialog.findViewById(R.id.changePasswordButton);
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        changeButton.setOnClickListener(v -> {
+            String oldPassword = oldPasswordInput.getText().toString();
+            String newPassword = newPasswordInput.getText().toString();
+            String confirmPassword = confirmPasswordInput.getText().toString();
+
+            if (oldPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
+                Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            ChangePasswordRequestDTO dto = new ChangePasswordRequestDTO(
+                    oldPassword,
+                    newPassword,
+                    confirmPassword
+            );
+
+            viewModel.changePassword(dto);
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     private void observe() {
@@ -114,6 +158,14 @@ public class DriverProfileActivity extends BaseActivity {
                 viewModel.loadProfile();
             }
         });
+
+        viewModel.getPasswordChangeSuccess().observe(this, success -> {
+            if (success == null) return;
+
+            if (success) {
+                Toast.makeText(this, "Password changed successfully!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setEditable(boolean enabled) {
@@ -145,7 +197,6 @@ public class DriverProfileActivity extends BaseActivity {
     }
 
     private void saveChanges() {
-
         DriverDTO existing = viewModel.getProfile().getValue();
         if (existing == null) return;
 

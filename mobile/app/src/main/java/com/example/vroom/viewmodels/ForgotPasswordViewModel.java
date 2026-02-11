@@ -37,7 +37,7 @@ public class ForgotPasswordViewModel extends ViewModel {
                 throw new Exception("Password must match");
 
 
-            ResetPasswordRequestDTO req = new ResetPasswordRequestDTO(email, code, pass);
+            ResetPasswordRequestDTO req = new ResetPasswordRequestDTO(email, code, pass, rePass);
             RetrofitClient.getAuthService().resetPassword(req).enqueue(new Callback<MessageResponseDTO>() {
                 @Override
                 public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {

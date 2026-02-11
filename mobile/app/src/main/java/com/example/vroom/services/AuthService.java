@@ -14,8 +14,6 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
-import retrofit2.http.PUT;
-import retrofit2.http.Part;
 
 
 public interface AuthService {
@@ -28,16 +26,5 @@ public interface AuthService {
 
     @Multipart
     @POST("api/auth/register")
-    Call<MessageResponseDTO> registerUser(
-            @Part("firstName") RequestBody firstName,
-            @Part("lastName") RequestBody lastName,
-            @Part("email") RequestBody email,
-            @Part("phoneNumber") RequestBody phone,
-            @Part("address") RequestBody address,
-            @Part("gender") RequestBody gender,
-            @Part("password") RequestBody password,
-            @Part MultipartBody.Part profilePhoto
-    );
-    @POST("api/auth/logout")
-    Call<MessageResponseDTO> logout(@Body LogoutRequestDTO data);
+    Call<MessageResponse> registerUser(@Body RegisterUserRequestDTO user);
 }

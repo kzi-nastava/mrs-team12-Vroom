@@ -76,7 +76,7 @@ public class RideHistoryResponseDTO {
         this.price = price;
     }
 
-    public boolean isPanicActivated() {
+    public boolean getPanicActivated() {
         return panicActivated;
     }
 

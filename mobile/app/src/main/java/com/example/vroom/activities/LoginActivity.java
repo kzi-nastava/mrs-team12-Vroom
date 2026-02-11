@@ -49,13 +49,13 @@ public class LoginActivity extends BaseActivity {
             return insets;
         });
 
-        emailInput = findViewById(R.id.emailInput);
-        passInput = findViewById(R.id.passwordInput);
+        emailInput = findViewById(R.id.email_input);
+        passInput = findViewById(R.id.password_input);
 
-        forgotPassBtn = findViewById(R.id.forgotPasswordButton);
+        forgotPassBtn = findViewById(R.id.forgot_password_button);
         forgotPassBtn.setOnClickListener(v -> this.forgotPassReq());
 
-        loginBtn = findViewById(R.id.loginButton);
+        loginBtn = findViewById(R.id.login_button);
         loginBtn.setOnClickListener(v -> this.loginReq());
 
         StorageManager.getSharedPreferences(this);

@@ -66,7 +66,7 @@ export class RideService{
 
     getRide(rideId: string | number | undefined): Observable<RideResponseDTO>{
         //let params = new HttpParams().set('rideId', rideId!);
-        return this.http.get<RideResponseDTO>(`this.rideUrl/${rideId}`)
+        return this.http.get<RideResponseDTO>(`${this.rideUrl}/${rideId}`)
     }
 
     getActiveRides() : Observable<GetActiveRideInfoDTO[]> {
