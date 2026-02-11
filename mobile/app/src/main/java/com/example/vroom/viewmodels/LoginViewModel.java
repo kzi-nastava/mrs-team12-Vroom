@@ -1,6 +1,9 @@
 package com.example.vroom.viewmodels;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
@@ -85,11 +88,23 @@ public class LoginViewModel extends ViewModel {
                 @Override
                 public void onResponse(Call<LoginResponseDTO> call, Response<LoginResponseDTO> response) {
                     if(response.isSuccessful() && response.body() != null){
+                        LoginResponseDTO body = response.body();
+                        Log.d("LoginViewModel", "Token: " + body.getToken());
+                        Log.d("LoginViewModel", "Type: " + body.getType());
+                        Log.d("LoginViewModel", "Expires: " + body.getExpires());
                         StorageManager.saveData("user_type", response.body().getType());
                         StorageManager.saveData("jwt", response.body().getToken());
-                        if (response.body() != null && response.body().getExpires() != null) {
-                            StorageManager.saveLong("expires", response.body().getExpires());
+                        Long expiresTime = body.getExpires();
+                        if (expiresTime == null || expiresTime <= 0) {
+                            expiresTime = System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000);
+                            Log.w(TAG, "Backend didn't send expires, generated: " + expiresTime);
+                        } else {
+                            Log.d(TAG, "Using backend expires: " + expiresTime);
                         }
+
+                        StorageManager.saveLong("expires", expiresTime);
+                        long savedExpires = StorageManager.getLong("expires", -1L);
+                        Log.d(TAG, "Verified saved expires: " + savedExpires);
 
                         loginMessage.postValue("Login successful");
                         loginStatus.postValue(true);
