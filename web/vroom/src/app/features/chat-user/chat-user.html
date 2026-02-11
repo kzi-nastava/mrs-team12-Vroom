@@ -1,0 +1,35 @@
+<div class="chat">
+  <div class="messages" #scrollContainer>
+    @for (msg of messages; track $index) {
+      <div class="message-container" [ngClass]="msg.sentByAdmin ? 'received' : 'sent'">
+        @if (msg.profilePicture) {
+          <img [src]="'data:image/jpeg;base64,' + msg.profilePicture" class="profile-photo">
+        } @else {
+          <img src="assets/icons/profile-photo.jpeg" class="profile-photo">
+        }
+        <div class="message-bubble">
+          <div class="message-content" [ngClass]="msg.sentByAdmin ? 'received' : 'sent'">
+            {{msg.content}}
+          </div>
+          <div class="message-meta">
+            <span *ngIf="msg.sentByAdmin" class="sender-name">{{msg.senderName}}</span>
+            <span *ngIf="msg.sentByAdmin" class="sender-name">•</span>
+            <span class="timestamp">
+              {{isToday(msg.timestamp) ? (msg.timestamp | date:'HH:mm') : (msg.timestamp | date:'dd.MM.yyyy. • HH:mm')}}
+            </span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+  
+  <div class="footer">
+    <input 
+      class="input" 
+      type="text" 
+      [(ngModel)]="newMessage" 
+      (keyup.enter)="sendMessage()" 
+      placeholder="Message...">
+    <button class="button" (click)="sendMessage()">Send</button>
+  </div>
+</div>

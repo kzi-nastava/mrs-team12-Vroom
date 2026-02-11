@@ -68,17 +68,14 @@ public class RegisteredUserService {
         if(!passwordUtils.isPasswordValid(req.getPassword()) || !req.getPassword().equals(req.getConfirmPassword()))
             throw new InvalidPasswordException("Password doesn't match criteria");
 
-        String dataUrl = null;
-
+        byte[] photoData = null;
         if (profilePhoto != null && !profilePhoto.isEmpty()) {
-            String base64 = Base64.getEncoder().encodeToString(profilePhoto.getBytes());
-
-            dataUrl = "data:" + profilePhoto.getContentType() + ";base64," + base64;
+            photoData = profilePhoto.getBytes();
         }
 
         RegisteredUser user = registeredUserMapper.createUser(
                 req,
-                dataUrl.getBytes(StandardCharsets.UTF_8),
+                photoData,
                 passwordEncoder.encode(req.getPassword())
         );
         user.setUserStatus(UserStatus.INACTIVE);
@@ -163,5 +160,34 @@ public class RegisteredUserService {
     @Transactional
     public void deleteExpiredAccounts(LocalDateTime threshold){
         registeredUserRepository.deleteRegisteredUsersByCreatedAt(threshold);
+    }
+
+    @Transactional
+    public void changePassword(String email, String oldPassword, String newPassword, String confirmNewPassword) {
+
+        RegisteredUser user = registeredUserRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new InvalidPasswordException("Old password is incorrect");
+        }
+
+
+        if (!passwordUtils.isPasswordValid(newPassword)) {
+            throw new InvalidPasswordException("New password doesn't match criteria");
+        }
+
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new InvalidPasswordException("New passwords do not match");
+        }
+
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new InvalidPasswordException("New password must be different from the old password");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        registeredUserRepository.save(user);
     }
 }

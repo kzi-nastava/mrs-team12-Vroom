@@ -1,11 +1,11 @@
 package com.example.vroom.viewmodels;
 
-import android.os.storage.StorageManager;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+
+import com.example.vroom.DTOs.auth.requests.ChangePasswordRequestDTO;
 import com.example.vroom.DTOs.registeredUser.RegisteredUserDTO;
 import com.example.vroom.DTOs.registeredUser.UpdateProfileRequestDTO;
 import com.example.vroom.network.RetrofitClient;
@@ -18,8 +18,8 @@ public class ProfileViewModel extends ViewModel {
 
     private final MutableLiveData<RegisteredUserDTO> profile = new MutableLiveData<>();
     private final MutableLiveData<String> error = new MutableLiveData<>();
-
     private final MutableLiveData<Boolean> updateSuccess = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> passwordChangeSuccess = new MutableLiveData<>();
 
     public LiveData<RegisteredUserDTO> getProfile() {
         return profile;
@@ -27,6 +27,14 @@ public class ProfileViewModel extends ViewModel {
 
     public LiveData<String> getError() {
         return error;
+    }
+
+    public LiveData<Boolean> getUpdateSuccess() {
+        return updateSuccess;
+    }
+
+    public LiveData<Boolean> getPasswordChangeSuccess() {
+        return passwordChangeSuccess;
     }
 
     public void loadProfile() {
@@ -52,10 +60,6 @@ public class ProfileViewModel extends ViewModel {
                 });
     }
 
-    public LiveData<Boolean> getUpdateSuccess() {
-        return updateSuccess;
-    }
-
     public void updateProfile(UpdateProfileRequestDTO dto) {
         RetrofitClient.getUserService()
                 .updateProfile(dto)
@@ -69,13 +73,41 @@ public class ProfileViewModel extends ViewModel {
                             error.postValue("Update failed: " + response.code());
                             updateSuccess.postValue(false);
                         }
-
                     }
 
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
                         error.postValue(t.getMessage());
                         updateSuccess.postValue(false);
+                    }
+                });
+    }
+
+    public void changePassword(ChangePasswordRequestDTO dto) {
+        RetrofitClient.getUserProfileService()
+                .changePassword(dto)
+                .enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if (response.isSuccessful()) {
+                            passwordChangeSuccess.postValue(true);
+                        } else {
+                            try {
+                                String errorBody = response.errorBody() != null
+                                        ? response.errorBody().string()
+                                        : "Password change failed";
+                                error.postValue(errorBody);
+                            } catch (Exception e) {
+                                error.postValue("Password change failed");
+                            }
+                            passwordChangeSuccess.postValue(false);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        error.postValue(t.getMessage());
+                        passwordChangeSuccess.postValue(false);
                     }
                 });
     }

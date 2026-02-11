@@ -1,4 +1,5 @@
 export interface LoginResponseDTO {
-  type: string;
-  token: string;
+  type : string;
+  token : string;
+  userId : number;
 }

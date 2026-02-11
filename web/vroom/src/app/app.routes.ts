@@ -26,9 +26,13 @@ import { RideHistory } from './features/ride-history/ride-history';
 import { AdminHomePage } from './features/admin-home-page/admin-home-page';
 import { AdminDefinePricelist } from './features/admin-define-pricelist/admin-define-pricelist'
 import { AdminActiveRides } from './features/admin-active-rides/admin-active-rides';
+import { ChatUser } from './features/chat-user/chat-user';
+import { ChatAdmin } from './features/chat-admin/chat-admin';
+import { DriverSetPasswordComponent } from './features/driver-set-password/driver-set-password.component';
 
 export const routes: Routes = [
     {path: 'login', component: Login},
+    {path: 'driver/set-password/:driverId', component: DriverSetPasswordComponent},
     {path:'forgot-password', component: ForgotPassword},
     { path: 'profile', component: Profile },
     {path: 'register', component: Register},
@@ -36,13 +40,15 @@ export const routes: Routes = [
     {path: 'driver-active-ride', component: DriverActiveRide},
     {path: 'order-from-favorites', component: OrderFromFavorites},
     {path: 'register-driver', component: RegisterDriver},
-    { path: 'admin-driver-requests', component: AdminDriverRequestsComponent },
-    { path: 'admin-users', component: AdminUsersComponent},
+    {path: 'admin-driver-requests', component: AdminDriverRequestsComponent },
+    {path: 'admin-users', component: AdminUsersComponent},
     {path: 'active', component: UserActiveRide},
     {path: "ride-statistics", component: RideStatisticsComponent},
     {path: 'admin', component: AdminHomePage},
     {path: 'pricelist', component: AdminDefinePricelist},
     {path: 'active-rides', component: AdminActiveRides},
+    {path: 'chat', component: ChatUser},
+    {path: 'admin-chat', component: ChatAdmin},
     {path: '', component: MainView, 
         children: [ 
             {path: 'route-estimation', component: RouteEstimation },

@@ -7,6 +7,8 @@ import { DriverService } from '../../core/services/driver.service';
 import { PanicNotificationService } from '../../core/services/panic-notification.service';
 import { PanicService } from '../../core/services/panic.service';
 import { forkJoin, Observable } from 'rxjs';
+import { ChatService } from '../../core/services/chat.service';
+import { SocketProviderService } from '../../core/services/socket-provider.service';
 @Component({
   selector: 'app-navbar',
   imports: [RouterModule, CommonModule, ChangeDriverStatus],
@@ -18,29 +20,23 @@ export class Navbar {
     public authService: AuthService, 
     private router: Router, 
     private cdRef: ChangeDetectorRef,
-    private driverService: DriverService,
-    private panicNotificationService: PanicNotificationService
+    private socketProvider: SocketProviderService
   ){}
 
 
   onLogout() {
     this.authService.logout().subscribe({
         next: () => {
-          this.driverService.disconnectWebSocket()
-          this.panicNotificationService.disconnectWebSocket()
-
           this.finalizeLogout()
         },
         error: () => {
-            this.driverService.disconnectWebSocket()
-            this.panicNotificationService.disconnectWebSocket()
-
           this.finalizeLogout()   
         }
     });
   }
 
   finalizeLogout(){
+    this.socketProvider.disconnect();
     this.authService.updateStatus()
     this.cdRef.detectChanges() 
     this.router.navigate(['/'])

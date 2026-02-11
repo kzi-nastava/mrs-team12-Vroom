@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+
+import com.example.vroom.DTOs.auth.requests.ChangePasswordRequestDTO;
 import com.example.vroom.DTOs.driver.requests.DriverDTO;
 import com.example.vroom.network.RetrofitClient;
 
@@ -15,8 +17,8 @@ public class DriverProfileViewModel extends ViewModel {
 
     private final MutableLiveData<DriverDTO> profile = new MutableLiveData<>();
     private final MutableLiveData<String> error = new MutableLiveData<>();
-
     private final MutableLiveData<Boolean> updateSuccess = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> passwordChangeSuccess = new MutableLiveData<>();
 
     public LiveData<DriverDTO> getProfile() {
         return profile;
@@ -24,6 +26,14 @@ public class DriverProfileViewModel extends ViewModel {
 
     public LiveData<String> getError() {
         return error;
+    }
+
+    public LiveData<Boolean> getUpdateSuccess() {
+        return updateSuccess;
+    }
+
+    public LiveData<Boolean> getPasswordChangeSuccess() {
+        return passwordChangeSuccess;
     }
 
     public void loadProfile() {
@@ -65,7 +75,33 @@ public class DriverProfileViewModel extends ViewModel {
                     }
                 });
     }
-    public LiveData<Boolean> getUpdateSuccess() {
-        return updateSuccess;
+
+    public void changePassword(ChangePasswordRequestDTO dto) {
+        RetrofitClient.getDriverProfileService()
+                .changePassword(dto)
+                .enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if (response.isSuccessful()) {
+                            passwordChangeSuccess.postValue(true);
+                        } else {
+                            try {
+                                String errorBody = response.errorBody() != null
+                                        ? response.errorBody().string()
+                                        : "Password change failed";
+                                error.postValue(errorBody);
+                            } catch (Exception e) {
+                                error.postValue("Password change failed");
+                            }
+                            passwordChangeSuccess.postValue(false);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        error.postValue(t.getMessage());
+                        passwordChangeSuccess.postValue(false);
+                    }
+                });
     }
 }
