@@ -19,7 +19,8 @@ export class Navbar {
   constructor(
     public authService: AuthService, 
     private router: Router, 
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private socketProvider: SocketProviderService
   ){}
 
 
@@ -35,6 +36,7 @@ export class Navbar {
   }
 
   finalizeLogout(){
+    this.socketProvider.disconnect();
     this.authService.updateStatus()
     this.cdRef.detectChanges() 
     this.router.navigate(['/'])
