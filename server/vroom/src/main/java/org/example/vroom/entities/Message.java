@@ -22,4 +22,8 @@ public class Message {
     private boolean sentByAdmin;
 
     private String content;
+
+    @Lob
+    @Column(name = "profile_picture", columnDefinition = "LONGBLOB")
+    private byte[] profilePicture;
 }

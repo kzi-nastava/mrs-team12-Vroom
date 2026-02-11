@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class ChatMessageResponseDTO {
+    private Long chatID;
     private String senderName;
     private String content;
     private LocalDateTime timestamp;
     private boolean sentByAdmin;
+    private byte[] profilePicture;
 }

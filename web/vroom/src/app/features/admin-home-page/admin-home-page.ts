@@ -46,4 +46,8 @@ export class AdminHomePage {
   activeRides(){
     this.router.navigate(["/active-rides"]);
   }
+
+  chat(){
+    this.router.navigate(["/admin-chat"])
+  }
 }
