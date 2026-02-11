@@ -24,8 +24,7 @@ export class PanicButton {
   
   constructor(
     private panicService: PanicService, 
-    private toastService: NgToastService, 
-    private pns: PanicNotificationService, 
+    private toastService: NgToastService,
     private cdr: ChangeDetectorRef
   ){
     this.userType = localStorage.getItem('user_type') || ''

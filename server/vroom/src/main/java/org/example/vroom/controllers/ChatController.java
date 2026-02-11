@@ -4,6 +4,7 @@ import org.example.vroom.DTOs.requests.chat.ChatMessageRequestDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.chat.ChatMessageResponseDTO;
 import org.example.vroom.DTOs.responses.chat.ChatResponseDTO;
+import org.example.vroom.DTOs.responses.chat.UserChatResponseDTO;
 import org.example.vroom.entities.User;
 import org.example.vroom.services.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,20 +43,19 @@ public class ChatController {
     }
 
     @GetMapping(path="/get-user-chat")
-    public ResponseEntity<Collection<ChatMessageResponseDTO>> getUserChat(
+    public ResponseEntity<UserChatResponseDTO> getUserChat(
             @AuthenticationPrincipal User user
     ){
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        List<ChatMessageResponseDTO> messages = chatService.getMessagesByUserId(user.getId());
-        if (messages.isEmpty()) {
+        UserChatResponseDTO responseDTO = chatService.getMessagesByUserId(user.getId());
+        if (responseDTO.getMessages().isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(messages, HttpStatus.OK);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
-
-    //pre-authorize
+    
     @GetMapping(path="/get-all-chats")
     public ResponseEntity<Collection<ChatResponseDTO>> getAllChats(
     ) {
@@ -75,10 +75,8 @@ public class ChatController {
             SimpMessageHeaderAccessor headerAccessor,
             ChatMessageRequestDTO messageRequestDTO
     ) {
-        System.out.println(messageRequestDTO + "==========================================");
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
         if(auth == null || auth.getPrincipal() == null) {
-            System.out.println("Principal is null=======================================");
             return null;
         }
         User user = (User) auth.getPrincipal();
@@ -88,10 +86,16 @@ public class ChatController {
     @MessageMapping("admin-send-message/{chatID}")
     public void adminSendMessage(
             @DestinationVariable Long chatID,
+            SimpMessageHeaderAccessor headerAccessor,
             ChatMessageRequestDTO messageRequestDTO
     ){
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
+        if(auth == null || auth.getPrincipal() == null) {
+            return;
+        }
+        User admin = (User) auth.getPrincipal();
         Long userID = chatService.getUserId(chatID);
-        ChatMessageResponseDTO messageResponseDTO = chatService.adminSendMessage(chatID, messageRequestDTO);
+        ChatMessageResponseDTO messageResponseDTO = chatService.adminSendMessage(admin, chatID, messageRequestDTO);
         messagingTemplate.convertAndSend("/socket-publisher/admin-messages/" + userID, messageResponseDTO);
     }
 

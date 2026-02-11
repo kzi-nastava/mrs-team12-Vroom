@@ -3,4 +3,6 @@ export interface ChatMessageResponseDTO{
     content : string;
     timestamp : Date;
     sentByAdmin : boolean;
+    chatID : number;
+    profilePicture : string;
 }

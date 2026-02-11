@@ -5,7 +5,7 @@ import { PanicButton } from '../panic-btn/panic-button';
 import { OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, Subject, takeUntil } from 'rxjs';
 import { RideUpdatesService } from '../../core/services/ride-update.service';
 import { OnDestroy } from '@angular/core';
 import { MapService } from '../../core/services/map.service';
@@ -26,7 +26,7 @@ import { RideUpdateResponseDTO } from '../../core/models/ride/responses/ride-upd
   styleUrl: './ride-duration.css',
 })
 export class RideDuration implements OnInit, OnDestroy {
-
+  private destroy$ = new Subject<void>();
   userRole: string | null = localStorage.getItem('user_type');
   complaintControl = new FormControl('', [Validators.required]);
   rideID: string = '';
@@ -44,9 +44,7 @@ export class RideDuration implements OnInit, OnDestroy {
     private mapService: MapService,
     private cdr: ChangeDetectorRef
   ) {
-    this.userRole = localStorage.getItem('user_type');
-    console.log('User role:', this.userRole);
-    this.route.queryParamMap.subscribe(params => {
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.rideID = params.get('rideID') || 'unknown';
     });
   }
@@ -60,37 +58,26 @@ export class RideDuration implements OnInit, OnDestroy {
         console.log('Route details:', ride);
         this.startAddress = ride.startAddress;
         this.endAddress = ride.endAddress;
-        this.fetchAddresses(ride);
         this.cdr.detectChanges();
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Error fetching route details:', error);
       }
     });
 
-    if (!this.rideUpdatesService.stompClient || !this.rideUpdatesService.stompClient.connected){
-      this.rideUpdatesService.initRideUpdatesWebSocket(this.rideID);
-    }
+    this.rideUpdatesService.initRideUpdatesWebSocket(this.rideID).subscribe();
+
     if (this.userRole === 'DRIVER') {
       this.startLocationTracking();
     }
-    
 
-    this.rideUpdatesService.getRideUpdates().subscribe({
-      next: (update: RideUpdateResponseDTO) => {
-        if (update.status == "FINISHED"){
-          if (this.userRole === "DRIVER"){
-            this.router.navigate(['/driver-active-ride']);
-          }
-          if (this.userRole === "REGISTERED_USER"){
-            this.router.navigate(['/review'], {queryParams: {rideID: this.rideID}});
-          }
+    this.rideUpdatesService.getRideUpdates()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((update: RideUpdateResponseDTO) => {
+        if (update.status === "FINISHED") {
+          const target = this.userRole === "DRIVER" ? '/driver-active-ride' : '/review';
+          this.router.navigate([target], { queryParams: { rideID: this.rideID } });
         }
         this.eta = Math.round(update.timeLeft);
-        console.log('Ride Update:', update);
         this.cdr.detectChanges();
-      }
-    });
+      });
   }
 
   private startLocationTracking(): void {
@@ -103,27 +90,9 @@ export class RideDuration implements OnInit, OnDestroy {
         };
         this.rideUpdatesService.sendCoordinates(this.rideID, point);
       },
-      error => {
-        console.error('Error getting location', error); 
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 0
-      }
+      error => { console.error('Error getting location', error); },
+      { enableHighAccuracy: true, maximumAge: 0 }
     );
-  }
-
-  private fetchAddresses(ride: GetRouteResponseDTO): void {
-    const stops$ = ride.stops?.length > 0 
-      ? forkJoin(ride.stops.map((s: PointResponseDTO) => this.rideService.getAddress(s.lat, s.lng)))
-      : of([]);
-
-    forkJoin([stops$]).subscribe({
-      next: ([stops]) => {
-        this.stops = stops as string[];
-        this.cdr.detectChanges();
-      }
-    });
   }
 
   onSubmitComplaint(): void {
@@ -139,14 +108,14 @@ export class RideDuration implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     if (this.locationWatchId) {
-      navigator.geolocation.clearWatch(this.locationWatchId);
+        navigator.geolocation.clearWatch(this.locationWatchId);
     }
-    this.rideUpdatesService.disconnectRideUpdatesWebSocket();
   }
 
   finishRide() : void{
-
     this.rideService.finishRideRequest(this.rideID).subscribe({
       next:() => {
         alert('Ride finished successfully');

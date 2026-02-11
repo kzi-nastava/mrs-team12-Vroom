@@ -29,7 +29,7 @@ export class SocketProviderService {
                 subscriber.next();
                 subscriber.complete();
             }, (err: any) => subscriber.error(err));
-        }).pipe(timeout(10000));
+        });
     }
 
     get onConnected(): Observable<void> {

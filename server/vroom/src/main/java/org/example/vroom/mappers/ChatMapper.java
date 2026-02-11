@@ -10,12 +10,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ChatMapper {
 
-    public ChatMessageResponseDTO mapToDTO(Message message) {
+    public ChatMessageResponseDTO mapToDTO(Message message, Long chatId) {
         return ChatMessageResponseDTO.builder()
                 .content(message.getContent())
                 .sentByAdmin(message.isSentByAdmin())
                 .timestamp(message.getTimeSent())
                 .senderName(message.getSenderName())
+                .profilePicture(message.getProfilePicture())
+                .chatID(chatId)
                 .build();
     };
 

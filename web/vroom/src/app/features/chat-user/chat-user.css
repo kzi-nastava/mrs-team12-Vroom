@@ -1,10 +1,9 @@
 .chat {
     display: flex;
     flex-direction: column;
-    height: 500px;
+    height: 800px;
     max-width: 800px;
     margin: 40px auto; 
-    padding: 0;
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -17,7 +16,7 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 15px; 
+    gap: 15px;
 }
 
 .messages::-webkit-scrollbar {
@@ -45,7 +44,6 @@
     padding: 20px;
     background-color: #fff;
     border-top: 1px solid #e0e0e0;
-    flex-shrink: 0;
 }
 
 .input {
@@ -78,7 +76,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
-    white-space: nowrap;
 }
 
 .button:hover {
@@ -86,22 +83,21 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.sent-message-container {
+.message-container {
     display: flex;
-    flex-direction: row-reverse;
     align-items: flex-end;
     gap: 10px;
-    align-self: flex-end; 
     width: 100%;
 }
 
-.received-message-container {
-    display: flex;
+.message-container.sent {
+    flex-direction: row-reverse;
+    align-self: flex-end;
+}
+
+.message-container.received {
     flex-direction: row;
-    align-items: flex-end;
-    gap: 10px;
     align-self: flex-start;
-    width: 100%;
 }
 
 .profile-photo {
@@ -113,22 +109,40 @@
     flex-shrink: 0;
 }
 
-.sent-message {
+.message-bubble {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
     max-width: 70%;
+}
+
+.message-content {
     padding: 12px 18px;
     font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 16px;
-    background: #dceed3;
-    border-radius: 20px 20px 0 20px;
+    font-size: 18px;
     word-wrap: break-word;
 }
 
-.received-message {
-    max-width: 70%;
-    padding: 12px 18px;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 16px;
-    background: #f0f0f0; 
+.message-content.sent {
+    background: #dceed3;
+    border-radius: 20px 20px 0 20px;
+}
+
+.message-content.received {
+    background: #f0f0f0;
     border-radius: 20px 20px 20px 0;
-    word-wrap: break-word;
+}
+
+.message-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+    font-size: 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: #b0b0b0;
+}
+
+.message-container.sent .message-meta {
+    flex-direction: row-reverse;
 }

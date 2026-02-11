@@ -19,28 +19,16 @@ export class Navbar {
   constructor(
     public authService: AuthService, 
     private router: Router, 
-    private cdRef: ChangeDetectorRef,
-    private driverService: DriverService,
-    private panicNotificationService: PanicNotificationService,
-    private chatService: ChatService,
-    private socketProvider: SocketProviderService
+    private cdRef: ChangeDetectorRef
   ){}
 
 
   onLogout() {
     this.authService.logout().subscribe({
         next: () => {
-          this.driverService.disconnectWebSocket()
-          this.panicNotificationService.disconnectWebSocket()
-          this.socketProvider.disconnect();
-
           this.finalizeLogout()
         },
         error: () => {
-            this.driverService.disconnectWebSocket()
-            this.panicNotificationService.disconnectWebSocket()
-            this.socketProvider.disconnect()
-
           this.finalizeLogout()   
         }
     });

@@ -68,17 +68,14 @@ public class RegisteredUserService {
         if(!passwordUtils.isPasswordValid(req.getPassword()) || !req.getPassword().equals(req.getConfirmPassword()))
             throw new InvalidPasswordException("Password doesn't match criteria");
 
-        String dataUrl = null;
-
+        byte[] photoData = null;
         if (profilePhoto != null && !profilePhoto.isEmpty()) {
-            String base64 = Base64.getEncoder().encodeToString(profilePhoto.getBytes());
-
-            dataUrl = "data:" + profilePhoto.getContentType() + ";base64," + base64;
+            photoData = profilePhoto.getBytes();
         }
 
         RegisteredUser user = registeredUserMapper.createUser(
                 req,
-                dataUrl.getBytes(StandardCharsets.UTF_8),
+                photoData,
                 passwordEncoder.encode(req.getPassword())
         );
         user.setUserStatus(UserStatus.INACTIVE);
