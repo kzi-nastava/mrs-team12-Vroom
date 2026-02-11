@@ -68,5 +68,17 @@
             <TextView android:id="@+id/tvPopupComment" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/info_section_rounded" android:padding="12dp" android:textStyle="italic" android:visibility="gone"/>
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btnLeaveReview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Leave a Review"
+            android:visibility="gone"
+            android:backgroundTint="@color/main_green"
+            android:textColor="@color/brown_black"/>
+
     </LinearLayout>
+
+
 </ScrollView>

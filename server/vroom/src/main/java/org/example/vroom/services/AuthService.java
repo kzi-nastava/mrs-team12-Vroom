@@ -47,8 +47,7 @@ public class AuthService {
 
     public LoginResponseDTO login(User user, HttpServletResponse response) {
         if(user instanceof RegisteredUser && (
-                ((RegisteredUser) user).getUserStatus().equals(UserStatus.INACTIVE) ||
-                        ((RegisteredUser) user).getUserStatus().equals(UserStatus.BLOCKED))
+                ((RegisteredUser) user).getUserStatus().equals(UserStatus.INACTIVE))
         )
             throw new AccountStatusException("This account is inactive or blocked");
 
