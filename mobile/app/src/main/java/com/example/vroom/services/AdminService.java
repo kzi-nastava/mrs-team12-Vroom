@@ -2,6 +2,7 @@ package com.example.vroom.services;
 
 import com.example.vroom.DTOs.admin.AdminUserDTO;
 import com.example.vroom.DTOs.admin.BlockUserRequestDTO;
+import com.example.vroom.DTOs.admin.DriverRegistrationRequestDTO;
 import com.example.vroom.DTOs.admin.DriverUpdateDTO;
 import com.example.vroom.DTOs.admin.DriverUpdateRequestAdminDTO;
 import com.example.vroom.DTOs.admin.RejectRequestDTO;
@@ -48,6 +49,11 @@ public interface AdminService {
     Call<Void> rejectRequest(
             @Path("id") Long requestId,
             @Body RejectRequestDTO request,
+            @Header("Authorization") String token
+    );
+    @POST("api/drivers/register/driver")
+    Call<DriverDTO> registerDriver(
+            @Body DriverRegistrationRequestDTO request,
             @Header("Authorization") String token
     );
 }

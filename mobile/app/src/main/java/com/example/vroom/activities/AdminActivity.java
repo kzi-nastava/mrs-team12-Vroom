@@ -16,6 +16,7 @@ import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.fragments.BlockUserFragment;
 import com.example.vroom.fragments.ProfileRequestsFragment;
+import com.example.vroom.fragments.RegisterDriverFragment;
 import com.google.android.material.navigation.NavigationView;
 
 public class AdminActivity extends AppCompatActivity {
@@ -97,6 +98,13 @@ public class AdminActivity extends AppCompatActivity {
                     .addToBackStack(null)
                     .commit();
         });
+        findViewById(R.id.cardAddDriver).setOnClickListener(v -> {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_frame, new RegisterDriverFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
 
 
         findViewById(R.id.cardActiveRides).setOnClickListener(v ->
@@ -104,8 +112,6 @@ public class AdminActivity extends AppCompatActivity {
         findViewById(R.id.cardPastRides).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
         findViewById(R.id.cardPanic).setOnClickListener(v ->
-                startActivity(new Intent(this, MockActivity.class)));
-        findViewById(R.id.cardAddDriver).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));
         findViewById(R.id.cardPricelist).setOnClickListener(v ->
                 startActivity(new Intent(this, MockActivity.class)));

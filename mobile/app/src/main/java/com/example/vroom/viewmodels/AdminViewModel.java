@@ -9,12 +9,15 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.vroom.DTOs.admin.AdminUserDTO;
 import com.example.vroom.DTOs.admin.BlockUserRequestDTO;
+import com.example.vroom.DTOs.admin.DriverRegistrationRequestDTO;
 import com.example.vroom.DTOs.admin.DriverUpdateDTO;
 import com.example.vroom.DTOs.admin.DriverUpdateRequestAdminDTO;
 import com.example.vroom.DTOs.admin.RejectRequestDTO;
 import com.example.vroom.DTOs.driver.requests.DriverDTO;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
+import com.example.vroom.enums.Gender;
+import com.example.vroom.enums.VehicleType;
 import com.example.vroom.network.RetrofitClient;
 
 import java.util.List;
@@ -251,5 +254,70 @@ public class AdminViewModel extends ViewModel {
                 Log.e(TAG, "Network error: " + t.getMessage());
             }
         });
+    }
+
+    public void registerDriver(
+            String firstName,
+            String lastName,
+            String email,
+            String phone,
+            String address,
+            String gender,
+            String brand,
+            String model,
+            VehicleType type,
+            String licenceNumber,
+            Integer numberOfSeats,
+            Boolean babiesAllowed,
+            Boolean petsAllowed
+    ) {
+        loading.postValue(true);
+        String token = "Bearer " + StorageManager.getData("jwt", null);
+
+        DriverRegistrationRequestDTO request = new DriverRegistrationRequestDTO();
+        request.setFirstName(firstName);
+        request.setLastName(lastName);
+        request.setEmail(email);
+        request.setPhoneNumber(phone);
+        request.setAddress(address);
+        request.setGender(Gender.valueOf(gender));
+
+        request.setBrand(brand);
+        request.setModel(model);
+        request.setType(type);
+        request.setLicenceNumber(licenceNumber);
+        request.setNumberOfSeats(numberOfSeats);
+        request.setBabiesAllowed(babiesAllowed);
+        request.setPetsAllowed(petsAllowed);
+
+        RetrofitClient.getAdminService().registerDriver(request, token)
+                .enqueue(new Callback<DriverDTO>() {
+                    @Override
+                    public void onResponse(Call<DriverDTO> call, Response<DriverDTO> response) {
+                        loading.postValue(false);
+                        if (response.isSuccessful()) {
+                            successMessage.postValue("Driver registered successfully! Activation email sent.");
+                            Log.d(TAG, "Driver registered: " + email);
+                        } else {
+                            String error = "Failed to register driver";
+                            try {
+                                if (response.errorBody() != null) {
+                                    error = response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            errorMessage.postValue(error);
+                            Log.e(TAG, "Error: " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<DriverDTO> call, Throwable t) {
+                        loading.postValue(false);
+                        errorMessage.postValue("Network error: " + t.getMessage());
+                        Log.e(TAG, "Network error: " + t.getMessage());
+                    }
+                });
     }
 }
