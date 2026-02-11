@@ -88,10 +88,12 @@ public abstract class User implements UserDetails {
         return true;
     }
 
+
 //    @Override
 //    public boolean isEnabled(){
 //        return this.blockedReason == null;
 //    }
+
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp

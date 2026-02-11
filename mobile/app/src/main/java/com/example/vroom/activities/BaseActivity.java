@@ -31,6 +31,7 @@ import com.example.vroom.fragments.PanicFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
 import com.example.vroom.fragments.StopRideFragment;
+import com.example.vroom.fragments.UserRideHistoryFragment;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
@@ -160,6 +161,8 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         menu.findItem(R.id.nav_status_switch).setVisible(isLoggedIn && userType.equals("DRIVER"));
 
         menu.findItem(R.id.nav_panic_feed).setVisible(isLoggedIn && userType.equals("ADMIN"));
+        menu.findItem(R.id.ride_history).setVisible(isLoggedIn &&
+                (userType.equals("ADMIN") || userType.equals("REGISTERED_USER")));
 
         menu.findItem(R.id.login_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.register_navbar_item).setVisible(!isLoggedIn);
@@ -209,6 +212,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         }else if(id == R.id.nav_panic_feed){
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_frame, new PanicFeedFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if(id == R.id.ride_history){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new UserRideHistoryFragment())
                     .addToBackStack(null)
                     .commit();
         }

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.vroom.DTOs.MessageResponseDTO;
+import com.example.vroom.DTOs.auth.requests.RegisterUserRequestDTO;
 import com.example.vroom.enums.Gender;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.utils.PasswordUtils;
