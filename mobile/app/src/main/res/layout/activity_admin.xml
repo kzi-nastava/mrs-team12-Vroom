@@ -29,6 +29,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/lime_white"
-        app:menu="@menu/admin_nav_menu"/>
+        app:menu="@menu/nav_menu"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>
