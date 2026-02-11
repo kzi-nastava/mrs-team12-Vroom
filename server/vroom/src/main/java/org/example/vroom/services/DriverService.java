@@ -238,7 +238,7 @@ public class DriverService {
 
     public void changeStatus(Long driverID, DriverStatus status){
         Optional<Driver> driver = driverRepository.findById(driverID);
-        if (driver.isEmpty() || driver.get().getStatus() == DriverStatus.BLOCKED)
+        if (driver.isEmpty())
             throw new DriverNotFoundException("Driver not found");
 
         if(driver.get().getStatus().equals(status)){
