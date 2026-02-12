@@ -259,7 +259,12 @@ public class RideController {
                    .status(HttpStatus.CONFLICT)
                    .body(Map.of("message", e.getMessage()));
 
-       } catch (TooManyPassengersException e) {
+       } catch (DriverNotAvailableException e) {
+           return ResponseEntity
+                   .status(HttpStatus.CONFLICT)
+                   .body(Map.of("message", e.getMessage()));
+
+       }catch (TooManyPassengersException e) {
            return ResponseEntity
                    .status(HttpStatus.CONFLICT)
                    .body(Map.of("message", e.getMessage()));
@@ -295,7 +300,7 @@ public class RideController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }catch (RuntimeException e){
             System.err.println("ERROR starting ride: " + e.getMessage());
-            e.printStackTrace();  
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

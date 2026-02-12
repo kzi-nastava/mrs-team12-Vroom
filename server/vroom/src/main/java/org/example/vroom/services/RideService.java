@@ -34,6 +34,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -115,6 +116,24 @@ public class RideService {
                 route.getStartLocationLat(),
                 route.getStartLocationLng()
         ).orElseThrow(() -> new NoAvailableDriverException("No available drivers"));
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime checkUntil = now.plusMinutes(15);
+
+        List<Ride> conflictingRides = rideRepository.findScheduledRidesForDriverInTimeRange(
+                driver,
+                now,
+                checkUntil
+        );
+
+        if (!conflictingRides.isEmpty()) {
+            Ride conflictingRide = conflictingRides.get(0);
+            throw new DriverNotAvailableException(
+                    "Driver has a scheduled ride at " +
+                            conflictingRide.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) +
+                            ". Please try again later or choose another driver."
+            );
+        }
         int vehicleCapacity = driver.getVehicle().getNumberOfSeats();
         int totalPassengers = 1 + passengers.size();
 
@@ -169,6 +188,10 @@ public class RideService {
                 .panicActivated(false)
                 .isScheduled(isScheduled)
                 .build();
+
+        if (isScheduled) {
+            ride.setStartTime(scheduledTime);
+        }
 
         ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
 

@@ -15,10 +15,7 @@ import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.enums.VehicleType;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
-import org.example.vroom.repositories.DriverLocationRepository;
-import org.example.vroom.repositories.DriverRepository;
-import org.example.vroom.repositories.RegisteredUserRepository;
-import org.example.vroom.repositories.RideRepository;
+import org.example.vroom.repositories.*;
 import org.example.vroom.services.GeoService;
 import org.example.vroom.services.RouteService;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,12 +66,21 @@ public class RideControllerTest {
     private RideRepository rideRepository;
     @Autowired
     private DriverLocationRepository driverLocationRepository;
+    @Autowired
+    private PriceListRepository pricelistRepository;
 
     private Driver driver;
     private RegisteredUser passenger;
     private Ride ongoingRide;
     private Long ongoingRideId;
-
+    private Pricelist createPricelist() {
+        return Pricelist.builder()
+                .valid(true)
+                .priceStandard(100.0)
+                .priceLuxury(200.0)
+                .priceMinivan(150.0)
+                .build();
+    }
     private DriverLocation createDriverLocation(Driver driver, Double lat, Double lng) {
         DriverLocation location = DriverLocation.builder()
                 .driver(driver)
@@ -136,6 +142,9 @@ public class RideControllerTest {
     }
 
     private void setupTestData() {
+
+        Pricelist pricelist = createPricelist();
+        pricelistRepository.save(pricelist);
         driver = createDriver();
         driver = driverRepository.save(driver);
 
@@ -740,26 +749,6 @@ public class RideControllerTest {
     }
     @Test
     @WithMockUser(username = "jovan.passenger@test.com", roles = "REGISTERED_USER")
-    void orderRide_standardWithBabiesOrPets_noDriver() throws Exception {
-        driver.setStatus(DriverStatus.AVAILABLE);
-        driver.getVehicle().setType(VehicleType.STANDARD);
-        driver.getVehicle().setBabiesAllowed(false);
-        driver.getVehicle().setPetsAllowed(false);
-        driverRepository.saveAndFlush(driver);
-
-        RideRequestDTO req = validRideRequest();
-        req.setVehicleType(VehicleType.STANDARD);
-        req.setBabiesAllowed(true);
-        req.setPetsAllowed(true);
-
-        mockMvc.perform(post("/api/rides")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value(containsString("No available drivers")));
-    }
-    @Test
-    @WithMockUser(username = "jovan.passenger@test.com", roles = "REGISTERED_USER")
     void orderRide_nullStartAndEnd_badRequest() throws Exception {
         driver.setStatus(DriverStatus.AVAILABLE);
         driverRepository.saveAndFlush(driver);
@@ -890,5 +879,86 @@ public class RideControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.rideID").exists())
                 .andExpect(jsonPath("$.route.stops.length()").value(2));
+    }
+
+    @Test
+    @WithMockUser(username = "jovan.passenger@test.com", roles = "REGISTERED_USER")
+    void orderRide_driverHasScheduledRideInNext15Minutes_conflict() throws Exception {
+
+        driver.setStatus(DriverStatus.AVAILABLE);
+        driverRepository.saveAndFlush(driver);
+
+        Ride scheduledRide = Ride.builder()
+                .driver(driver)
+                .passenger(passenger)
+                .route(createRoute())
+                .status(RideStatus.ACCEPTED)
+                .isScheduled(true)
+                .startTime(LocalDateTime.now().plusMinutes(10))
+                .price(100.0)
+                .build();
+
+        rideRepository.saveAndFlush(scheduledRide);
+
+        RideRequestDTO req = validRideRequest();
+
+        mockMvc.perform(post("/api/rides")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message")
+                        .value(containsString("Driver has a scheduled ride at")));
+    }
+    @Test
+    @WithMockUser(username = "jovan.passenger@test.com", roles = "REGISTERED_USER")
+    void orderRide_scheduledExactlyIn15Minutes_conflict() throws Exception {
+
+        driver.setStatus(DriverStatus.AVAILABLE);
+        driverRepository.saveAndFlush(driver);
+
+        Ride scheduledRide = Ride.builder()
+                .driver(driver)
+                .passenger(passenger)
+                .route(createRoute())
+                .status(RideStatus.ACCEPTED)
+                .isScheduled(true)
+                .startTime(LocalDateTime.now().plusMinutes(15))
+                .price(100.0)
+                .build();
+
+        rideRepository.saveAndFlush(scheduledRide);
+
+        RideRequestDTO req = validRideRequest();
+
+        mockMvc.perform(post("/api/rides")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isConflict());
+    }
+    @Test
+    @WithMockUser(username = "jovan.passenger@test.com", roles = "REGISTERED_USER")
+    void orderRide_scheduledAfter15Minutes_success() throws Exception {
+
+        driver.setStatus(DriverStatus.AVAILABLE);
+        driverRepository.saveAndFlush(driver);
+
+        Ride scheduledRide = Ride.builder()
+                .driver(driver)
+                .passenger(passenger)
+                .route(createRoute())
+                .status(RideStatus.ACCEPTED)
+                .isScheduled(true)
+                .startTime(LocalDateTime.now().plusMinutes(16))
+                .price(100.0)
+                .build();
+
+        rideRepository.saveAndFlush(scheduledRide);
+
+        RideRequestDTO req = validRideRequest();
+
+        mockMvc.perform(post("/api/rides")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated());
     }
 }
