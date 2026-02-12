@@ -9,10 +9,7 @@ import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.example.vroom.mappers.RideMapper;
-import org.example.vroom.repositories.DriverRepository;
-import org.example.vroom.repositories.FavoriteRouteRepository;
-import org.example.vroom.repositories.RegisteredUserRepository;
-import org.example.vroom.repositories.RideRepository;
+import org.example.vroom.repositories.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,6 +31,7 @@ public class FavoriteRouteService {
     private final RideRepository rideRepository;
     private final RideMapper rideMapper;
     private final RouteService routeService;
+    private final RouteRepository routeRepository;
 
     public List<FavoriteRoute> getCurrentUserFavorites(String email) {
         RegisteredUser user = registeredUserRepository
@@ -96,7 +94,7 @@ public class FavoriteRouteService {
         if (route.getStops() != null && !route.getStops().isEmpty()) {
             stops = route.getStops().stream()
                     .filter(p -> p != null && p.getLat() != null && p.getLng() != null)
-                    .map(p -> p.getLat() + "," + p.getLng()) // ovde lat pa lon
+                    .map(p -> p.getLat() + "," + p.getLng())
                     .collect(Collectors.joining(";"));
         }
         RouteQuoteResponseDTO quote = !StringUtils.hasText(stops)
@@ -106,12 +104,23 @@ public class FavoriteRouteService {
         if (quote == null) {
             throw new RuntimeException("Failed to calculate route quote");
         }
+        Route originalRoute = favorite.getRoute();
 
+        Route newRoute = Route.builder()
+                .startAddress(originalRoute.getStartAddress())
+                .endAddress(originalRoute.getEndAddress())
+                .startLocationLat(originalRoute.getStartLocationLat())
+                .startLocationLng(originalRoute.getStartLocationLng())
+                .endLocationLat(originalRoute.getEndLocationLat())
+                .endLocationLng(originalRoute.getEndLocationLng())
+                .build();
+
+        newRoute = routeRepository.save(newRoute);
         Ride ride = Ride.builder()
                 .passenger(user)
                 .passengers(convertToPassengerNames(passengers))
                 .driver(driver)
-                .route(route)
+                .route(newRoute)
                 .startTime(request.getScheduledTime() != null ? request.getScheduledTime() : LocalDateTime.now())
                 .status(RideStatus.ACCEPTED)
                 .price(quote.getPrice())
