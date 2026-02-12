@@ -16,7 +16,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 
 import com.example.vroom.DTOs.map.MapRouteDTO;
+
 import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
+
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.network.RetrofitClient;
@@ -25,6 +27,7 @@ import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RouteEstimationViewModel;
 import com.example.vroom.viewmodels.UserRideHistoryViewModel;
 import com.google.gson.Gson;
+
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -81,11 +84,13 @@ public class MainActivity extends BaseActivity {
         // if first time creating activity
         // if needed to draw data
         handleIncomingIntent(getIntent());
+
     }
 
     @Override
     public void onLogoButtonClicked(){
     }
+  
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -96,7 +101,7 @@ public class MainActivity extends BaseActivity {
     private void handleIncomingIntent(Intent intent){
         if(intent == null) return;
 
-        // if has data for drawing route
+        // if it has data for drawing route
         if(intent.hasExtra("ROUTE_DATA")){
             String json = intent.getStringExtra("ROUTE_DATA");
             RideResponseDTO ride = new Gson().fromJson(json, RideResponseDTO.class);
