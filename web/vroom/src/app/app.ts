@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgToastComponent, NgToastService } from 'ng-angular-popup';
 import { Subject, takeUntil } from 'rxjs';
@@ -26,7 +26,8 @@ export class App implements OnInit, OnDestroy {
     private socketProvider: SocketProviderService,
     private chatService: ChatService,
     private toastService: NgToastService,
-    private panicNotifService: PanicNotificationService
+    private panicNotifService: PanicNotificationService,
+    private cdr : ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -39,12 +40,14 @@ export class App implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
           this.setupGlobalSubscriptions(userType, userId);
+          this.cdr.detectChanges();
         });
     }else{
       this.socketProvider.initConnection()
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.driverService.initializeWebSocket().subscribe();
+        this.cdr.detectChanges();
       })
     }
   }
@@ -63,6 +66,7 @@ export class App implements OnInit, OnDestroy {
     this.chatService.getMessageStream()
       .pipe(takeUntil(this.destroy$))
       .subscribe(message => {
+        console.log(message)
         this.showMessageNotif(message);
       });
   }

@@ -8,6 +8,7 @@ import com.example.vroom.services.DriverProfileService;
 import com.example.vroom.services.DriverService;
 import com.example.vroom.services.GeoLocationService;
 import com.example.vroom.services.PanicNotificationService;
+import com.example.vroom.services.RegisteredUserService;
 import com.example.vroom.services.RideService;
 import com.example.vroom.services.RouteService;
 import com.example.vroom.services.UserProfileService;
@@ -86,5 +87,6 @@ public class RetrofitClient {
 
     public static PanicNotificationService getPanicNotificationService(){ return getClient().create(PanicNotificationService.class); }
 
-    public static AdminService getAdminService(){ return getClient().create(AdminService.class); }
+    public static AdminService getAdminService(){return getClient().create(AdminService.class);}
+    public static RegisteredUserService getRegisteredUserService(){ return getClient().create(RegisteredUserService.class); }
 }

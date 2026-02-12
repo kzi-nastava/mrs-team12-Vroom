@@ -64,6 +64,7 @@ export class ChatAdmin implements OnInit, OnDestroy {
     const chatIndex = this.chats.findIndex(c => c.chatId === chatId);
     if (chatIndex !== -1) {
       this.chats[chatIndex].lastMessageTime = message.timestamp;
+      this.cdr.detectChanges();
     } else {
       const newChat: ChatResponseDTO = {
         chatId: Number(chatId),
@@ -71,6 +72,7 @@ export class ChatAdmin implements OnInit, OnDestroy {
         lastMessageTime: message.timestamp
       };
       this.chats.push(newChat);
+      this.cdr.detectChanges();
     }
     this.sortChats();
     this.cdr.detectChanges();

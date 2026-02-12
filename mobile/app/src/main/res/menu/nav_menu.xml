@@ -24,6 +24,11 @@
         android:title="Panic Feed"
         android:visible="false" />
 
+    <item
+        android:id="@+id/ride_history"
+        android:title="Ride History"
+        android:visible="false" />
+
     <group android:id="@+id/nav_footer" android:checkableBehavior="none">
         <item
             android:id="@+id/nav_status_switch"

@@ -8,6 +8,9 @@ import com.example.vroom.DTOs.admin.DriverUpdateRequestAdminDTO;
 import com.example.vroom.DTOs.admin.RejectRequestDTO;
 import com.example.vroom.DTOs.driver.requests.DriverDTO;
 
+import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
+
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -55,5 +58,15 @@ public interface AdminService {
     Call<DriverDTO> registerDriver(
             @Body DriverRegistrationRequestDTO request,
             @Header("Authorization") String token
+    );
+  
+    @GET("api/admins/users/rides")
+    Call<List<RideResponseDTO>> getRides(
+            @Query("userEmail") String userEmail,
+            @Query("sort") String sort,
+            @Query("startDate") String startDate,
+            @Query("endDate") String endDate,
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize
     );
 }

@@ -69,7 +69,17 @@ public class RideHistoryPage {
         userEmailInput.clear();
         userEmailInput.sendKeys(email);
 
-        waitForLoaderToFinish();
+        wait.until(driver ->
+                driver.findElements(By.className("ride-card")).isEmpty() || driver.findElement(By.className("spinner")).isDisplayed()
+        );
+
+        wait.until(driver -> {
+            boolean spinner = driver.findElements(By.className("spinner")).isEmpty();
+            boolean noRides = !driver.findElements(By.xpath("//p[text()='No rides found']")).isEmpty();
+            boolean rides = !driver.findElements(By.className("ride-card")).isEmpty();
+
+            return spinner && (noRides || rides);
+        });
     }
 
     public void filterByStartDate(LocalDate date) {

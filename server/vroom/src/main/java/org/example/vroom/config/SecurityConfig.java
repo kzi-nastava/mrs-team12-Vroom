@@ -80,6 +80,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 //                        .requestMatchers("/api/drivers/**").authenticated()
+                        .requestMatchers("/api/registered-user/**").authenticated()
                         .requestMatchers("/api/rides/complaint/**").permitAll()
                         .requestMatchers("/api/rides/ride-duration-update/**").permitAll()
                         .requestMatchers("/api/rides/route/**").permitAll()
