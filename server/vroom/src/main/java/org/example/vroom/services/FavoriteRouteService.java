@@ -163,4 +163,20 @@ public class FavoriteRouteService {
         }
         return names;
     }
+
+    @Transactional
+    public void removeFromFavorites(String userEmail, Long favoriteId) {
+
+        RegisteredUser user = registeredUserRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        FavoriteRoute favorite = favoriteRouteRepository.findById(favoriteId)
+                .orElseThrow(() -> new RuntimeException("Favorite route not found"));
+
+        if (!favorite.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You cannot delete another user's favorite route");
+        }
+
+        favoriteRouteRepository.delete(favorite);
+    }
 }

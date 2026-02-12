@@ -72,11 +72,15 @@
   </div>
 </div>
 
-      <div class="action-row">
-        <button (click)="useRoute(fav)">
-          Use this route
-        </button>
-      </div>
+<div class="action-row">
+  <button (click)="useRoute(fav)">
+    Use this route
+  </button>
+
+  <button class="delete-btn" (click)="removeFromFavorites(fav)">
+    Delete
+  </button>
+</div>
 
     </div>
   </ng-container>

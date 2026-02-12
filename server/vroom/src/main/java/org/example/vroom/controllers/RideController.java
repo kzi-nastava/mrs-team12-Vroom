@@ -332,6 +332,29 @@ public class RideController {
         return ResponseEntity.ok(rideResponse);
     }
 
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @DeleteMapping("/favorites/{favoriteId}")
+    public ResponseEntity<MessageResponseDTO> removeFavorite(
+            @PathVariable Long favoriteId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        try {
+            favoriteRouteService.removeFromFavorites(
+                    userDetails.getUsername(),
+                    favoriteId
+            );
+
+            return ResponseEntity.ok(
+                    new MessageResponseDTO("Favorite route removed successfully")
+            );
+
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponseDTO(e.getMessage()));
+        }
+    }
+
     @GetMapping("/active")
     public ResponseEntity<GetRideResponseDTO> getActiveRide(
             @AuthenticationPrincipal UserDetails userDetails
