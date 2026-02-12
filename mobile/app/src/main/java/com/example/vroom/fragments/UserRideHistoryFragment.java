@@ -1,11 +1,13 @@
 package com.example.vroom.fragments;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,15 +30,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.vroom.DTOs.ride.responses.RideHistoryMoreInfoResponseDTO;
 import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 import com.example.vroom.R;
+import com.example.vroom.activities.MainActivity;
 import com.example.vroom.adapters.UserRideHistoryAdapter;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.RideStatus;
 import com.example.vroom.viewmodels.UserRideHistoryViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.gson.Gson;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class UserRideHistoryFragment extends Fragment
         implements UserRideHistoryAdapter.OnRideActionListener, android.hardware.SensorEventListener {
@@ -65,7 +70,7 @@ public class UserRideHistoryFragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(UserRideHistoryViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(UserRideHistoryViewModel.class);
 
         sensorManager = (SensorManager) requireActivity().getSystemService(android.content.Context.SENSOR_SERVICE);
 
@@ -100,7 +105,35 @@ public class UserRideHistoryFragment extends Fragment
 
     @Override
     public void onMapClick(Long rideId) {
-        Toast.makeText(getContext(), "Map for ride: " + rideId, Toast.LENGTH_SHORT).show();
+        List<RideResponseDTO> currentRides = mViewModel.getRideHistoryLiveData().getValue();
+
+        if(currentRides == null) return;
+
+        RideResponseDTO selectedRide = currentRides.stream()
+                .filter(ride -> ride.getRideId().equals(rideId))
+                .findFirst()
+                .orElse(null);
+
+        if(selectedRide == null || selectedRide.getRoute() == null) return;
+
+        mViewModel.sendRideData(selectedRide);
+
+        if (getActivity() == null) return;
+
+        if(getActivity() instanceof MainActivity){
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .hide(this)
+                    .addToBackStack("MAP_VIEW")
+                    .commit();
+        } else{
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+            String rideJson = new Gson().toJson(selectedRide);
+            intent.putExtra("ROUTE_DATA", rideJson);
+
+            startActivity(intent);
+        }
     }
 
     @Override

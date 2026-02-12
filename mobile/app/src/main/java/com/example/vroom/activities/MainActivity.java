@@ -1,5 +1,6 @@
 package com.example.vroom.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -15,12 +16,15 @@ import androidx.lifecycle.ViewModelProvider;
 
 
 import com.example.vroom.DTOs.map.MapRouteDTO;
+import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.LoginViewModel;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RouteEstimationViewModel;
+import com.example.vroom.viewmodels.UserRideHistoryViewModel;
+import com.google.gson.Gson;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -41,6 +45,7 @@ public class MainActivity extends BaseActivity {
     private Map<Integer, Marker> driverMarkers = new HashMap<>();
     private MainViewModel viewModel;
     private RouteEstimationViewModel routeEstimationViewModel;
+    private UserRideHistoryViewModel userRideHistoryViewModel;
 
 
     @Override
@@ -68,13 +73,36 @@ public class MainActivity extends BaseActivity {
         // first we register all view models we will need to observe
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         routeEstimationViewModel = new ViewModelProvider(this).get(RouteEstimationViewModel.class);
+        userRideHistoryViewModel = new ViewModelProvider(this).get(UserRideHistoryViewModel.class);
 
         // setting up observers and what should they do
         setupObservers();
+
+        // if first time creating activity
+        // if needed to draw data
+        handleIncomingIntent(getIntent());
     }
 
     @Override
     public void onLogoButtonClicked(){
+    }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingIntent(intent);
+    }
+
+    private void handleIncomingIntent(Intent intent){
+        if(intent == null) return;
+
+        // if has data for drawing route
+        if(intent.hasExtra("ROUTE_DATA")){
+            String json = intent.getStringExtra("ROUTE_DATA");
+            RideResponseDTO ride = new Gson().fromJson(json, RideResponseDTO.class);
+
+            userRideHistoryViewModel.sendRideData(ride);
+        }
     }
 
     private void setupObservers(){
@@ -106,6 +134,12 @@ public class MainActivity extends BaseActivity {
 
         // mimics action type on web, case MapActionType.DRAW_ROUTE
         routeEstimationViewModel.getRoute().observe(this, mapRouteDTO -> {
+            if (mapRouteDTO != null) {
+                drawRoute(mapRouteDTO, false);
+            }
+        });
+
+        userRideHistoryViewModel.getRoute().observe(this, mapRouteDTO -> {
             if (mapRouteDTO != null) {
                 drawRoute(mapRouteDTO, false);
             }
