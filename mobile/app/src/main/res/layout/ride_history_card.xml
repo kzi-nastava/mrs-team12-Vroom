@@ -116,16 +116,23 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCheckMap"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="16dp"
-            android:background="@android:color/transparent"
-            android:textColor="#2A2C24"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="12dp"
+            android:minHeight="56dp"
             android:text="Check on the map"
             android:textAllCaps="false"
+            android:textColor="@color/brown_black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/accent_green"
+            app:cornerRadius="16dp"
             android:visibility="gone" />
 
     </LinearLayout>

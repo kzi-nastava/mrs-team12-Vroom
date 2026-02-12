@@ -135,13 +135,13 @@ public class MainActivity extends BaseActivity {
         // mimics action type on web, case MapActionType.DRAW_ROUTE
         routeEstimationViewModel.getRoute().observe(this, mapRouteDTO -> {
             if (mapRouteDTO != null) {
-                drawRoute(mapRouteDTO, false);
+                drawRoute(mapRouteDTO, true);
             }
         });
 
         userRideHistoryViewModel.getRoute().observe(this, mapRouteDTO -> {
             if (mapRouteDTO != null) {
-                drawRoute(mapRouteDTO, false);
+                drawRoute(mapRouteDTO, true);
             }
         });
     }
