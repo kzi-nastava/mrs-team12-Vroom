@@ -21,7 +21,7 @@ import com.example.vroom.fragments.ProfileRequestsFragment;
 import com.example.vroom.fragments.RegisterDriverFragment;
 import com.google.android.material.navigation.NavigationView;
 
-public class AdminActivity extends AppCompatActivity {
+public class AdminActivity extends BaseActivity {
 
     private DrawerLayout drawer;
     private ImageButton logoButton;

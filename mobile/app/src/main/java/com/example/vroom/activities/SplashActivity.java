@@ -50,7 +50,7 @@ public class SplashActivity extends AppCompatActivity {
             }
         } else {
             Log.d(TAG, "No valid token. Opening LoginActivity");
-            intent = new Intent(this, LoginActivity.class);
+            intent = new Intent(this, MainActivity.class);
         }
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
