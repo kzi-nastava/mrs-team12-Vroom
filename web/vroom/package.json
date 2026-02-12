@@ -38,17 +38,26 @@
     "rxjs": "~7.8.0",
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.0"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "^21.1.4",
     "@angular/build": "^21.0.2",
     "@angular/cli": "^21.0.2",
     "@angular/compiler-cli": "^21.0.0",
+    "@angular/platform-browser-dynamic": "^21.1.4",
     "@types/jasmine": "^6.0.0",
     "@types/leaflet": "^1.9.21",
     "@types/sockjs-client": "^1.5.4",
     "@types/stompjs": "^2.3.10",
+    "jasmine-core": "^6.0.1",
     "jsdom": "^27.1.0",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.1",
+    "karma-jasmine": "^5.1.0",
+    "karma-jasmine-html-reporter": "^2.2.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
   }
