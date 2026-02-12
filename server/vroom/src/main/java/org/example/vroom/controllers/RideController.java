@@ -287,15 +287,18 @@ public class RideController {
             @PathVariable Long rideID
     ) {
         try{
-             GetRideResponseDTO dto = rideService.startRide(rideID);
-             return new ResponseEntity<>(dto, HttpStatus.OK);
+            GetRideResponseDTO dto = rideService.startRide(rideID);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         }catch (RideNotFoundException e){
+            System.err.println("Ride not found: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }catch (RuntimeException e){
+            System.err.println("ERROR starting ride: " + e.getMessage());
+            e.printStackTrace();  
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
     @GetMapping(
             path = "/favorites",

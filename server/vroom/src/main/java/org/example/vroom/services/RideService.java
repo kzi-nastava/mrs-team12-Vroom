@@ -468,7 +468,6 @@ public class RideService {
         return rideMapper.stopRide(ride, data, price, endAddress);
     }
 
-
     public GetRideResponseDTO startRide(Long rideID) {
 
         Optional<Ride> rideOpt = rideRepository.findById(rideID);
@@ -479,21 +478,13 @@ public class RideService {
         ride.setStartTime(LocalDateTime.now());
         ride.setStatus(RideStatus.ONGOING);
         ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
+
         try{
             emailService.sendRideStartedMail(ride.getPassenger().getEmail(), rideID.toString());
         }catch(IOException | MessagingException e){
-            throw new RuntimeException(e);
+            System.err.println("Failed to send email: " + e.getMessage());
         }
-        for (String email : ride.getPassengers()){
-            try{
-                emailService.sendRideStartedMail(email, rideID.toString());
-            }catch(IOException | MessagingException e){
-                throw new RuntimeException(e);
-            }
-        }
-
         rideRepository.save(ride);
-
         return rideMapper.getRideDTO(ride);
     }
 
