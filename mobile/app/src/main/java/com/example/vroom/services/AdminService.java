@@ -8,6 +8,7 @@ import com.example.vroom.DTOs.admin.DriverUpdateRequestAdminDTO;
 import com.example.vroom.DTOs.admin.RejectRequestDTO;
 import com.example.vroom.DTOs.driver.requests.DriverDTO;
 
+import com.example.vroom.DTOs.ride.responses.RideHistoryResponseDTO;
 import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 
 
@@ -20,6 +21,7 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface AdminService {
 
