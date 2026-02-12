@@ -278,31 +278,13 @@ public class RideService {
         return null;
     }
 
-    public Ride getActiveRideForDriver(String driverEmail) {
-        System.out.println("Driver email u metodi: " + driverEmail);
+    public List<Ride> getActiveRidesForDriver(String driverEmail) {
 
-        Optional<Driver> driverOpt = driverRepository.findByEmail(driverEmail);
+        Driver driver = driverRepository.findByEmail(driverEmail)
+                .orElseThrow(() -> new UserNotFoundException("Driver not found"));
 
-        if (driverOpt.isEmpty()) {
-            System.out.println("Nije pronađen driver za email: " + driverEmail);
-        } else {
-            Driver driver = driverOpt.get();
-            System.out.println("Pronađen driver: " + driver.getFirstName() + " " + driver.getLastName());
-        }
-
-        Driver driver = driverOpt.orElseThrow(() -> new UserNotFoundException("Driver not found"));
-
-        Optional<Ride> rideOpt = rideRepository.findByDriverAndStatus(driver, RideStatus.ACCEPTED);
-
-        if (rideOpt.isEmpty()) {
-            System.out.println("Nema aktivne vožnje za drivera: " + driverEmail);
-        } else {
-            System.out.println("Pronađena aktivna vožnja: rideId=" + rideOpt.get().getId());
-        }
-
-        return rideOpt.orElse(null);
+        return rideRepository.findAcceptedRidesForDriver(driver);
     }
-
     public GetRideResponseDTO mapToDTO(Ride ride) {
         return rideMapper.getRideDTO(ride);
     }

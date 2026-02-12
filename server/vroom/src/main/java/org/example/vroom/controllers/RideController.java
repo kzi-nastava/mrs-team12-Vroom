@@ -356,22 +356,27 @@ public class RideController {
     }
 
     @GetMapping("/active")
-    public ResponseEntity<GetRideResponseDTO> getActiveRide(
+    public ResponseEntity<List<GetRideResponseDTO>> getActiveRides(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        if(userDetails == null) {
-            System.out.println("UserDetails je null!");
+        if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         String driverEmail = userDetails.getUsername();
-        System.out.println("Driver email: " + driverEmail);
 
-        Ride ride = rideService.getActiveRideForDriver(driverEmail);
-        if (ride == null) {
+        List<Ride> rides = rideService.getActiveRidesForDriver(driverEmail);
+
+        if (rides.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(rideService.mapToDTO(ride));
+
+        List<GetRideResponseDTO> dtos =
+                rides.stream()
+                        .map(rideService::mapToDTO)
+                        .toList();
+
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{rideId}")

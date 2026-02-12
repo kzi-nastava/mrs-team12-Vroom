@@ -221,4 +221,12 @@ WHERE r.driver IS NOT NULL
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
+    @Query("""
+    SELECT r FROM Ride r
+    WHERE r.driver = :driver
+      AND r.status = org.example.vroom.enums.RideStatus.ACCEPTED
+    ORDER BY r.isScheduled ASC, r.startTime ASC
+""")
+    List<Ride> findAcceptedRidesForDriver(@Param("driver") Driver driver);
+
 }
