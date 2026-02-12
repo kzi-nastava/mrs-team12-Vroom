@@ -1,7 +1,5 @@
 package com.example.vroom.viewmodels;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -44,7 +42,28 @@ public class UserRideHistoryViewModel extends ViewModel {
 
         return data;
     }
-    public void fetchRideHistory(String email, String sort, String start, String end, int page) {
+
+    public void fetchRideHistoryUser(String sort, String start, String end, int page) {
+
+        RetrofitClient.getRegisteredUserService().getRides(sort, start, end, page, 10)
+                .enqueue(new Callback<List<RideResponseDTO>>() {
+                    @Override
+                    public void onResponse(Call<List<RideResponseDTO>> call, Response<List<RideResponseDTO>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            rideHistory.setValue(response.body());
+                        } else {
+                            rideHistory.setValue(null);
+
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<List<RideResponseDTO>> call, Throwable t) {
+                        rideHistory.setValue(null);
+                        errorMessage.setValue("Error: " + t.getMessage());
+                    }
+                });
+    }
+    public void fetchRideHistoryAdmin(String email, String sort, String start, String end, int page) {
 
         RetrofitClient.getAdminService().getRides(email, sort, start, end, page, 10)
                 .enqueue(new Callback<List<RideResponseDTO>>() {

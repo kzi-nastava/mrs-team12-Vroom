@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.vroom.DTOs.ride.responses.RideHistoryMoreInfoResponseDTO;
 import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.activities.MainActivity;
@@ -61,6 +60,7 @@ public class UserRideHistoryFragment extends Fragment
     private SensorManager sensorManager;
     private long lastShakeTime = 0;
     private static final float SHAKE_THRESHOLD = 2.7f;
+    private String userType;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -70,6 +70,10 @@ public class UserRideHistoryFragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        StorageManager.getSharedPreferences(getActivity());
+        userType = StorageManager.getData("user_type", "");
+
         mViewModel = new ViewModelProvider(requireActivity()).get(UserRideHistoryViewModel.class);
 
         sensorManager = (SensorManager) requireActivity().getSystemService(android.content.Context.SENSOR_SERVICE);
@@ -296,7 +300,10 @@ public class UserRideHistoryFragment extends Fragment
         String start = !btnStartDate.getText().toString().equals("Start Date") ? formatToISO(btnStartDate.getText().toString()) : null;
         String end = !btnEndDate.getText().toString().equals("End Date") ? formatToISO(btnEndDate.getText().toString()) : null;
 
-        mViewModel.fetchRideHistory(email, currentSort, start, end, currentPage);
+        if(userType.equals("ADMIN"))
+            mViewModel.fetchRideHistoryAdmin(email, currentSort, start, end, currentPage);
+        else if(userType.equals("REGISTERED_USER"))
+            mViewModel.fetchRideHistoryUser(currentSort, start, end, currentPage);
     }
 
     private String formatToISO(String dateStr) {
