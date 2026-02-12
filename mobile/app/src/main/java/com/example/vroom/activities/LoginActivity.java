@@ -2,6 +2,7 @@ package com.example.vroom.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -60,18 +61,35 @@ public class LoginActivity extends BaseActivity {
 
         StorageManager.getSharedPreferences(this);
 
-        String token = StorageManager.getData("jwt", null);
-        long expires = StorageManager.getLong("expires", -1L);
+       // String token = StorageManager.getData("jwt", null);
+        //long expires = StorageManager.getLong("expires", -1L);
+
 
         // check this for milis if correct
-        if(token != null && System.currentTimeMillis() < expires){
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
+        //if(token != null && System.currentTimeMillis() < expires){
+            //Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            //startActivity(intent);
+            //finish();
+        //    navigateByRole();
+        //}
 
         viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
         observeViewModel();
+    }
+
+    private void navigateByRole() {
+        String role = StorageManager.getData("user_type", null);
+        Intent intent;
+
+        if ("ADMIN".equals(role)) {
+            intent = new Intent(LoginActivity.this, AdminActivity.class);
+        } else {
+            intent = new Intent(LoginActivity.this, MainActivity.class);
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        startActivity(intent);
+        finish();
     }
     private void observeViewModel(){
         viewModel.getLoginMessage().observe(this, message -> {
@@ -80,9 +98,10 @@ public class LoginActivity extends BaseActivity {
 
         viewModel.getLoginStatus().observe(this, success -> {
             if (success != null && success) {
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                //Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+               // startActivity(intent);
+                //finish();
+                navigateByRole();
             }
         });
 

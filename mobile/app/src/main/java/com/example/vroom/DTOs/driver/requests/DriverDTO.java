@@ -1,5 +1,6 @@
 package com.example.vroom.DTOs.driver.requests;
 
+import com.example.vroom.enums.DriverStatus;
 import com.example.vroom.enums.Gender;
 
 public class DriverDTO {
@@ -35,7 +36,6 @@ public class DriverDTO {
     public String getLastName() {
         return lastName;
     }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }

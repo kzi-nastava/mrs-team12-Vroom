@@ -33,7 +33,7 @@ public class ProfileActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        boolean isDriver = false; // kasnije vučeš iz tokena / user role
+        boolean isDriver = false;
 
         if (isDriver) {
             setContentView(R.layout.activity_driver_profile);

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
+    android:background="#99c2a2">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Email -->
+        <TextView
+            android:id="@+id/request_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textStyle="bold"
+            android:textColor="#000"
+            android:textSize="14sp" />
+
+        <!-- Phone & Gender -->
+        <TextView
+            android:id="@+id/request_phone_gender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone / Gender"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+
+        <!-- Vehicle -->
+        <TextView
+            android:id="@+id/request_vehicle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vehicle info"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp" />
+
+        <!-- Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="end"
+            android:weightSum="2"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/approve_button"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Approve"
+                android:backgroundTint="#4CAF50"
+                android:textColor="#fff"
+                android:padding="10dp"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/reject_button"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Reject"
+                android:backgroundTint="#E57373"
+                android:textColor="#fff"
+                android:padding="10dp"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/reject_comment"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="Reject comment"
+            android:background="#cfe5d2"
+            android:padding="10dp"
+            android:layout_marginTop="8dp"
+            android:inputType="textMultiLine"
+            android:gravity="top"
+            android:scrollbars="vertical"
+            android:overScrollMode="always"
+            android:scrollbarStyle="insideInset"
+            android:layout_marginBottom="4dp"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
