@@ -15,46 +15,34 @@ import { take } from 'rxjs/operators';
   styleUrls: ['./driver-active-ride.css']
 })
 export class DriverActiveRide {
-
-  ride$: Observable<Ride | null>; 
-  rideId: string = ''
-
-
-
+  rides$: Observable<Ride[]>;
 
   constructor(
     private rideService: DriverActiveRideService,
     private router: Router
   ) {
-    this.ride$ = this.rideService.getActiveRide(); 
-    this.ride$.subscribe({
-      next: (res: Ride | null) => {
-        if(res !== null){
-          this.rideId = String(res.rideID)
-        }
-      }
-    })
-  }
-
-  startRide(): void {
-    if (!confirm('Are all passengers in the vehicle?')) return;
-
-    this.ride$.pipe(take(1)).subscribe(ride => {
-      if (!ride) return;
-
-      this.rideService.startRide(ride.rideID).subscribe({
-        next: () => {
-          localStorage.setItem('activeRide', 'true');
-          this.router.navigate(['/ride-duration'], { 
-          queryParams: { rideID: ride.rideID } 
-          });
-        },
-        error: err => console.error(err)
+    this.rides$ = this.rideService.getActiveRides();
+    this.rides$.subscribe(rides => {
+      console.log('Received rides:', rides);
+      rides.forEach(ride => {
+        console.log(`Ride ${ride.rideID}:`, {
+          isScheduled: ride.isScheduled,
+          scheduledTime: ride.scheduledTime,
+          startTime: ride.startTime
+        });
       });
     });
   }
 
-  finishRide(): void {
-    console.log("radi");
+  startRide(rideID: number): void {
+    if (!confirm('Are all passengers in the vehicle?')) return;
+
+    this.rideService.startRide(rideID).pipe(take(1)).subscribe({
+      next: () => {
+        localStorage.setItem('activeRide', 'true');
+        this.router.navigate(['/ride-duration'], { queryParams: { rideID } });
+      },
+      error: err => console.error(err)
+    });
   }
 }

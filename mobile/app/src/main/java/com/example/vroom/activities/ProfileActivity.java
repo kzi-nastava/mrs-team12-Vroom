@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.vroom.DTOs.auth.requests.ChangePasswordRequestDTO;
 import com.example.vroom.DTOs.registeredUser.UpdateProfileRequestDTO;
 import com.example.vroom.R;
+import com.example.vroom.fragments.RideStatisticsFragment;
 import com.example.vroom.viewmodels.ProfileViewModel;
 
 public class ProfileActivity extends BaseActivity {
@@ -25,7 +26,7 @@ public class ProfileActivity extends BaseActivity {
     private EditText phoneInfo;
     private EditText emailInfo;
     private boolean editMode = false;
-
+    private Button btnReports;
     private Button profileChangeButton;
     private Button changePasswordButton;
 
@@ -49,6 +50,7 @@ public class ProfileActivity extends BaseActivity {
 
         profileChangeButton = findViewById(R.id.profileChangeButton);
         changePasswordButton = findViewById(R.id.changePasswordButton);
+        btnReports = findViewById(R.id.btnReports);
 
         disableEditMode();
         setEditable(emailInfo, false);
@@ -59,6 +61,14 @@ public class ProfileActivity extends BaseActivity {
             } else {
                 saveChanges();
             }
+        });
+
+        btnReports.setOnClickListener(v -> {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_frame, new RideStatisticsFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         changePasswordButton.setOnClickListener(v -> showChangePasswordDialog());

@@ -10,13 +10,13 @@ export class DriverActiveRideService {
 
   constructor(private http: HttpClient) {}
 
-  getActiveRide(): Observable<Ride | null> {
-    const token = localStorage.getItem('jwt'); 
-    console.log('Sending token for active ride:', token);
-    return this.http.get<Ride | null>(`${this.baseUrl}/active`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-  }
+getActiveRides(): Observable<Ride[]> { 
+  const token = localStorage.getItem('jwt'); 
+  console.log('Sending token for active rides:', token);
+  return this.http.get<Ride[]>(`${this.baseUrl}/active`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
 
 startRide(rideID : number): Observable<Ride> {
   const token = localStorage.getItem('jwtToken');
@@ -25,8 +25,4 @@ startRide(rideID : number): Observable<Ride> {
   });
 }
 
-
-  finishRide(): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/finish`, {});
-  }
 }

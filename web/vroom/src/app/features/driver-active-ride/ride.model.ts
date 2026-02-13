@@ -1,38 +1,26 @@
 export interface Ride {
   rideID: number;
-
   driverId: number;        
   passengerId: number;     
-
   route: {
     id: number;
     startAddress: string;
     endAddress: string;
   };
-
   startTime: string | null;  
   endTime: string | null;
-
+  scheduledTime: string | null;  
   passengers: string[] | null;   
-
   price: number | null;
-
   status: RideStatus;
-
   cancelReason: string | null;
-
-  isScheduled: boolean;
-
+  isScheduled: boolean;  
   complaints: string[] | null;
-
   panicActivated: boolean;
-
   panicNotificationId?: number | null;
-
   driverRating: number | null;
   vehicleRating: number | null;
   comment: string | null;
-
   vehicle?: Vehicle;
 }
 

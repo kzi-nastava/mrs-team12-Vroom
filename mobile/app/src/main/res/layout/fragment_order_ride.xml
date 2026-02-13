@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/order_ride_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
+
+        <!-- Handle -->
+        <View
+            android:id="@+id/bottom_sheet_handle"
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:background="@color/light_grey"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Header -->
+        <TextView
+            android:id="@+id/header_order"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Order a ride"
+            android:textSize="26sp"
+            android:textColor="@color/brown_black"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/bottom_sheet_handle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Start location -->
+        <TextView
+            android:id="@+id/label_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start location"
+            android:textSize="18sp"
+            android:textColor="@color/brown_black"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/header_order"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/input_start"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Street and Number"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:padding="18dp"
+            android:textSize="18sp"
+            app:layout_constraintTop_toBottomOf="@+id/label_start"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/suggestions_start"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:background="@drawable/bg_suggestion_list"
+            app:layout_constraintTop_toBottomOf="@id/input_start"
+            app:layout_constraintStart_toStartOf="@id/input_start"
+            app:layout_constraintEnd_toEndOf="@id/input_start" />
+
+        <!-- Vehicle type -->
+        <TextView
+            android:id="@+id/label_vehicle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type of vehicle"
+            android:textSize="18sp"
+            android:textColor="@color/brown_black"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/suggestions_start"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Spinner
+            android:id="@+id/vehicle_type_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:padding="14dp"
+            android:background="@drawable/bg_txt_input_rounded"
+            app:layout_constraintTop_toBottomOf="@id/label_vehicle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- End location -->
+        <TextView
+            android:id="@+id/label_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End location"
+            android:textSize="18sp"
+            android:textColor="@color/brown_black"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/vehicle_type_spinner"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/input_end"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Street and Number"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:padding="18dp"
+            android:textSize="18sp"
+            app:layout_constraintTop_toBottomOf="@id/label_end"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/suggestions_end"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:background="@drawable/bg_suggestion_list"
+            app:layout_constraintTop_toBottomOf="@id/input_end"
+            app:layout_constraintStart_toStartOf="@id/input_end"
+            app:layout_constraintEnd_toEndOf="@id/input_end" />
+
+        <!-- Stops container -->
+        <LinearLayout
+            android:id="@+id/stops_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/suggestions_end"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Children & Pets toggles -->
+        <LinearLayout
+            android:id="@+id/toggles_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:weightSum="2"
+            app:layout_constraintTop_toBottomOf="@id/stops_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <CheckBox
+                android:id="@+id/checkbox_children"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Children"
+                android:textSize="16sp" />
+
+            <CheckBox
+                android:id="@+id/checkbox_pets"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Pets"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Schedule time -->
+        <TextView
+            android:id="@+id/label_schedule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Schedule time (optional)"
+            android:textSize="18sp"
+            android:textColor="@color/brown_black"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/toggles_container"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <CheckBox
+            android:id="@+id/checkbox_schedule_ride"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Schedule ride for later"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/toggles_container"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <!-- Schedule time -->
+        <TimePicker
+            android:id="@+id/time_picker_schedule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/checkbox_schedule_ride"
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="gone"/>
+
+        <!-- Email -->
+        <TextView
+            android:id="@+id/label_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Other (Email)"
+            android:textSize="18sp"
+            android:textColor="@color/brown_black"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/time_picker_schedule"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/input_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Enter email"
+            android:inputType="textEmailAddress"
+            android:background="@drawable/bg_txt_input_rounded"
+            android:padding="14dp"
+            app:layout_constraintTop_toBottomOf="@id/label_email"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Estimates -->
+        <LinearLayout
+            android:id="@+id/estimates_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:padding="12dp"
+            android:background="@color/main_green"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/input_email"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/text_est_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_est_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Calculate button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_calculate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Calculate route"
+            android:layout_marginTop="16dp"
+            android:background="@color/main_green"
+            android:backgroundTint="@color/main_green"
+            android:textSize="18sp"
+            app:layout_constraintTop_toBottomOf="@id/estimates_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Order button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_order"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Order a ride"
+            android:layout_marginTop="12dp"
+            android:background="@color/accent_green"
+            android:backgroundTint="@color/accent_green"
+            android:textSize="18sp"
+            app:layout_constraintTop_toBottomOf="@id/btn_calculate"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

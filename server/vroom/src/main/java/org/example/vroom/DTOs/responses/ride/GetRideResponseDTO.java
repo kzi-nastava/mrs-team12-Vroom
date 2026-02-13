@@ -1,5 +1,6 @@
 package org.example.vroom.DTOs.responses.ride;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
@@ -32,6 +33,7 @@ public class GetRideResponseDTO {
     private boolean panicActivated;
     private Integer driverRating;
     private Integer vehicleRating;
-
+    @JsonProperty("isScheduled")
+    private boolean isScheduled;
     private LocalDateTime scheduledTime;
 }

@@ -121,3 +121,32 @@ button:hover {
   text-align: center;
   color: #666;
 }
+
+
+.scheduled-badge {
+  background: #ff9800;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.scheduled-badge.priority {
+  background: #f44336;
+  animation: pulse 2s infinite;
+}
+
+.immediate-badge {
+  background: #4caf50;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

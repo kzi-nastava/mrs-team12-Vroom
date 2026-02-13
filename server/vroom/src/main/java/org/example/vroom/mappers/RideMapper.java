@@ -95,21 +95,40 @@ public class RideMapper {
                 .build();
     }
 
-    public GetRideResponseDTO getRideDTO(Ride ride){
-        return GetRideResponseDTO
-                .builder()
+ //   public GetRideResponseDTO getRideDTO(Ride ride){
+ //       return GetRideResponseDTO
+ //               .builder()
+ //               .rideID(ride.getId())
+ //               .route(routeMapper.getRouteDTO(ride.getRoute()))
+ //               .driver(driverMapper.toDriverRideDTO(ride.getDriver()))
+ //               .startTime(ride.getStartTime())
+ //               .endTime(ride.getEndTime())
+ //               .status(ride.getStatus())
+ //               .price(ride.getPrice())
+ //               .panicActivated(ride.getPanicActivated())
+ //               .passengers(ride.getPassengers())
+ //               .complaints(ride.getComplaints())
+ //               .driverRating(ride.getDriverRating())
+ //               .vehicleRating(ride.getVehicleRating())
+ //               .build();
+ //   }
+
+    public GetRideResponseDTO getRideDTO(Ride ride) {
+        return GetRideResponseDTO.builder()
                 .rideID(ride.getId())
                 .route(routeMapper.getRouteDTO(ride.getRoute()))
                 .driver(driverMapper.toDriverRideDTO(ride.getDriver()))
+                .passengers(ride.getPassengers())
+                .complaints(ride.getComplaints())
                 .startTime(ride.getStartTime())
                 .endTime(ride.getEndTime())
                 .status(ride.getStatus())
                 .price(ride.getPrice())
                 .panicActivated(ride.getPanicActivated())
-                .passengers(ride.getPassengers())
-                .complaints(ride.getComplaints())
                 .driverRating(ride.getDriverRating())
                 .vehicleRating(ride.getVehicleRating())
+                .isScheduled(ride.getIsScheduled())
+                .scheduledTime(ride.getIsScheduled() ? ride.getStartTime() : null)
                 .build();
     }
 

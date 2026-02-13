@@ -19,6 +19,7 @@ import com.example.vroom.fragments.BlockUserFragment;
 import com.example.vroom.fragments.PanicFeedFragment;
 import com.example.vroom.fragments.ProfileRequestsFragment;
 import com.example.vroom.fragments.RegisterDriverFragment;
+import com.example.vroom.fragments.RideStatisticsFragment;
 import com.google.android.material.navigation.NavigationView;
 
 public class AdminActivity extends BaseActivity {
@@ -148,6 +149,16 @@ public class AdminActivity extends BaseActivity {
             });
         }
 
+        if(findViewById(R.id.cardReports)!=null){
+            findViewById(R.id.cardReports).setOnClickListener(v -> {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_frame, new RideStatisticsFragment())
+                        .addToBackStack(null)
+                        .commit();
+            });
+        }
+
         if (findViewById(R.id.cardActiveRides) != null) {
             findViewById(R.id.cardActiveRides).setOnClickListener(v ->
                     startActivity(new Intent(this, MockActivity.class)));
@@ -170,11 +181,6 @@ public class AdminActivity extends BaseActivity {
 
         if (findViewById(R.id.cardChat) != null) {
             findViewById(R.id.cardChat).setOnClickListener(v ->
-                    startActivity(new Intent(this, MockActivity.class)));
-        }
-
-        if (findViewById(R.id.cardReports) != null) {
-            findViewById(R.id.cardReports).setOnClickListener(v ->
                     startActivity(new Intent(this, MockActivity.class)));
         }
     }
