@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ProfileService } from '../profile/profile.service'; 
 import { Observable, tap } from 'rxjs';
 import { Profile as ProfileModel } from '../profile/profile.model'; 
-
+import { Router } from '@angular/router';
 interface PasswordChangeData {
   oldPassword: string;
   newPassword: string;
@@ -37,7 +37,7 @@ export class Profile implements OnInit {
   passwordSuccessMessage: string | null = null;
   passwordErrorMessage: string | null = null;
 
-  constructor(private profileService: ProfileService) { }
+  constructor(private profileService: ProfileService, private router: Router) { }
 
   ngOnInit(): void {
     const storedType = localStorage.getItem('user_type');
@@ -114,4 +114,7 @@ export class Profile implements OnInit {
         }
       });
   }
+  goToReports() {
+  this.router.navigate(['/ride-statistics']);
+}
 }
