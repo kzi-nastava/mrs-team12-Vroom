@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Switch;
@@ -20,25 +19,15 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.vroom.DTOs.MessageResponseDTO;
-import com.example.vroom.DTOs.auth.requests.LogoutRequestDTO;
-import com.example.vroom.DTOs.driver.requests.DriverChangeStatusRequestDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
-import com.example.vroom.enums.DriverStatus;
 import com.example.vroom.fragments.PanicFeedFragment;
-import com.example.vroom.fragments.PanicFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
-import com.example.vroom.fragments.StopRideFragment;
 import com.example.vroom.fragments.UserRideHistoryFragment;
-import com.example.vroom.network.RetrofitClient;
+import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class BaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -169,6 +158,10 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         menu.findItem(R.id.nav_route_estimation).setVisible(!isLoggedIn);
     }
 
+    public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
     public void onLogoButtonClicked(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
@@ -226,9 +219,8 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void finalizeLogout(){
-        StorageManager.getSharedPreferences(this);
-        StorageManager.clearAll();
-
+        SocketProvider.getInstance().disconnect();
+        StorageManager.getSharedPreferences(this).edit().clear().apply();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

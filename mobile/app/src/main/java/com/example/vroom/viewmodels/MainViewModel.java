@@ -1,27 +1,28 @@
 package com.example.vroom.viewmodels;
 
-import android.media.MediaRouter2;
+import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
 import com.example.vroom.DTOs.map.DriverPositionDTO;
 import com.example.vroom.DTOs.map.MapRouteDTO;
 import com.example.vroom.DTOs.map.OSRMEnvelope;
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.network.SocketProvider;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.Priority;
 import com.google.gson.Gson;
-
-import org.osmdroid.util.GeoPoint;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+import java.util.ArrayList;
+import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,31 +35,63 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<DriverPositionDTO> driverUpdate = new MutableLiveData<>();
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final Gson gson = new Gson();
+    private LocationCallback locationCallback;
+    private boolean isTracking = false;
 
-    public LiveData<DriverPositionDTO> getDriverUpdate() {
-        return driverUpdate;
-    }
+    public LiveData<DriverPositionDTO> getDriverUpdate() { return driverUpdate; }
 
     public void subscribeToLocationUpdates() {
         disposables.add(SocketProvider.getInstance().getClient()
                 .topic("/socket-publisher/location-updates")
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(message -> {
                     DriverPositionDTO dto = gson.fromJson(message.getPayload(), DriverPositionDTO.class);
                     driverUpdate.postValue(dto);
-                    Log.println(1, "MAIN VIEW MODEL", "EVERYTHINGS FINE");
-                }, throwable -> {
-                    Log.println(1, "MAIN VIEW MODEL", "ERROR WHILE CONNECTING DRIVER LOCATION WEB SOCKET ");
-                }));
+                }, throwable -> {}));
+    }
+
+    @SuppressLint("MissingPermission")
+    public void startTracking(FusedLocationProviderClient client) {
+        if (isTracking) return;
+
+        LocationRequest request = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+                .setMinUpdateIntervalMillis(2000)
+                .build();
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult result) {
+                if (result != null && result.getLastLocation() != null && isTracking) {
+                    sendCurrentLocation(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
+                }
+            }
+        };
+
+        client.requestLocationUpdates(request, locationCallback, Looper.getMainLooper());
+        isTracking = true;
+    }
+
+    public void stopTracking(FusedLocationProviderClient client) {
+        isTracking = false;
+        if (locationCallback != null && client != null) {
+            client.removeLocationUpdates(locationCallback);
+            locationCallback = null;
+        }
+        disposables.clear();
     }
 
     public void sendCurrentLocation(double lat, double lng) {
+        if (!isTracking) return;
+
         PointResponseDTO location = new PointResponseDTO(lat, lng);
         String json = gson.toJson(location);
 
-        SocketProvider.getInstance().getClient()
+        disposables.add(SocketProvider.getInstance().getClient()
                 .send("/socket-subscriber/update-location", json)
-                .subscribe();
+                .subscribe(() -> {}, throwable -> {
+                    Log.e("SOCKET", "Failed to send location", throwable);
+                }));
     }
 
     @Override

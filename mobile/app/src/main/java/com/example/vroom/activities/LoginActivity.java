@@ -2,33 +2,19 @@ package com.example.vroom.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.vroom.DTOs.MessageResponseDTO;
-import com.example.vroom.DTOs.auth.requests.ForgotPasswordRequestDTO;
-import com.example.vroom.DTOs.auth.requests.LoginRequestDTO;
-import com.example.vroom.DTOs.auth.responses.LoginResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
-import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.LoginViewModel;
-import com.example.vroom.viewmodels.NavigationViewModel;
-
-import java.time.LocalDateTime;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginActivity extends BaseActivity {
     private EditText emailInput;

@@ -18,6 +18,7 @@ import com.example.vroom.activities.LoginActivity;
 import com.example.vroom.activities.MainActivity;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.network.RetrofitClient;
+import com.example.vroom.network.SocketProvider;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -61,7 +62,6 @@ public class LoginViewModel extends ViewModel {
                         forgotPasswordStatus.postValue(false);
                     }
                 }
-
                 @Override
                 public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
                     forgotPasswordMessage.postValue("Network error: " + t.getMessage());
@@ -89,23 +89,17 @@ public class LoginViewModel extends ViewModel {
                 public void onResponse(Call<LoginResponseDTO> call, Response<LoginResponseDTO> response) {
                     if(response.isSuccessful() && response.body() != null){
                         LoginResponseDTO body = response.body();
-                        Log.d("LoginViewModel", "Token: " + body.getToken());
-                        Log.d("LoginViewModel", "Type: " + body.getType());
-                        Log.d("LoginViewModel", "Expires: " + body.getExpires());
+
                         StorageManager.saveData("user_type", response.body().getType());
                         StorageManager.saveData("jwt", response.body().getToken());
                         Long expiresTime = body.getExpires();
                         if (expiresTime == null || expiresTime <= 0) {
                             expiresTime = System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000);
-                            Log.w(TAG, "Backend didn't send expires, generated: " + expiresTime);
                         } else {
-                            Log.d(TAG, "Using backend expires: " + expiresTime);
                         }
 
                         StorageManager.saveLong("expires", expiresTime);
-                        long savedExpires = StorageManager.getLong("expires", -1L);
-                        Log.d(TAG, "Verified saved expires: " + savedExpires);
-
+                        SocketProvider.getInstance().init();
                         loginMessage.postValue("Login successful");
                         loginStatus.postValue(true);
                     }else{

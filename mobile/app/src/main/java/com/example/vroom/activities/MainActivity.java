@@ -1,17 +1,15 @@
 package com.example.vroom.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 
@@ -21,14 +19,15 @@ import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
+import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
-import com.example.vroom.network.RetrofitClient;
-import com.example.vroom.services.DriverService;
-import com.example.vroom.viewmodels.LoginViewModel;
+import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RouteEstimationViewModel;
 import com.example.vroom.viewmodels.UserRideHistoryViewModel;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.gson.Gson;
+import com.google.android.gms.location.LocationServices;
 
 
 import org.osmdroid.config.Configuration;
@@ -51,6 +50,7 @@ public class MainActivity extends BaseActivity {
     private MainViewModel viewModel;
     private RouteEstimationViewModel routeEstimationViewModel;
     private UserRideHistoryViewModel userRideHistoryViewModel;
+    private FusedLocationProviderClient fusedLocationClient;
 
 
     @Override
@@ -87,6 +87,36 @@ public class MainActivity extends BaseActivity {
         // if needed to draw data
         handleIncomingIntent(getIntent());
         viewModel.subscribeToLocationUpdates();
+        checkAndStartDriverTracking();
+    }
+
+    private void checkAndStartDriverTracking() {
+        String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
+        if ("DRIVER".equals(userType)){
+            checkLocationPermissions();
+        }
+    }
+
+    private void checkLocationPermissions(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
+        }else{
+            startLocationTracking();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        super.onRequestPermissionResult(requestCode, permissions, grantResults);
+        if (requestCode == 1001 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startLocationTracking();
+        }
+    }
+
+    private void startLocationTracking(){
+        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
+        viewModel.startTracking(client);
     }
 
     @Override
@@ -181,12 +211,9 @@ public class MainActivity extends BaseActivity {
         if (routePolyline != null) {
             routePolyline.setPoints(new ArrayList<>());
         }
-
         // removes markers
         map.getOverlays().removeIf(overlay -> overlay instanceof Marker);
-
         driverMarkers.clear();
-
         map.invalidate();
     }
 
@@ -206,26 +233,17 @@ public class MainActivity extends BaseActivity {
     // add markers are used to draw icons on map,
     // they are wrappers around add one marker which actually adds marker
     private void updateDriverMarker(Long driverID, DriverStatus status, GeoPoint position){
-        if (driverMarkers.containsKey(driverID)) {
-            driverMarkers.get(driverID).setPosition(position);
-            if (status == DriverStatus.AVAILABLE) {
-                driverMarkers.get(driverID).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_available_taxi));
-            }else {
-                driverMarkers.get(driverID).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_unavailable_taxi));
-            }
-        }else{
-            Marker marker = new Marker(map);
-            marker.setPosition(position);
-            if (status == DriverStatus.AVAILABLE) {
-                marker.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_available_taxi));
-            }else {
-                marker.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_unavailable_taxi));
-            }
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            marker.setTitle("Driver #" + driverID);
-            map.getOverlays().add(marker);
-            driverMarkers.put(driverID, marker);
+        Marker m = driverMarkers.get(driverID);
+        if (m == null) {
+            m = new Marker(map);
+            m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            m.setTitle("Driver #" + driverID);
+            map.getOverlays().add(m);
+            driverMarkers.put(driverID, m);
         }
+        m.setPosition(position);
+        int res = (status == DriverStatus.AVAILABLE) ? R.drawable.ic_available_taxi : R.drawable.ic_unavailable_taxi;
+        m.setIcon(ContextCompat.getDrawable(this, res));
         map.invalidate();
     }
 
@@ -260,6 +278,8 @@ public class MainActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         map.onResume();
+        viewModel.subscribeToLocationUpdates();
+        checkAndStartDriverTracking();
     }
 
     @Override
@@ -267,4 +287,12 @@ public class MainActivity extends BaseActivity {
         super.onPause();
         map.onPause();
     }
+
+    @Override
+    public void onDestroy() {
+        viewModel.stopTracking(fusedLocationClient);
+        SocketProvider.getInstance().disconnect();
+        super.onDestroy();
+    }
+
 }

@@ -1,8 +1,7 @@
 package com.example.vroom.network;
 
 import com.example.vroom.data.local.StorageManager;
-import io.reactivex.disposables.Disposable;
-import okhttp3.OkHttpClient;
+
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.StompHeader;
@@ -12,7 +11,6 @@ import java.util.List;
 public class SocketProvider {
     private static SocketProvider instance;
     private StompClient stompClient;
-
     private SocketProvider(){}
 
     public static synchronized SocketProvider getInstance() {
@@ -22,9 +20,9 @@ public class SocketProvider {
         return instance;
     }
 
-    public void init(){
-        if (stompClient != null && stompClient.isConnected()) return;
-        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://192.168.0.100:8080/socket/websocket");
+    public void init() {
+        disconnect();
+        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://192.168.0.110:8080/socket/websocket");
         List<StompHeader> headers = new ArrayList<>();
         String token = StorageManager.getData("jwt", null);
         if (token != null) {
@@ -34,8 +32,9 @@ public class SocketProvider {
     }
 
     public void disconnect() {
-        if (stompClient != null){
+        if (stompClient != null) {
             stompClient.disconnect();
+            stompClient = null;
         }
     }
 
