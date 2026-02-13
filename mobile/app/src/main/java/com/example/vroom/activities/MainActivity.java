@@ -21,7 +21,9 @@ import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
+import com.example.vroom.enums.DriverStatus;
 import com.example.vroom.network.RetrofitClient;
+import com.example.vroom.services.DriverService;
 import com.example.vroom.viewmodels.LoginViewModel;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RouteEstimationViewModel;
@@ -45,7 +47,7 @@ import java.util.Map;
 public class MainActivity extends BaseActivity {
     private MapView map = null;
     private Polyline routePolyline;
-    private Map<Integer, Marker> driverMarkers = new HashMap<>();
+    private final Map<Long, Marker> driverMarkers = new HashMap<>();
     private MainViewModel viewModel;
     private RouteEstimationViewModel routeEstimationViewModel;
     private UserRideHistoryViewModel userRideHistoryViewModel;
@@ -84,7 +86,7 @@ public class MainActivity extends BaseActivity {
         // if first time creating activity
         // if needed to draw data
         handleIncomingIntent(getIntent());
-
+        viewModel.subscribeToLocationUpdates();
     }
 
     @Override
@@ -111,6 +113,16 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setupObservers(){
+        viewModel.getDriverUpdate().observe(this, driverPositionDTO -> {
+            if (driverPositionDTO != null && driverPositionDTO.getPoint() != null) {
+                updateDriverMarker(driverPositionDTO.getDriverId(), driverPositionDTO.getStatus(),
+                        new GeoPoint(
+                        driverPositionDTO.getPoint().getLat(),
+                        driverPositionDTO.getPoint().getLng()
+                ));
+            }
+        });
+
         // used for drawing OSRM routes
         viewModel.getRouteResult().observe(this, osrmRoute -> {
             if (osrmRoute != null && osrmRoute.geometry != null) {
@@ -130,12 +142,10 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-
         // observers for errors
         viewModel.getErrorMessage().observe(this, error -> {
             Toast.makeText(this, error, Toast.LENGTH_LONG).show();
         });
-
 
         // mimics action type on web, case MapActionType.DRAW_ROUTE
         routeEstimationViewModel.getRoute().observe(this, mapRouteDTO -> {
@@ -195,9 +205,30 @@ public class MainActivity extends BaseActivity {
 
     // add markers are used to draw icons on map,
     // they are wrappers around add one marker which actually adds marker
-    private void addVehicleMarker(){
-
+    private void updateDriverMarker(Long driverID, DriverStatus status, GeoPoint position){
+        if (driverMarkers.containsKey(driverID)) {
+            driverMarkers.get(driverID).setPosition(position);
+            if (status == DriverStatus.AVAILABLE) {
+                driverMarkers.get(driverID).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_available_taxi));
+            }else {
+                driverMarkers.get(driverID).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_unavailable_taxi));
+            }
+        }else{
+            Marker marker = new Marker(map);
+            marker.setPosition(position);
+            if (status == DriverStatus.AVAILABLE) {
+                marker.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_available_taxi));
+            }else {
+                marker.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_unavailable_taxi));
+            }
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            marker.setTitle("Driver #" + driverID);
+            map.getOverlays().add(marker);
+            driverMarkers.put(driverID, marker);
+        }
+        map.invalidate();
     }
+
     private void addRouteMarkers(MapRouteDTO payload) {
         if (payload.getStart() != null) {
             addMarker(payload.getStart(), "Start", R.drawable.ic_ride_start);
