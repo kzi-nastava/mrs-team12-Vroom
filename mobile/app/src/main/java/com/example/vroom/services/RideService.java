@@ -2,6 +2,8 @@ package com.example.vroom.services;
 
 import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.ride.requests.CancelRideRequestDTO;
+import com.example.vroom.DTOs.ride.requests.FavoriteRouteDTO;
+import com.example.vroom.DTOs.ride.requests.OrderFromFavoriteRequestDTO;
 import com.example.vroom.DTOs.ride.requests.RideRequestDTO;
 import com.example.vroom.DTOs.ride.requests.StopRideRequestDTO;
 import com.example.vroom.DTOs.ride.responses.GetRideResponseDTO;
@@ -12,6 +14,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -40,4 +43,13 @@ public interface RideService {
 
     @POST("api/rides")
     Call<GetRideResponseDTO> orderRide(@Body RideRequestDTO request);
+
+    @GET("api/rides/favorites")
+    Call<List<FavoriteRouteDTO>> getFavoriteRoutes();
+
+    @POST("api/rides/order/favorite")
+    Call<GetRideResponseDTO> orderFromFavorite(@Body OrderFromFavoriteRequestDTO request);
+
+    @DELETE("api/rides/favorites/{favoriteId}")
+    Call<MessageResponseDTO> removeFavorite(@Path("favoriteId") Long favoriteId);
 }
