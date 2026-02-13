@@ -9,6 +9,7 @@ import com.example.vroom.services.DriverService;
 import com.example.vroom.services.GeoLocationService;
 import com.example.vroom.services.PanicNotificationService;
 import com.example.vroom.services.RegisteredUserService;
+import com.example.vroom.services.ReportService;
 import com.example.vroom.services.RideService;
 import com.example.vroom.services.RouteService;
 import com.example.vroom.services.UserProfileService;
@@ -18,7 +19,9 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -34,12 +37,17 @@ public class RetrofitClient {
         mContext = context;
     }
 
-    private static Gson createGson(){
+    private static Gson createGson() {
         return new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>) (src, typeOfSrc, context) ->
                         new JsonPrimitive(src.toString()))
                 .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) ->
                         LocalDateTime.parse(json.getAsString()))
+                .registerTypeAdapter(LocalDate.class, (JsonSerializer<LocalDate>) (src, typeOfSrc, context) ->
+                        new JsonPrimitive(src.toString()))
+                .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, typeOfT, context) ->
+                        LocalDate.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE))
+
                 .create();
     }
     private static Retrofit getClient() {
@@ -89,4 +97,8 @@ public class RetrofitClient {
 
     public static AdminService getAdminService(){return getClient().create(AdminService.class);}
     public static RegisteredUserService getRegisteredUserService(){ return getClient().create(RegisteredUserService.class); }
+
+    public static ReportService getReportService() {
+        return getClient().create(ReportService.class);
+    }
 }
