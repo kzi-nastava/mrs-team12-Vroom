@@ -15,7 +15,33 @@ import { RideService } from '../../core/services/ride.service';
 import { NgToastService } from 'ng-angular-popup';
 import { ActivatedRoute } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
+export interface PointResponseDTO {
+  lat: number;
+  lng: number;
+}
+
+export interface GetRouteResponseDTO {
+  startLocationLat: number;
+  startLocationLng: number;
+  endLocationLat: number;
+  endLocationLng: number;
+  startAddress: string;
+  endAddress: string;
+  stops: PointResponseDTO[];
+}
+export interface CreateFavoriteRouteRequestDTO {
+  rideId: number;
+  name: string;
+}
+export interface FavoriteRouteResponseDTO {
+  id: number;
+  name: string;
+  startAddress: string;
+  endAddress: string;
+  route: GetRouteResponseDTO;
+}
 @Component({
   selector: 'app-ride-history',
   imports: [CommonModule, FormsModule, ReviewPopup],
@@ -41,6 +67,10 @@ export class RideHistory implements OnInit {
   nextPageAvailable: boolean = true
   backPageAvailable: boolean = false
 
+  showFavoritePrompt: boolean = false;
+favoriteRouteName: string = '';
+selectedRideForFavorite: RideResponseDTO | null = null;
+
   constructor(
     public authService: AuthService,
     private userService: RegisteredUserService,
@@ -49,7 +79,8 @@ export class RideHistory implements OnInit {
     private rideService: RideService,
     private toastService: NgToastService,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -293,4 +324,25 @@ export class RideHistory implements OnInit {
       false
     )
   }
+
+addToFavorites(ride: RideResponseDTO) {
+  const request = {
+    rideId: ride.rideId,
+    name: `${ride.route.startAddress} → ${ride.route.endAddress}`
+  };
+
+  this.http.post(`http://localhost:8080/api/registered-user/favorite-routes`, request).subscribe({
+    next: () => {
+      this.toastService.success('Success', 'Route added to favorites!', 5000, true, true, false);
+    },
+    error: (err: HttpErrorResponse) => {
+      if (err.status === 400) {
+        this.toastService.danger('Error', 'Route already in favorites', 7000, true, true, false);
+      } else {
+        this.toastService.danger('Error', 'Failed to add to favorites', 7000, true, true, false);
+      }
+    }
+  });
+}
+
 }

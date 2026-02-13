@@ -31,7 +31,7 @@ public class FavoriteRoute {
     @ManyToOne
     private RegisteredUser user;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     private Route route;
 
     @Column(nullable = false)

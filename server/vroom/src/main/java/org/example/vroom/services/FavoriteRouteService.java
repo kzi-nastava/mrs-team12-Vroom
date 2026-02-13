@@ -1,13 +1,17 @@
 package org.example.vroom.services;
 
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
+import org.example.vroom.DTOs.requests.ride.CreateFavoriteRouteRequestDTO;
+import org.example.vroom.DTOs.requests.ride.FavoriteRouteResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
+import org.example.vroom.mappers.FavoriteRouteMapper;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.FavoriteRouteRepository;
@@ -34,6 +38,7 @@ public class FavoriteRouteService {
     private final RideRepository rideRepository;
     private final RideMapper rideMapper;
     private final RouteService routeService;
+    private final FavoriteRouteMapper favoriteRouteMapper;
 
     public List<FavoriteRoute> getCurrentUserFavorites(String email) {
         RegisteredUser user = registeredUserRepository
@@ -139,7 +144,6 @@ public class FavoriteRouteService {
                     if (r.getEndTime() != null) {
                         return java.time.Duration.between(r.getStartTime(), r.getEndTime()).toMinutes() / 60.0;
                     } else {
-                        // ako je ongoing voznja uzmi razliku od pocetka do sad
                         return java.time.Duration.between(r.getStartTime(), LocalDateTime.now()).toMinutes() / 60.0;
                     }
                 })
@@ -153,5 +157,34 @@ public class FavoriteRouteService {
             names.add(p.getFirstName() + " " + p.getLastName());
         }
         return names;
+    }
+
+    @Transactional
+    public FavoriteRouteResponseDTO createFavoriteFromRide(
+            CreateFavoriteRouteRequestDTO request,
+            RegisteredUser user) throws NotFoundException {
+
+
+        Ride ride = rideRepository.findById(request.getRideId())
+                .orElseThrow(() -> new NotFoundException("Ride not found"));
+
+
+
+        if (favoriteRouteRepository.existsByUserIdAndRouteId(user.getId(), ride.getRoute().getId())) {
+            throw new IllegalArgumentException("This route is already in your favorites");
+        }
+
+
+        FavoriteRoute favoriteRoute = FavoriteRoute.builder()
+                .user(user)
+                .route(ride.getRoute())
+                .name(request.getName())
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(ride.getRoute().getEndAddress())
+                .build();
+
+        FavoriteRoute saved = favoriteRouteRepository.save(favoriteRoute);
+
+        return favoriteRouteMapper.toResponseDTO(saved);
     }
 }
