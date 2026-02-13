@@ -1,5 +1,6 @@
 package com.example.vroom.services;
 
+import com.example.vroom.DTOs.map.OSRMEnvelope;
 import com.example.vroom.DTOs.route.responses.RouteQuoteResponseDTO;
 
 import retrofit2.Call;
@@ -12,6 +13,11 @@ public interface RouteService {
             @Query("startLocation") String startLocation,
             @Query("endLocation") String endLocation,
             @Query("stops") String stops
+    );
+
+    @GET("api/routes/osrm-route")
+    Call<OSRMEnvelope> getOSRMRoute(
+            @Query("coords") String coords
     );
 
 }

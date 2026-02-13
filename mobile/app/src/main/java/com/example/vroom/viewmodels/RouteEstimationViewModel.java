@@ -1,10 +1,14 @@
 package com.example.vroom.viewmodels;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.vroom.DTOs.geocode.responses.AddressSuggestionResponseDTO;
+import com.example.vroom.DTOs.map.MapRouteDTO;
+import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.DTOs.route.responses.RouteQuoteResponseDTO;
 import com.example.vroom.network.RetrofitClient;
 
@@ -21,7 +25,10 @@ public class RouteEstimationViewModel extends ViewModel {
     private final Map<String, AddressSuggestionResponseDTO> selectedLocations = new HashMap<>();
     private final MutableLiveData<RouteQuoteResponseDTO> routeQuote = new MutableLiveData<>();
 
-    // add object for map drawing which is of type mutable live data and has startLat, startLng, endLat, endLng, stopsLat, stopsLng
+    private final MutableLiveData<MapRouteDTO> mapDrawingData = new MutableLiveData<>();
+    public LiveData<MapRouteDTO> getRoute() {
+        return mapDrawingData;
+    }
     public final LiveData<RouteQuoteResponseDTO> getRouteQuote() {
         return  routeQuote;
     }
@@ -143,18 +150,35 @@ public class RouteEstimationViewModel extends ViewModel {
     private void requestQuote(String startCoords, String endCoords, List<String> stopsCoords) {
         String stopsParam = String.join(";", stopsCoords);
 
-        // send coordinates to map
-
         RetrofitClient.getRouteService().getQuote(startCoords, endCoords, stopsParam).enqueue(new Callback<RouteQuoteResponseDTO>() {
             @Override
             public void onResponse(Call<RouteQuoteResponseDTO> call, Response<RouteQuoteResponseDTO> response) {
                 if (response.isSuccessful()) {
                     routeQuote.setValue(response.body());
+
+                    MapRouteDTO mapData = new MapRouteDTO();
+
+                    mapData.setStart(parseCoordString(startCoords));
+                    mapData.setEnd(parseCoordString(endCoords));
+
+                    List<PointResponseDTO> stops = new ArrayList<>();
+                    for (String s : stopsCoords) {
+                        if (!s.isEmpty()) stops.add(parseCoordString(s));
+                    }
+                    mapData.setStops(stops);
+
+
+                    mapDrawingData.setValue(mapData);
                 }
             }
 
             @Override
-            public void onFailure(Call<RouteQuoteResponseDTO> call, Throwable t) { }
+            public void onFailure(Call<RouteQuoteResponseDTO> call, Throwable t) {}
         });
+    }
+
+    private PointResponseDTO parseCoordString(String coord) {
+        String[] parts = coord.split(",");
+        return new PointResponseDTO(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]));
     }
 }

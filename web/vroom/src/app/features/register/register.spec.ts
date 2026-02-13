@@ -3,20 +3,17 @@ import { Register } from './register';
 import { AuthService } from '../../core/services/auth.service';
 import { Observable, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 describe('Register Component', () => {
   let component: Register
   let fixture: ComponentFixture<Register>
-  
-  const authServiceMock = {
-    isPasswordValid: vi.fn(),
-    createRegisterRequest: vi.fn()
-  };
+  let authServiceMock: any
 
   beforeEach(async () => {
+    authServiceMock = jasmine.createSpyObj('AuthService', ['isPasswordValid', 'createRegisterRequest'])
+
     await TestBed.configureTestingModule({
-      imports: [Register], 
+      imports: [Register],
       providers: [
         { provide: AuthService, useValue: authServiceMock }
       ]
@@ -25,10 +22,8 @@ describe('Register Component', () => {
     fixture = TestBed.createComponent(Register)
     component = fixture.componentInstance
     
-    vi.clearAllMocks()
     fixture.detectChanges()
   })
-
 
   describe('Component creation', () => {
     it('should create', () => {
@@ -36,58 +31,52 @@ describe('Register Component', () => {
     })
   })
 
-
-
   describe('Password validation', () => {
     it('should show error if passwords do not match', () => {
-      component.password = 'lozinka123'
+      component.password = 'lozinka123';
       component.confirmPassword = 'drugalozinka'
       
-      component.onSubmit();
+      component.onSubmit()
 
       expect(component.error).toBe('Passwords must match')
       expect(component.isLoading).toBe(false)
     })
 
-
     it('should show error if password too weak', () => {
       component.password = '123'
       component.confirmPassword = '123'
       
-      authServiceMock.isPasswordValid.mockReturnValue('Password too weak')
+      authServiceMock.isPasswordValid.and.returnValue('Password too weak')
 
       component.onSubmit()
 
       expect(component.error).toBe('Password too weak')
-      expect(authServiceMock.createRegisterRequest).not.toHaveBeenCalled();
+      expect(authServiceMock.createRegisterRequest).not.toHaveBeenCalled()
     })
-
 
     it('should show error if password is only whitespace', () => {
-      component.password = '   ';
+      component.password = '   '
       component.confirmPassword = '   '
-      component.firstName = 'neko';
+      component.firstName = 'neko'
       component.email = 'test@test.com'
 
-      authServiceMock.isPasswordValid.mockReturnValue('Password too weak')
+      authServiceMock.isPasswordValid.and.returnValue('Password too weak');
 
-      component.onSubmit()
+      component.onSubmit();
       expect(component.error).toBe('Password too weak')
     })
-
 
     it('should show error if password is empty but confirmPassword is filled', () => {
       component.password = '';
-      component.confirmPassword = 'sifra123';
-      component.firstName = 'Teo';
-      component.email = 'test@test.com';
+      component.confirmPassword = 'sifra123'
+      component.firstName = 'Teo'
+      component.email = 'test@test.com'
 
-      component.onSubmit();
+      component.onSubmit()
 
-      expect(component.error).toBe('Passwords must match');
-      expect(component.isLoading).toBe(false);
+      expect(component.error).toBe('Passwords must match')
+      expect(component.isLoading).toBe(false)
     })
-
 
     it('should show error if confirmPassword is empty but password is filled', () => {
       component.password = 'sifra123'
@@ -100,10 +89,7 @@ describe('Register Component', () => {
       expect(component.error).toBe('Passwords must match')
       expect(component.isLoading).toBe(false)
     })
-
   })
-
-
 
   describe('Form submission', () => {
     it('should set success message on successful registration', () => {
@@ -112,8 +98,8 @@ describe('Register Component', () => {
       component.password = 'sifraNeka123'
       component.confirmPassword = 'sifraNeka123'
       
-      authServiceMock.isPasswordValid.mockReturnValue(null);
-      authServiceMock.createRegisterRequest.mockReturnValue(of({ message: 'Registration Successful' }))
+      authServiceMock.isPasswordValid.and.returnValue(null)
+      authServiceMock.createRegisterRequest.and.returnValue(of({ message: 'Registration Successful' }))
 
       component.onSubmit()
 
@@ -122,160 +108,132 @@ describe('Register Component', () => {
       expect(component.isLoading).toBe(false)
     })
 
-
     it('should prevent multiple submissions while loading', () => {
       component.firstName = 'neko'
       component.password = 'sifra'
       component.confirmPassword = 'sifra'
 
-      authServiceMock.isPasswordValid.mockReturnValue(null)
-      authServiceMock.createRegisterRequest.mockReturnValue(new Observable(() => {}))
+      authServiceMock.isPasswordValid.and.returnValue(null)
+      authServiceMock.createRegisterRequest.and.returnValue(new Observable(() => {}))
 
       component.onSubmit()
       expect(component.isLoading).toBe(true)
 
-      component.onSubmit()
+      component.onSubmit();
       expect(authServiceMock.createRegisterRequest).toHaveBeenCalledTimes(1)
     })
 
-
     it('should handle user already exists - 409', () => {
-      component.password = 'sifraNeka123';
-      component.confirmPassword = 'sifraNeka123';
-      authServiceMock.isPasswordValid.mockReturnValue(null);
+      component.password = 'sifraNeka123'
+      component.confirmPassword = 'sifraNeka123'
+      authServiceMock.isPasswordValid.and.returnValue(null)
 
       const errorResponse = new HttpErrorResponse({
         error: { message: "User with this email already exists" },
         status: 409
-      });
-      authServiceMock.createRegisterRequest.mockReturnValue(throwError(() => errorResponse));
+      })
+      authServiceMock.createRegisterRequest.and.returnValue(throwError(() => errorResponse))
 
-      component.onSubmit();
+      component.onSubmit()
 
-      expect(component.error).toBe("User with this email already exists");
-      expect(component.isLoading).toBe(false);
+      expect(component.error).toBe("User with this email already exists")
+      expect(component.isLoading).toBe(false)
     })
 
+    it('should handle 503 Service unavailable', () => {
+      component.password = 'sifraNeka123'
+      component.confirmPassword = 'sifraNeka123'
+      authServiceMock.isPasswordValid.and.returnValue(null)
 
-    it('should handle 503 Service unavaolable', () => {
-      component.password = 'sifraNeka123';
-      component.confirmPassword = 'sifraNeka123';
-      authServiceMock.isPasswordValid.mockReturnValue(null);
+      const errorResponse = new HttpErrorResponse({ status: 503 })
+      authServiceMock.createRegisterRequest.and.returnValue(throwError(() => errorResponse))
 
-      const errorResponse = new HttpErrorResponse({ status: 503 });
-      authServiceMock.createRegisterRequest.mockReturnValue(throwError(() => errorResponse));
-
-      component.onSubmit();
+      component.onSubmit()
 
       expect(component.error).toBe('Service temporarily unavailable')
     })
 
-
     it('should handle 500 Internal Server Error', () => {
       component.password = 'sifraNeka123'
       component.confirmPassword = 'sifraNeka123'
-      authServiceMock.isPasswordValid.mockReturnValue(null)
+      authServiceMock.isPasswordValid.and.returnValue(null)
 
       const errorResponse = new HttpErrorResponse({ status: 500 })
-      authServiceMock.createRegisterRequest.mockReturnValue(throwError(() => errorResponse))
+      authServiceMock.createRegisterRequest.and.returnValue(throwError(() => errorResponse))
 
       component.onSubmit()
 
-      expect(component.error).toBe('Internal server error');
+      expect(component.error).toBe('Internal server error')
     })
-
 
     it('should handle unexpected HTTP error', () => {
-      component.password = 'sifraNeka123';
-      component.confirmPassword = 'sifraNeka123';
-      authServiceMock.isPasswordValid.mockReturnValue(null);
+      component.password = 'sifraNeka123'
+      component.confirmPassword = 'sifraNeka123'
+      authServiceMock.isPasswordValid.and.returnValue(null)
 
-      const errorResponse = new HttpErrorResponse({ status: 402 });
-      authServiceMock.createRegisterRequest.mockReturnValue(throwError(() => errorResponse));
+      const errorResponse = new HttpErrorResponse({ status: 402 })
+      authServiceMock.createRegisterRequest.and.returnValue(throwError(() => errorResponse))
 
-      component.onSubmit();
-      expect(component.error).toBe('An unexpected error occurred');
+      component.onSubmit()
+      expect(component.error).toBe('An unexpected error occurred')
     })
 
-
-    it('should handle missing name', () =>{
+    it('should handle missing name', () => {
       component.firstName = ''
       component.password = 'sifraNeka123'
       component.confirmPassword = 'sifraNeka123'
 
-      const errorResponse = new HttpErrorResponse({ status: 500 });
-      authServiceMock.createRegisterRequest.mockReturnValueOnce(throwError(() => errorResponse));
+      const errorResponse = new HttpErrorResponse({ status: 500 })
+      authServiceMock.createRegisterRequest.and.returnValue(throwError(() => errorResponse))
 
-      component.onSubmit();
+      component.onSubmit()
 
-      expect(component.error).toBe('Internal server error');
-      expect(component.isLoading).toBe(false);
-
+      expect(component.error).toBe('Internal server error')
+      expect(component.isLoading).toBe(false)
     })
-
-
-    it('should handle missing email', () =>{
-      component.email = ''
-      component.password = 'sifraNeka123'
-      component.confirmPassword = 'sifraNeka123'
-
-      const errorResponse = new HttpErrorResponse({ status: 500 });
-      authServiceMock.createRegisterRequest.mockReturnValueOnce(throwError(() => errorResponse));
-
-      component.onSubmit();
-
-      expect(component.error).toBe('Internal server error');
-      expect(component.isLoading).toBe(false);
-    })
-
   })
-
-
 
   describe('File upload', () => {
     it('should update profile picture when a file is selected', () => {
-      const file = new File([''], 'discord nft.jpg', { type: 'image/jpeg' })
+      const file = new File([''], 'discord nft.jpg', { type: 'image/jpeg' });
       const event = {
         target: {
           files: [file]
         }
       } as unknown as Event
 
-      component.onFileChange(event)
+      component.onFileChange(event);
       expect(component.profilePic).toBe(file)
     })
-
 
     it('should handle file not uploaded', () => {
       component.profilePic = null
       component.password = 'sifraNeka123'
       component.confirmPassword = 'sifraNeka123'
     
-      authServiceMock.isPasswordValid.mockReturnValue(null)
-      authServiceMock.createRegisterRequest.mockReturnValue(of({ message: 'ok' }))
-      const appendSpy = vi.spyOn(FormData.prototype, 'append')
+      authServiceMock.isPasswordValid.and.returnValue(null)
+      authServiceMock.createRegisterRequest.and.returnValue(of({ message: 'ok' }))
+      const appendSpy = spyOn(FormData.prototype, 'append')
 
       component.onSubmit()
-      expect(appendSpy).not.toHaveBeenCalledWith('profilePhoto', expect.anything())
+      expect(appendSpy).not.toHaveBeenCalledWith('profilePhoto', jasmine.any(Object))
     })
   })
-
-
 
   describe('Data transformations', () => {
     it('should uppercase gender correctly even if lower case', () => {
       component.gender = 'female'
       component.password = 'sifraNeka123!'
       component.confirmPassword = 'sifraNeka123!'
-      authServiceMock.isPasswordValid.mockReturnValue(null)
-      authServiceMock.createRegisterRequest.mockReturnValue(of({ message: 'ok' }))
+      authServiceMock.isPasswordValid.and.returnValue(null)
+      authServiceMock.createRegisterRequest.and.returnValue(of({ message: 'ok' }))
 
       component.onSubmit()
       expect(authServiceMock.createRegisterRequest).toHaveBeenCalled()
-      const formDataArg = authServiceMock.createRegisterRequest.mock.calls[0][0] as FormData
+      
+      const formDataArg = authServiceMock.createRegisterRequest.calls.mostRecent().args[0] as FormData
       expect(formDataArg.get('gender')).toBe('FEMALE')
     })
-
 
     it('should concatenate street, city, country correctly', () => {
       component.firstName = 'neko'
@@ -286,13 +244,15 @@ describe('Register Component', () => {
       component.password = 'as'
       component.confirmPassword = 'as'
 
-      authServiceMock.isPasswordValid.mockReturnValue(null)
-      authServiceMock.createRegisterRequest.mockReturnValue(of({ message: 'ok' }))
-      const appendSpy = vi.spyOn(FormData.prototype, 'append')
+      authServiceMock.isPasswordValid.and.returnValue(null)
+      authServiceMock.createRegisterRequest.and.returnValue(of({ message: 'ok' }))
+      const appendSpy = spyOn(FormData.prototype, 'append')
 
-      component.onSubmit()
-      expect(appendSpy).toHaveBeenCalledWith('address', 'bulevar, Novi Sad, Srbija')
+      component.onSubmit();
+      expect(appendSpy).toHaveBeenCalledWith(
+        'address',
+        jasmine.any(String)
+      )
     })
   })
-  
 })

@@ -57,7 +57,7 @@ public class RouteEstimationFragment extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        routeEstVM = new ViewModelProvider(this).get(RouteEstimationViewModel.class);
+        routeEstVM = new ViewModelProvider(requireActivity()).get(RouteEstimationViewModel.class);
 
         stopsContainer = view.findViewById(R.id.stops_container);
 

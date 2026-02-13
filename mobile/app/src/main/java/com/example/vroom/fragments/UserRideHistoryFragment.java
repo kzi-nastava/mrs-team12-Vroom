@@ -1,11 +1,13 @@
 package com.example.vroom.fragments;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,18 +27,20 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.vroom.DTOs.ride.responses.RideHistoryMoreInfoResponseDTO;
 import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 import com.example.vroom.R;
+import com.example.vroom.activities.MainActivity;
 import com.example.vroom.adapters.UserRideHistoryAdapter;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.RideStatus;
 import com.example.vroom.viewmodels.UserRideHistoryViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.gson.Gson;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class UserRideHistoryFragment extends Fragment
         implements UserRideHistoryAdapter.OnRideActionListener, android.hardware.SensorEventListener {
@@ -56,6 +60,7 @@ public class UserRideHistoryFragment extends Fragment
     private SensorManager sensorManager;
     private long lastShakeTime = 0;
     private static final float SHAKE_THRESHOLD = 2.7f;
+    private String userType;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -65,7 +70,11 @@ public class UserRideHistoryFragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(UserRideHistoryViewModel.class);
+
+        StorageManager.getSharedPreferences(getActivity());
+        userType = StorageManager.getData("user_type", "");
+
+        mViewModel = new ViewModelProvider(requireActivity()).get(UserRideHistoryViewModel.class);
 
         sensorManager = (SensorManager) requireActivity().getSystemService(android.content.Context.SENSOR_SERVICE);
 
@@ -100,7 +109,35 @@ public class UserRideHistoryFragment extends Fragment
 
     @Override
     public void onMapClick(Long rideId) {
-        Toast.makeText(getContext(), "Map for ride: " + rideId, Toast.LENGTH_SHORT).show();
+        List<RideResponseDTO> currentRides = mViewModel.getRideHistoryLiveData().getValue();
+
+        if(currentRides == null) return;
+
+        RideResponseDTO selectedRide = currentRides.stream()
+                .filter(ride -> ride.getRideId().equals(rideId))
+                .findFirst()
+                .orElse(null);
+
+        if(selectedRide == null || selectedRide.getRoute() == null) return;
+
+        mViewModel.sendRideData(selectedRide);
+
+        if (getActivity() == null) return;
+
+        if(getActivity() instanceof MainActivity){
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .hide(this)
+                    .addToBackStack("MAP_VIEW")
+                    .commit();
+        } else{
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+            String rideJson = new Gson().toJson(selectedRide);
+            intent.putExtra("ROUTE_DATA", rideJson);
+
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -263,7 +300,10 @@ public class UserRideHistoryFragment extends Fragment
         String start = !btnStartDate.getText().toString().equals("Start Date") ? formatToISO(btnStartDate.getText().toString()) : null;
         String end = !btnEndDate.getText().toString().equals("End Date") ? formatToISO(btnEndDate.getText().toString()) : null;
 
-        mViewModel.fetchRideHistory(email, currentSort, start, end, currentPage);
+        if(userType.equals("ADMIN"))
+            mViewModel.fetchRideHistoryAdmin(email, currentSort, start, end, currentPage);
+        else if(userType.equals("REGISTERED_USER"))
+            mViewModel.fetchRideHistoryUser(currentSort, start, end, currentPage);
     }
 
     private String formatToISO(String dateStr) {

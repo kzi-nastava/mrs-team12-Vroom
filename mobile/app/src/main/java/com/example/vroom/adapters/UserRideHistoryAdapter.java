@@ -1,5 +1,7 @@
 package com.example.vroom.adapters;
 
+import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +10,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 import com.example.vroom.R;
+import com.google.android.material.button.MaterialButton;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -49,6 +53,8 @@ public class UserRideHistoryAdapter extends RecyclerView.Adapter<UserRideHistory
     @Override
     public void onBindViewHolder(@NonNull RideViewHolder holder, int position) {
         RideResponseDTO ride = rideList.get(position);
+        Context context = holder.itemView.getContext();
+
 
         holder.tvStart.setText(ride.getRoute().getStartAddress());
         holder.tvEnd.setText(ride.getRoute().getEndAddress());
@@ -62,16 +68,27 @@ public class UserRideHistoryAdapter extends RecyclerView.Adapter<UserRideHistory
         }
 
         holder.tvPrice.setText(String.format("%.2f EUR", ride.getPrice()));
-        holder.tvStatus.setText(ride.getStatus().toString());
+
+        String status = ride.getStatus() != null ? ride.getStatus().toString() : "UNKNOWN";
+        holder.tvStatus.setText(status);
+
+        if ("CANCELLED_BY_USER".equalsIgnoreCase(status) || "CANCELLED_BY_DRIVER".equalsIgnoreCase(status )) {
+            holder.tvStatus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.cancelled_background)));
+            holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.cancelled_text));
+        } else {
+            holder.tvStatus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.safe_background)));
+            holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.safe_text));
+        }
 
         if (ride.getPanicActivated()) {
             holder.tvSafety.setText("Panic");
-            holder.tvSafety.setTextColor(Color.parseColor("#E64A19"));
+            holder.tvSafety.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.panic_background)));
+            holder.tvSafety.setTextColor(ContextCompat.getColor(context, R.color.panic_text));
         } else {
             holder.tvSafety.setText("Safe");
-            holder.tvSafety.setTextColor(Color.parseColor("#2E7D32"));
+            holder.tvSafety.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.safe_background)));
+            holder.tvSafety.setTextColor(ContextCompat.getColor(context, R.color.safe_text));
         }
-
         boolean canViewMap = "ADMIN".equals(currentUserType) ||
                 "DRIVER".equals(currentUserType) ||
                 "REGISTERED_USER".equals(currentUserType);
@@ -97,7 +114,7 @@ public class UserRideHistoryAdapter extends RecyclerView.Adapter<UserRideHistory
 
     static class RideViewHolder extends RecyclerView.ViewHolder {
         TextView tvStart, tvEnd, tvDate, tvPrice, tvStatus, tvSafety;
-        Button btnMap;
+        MaterialButton btnMap;
 
         public RideViewHolder(@NonNull View itemView) {
             super(itemView);
