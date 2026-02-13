@@ -1,17 +1,15 @@
 package com.example.vroom.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 
@@ -21,12 +19,15 @@ import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
-import com.example.vroom.network.RetrofitClient;
-import com.example.vroom.viewmodels.LoginViewModel;
+import com.example.vroom.data.local.StorageManager;
+import com.example.vroom.enums.DriverStatus;
+import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RouteEstimationViewModel;
 import com.example.vroom.viewmodels.UserRideHistoryViewModel;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.gson.Gson;
+import com.google.android.gms.location.LocationServices;
 
 
 import org.osmdroid.config.Configuration;
@@ -45,10 +46,11 @@ import java.util.Map;
 public class MainActivity extends BaseActivity {
     private MapView map = null;
     private Polyline routePolyline;
-    private Map<Integer, Marker> driverMarkers = new HashMap<>();
+    private final Map<Long, Marker> driverMarkers = new HashMap<>();
     private MainViewModel viewModel;
     private RouteEstimationViewModel routeEstimationViewModel;
     private UserRideHistoryViewModel userRideHistoryViewModel;
+    private FusedLocationProviderClient fusedLocationClient;
 
 
     @Override
@@ -84,7 +86,37 @@ public class MainActivity extends BaseActivity {
         // if first time creating activity
         // if needed to draw data
         handleIncomingIntent(getIntent());
+        viewModel.subscribeToLocationUpdates();
+        checkAndStartDriverTracking();
+    }
 
+    private void checkAndStartDriverTracking() {
+        String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
+        if ("DRIVER".equals(userType)){
+            checkLocationPermissions();
+        }
+    }
+
+    private void checkLocationPermissions(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
+        }else{
+            startLocationTracking();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        super.onRequestPermissionResult(requestCode, permissions, grantResults);
+        if (requestCode == 1001 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startLocationTracking();
+        }
+    }
+
+    private void startLocationTracking(){
+        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
+        viewModel.startTracking(client);
     }
 
     @Override
@@ -111,6 +143,16 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setupObservers(){
+        viewModel.getDriverUpdate().observe(this, driverPositionDTO -> {
+            if (driverPositionDTO != null && driverPositionDTO.getPoint() != null) {
+                updateDriverMarker(driverPositionDTO.getDriverId(), driverPositionDTO.getStatus(),
+                        new GeoPoint(
+                        driverPositionDTO.getPoint().getLat(),
+                        driverPositionDTO.getPoint().getLng()
+                ));
+            }
+        });
+
         // used for drawing OSRM routes
         viewModel.getRouteResult().observe(this, osrmRoute -> {
             if (osrmRoute != null && osrmRoute.geometry != null) {
@@ -130,12 +172,10 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-
         // observers for errors
         viewModel.getErrorMessage().observe(this, error -> {
             Toast.makeText(this, error, Toast.LENGTH_LONG).show();
         });
-
 
         // mimics action type on web, case MapActionType.DRAW_ROUTE
         routeEstimationViewModel.getRoute().observe(this, mapRouteDTO -> {
@@ -171,12 +211,9 @@ public class MainActivity extends BaseActivity {
         if (routePolyline != null) {
             routePolyline.setPoints(new ArrayList<>());
         }
-
         // removes markers
         map.getOverlays().removeIf(overlay -> overlay instanceof Marker);
-
         driverMarkers.clear();
-
         map.invalidate();
     }
 
@@ -195,9 +232,21 @@ public class MainActivity extends BaseActivity {
 
     // add markers are used to draw icons on map,
     // they are wrappers around add one marker which actually adds marker
-    private void addVehicleMarker(){
-
+    private void updateDriverMarker(Long driverID, DriverStatus status, GeoPoint position){
+        Marker m = driverMarkers.get(driverID);
+        if (m == null) {
+            m = new Marker(map);
+            m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            m.setTitle("Driver #" + driverID);
+            map.getOverlays().add(m);
+            driverMarkers.put(driverID, m);
+        }
+        m.setPosition(position);
+        int res = (status == DriverStatus.AVAILABLE) ? R.drawable.ic_available_taxi : R.drawable.ic_unavailable_taxi;
+        m.setIcon(ContextCompat.getDrawable(this, res));
+        map.invalidate();
     }
+
     private void addRouteMarkers(MapRouteDTO payload) {
         if (payload.getStart() != null) {
             addMarker(payload.getStart(), "Start", R.drawable.ic_ride_start);
@@ -229,6 +278,8 @@ public class MainActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         map.onResume();
+        viewModel.subscribeToLocationUpdates();
+        checkAndStartDriverTracking();
     }
 
     @Override
@@ -236,4 +287,12 @@ public class MainActivity extends BaseActivity {
         super.onPause();
         map.onPause();
     }
+
+    @Override
+    public void onDestroy() {
+        viewModel.stopTracking(fusedLocationClient);
+        SocketProvider.getInstance().disconnect();
+        super.onDestroy();
+    }
+
 }

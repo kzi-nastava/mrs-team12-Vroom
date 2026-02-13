@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.vroom.data.local.StorageManager;
 import android.util.Log;
 import com.example.vroom.network.RetrofitClient;
+import com.example.vroom.network.SocketProvider;
 
 public class SplashActivity extends AppCompatActivity {
 
