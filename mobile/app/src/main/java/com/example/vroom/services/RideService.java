@@ -2,6 +2,7 @@ package com.example.vroom.services;
 
 import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.ride.requests.CancelRideRequestDTO;
+import com.example.vroom.DTOs.ride.requests.RideRequestDTO;
 import com.example.vroom.DTOs.ride.requests.StopRideRequestDTO;
 import com.example.vroom.DTOs.ride.responses.GetRideResponseDTO;
 import com.example.vroom.DTOs.ride.responses.RideHistoryResponseDTO;
@@ -12,6 +13,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -35,4 +37,7 @@ public interface RideService {
 
     @PUT("api/rides/start/{rideID}")
     Call<GetRideResponseDTO> startRide(@Path("rideID") Long rideID);
+
+    @POST("api/rides")
+    Call<GetRideResponseDTO> orderRide(@Body RideRequestDTO request);
 }
