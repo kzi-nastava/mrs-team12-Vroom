@@ -12,6 +12,7 @@ import org.example.vroom.enums.RideStatus;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RideUpdateResponseDTO {
+    Long driverID;
     PointResponseDTO currentLocation;
     Double timeLeft;
     RideStatus status;

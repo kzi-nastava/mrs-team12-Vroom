@@ -1,46 +1,56 @@
 <div class="active-ride-container">
   <div *ngIf="isLoading" class="state-msg">
-    Locating your ride...
+    Locating your rides...
   </div>
 
-  <div *ngIf="!isLoading && ride" class="ride-card">
-    <h2>Your Active Ride</h2>
-    
-    <div class="section">
-      <h3>Route</h3>
-      <p>{{ ride?.route?.startAddress }}</p>
-      <p><strong>↓</strong></p>
-      <p>{{ ride?.route?.endAddress }}</p>
-    </div>
+  <div *ngIf="!isLoading && rides.length > 0" class="rides">
+    <div *ngFor="let ride of rides" class="ride-card">
+      
+      <div class="ride-header">
+        <div class="header-main">
+          <h2>Ride #{{ ride.rideID }}</h2>
+          <span class="time-header" *ngIf="ride.scheduledTime">
+            Start Time: {{ ride.scheduledTime | date:'shortTime' }}
+          </span>
+        </div>
+        <span class="price">{{ ride.price | number:'1.1-2' }} RSD</span>
+      </div>
+      
+      <div class="compact-grid">
+        <div class="section route-section">
+          <h3>Route</h3>
+          <p class="route-text" [title]="ride.route.startAddress">{{ ride.route.startAddress }}</p>
+          <p class="route-text" [title]="ride.route.endAddress">{{ ride.route.endAddress }}</p>
+        </div>
 
-    <div class="section">
-      <h3>Driver & Vehicle</h3>
-      <p>{{ ride?.driver?.firstName }} {{ ride?.driver?.lastName }}</p>
-      <p class="sub-text">{{ ride?.driver?.vehicle?.brand }} {{ ride?.driver?.vehicle?.model }}</p>
-    </div>
+        <div class="section driver-section">
+          <h3>Driver</h3>
+          <p>{{ ride.driverName }}</p>
+          <p class="sub-text">{{ ride.vehicleInfo }}</p>
+        </div>
+      </div>
 
-    <div class="payment-info">
-      <span class="price">{{ ride?.price | number:'1.1-2' }} EUR</span>
-      <span class="time" *ngIf="ride.scheduledTime">
-        {{ ride?.scheduledTime | date:'shortTime' }}
-      </span>
-    </div>
+      <div class="info-footer">
+        <span class="status-tag">{{ ride.status }}</span>
 
-    <div class="actions">
-        <app-cancel-ride
-        *ngIf="ride?.status === 'ACCEPTED'"
-        [rideId]="ride.rideID.toString()">
-        </app-cancel-ride>
+        <div class="actions">
+          <app-cancel-ride
+            *ngIf="ride.status === 'ACCEPTED' || ride.status === 'PENDING'"
+            [rideId]="ride.rideID.toString()">
+          </app-cancel-ride>
 
-        <button
-        *ngIf="ride?.status === 'ONGOING'"
-        class="track-ride-btn"
-        (click)="onTrackRide()">Track Ride
-    </button>
+          <button
+            *ngIf="ride.status === 'ONGOING'"
+            class="track-ride-btn"
+            (click)="onTrackRide(ride.rideID)">
+            Track Ride
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div *ngIf="!isLoading && !ride" class="state-msg">
-    You have no active rides at the moment.
+  <div *ngIf="!isLoading && rides.length === 0" class="state-msg">
+    No active rides.
   </div>
 </div>

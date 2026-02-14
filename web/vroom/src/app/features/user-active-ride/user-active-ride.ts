@@ -7,6 +7,7 @@ import {ChangeDetectorRef} from '@angular/core'
 import { CancelRide } from '../cancel-ride/cancel-ride';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { UserActiveRideResponseDTO } from '../../core/models/ride/responses/user-active-ride-response.dto';
 
 
 @Component({
@@ -16,7 +17,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrl: './user-active-ride.css',
 })
 export class UserActiveRide implements OnInit {
-  ride: GetRideResponseDTO | null = null;
+  rides: UserActiveRideResponseDTO[] = [];
   isLoading : boolean = true;
 
   constructor(
@@ -27,14 +28,13 @@ export class UserActiveRide implements OnInit {
 
   ngOnInit(){
     this.loadData();
-    console.log(this.ride);
   }
 
   loadData(){
     this.isLoading = true;
     this.rideService.getUserRide().subscribe({
-      next: (data: GetRideResponseDTO) => {
-        this.ride = data;
+      next: (data: UserActiveRideResponseDTO[]) => {
+        this.rides = data;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -45,8 +45,8 @@ export class UserActiveRide implements OnInit {
     });
   }
 
-  onTrackRide(){
-    this.router.navigate(['/ride-duration'], {queryParams: {rideID: this.ride?.rideID}});
+  onTrackRide(rideID : number){
+    this.router.navigate(['/ride-duration'], {queryParams: { rideID }});
   }
 
 }

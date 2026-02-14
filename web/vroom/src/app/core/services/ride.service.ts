@@ -13,6 +13,7 @@ import { HttpHeaders } from "@angular/common/http";
 import { GetRideResponseDTO } from '../models/ride/responses/get-ride-response.dto'
 import { RideResponseDTO } from "../models/ride/responses/ride-respose.dto";
 import { GetActiveRideInfoDTO } from "../models/admin/get-active-ride-info.dto";
+import { UserActiveRideResponseDTO } from "../models/ride/responses/user-active-ride-response.dto";
 
 @Injectable({
     providedIn: "root"
@@ -22,8 +23,8 @@ export class RideService{
 
     constructor(private http: HttpClient) {}
 
-    getUserRide(): Observable<GetRideResponseDTO> {
-        return this.http.get<GetRideResponseDTO>(this.rideUrl+"/user-active-ride")
+    getUserRide(): Observable<UserActiveRideResponseDTO[]> {
+        return this.http.get<UserActiveRideResponseDTO[]>(this.rideUrl+"/user-active-ride")
     }
 
     cancelRideRequest(rideID: string, data: CancelRideRequestDTO): Observable<MessageResponseDTO>{
