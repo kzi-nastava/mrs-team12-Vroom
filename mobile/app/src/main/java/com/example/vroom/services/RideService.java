@@ -5,10 +5,13 @@ import com.example.vroom.DTOs.ride.requests.CancelRideRequestDTO;
 import com.example.vroom.DTOs.ride.requests.FavoriteRouteDTO;
 import com.example.vroom.DTOs.ride.requests.OrderFromFavoriteRequestDTO;
 import com.example.vroom.DTOs.ride.requests.RideRequestDTO;
+import com.example.vroom.DTOs.ride.requests.ComplaintRequestDTO;
 import com.example.vroom.DTOs.ride.requests.StopRideRequestDTO;
 import com.example.vroom.DTOs.ride.responses.GetRideResponseDTO;
 import com.example.vroom.DTOs.ride.responses.RideHistoryResponseDTO;
 import com.example.vroom.DTOs.ride.responses.StoppedRideResponseDTO;
+import com.example.vroom.DTOs.ride.responses.UserActiveRideDTO;
+import com.example.vroom.DTOs.route.responses.GetRouteResponseDTO;
 
 import java.util.List;
 
@@ -52,4 +55,22 @@ public interface RideService {
 
     @DELETE("api/rides/favorites/{favoriteId}")
     Call<MessageResponseDTO> removeFavorite(@Path("favoriteId") Long favoriteId);
+    @GET("api/rides/user-active-ride")
+    Call<List<UserActiveRideDTO>> getUserActiveRide();
+
+    @GET("api/rides/route/{rideID}")
+    Call<GetRouteResponseDTO> getRoute(
+            @Path("rideID") Long rideID
+    );
+
+    @POST("api/rides/complaint/{rideID}")
+    Call<MessageResponseDTO> sendComplaint(
+            @Path("rideID") Long rideID,
+            @Body ComplaintRequestDTO complaint
+    );
+
+    @POST("api/rides/{rideID}/finish")
+    Call<MessageResponseDTO> finishRide(
+            @Path("rideID") Long rideID
+    );
 }

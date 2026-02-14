@@ -32,9 +32,8 @@ public class SocketProvider {
     }
 
     public void disconnect() {
-        if (stompClient != null) {
+        if (stompClient != null && stompClient.isConnected()) {
             stompClient.disconnect();
-            stompClient = null;
         }
     }
 

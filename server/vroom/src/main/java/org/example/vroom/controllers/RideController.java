@@ -5,14 +5,10 @@ import org.example.vroom.DTOs.FavoriteRouteDTO;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
-import org.example.vroom.DTOs.responses.ride.GetActiveRideInfoDTO;
-import org.example.vroom.DTOs.responses.ride.RideUpdateResponseDTO;
-import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
-import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.FavoriteRoute;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.entities.User;
@@ -30,8 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -98,15 +96,20 @@ public class RideController {
 
     @MessageMapping("ride-duration-update/{rideID}")
     public void updateRideDuration(@DestinationVariable String rideID,
-                                                    PointResponseDTO location) {
+                                   SimpMessageHeaderAccessor headerAccessor, PointResponseDTO location) {
 
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
+        if(auth == null || auth.getPrincipal() == null ){
+            return;
+        }
+        User user = (User) auth.getPrincipal();
         String start = this.routeService.coordinatesToString(location);
         String end = this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLat() + ","
                 + this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLng();
         RouteQuoteResponseDTO quoteResponseDTO = this.routeService.routeEstimation(start, end);
         Double estTime = quoteResponseDTO.getTime();
         RideStatus status = this.rideService.getRideStatus(rideID);
-        RideUpdateResponseDTO updateResponseDTO = new RideUpdateResponseDTO(location, estTime, status);
+        RideUpdateResponseDTO updateResponseDTO = new RideUpdateResponseDTO(user.getId(), location, estTime, status);
         messagingTemplate.convertAndSend("/socket-publisher/ride-duration-update/" + rideID, updateResponseDTO);
     }
 
@@ -160,15 +163,14 @@ public class RideController {
     }
 
     @GetMapping(path="/user-active-ride")
-    public ResponseEntity<GetRideResponseDTO> getUserActiveRide(
+    public ResponseEntity<Collection<UserActiveRideDTO>> getUserActiveRide(
             @AuthenticationPrincipal UserDetails user
     ){
-        GetRideResponseDTO dto = this.rideService.getUserRide(user.getUsername());
-        if (dto == null){
+        Collection<UserActiveRideDTO> dtos = this.rideService.getUserRides(user.getUsername());
+        if (dtos == null){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(dto, HttpStatus.OK);
-
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
     @PutMapping(path = "/{rideID}/cancel", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

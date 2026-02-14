@@ -41,8 +41,8 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             Sort sort
     );
 
-    Optional<Ride> findByPassengerEmailAndStatusIn(String email, Collection<RideStatus> statuses);
-    Optional<Ride> findByPassengersContainingAndStatusIn(String email, Collection<RideStatus> statuses);
+    List<Ride> findAllByPassengerEmailAndStatusIn(String email, Collection<RideStatus> statuses);
+    List<Ride> findAllByPassengersContainingAndStatusIn(String email, Collection<RideStatus> statuses);
 
     @Query("""
     SELECT r FROM Ride r

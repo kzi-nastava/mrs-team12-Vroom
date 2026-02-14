@@ -37,10 +37,18 @@ public class MainViewModel extends ViewModel {
     private final Gson gson = new Gson();
     private LocationCallback locationCallback;
     private boolean isTracking = false;
+    private boolean isRideTrackingActive = false;
 
     public LiveData<DriverPositionDTO> getDriverUpdate() { return driverUpdate; }
 
-    public void subscribeToLocationUpdates() {
+        public void setRideTrackingActive(boolean active){
+            isRideTrackingActive = active;
+            if (active){
+                unsubscribeFromLocationUpdates();
+            }
+        }
+        public void subscribeToLocationUpdates() {
+        if (isRideTrackingActive) return;
         disposables.add(SocketProvider.getInstance().getClient()
                 .topic("/socket-publisher/location-updates")
                 .subscribeOn(Schedulers.io())
@@ -49,6 +57,10 @@ public class MainViewModel extends ViewModel {
                     DriverPositionDTO dto = gson.fromJson(message.getPayload(), DriverPositionDTO.class);
                     driverUpdate.postValue(dto);
                 }, throwable -> {}));
+    }
+
+    public void unsubscribeFromLocationUpdates(){
+        disposables.clear();
     }
 
     @SuppressLint("MissingPermission")
@@ -82,16 +94,12 @@ public class MainViewModel extends ViewModel {
     }
 
     public void sendCurrentLocation(double lat, double lng) {
-        if (!isTracking) return;
+        if (!isTracking) return; // Only check if tracking is enabled
 
         PointResponseDTO location = new PointResponseDTO(lat, lng);
-        String json = gson.toJson(location);
-
         disposables.add(SocketProvider.getInstance().getClient()
-                .send("/socket-subscriber/update-location", json)
-                .subscribe(() -> {}, throwable -> {
-                    Log.e("SOCKET", "Failed to send location", throwable);
-                }));
+                .send("/socket-subscriber/update-location", gson.toJson(location))
+                .subscribe(() -> {}, t -> Log.e("SOCKET", "Global update failed", t)));
     }
 
     @Override
@@ -146,4 +154,5 @@ public class MainViewModel extends ViewModel {
             }
         });
     }
+
 }

@@ -96,6 +96,11 @@
                             <button type="button" class="map-redirect-btn" (click)="$event.stopPropagation();  showOnMapRoute(ride.rideId)">
                                 Check on the map
                             </button>
+                            <button type="button"
+        class="map-redirect-btn"
+        (click)="$event.stopPropagation(); addToFavorites(ride)">
+    Add to favorites
+</button>
                         </div>
                     </div>
                 </div>

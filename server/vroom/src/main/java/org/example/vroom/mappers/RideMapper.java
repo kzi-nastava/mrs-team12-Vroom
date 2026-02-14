@@ -95,6 +95,7 @@ public class RideMapper {
                 .build();
     }
 
+
  //   public GetRideResponseDTO getRideDTO(Ride ride){
  //       return GetRideResponseDTO
  //               .builder()
@@ -113,8 +114,25 @@ public class RideMapper {
  //               .build();
  //   }
 
-    public GetRideResponseDTO getRideDTO(Ride ride) {
-        return GetRideResponseDTO.builder()
+
+    public UserActiveRideDTO getUserActiveRideDTO(Ride ride){
+        return UserActiveRideDTO
+                .builder()
+                .rideID(ride.getId())
+                .driverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName())
+                .vehicleInfo(ride.getDriver().getVehicle().getBrand() + " " + ride.getDriver().getVehicle().getModel())
+                .route(routeMapper.getRouteDTO(ride.getRoute()))
+                .passengers(ride.getPassengers())
+                .scheduledTime(ride.getStartTime())
+                .status(ride.getStatus())
+                .price(ride.getPrice())
+                .isScheduled(ride.getIsScheduled())
+                .build();
+    }
+
+    public GetRideResponseDTO getRideDTO(Ride ride){
+        return GetRideResponseDTO
+                .builder()
                 .rideID(ride.getId())
                 .route(routeMapper.getRouteDTO(ride.getRoute()))
                 .driver(driverMapper.toDriverRideDTO(ride.getDriver()))

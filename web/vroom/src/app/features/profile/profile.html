@@ -80,6 +80,13 @@
         Change Password
       </button>
 
+        <button
+    class="change-button"
+    style="margin-top: 12px; background: #4a6fa5;"
+    (click)="goToReports()">
+    Reports
+  </button>
+
       <div *ngIf="successMessage" class="message success">{{ successMessage }}</div>
       <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
 

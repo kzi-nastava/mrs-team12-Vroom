@@ -31,7 +31,7 @@ public class FavoriteRoute {
     @ManyToOne
     private RegisteredUser user;
 
-    @ManyToOne
+    @OneToOne
     private Route route;
 
     @Column(nullable = false)
