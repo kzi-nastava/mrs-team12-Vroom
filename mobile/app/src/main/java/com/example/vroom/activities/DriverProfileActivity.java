@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.Intent;
 
 import androidx.lifecycle.ViewModelProvider;
 
@@ -14,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.vroom.DTOs.auth.requests.ChangePasswordRequestDTO;
 import com.example.vroom.DTOs.driver.requests.DriverDTO;
 import com.example.vroom.R;
+import com.example.vroom.fragments.RideStatisticsFragment;
 import com.example.vroom.viewmodels.DriverProfileViewModel;
 
 public class DriverProfileActivity extends BaseActivity {
@@ -22,7 +24,7 @@ public class DriverProfileActivity extends BaseActivity {
 
     private EditText firstNameInfo, lastNameInfo, emailInfo,
             addressInfo, phoneInfo;
-
+    private Button btnReports;
     private TextView brandInfo, modelInfo, seatsInfo,
             licensePlateInfo, babiesInfo, petsInfo;
 
@@ -53,6 +55,14 @@ public class DriverProfileActivity extends BaseActivity {
             }
         });
 
+        btnReports.setOnClickListener(v -> {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_frame, new RideStatisticsFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         changePasswordButton.setOnClickListener(v -> showChangePasswordDialog());
 
         viewModel.loadProfile();
@@ -64,7 +74,7 @@ public class DriverProfileActivity extends BaseActivity {
         emailInfo = findViewById(R.id.EmailInfo);
         addressInfo = findViewById(R.id.AddressInfo);
         phoneInfo = findViewById(R.id.PhoneNumberInfo);
-
+        btnReports = findViewById(R.id.btnReports);
         brandInfo = findViewById(R.id.BrandInfo);
         modelInfo = findViewById(R.id.ModelInfo);
         seatsInfo = findViewById(R.id.NumberOfSeatsInfo);

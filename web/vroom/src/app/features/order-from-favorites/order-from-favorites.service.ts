@@ -48,4 +48,17 @@ getFavorites(): Observable<FavoriteRoute[]> {
       }
     );
   }
+
+  removeFromFavorites(favoriteId: number) {
+  const token = localStorage.getItem('jwt');
+
+  return this.http.delete(
+    `${this.baseUrl}/favorites/${favoriteId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+}
 }

@@ -261,7 +261,12 @@ public class RideController {
                    .status(HttpStatus.CONFLICT)
                    .body(Map.of("message", e.getMessage()));
 
-       } catch (TooManyPassengersException e) {
+       } catch (DriverNotAvailableException e) {
+           return ResponseEntity
+                   .status(HttpStatus.CONFLICT)
+                   .body(Map.of("message", e.getMessage()));
+
+       }catch (TooManyPassengersException e) {
            return ResponseEntity
                    .status(HttpStatus.CONFLICT)
                    .body(Map.of("message", e.getMessage()));
@@ -289,15 +294,18 @@ public class RideController {
             @PathVariable Long rideID
     ) {
         try{
-             GetRideResponseDTO dto = rideService.startRide(rideID);
-             return new ResponseEntity<>(dto, HttpStatus.OK);
+            GetRideResponseDTO dto = rideService.startRide(rideID);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         }catch (RideNotFoundException e){
+            System.err.println("Ride not found: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }catch (RuntimeException e){
+            System.err.println("ERROR starting ride: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
     @GetMapping(
             path = "/favorites",
@@ -334,23 +342,51 @@ public class RideController {
         return ResponseEntity.ok(rideResponse);
     }
 
-    @GetMapping("/active")
-    public ResponseEntity<GetRideResponseDTO> getActiveRide(
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @DeleteMapping("/favorites/{favoriteId}")
+    public ResponseEntity<MessageResponseDTO> removeFavorite(
+            @PathVariable Long favoriteId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        if(userDetails == null) {
-            System.out.println("UserDetails je null!");
+        try {
+            favoriteRouteService.removeFromFavorites(
+                    userDetails.getUsername(),
+                    favoriteId
+            );
+
+            return ResponseEntity.ok(
+                    new MessageResponseDTO("Favorite route removed successfully")
+            );
+
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponseDTO(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<GetRideResponseDTO>> getActiveRides(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         String driverEmail = userDetails.getUsername();
-        System.out.println("Driver email: " + driverEmail);
 
-        Ride ride = rideService.getActiveRideForDriver(driverEmail);
-        if (ride == null) {
+        List<Ride> rides = rideService.getActiveRidesForDriver(driverEmail);
+
+        if (rides.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(rideService.mapToDTO(ride));
+
+        List<GetRideResponseDTO> dtos =
+                rides.stream()
+                        .map(rideService::mapToDTO)
+                        .toList();
+
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{rideId}")

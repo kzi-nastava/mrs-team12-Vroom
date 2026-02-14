@@ -35,7 +35,7 @@ public class FavoriteRoute {
     private Route route;
 
     @Column(nullable = false)
-    private String name; // npr. "Kuća → Fakultet"
+    private String name;
 
     @Column(name = "start_address")
     private String startAddress;

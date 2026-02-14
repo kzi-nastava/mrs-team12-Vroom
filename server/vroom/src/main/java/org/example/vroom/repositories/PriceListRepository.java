@@ -9,4 +9,5 @@ public interface PriceListRepository extends JpaRepository<Pricelist, Long> {
 
     Optional<Pricelist> findFirstByValidTrue();
 
+    Object findByValidTrue();
 }

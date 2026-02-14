@@ -12,28 +12,29 @@ import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.enums.VehicleType;
 
+import org.example.vroom.exceptions.ride.DriverNotAvailableException;
 import org.example.vroom.exceptions.ride.NoAvailableDriverException;
 import org.example.vroom.exceptions.ride.TooManyPassengersException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.mappers.RouteMapper;
-import org.example.vroom.repositories.DriverRepository;
-import org.example.vroom.repositories.RegisteredUserRepository;
-import org.example.vroom.repositories.RideRepository;
-import org.example.vroom.repositories.RouteRepository;
+import org.example.vroom.repositories.*;
 import org.example.vroom.services.RideService;
 import org.example.vroom.services.RouteService;
+import org.example.vroom.utils.EmailService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.time.format.ResolverStyle.LENIENT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -65,9 +66,17 @@ public class RideServiceOrderRideTest {
 
     @Mock
     private RouteRepository routeRepository;
+    @Mock
+    private PriceListRepository pricelistRepository;
+
+    @Mock
+    private EmailService emailService;
+
 
     private Driver driver;
     private RegisteredUser passenger;
+
+
     private Driver createDriver(){
         Vehicle vehicle = Vehicle.builder()
                 .brand("Toyota")
@@ -91,6 +100,17 @@ public class RideServiceOrderRideTest {
                 .ratingSum(0L)
                 .vehicle(vehicle)
                 .build();
+    }
+    private void mockValidPricelist() {
+        Pricelist pricelist = Pricelist.builder()
+                .valid(true)
+                .priceStandard(100)
+                .priceLuxury(200)
+                .priceMinivan(150)
+                .build();
+
+        lenient().when(pricelistRepository.findByValidTrue())
+                .thenReturn(Optional.of(pricelist));
     }
     @BeforeEach
     void setup() {
@@ -142,13 +162,15 @@ public class RideServiceOrderRideTest {
                 .build();
     }
     private void mockBaseSuccess() {
+
+
         when(userRepository.findByEmail(anyString()))
                 .thenReturn(Optional.of(passenger));
 
         when(driverRepository.findFirstAvailableDriver(any(), any(), any(), any(), any()))
                 .thenReturn(Optional.of(driver));
 
-        when(rideRepository.save(any()))
+        when(rideRepository.saveAndFlush(any()))
                 .thenAnswer(i -> i.getArguments()[0]);
 
         when(rideMapper.getRideDTO(any()))
@@ -286,7 +308,7 @@ public class RideServiceOrderRideTest {
         GetRideResponseDTO res = rideService.orderRide(passenger.getEmail(), req);
 
         assertNotNull(res);
-        verify(rideRepository).save(any(Ride.class));
+        verify(rideRepository).saveAndFlush(any(Ride.class));
     }
 
     @Test
@@ -332,7 +354,7 @@ public class RideServiceOrderRideTest {
         GetRideResponseDTO response = rideService.orderRide(passenger.getEmail(), req);
 
         assertNotNull(response);
-        verify(rideRepository).save(any(Ride.class));
+        verify(rideRepository).saveAndFlush(any(Ride.class));
         assertEquals(DriverStatus.UNAVAILABLE, driver.getStatus());
     }
 
@@ -360,7 +382,7 @@ public class RideServiceOrderRideTest {
         assertNotNull(response);
 
         ArgumentCaptor<Ride> rideCaptor = ArgumentCaptor.forClass(Ride.class);
-        verify(rideRepository).save(rideCaptor.capture());
+        verify(rideRepository).saveAndFlush(rideCaptor.capture());
 
         Ride savedRide = rideCaptor.getValue();
         assertEquals(2, savedRide.getPassengers().size());
@@ -392,7 +414,7 @@ public class RideServiceOrderRideTest {
         assertNotNull(response);
 
         ArgumentCaptor<Ride> rideCaptor = ArgumentCaptor.forClass(Ride.class);
-        verify(rideRepository).save(rideCaptor.capture());
+        verify(rideRepository).saveAndFlush(rideCaptor.capture());
 
         Ride savedRide = rideCaptor.getValue();
         assertEquals(0, savedRide.getPassengers().size());
@@ -550,7 +572,7 @@ public class RideServiceOrderRideTest {
         GetRideResponseDTO response = rideService.orderRide(passenger.getEmail(), req);
 
         assertNotNull(response);
-        verify(rideRepository).save(any(Ride.class));
+        verify(rideRepository).saveAndFlush(any(Ride.class));
     }
 
     @Test
@@ -589,7 +611,7 @@ public class RideServiceOrderRideTest {
         when(driverRepository.findFirstAvailableDriver(any(), any(), any(), any(), any()))
                 .thenReturn(Optional.of(driver));
 
-        when(rideRepository.save(any()))
+        when(rideRepository.saveAndFlush(any()))
                 .thenAnswer(i -> i.getArguments()[0]);
 
         when(rideMapper.getRideDTO(any()))
@@ -677,7 +699,7 @@ public class RideServiceOrderRideTest {
         when(driverRepository.findFirstAvailableDriver(any(), any(), any(), any(), any()))
                 .thenReturn(Optional.of(driver));
 
-        when(rideRepository.save(any()))
+        when(rideRepository.saveAndFlush(any()))
                 .thenAnswer(i -> i.getArguments()[0]);
 
         when(rideMapper.getRideDTO(any()))
@@ -697,7 +719,7 @@ public class RideServiceOrderRideTest {
 
                     if (dto.getStops() != null) {
                         List<Point> points = dto.getStops().stream()
-                                .filter(pointDTO -> pointDTO != null) // Dodaj filter za null
+                                .filter(pointDTO -> pointDTO != null)
                                 .map(pointDTO -> {
                                     Point p = new Point();
                                     p.setLat(pointDTO.getLat());
@@ -750,7 +772,7 @@ public class RideServiceOrderRideTest {
         GetRideResponseDTO response = rideService.orderRide(passenger.getEmail(), req);
 
         assertNotNull(response);
-        verify(rideRepository).save(any(Ride.class));
+        verify(rideRepository).saveAndFlush(any(Ride.class));
     }
 
     @Test
@@ -776,7 +798,7 @@ public class RideServiceOrderRideTest {
         GetRideResponseDTO res = rideService.orderRide(passenger.getEmail(), req);
 
         assertNotNull(res);
-        verify(rideRepository).save(any(Ride.class));
+        verify(rideRepository).saveAndFlush(any(Ride.class));
     }
 
     @Test
@@ -837,7 +859,7 @@ public class RideServiceOrderRideTest {
         rideService.orderRide(passenger.getEmail(), req);
 
         ArgumentCaptor<Ride> rideCaptor = ArgumentCaptor.forClass(Ride.class);
-        verify(rideRepository).save(rideCaptor.capture());
+        verify(rideRepository).saveAndFlush(rideCaptor.capture());
 
         Ride savedRide = rideCaptor.getValue();
         assertEquals(expectedPrice, savedRide.getPrice());
@@ -889,7 +911,7 @@ public class RideServiceOrderRideTest {
         rideService.orderRide(passenger.getEmail(), req);
 
         ArgumentCaptor<Ride> rideCaptor = ArgumentCaptor.forClass(Ride.class);
-        verify(rideRepository).save(rideCaptor.capture());
+        verify(rideRepository).saveAndFlush(rideCaptor.capture());
 
         Ride savedRide = rideCaptor.getValue();
         assertEquals(RideStatus.ACCEPTED, savedRide.getStatus());
@@ -916,7 +938,7 @@ public class RideServiceOrderRideTest {
         rideService.orderRide(passenger.getEmail(), req);
 
         ArgumentCaptor<Ride> rideCaptor = ArgumentCaptor.forClass(Ride.class);
-        verify(rideRepository).save(rideCaptor.capture());
+        verify(rideRepository).saveAndFlush(rideCaptor.capture());
 
         Ride savedRide = rideCaptor.getValue();
         assertFalse(savedRide.getPanicActivated());
@@ -943,10 +965,59 @@ public class RideServiceOrderRideTest {
         rideService.orderRide(passenger.getEmail(), req);
 
         ArgumentCaptor<Ride> rideCaptor = ArgumentCaptor.forClass(Ride.class);
-        verify(rideRepository).save(rideCaptor.capture());
+        verify(rideRepository).saveAndFlush(rideCaptor.capture());
 
         Ride savedRide = rideCaptor.getValue();
         assertNotNull(savedRide.getComplaints());
         assertTrue(savedRide.getComplaints().isEmpty());
+    }
+    @Test
+    @DisplayName("Order ride - driver already has scheduled ride in next 15 minutes throws exception")
+    void orderRide_driverHasConflictingScheduledRide() {
+
+        GetRouteResponseDTO routeDTO = createRoute(45, 19, 46, 20);
+
+        RideRequestDTO req = RideRequestDTO.builder()
+                .vehicleType(VehicleType.STANDARD)
+                .babiesAllowed(false)
+                .petsAllowed(false)
+                .scheduled(false)
+                .route(routeDTO)
+                .build();
+
+        when(userRepository.findByEmail(anyString()))
+                .thenReturn(Optional.of(passenger));
+
+        when(routeMapper.fromDTO(any()))
+                .thenAnswer(invocation -> {
+                    GetRouteResponseDTO dto = invocation.getArgument(0);
+                    Route r = new Route();
+                    r.setStartLocationLat(dto.getStartLocationLat());
+                    r.setStartLocationLng(dto.getStartLocationLng());
+                    r.setEndLocationLat(dto.getEndLocationLat());
+                    r.setEndLocationLng(dto.getEndLocationLng());
+                    r.setStops(new ArrayList<>());
+                    return r;
+                });
+
+        when(routeRepository.save(any(Route.class)))
+                .thenAnswer(i -> i.getArguments()[0]);
+
+        when(driverRepository.findFirstAvailableDriver(any(), any(), any(), any(), any()))
+                .thenReturn(Optional.of(driver));
+
+        Ride conflictingRide = Ride.builder()
+                .startTime(LocalDateTime.now().plusMinutes(5))
+                .build();
+
+        when(rideRepository.findScheduledRidesForDriverInTimeRange(any(), any(), any()))
+                .thenReturn(List.of(conflictingRide));
+
+        DriverNotAvailableException ex = assertThrows(
+                DriverNotAvailableException.class,
+                () -> rideService.orderRide(passenger.getEmail(), req)
+        );
+
+        assertTrue(ex.getMessage().contains("Driver has a scheduled ride at"));
     }
 }

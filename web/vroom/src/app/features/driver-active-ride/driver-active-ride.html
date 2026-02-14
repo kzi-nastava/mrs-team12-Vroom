@@ -1,37 +1,43 @@
-<section class="ride-card" *ngIf="ride$ | async as ride; else noRide">
-
+<section class="ride-card" *ngFor="let ride of rides$ | async; else noRide">
   <div class="ride-card-header">
     <h2>Active Ride</h2>
     <span class="status-badge">{{ ride.status }}</span>
+    
+    <span *ngIf="ride.isScheduled && ride.scheduledTime" class="scheduled-badge priority">
+      📅 Scheduled: {{ ride.scheduledTime | date:'dd.MM.yyyy HH:mm' }}
+    </span>
+   
+    <span *ngIf="!ride.isScheduled" class="immediate-badge">
+      ⚡ Now
+    </span>
   </div>
 
   <div class="ride-card-body">
-
     <div class="info-row">
       <span class="label">Route</span>
-      <span class="value">
-        {{ ride.route.startAddress }} → {{ ride.route.endAddress }}
-      </span>
+      <span class="value">{{ ride.route.startAddress }} → {{ ride.route.endAddress }}</span>
+    </div>
+
+
+    <div class="info-row" *ngIf="ride.startTime">
+      <span class="label">Start time</span>
+      <span class="value">{{ ride.startTime | date:'HH:mm' }}</span>
     </div>
 
     <div class="info-row">
       <span class="label">Price</span>
-      <span class="value">{{ ride.price }} RSD</span>
+      <span class="value">{{ ride.price || 0 }} $</span>
     </div>
 
- <div class="info-row" *ngIf="ride.passengers as passengers">
-  <span class="label">Passengers</span>
-  <span class="value">{{ passengers.length + 1 }}</span>
-</div>
+    <div class="info-row" *ngIf="ride.passengers?.length !== undefined">
+      <span class="label">Passengers</span>
+      <span class="value">{{ (ride.passengers?.length || 0) }}</span>
+    </div>
 
-
-<!-- DTO ne mapira pravilno ovo se nikad nece prikazati jer DTO sa back-enda nema atribut vehicle -->
- <!--- Izmeniti dto na front endu da se slaze sa back-endom --->
     <div class="info-row" *ngIf="ride.vehicle">
       <span class="label">Vehicle</span>
       <span class="value">
-        {{ ride.vehicle.brand }} {{ ride.vehicle.model }}
-        ({{ ride.vehicle.licenceNumber }})
+        {{ ride.vehicle.brand }} {{ ride.vehicle.model }} ({{ ride.vehicle.licenceNumber }})
       </span>
     </div>
 
@@ -41,14 +47,14 @@
         <li *ngFor="let p of ride.passengers">{{ p }}</li>
       </ul>
     </div>
-
   </div>
 
   <div class="ride-card-footer">
-    <button class="secondary" (click)="startRide()">Start Ride</button>
-    <app-cancel-ride [rideId]="rideId"/>
+    <button class="secondary" (click)="startRide(ride.rideID)">
+      {{ ride.isScheduled ? 'Start scheduled ride' : 'Start ride' }}
+    </button>
+    <app-cancel-ride [rideId]="ride.rideID.toString()"></app-cancel-ride>
   </div>
-
 </section>
 
 <ng-template #noRide>

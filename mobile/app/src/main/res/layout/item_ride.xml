@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="8dp"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- HEADER -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="20dp"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Active Ride"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/bg_status_badge"
+                android:text="IN_PROGRESS"
+                android:textSize="12sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                style="@style/InfoRowStyle">
+
+                <TextView
+                    style="@style/LabelStyle"
+                    android:text="Route"/>
+
+                <TextView
+                    android:id="@+id/tvRoute"
+                    style="@style/ValueStyle"
+                    android:text="Start → End"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/InfoRowStyle">
+
+                <TextView
+                    style="@style/LabelStyle"
+                    android:text="Start time"/>
+
+                <TextView
+                    android:id="@+id/tvStartTime"
+                    style="@style/ValueStyle"
+                    android:text="12:30"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/InfoRowStyle">
+
+                <TextView
+                    style="@style/LabelStyle"
+                    android:text="Price"/>
+
+                <TextView
+                    android:id="@+id/tvPrice"
+                    style="@style/ValueStyle"
+                    android:text="10 $"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/InfoRowStyle">
+
+                <TextView
+                    style="@style/LabelStyle"
+                    android:text="Passengers"/>
+
+                <TextView
+                    android:id="@+id/tvPassengerCount"
+                    style="@style/ValueStyle"
+                    android:text="2"/>
+            </LinearLayout>
+
+            <!-- VEHICLE -->
+            <LinearLayout
+                style="@style/InfoRowStyle">
+
+                <TextView
+                    style="@style/LabelStyle"
+                    android:text="Vehicle"/>
+
+                <TextView
+                    android:id="@+id/tvVehicle"
+                    style="@style/ValueStyle"
+                    android:text="Toyota Corolla (NS123AA)"/>
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/tvPassengerNamesLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Passenger names"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/tvPassengerNames"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Marko\nJovan"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- FOOTER -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="#F7F9F7">
+
+            <Button
+                android:id="@+id/btnStartRide"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Start ride"
+                android:backgroundTint="#1A1A1A"
+                android:textColor="@android:color/white"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnCancelRide"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:backgroundTint="#8DB48D"
+                android:textColor="@android:color/black"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

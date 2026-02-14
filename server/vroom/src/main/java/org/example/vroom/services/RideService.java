@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,6 +112,24 @@ public class RideService {
                 route.getStartLocationLat(),
                 route.getStartLocationLng()
         ).orElseThrow(() -> new NoAvailableDriverException("No available drivers"));
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime checkUntil = now.plusMinutes(15);
+
+        List<Ride> conflictingRides = rideRepository.findScheduledRidesForDriverInTimeRange(
+                driver,
+                now,
+                checkUntil
+        );
+
+        if (!conflictingRides.isEmpty()) {
+            Ride conflictingRide = conflictingRides.get(0);
+            throw new DriverNotAvailableException(
+                    "Driver has a scheduled ride at " +
+                            conflictingRide.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) +
+                            ". Please try again later or choose another driver."
+            );
+        }
         int vehicleCapacity = driver.getVehicle().getNumberOfSeats();
         int totalPassengers = 1 + passengers.size();
 
@@ -166,6 +185,10 @@ public class RideService {
                 .isScheduled(isScheduled)
                 .startTime(scheduledTime)
                 .build();
+
+        if (isScheduled) {
+            ride.setStartTime(scheduledTime);
+        }
 
         ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
 
@@ -273,31 +296,13 @@ public class RideService {
         return null;
     }
 
-    public Ride getActiveRideForDriver(String driverEmail) {
-        System.out.println("Driver email u metodi: " + driverEmail);
+    public List<Ride> getActiveRidesForDriver(String driverEmail) {
 
-        Optional<Driver> driverOpt = driverRepository.findByEmail(driverEmail);
+        Driver driver = driverRepository.findByEmail(driverEmail)
+                .orElseThrow(() -> new UserNotFoundException("Driver not found"));
 
-        if (driverOpt.isEmpty()) {
-            System.out.println("Nije pronađen driver za email: " + driverEmail);
-        } else {
-            Driver driver = driverOpt.get();
-            System.out.println("Pronađen driver: " + driver.getFirstName() + " " + driver.getLastName());
-        }
-
-        Driver driver = driverOpt.orElseThrow(() -> new UserNotFoundException("Driver not found"));
-
-        Optional<Ride> rideOpt = rideRepository.findByDriverAndStatus(driver, RideStatus.ACCEPTED);
-
-        if (rideOpt.isEmpty()) {
-            System.out.println("Nema aktivne vožnje za drivera: " + driverEmail);
-        } else {
-            System.out.println("Pronađena aktivna vožnja: rideId=" + rideOpt.get().getId());
-        }
-
-        return rideOpt.orElse(null);
+        return rideRepository.findAcceptedRidesForDriver(driver);
     }
-
     public GetRideResponseDTO mapToDTO(Ride ride) {
         return rideMapper.getRideDTO(ride);
     }
@@ -481,7 +486,6 @@ public class RideService {
         return rideMapper.stopRide(ride, data, price, endAddress);
     }
 
-
     public GetRideResponseDTO startRide(Long rideID) {
 
         Optional<Ride> rideOpt = rideRepository.findById(rideID);
@@ -492,21 +496,13 @@ public class RideService {
         ride.setStartTime(LocalDateTime.now());
         ride.setStatus(RideStatus.ONGOING);
         ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
+
         try{
             emailService.sendRideStartedMail(ride.getPassenger().getEmail(), rideID.toString());
         }catch(IOException | MessagingException e){
-            throw new RuntimeException(e);
+            System.err.println("Failed to send email: " + e.getMessage());
         }
-        for (String email : ride.getPassengers()){
-            try{
-                emailService.sendRideStartedMail(email, rideID.toString());
-            }catch(IOException | MessagingException e){
-                throw new RuntimeException(e);
-            }
-        }
-
         rideRepository.save(ride);
-
         return rideMapper.getRideDTO(ride);
     }
 
