@@ -45,7 +45,7 @@ public class AuthService {
     @Autowired
     private PasswordUtils passwordUtils;
 
-    public LoginResponseDTO login(User user, HttpServletResponse response) {
+    public LoginResponseDTO login(User user) {
         if(user instanceof RegisteredUser && (
                 ((RegisteredUser) user).getUserStatus().equals(UserStatus.INACTIVE))
         )

@@ -53,7 +53,7 @@ public class AuthController {
             path="/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO data, HttpServletResponse response) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO data) {
         if(data==null)
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.NO_CONTENT);
 
@@ -64,7 +64,7 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            LoginResponseDTO res = authService.login((User) authentication.getPrincipal(), response);
+            LoginResponseDTO res = authService.login((User) authentication.getPrincipal());
 
             return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
 

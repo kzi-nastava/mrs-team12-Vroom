@@ -1,6 +1,8 @@
 package com.example.vroom.activities;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -81,6 +83,19 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         observeViewModel();
 
         initToggleStatus(navigationView);
+
+        askPermission();
+    }
+
+    private void askPermission(){
+        // enavble notification permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
     }
 
     private void observeViewModel() {
