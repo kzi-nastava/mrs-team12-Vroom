@@ -2,6 +2,7 @@ package com.example.vroom.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,11 +20,15 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.vroom.DTOs.map.MapRouteDTO;
+import com.example.vroom.DTOs.ride.responses.UserActiveRideDTO;
+import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.fragments.PanicFeedFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
+import com.example.vroom.fragments.UserActiveRideFragment;
 import com.example.vroom.fragments.UserRideHistoryFragment;
 import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.NavigationViewModel;
@@ -152,7 +157,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         menu.findItem(R.id.nav_panic_feed).setVisible(isLoggedIn && userType.equals("ADMIN"));
         menu.findItem(R.id.ride_history).setVisible(isLoggedIn &&
                 (userType.equals("ADMIN") || userType.equals("REGISTERED_USER")));
-
+        menu.findItem(R.id.user_active_rides).setVisible(isLoggedIn && userType.equals("REGISTERED_USER"));
         menu.findItem(R.id.login_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.register_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.nav_route_estimation).setVisible(!isLoggedIn);
@@ -212,6 +217,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                     .replace(R.id.content_frame, new UserRideHistoryFragment())
                     .addToBackStack(null)
                     .commit();
+        }else if (id == R.id.user_active_rides){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new UserActiveRideFragment())
+                    .addToBackStack(null)
+                    .commit();
         }
 
         drawer.closeDrawer(GravityCompat.START);
@@ -219,7 +229,6 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void finalizeLogout(){
-        SocketProvider.getInstance().disconnect();
         StorageManager.getSharedPreferences(this).edit().clear().apply();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

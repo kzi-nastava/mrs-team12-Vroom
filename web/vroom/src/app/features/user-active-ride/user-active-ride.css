@@ -1,155 +1,145 @@
-
 .active-ride-container {
-    max-width: 800px;
+    max-width: 650px;
     margin: 0 auto;
-    padding: 80px 20px;
+    padding: 40px 16px;
     font-family: 'IBM Plex Sans', sans-serif;
 }
 
-.state-msg {
-    background-color: #DCEED3;
-    border-radius: 40px;
-    padding: 40px 24px;
-    text-align: center;
-    color: #5A5C54;
-    font-size: 18px;
-    font-weight: 500;
+.rides {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .ride-card {
     background-color: #DCEED3;
-    border-radius: 40px;
-    padding: 32px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.ride-card h2 {
-    color: #2A2C24;
-    font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 28px;
-}
-
-.section {
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-    border-bottom: 2px solid #C8E0BF;
-}
-
-.section:last-of-type {
-    border-bottom: none;
-    margin-bottom: 28px;
-}
-
-.section h3 {
-    color: #5A5C54;
-    font-size: 14px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
-}
-
-.section p {
-    color: #2A2C24;
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 8px;
-    line-height: 1.5;
-}
-
-.section p:last-child {
-    margin-bottom: 0;
-}
-
-.section p strong {
-    color: #5A5C54;
-    font-weight: 500;
-    margin-right: 8px;
-}
-
-.sub-text {
-    color: #5A5C54 !important;
-    font-size: 14px !important;
-    font-weight: 400 !important;
-}
-
-.payment-info {
+.ride-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    background-color: #C8E0BF;
-    border-radius: 20px;
-    padding: 16px 24px;
-    margin-bottom: 24px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #C8E0BF;
+    padding-bottom: 12px;
+}
+
+.header-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ride-header h2 {
+    color: #2A2C24;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.time-header {
+    font-size: 13px;
+    color: #5A5C54;
+    font-weight: 500;
 }
 
 .price {
     color: #2A2C24;
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
-.time {
+.compact-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr; /* Route gets ~60% of the space */
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.section h3 {
     color: #5A5C54;
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
 }
 
-.actions {
+.section p {
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.4;
+    color: #2A2C24;
+}
+
+.route-text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    position: relative;
+    padding-left: 12px;
+}
+
+/* Bullet points for the addresses */
+.route-text:first-of-type::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #426342;
+}
+
+.route-text:last-of-type::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #99C2A2;
+}
+
+.sub-text {
+    color: #5A5C54 !important;
+    font-size: 12px !important;
+}
+
+.info-footer {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #C8E0BF;
+    border-radius: 16px;
+    padding: 8px 16px;
+}
+
+.status-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #426342;
+    text-transform: uppercase;
 }
 
 .track-ride-btn {
-    padding: 14px 32px;
+    padding: 8px 18px;
     background-color: #99C2A2;
     color: #2a2c24;
     border: none;
-    border-radius: 16px;
-    font-size: 16px;
+    border-radius: 12px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'IBM Plex Sans', sans-serif;
-    transition: all 0.3s ease;
+    transition: background 0.2s;
 }
 
 .track-ride-btn:hover {
     background-color: #88ac90;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(66, 99, 66, 0.2);
 }
 
-.track-ride-btn:active {
-    transform: translateY(0);
-}
-
-/* Responsive Design */
-@media (max-width: 600px) {
-    .active-ride-container {
-        padding: 20px 16px;
-    }
-
-    .ride-card {
-        padding: 24px 20px;
-        border-radius: 32px;
-    }
-
-    .ride-card h2 {
-        font-size: 24px;
-    }
-
-    .payment-info {
-        flex-direction: column;
-        gap: 8px;
-        align-items: flex-start;
-    }
-
-    .price {
-        font-size: 20px;
-    }
-
-    .cancel-btn {
-        width: 100%;
+@media (max-width: 550px) {
+    .compact-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
 }

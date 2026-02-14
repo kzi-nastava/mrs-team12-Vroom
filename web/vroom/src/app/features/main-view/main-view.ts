@@ -164,7 +164,8 @@ export class MainView implements AfterViewInit {
     this.rideUpdatesService.getRideUpdates().pipe(
       takeUntil(this.destroy$)
     ).subscribe(update => {
-      this.updateSingleVehicleOnMap( -1,
+      this.updateSingleVehicleOnMap(
+        update.driverID,
         update.currentLocation.lat,
         update.currentLocation.lng,
         type

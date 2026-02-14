@@ -6,13 +6,9 @@ import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.RideDTO;
-import org.example.vroom.DTOs.responses.ride.AcceptedRideDTO;
-import org.example.vroom.DTOs.responses.ride.GetActiveRideInfoDTO;
-import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
-import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
@@ -168,6 +164,7 @@ public class RideService {
                 .price(quote.getPrice())
                 .panicActivated(false)
                 .isScheduled(isScheduled)
+                .startTime(scheduledTime)
                 .build();
 
         ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
@@ -217,22 +214,20 @@ public class RideService {
         return dtos;
     }
 
-    public GetRideResponseDTO getUserRide(String userEmail) {
-        // Check if they are the person
+    public Collection<UserActiveRideDTO> getUserRides(String userEmail) {
         Collection<RideStatus> statuses = new ArrayList<>();
         statuses.add(RideStatus.ACCEPTED);
         statuses.add(RideStatus.ONGOING);
-        Optional<Ride> creatorRide = this.rideRepository.findByPassengerEmailAndStatusIn(userEmail, statuses);
-        if (creatorRide.isPresent()) {
-            Ride ride = creatorRide.get();
-            return rideMapper.getRideDTO(ride);
+        List<UserActiveRideDTO> activeRides = new ArrayList<>();
+        List<Ride> creatorRides = this.rideRepository.findAllByPassengerEmailAndStatusIn(userEmail, statuses);
+        for (Ride ride : creatorRides){
+            activeRides.add(rideMapper.getUserActiveRideDTO(ride));
         }
-        Optional<Ride> passengerRide = this.rideRepository.findByPassengersContainingAndStatusIn(userEmail, statuses);
-        if (passengerRide.isPresent()) {
-            Ride ride = passengerRide.get();
-            return rideMapper.getRideDTO(ride);
+        List<Ride> passengerRides = this.rideRepository.findAllByPassengersContainingAndStatusIn(userEmail, statuses);
+        for (Ride ride : passengerRides){
+            activeRides.add(rideMapper.getUserActiveRideDTO(ride));
         }
-        return null;
+        return activeRides;
     }
 
     public RideStatus getRideStatus(String rideId) {

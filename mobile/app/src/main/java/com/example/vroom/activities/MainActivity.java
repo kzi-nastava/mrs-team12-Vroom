@@ -5,31 +5,34 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.View;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
-
 import com.example.vroom.DTOs.map.MapRouteDTO;
-
 import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
-
+import com.example.vroom.DTOs.ride.responses.UserActiveRideDTO;
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
+import com.example.vroom.fragments.RideTrackingFragment;
 import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.MainViewModel;
+import com.example.vroom.viewmodels.RideTrackingViewModel;
 import com.example.vroom.viewmodels.RouteEstimationViewModel;
 import com.example.vroom.viewmodels.UserRideHistoryViewModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.gson.Gson;
 import com.google.android.gms.location.LocationServices;
-
-
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.BoundingBox;
@@ -38,28 +41,21 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class MainActivity extends BaseActivity {
     private MapView map = null;
     private Polyline routePolyline;
     private final Map<Long, Marker> driverMarkers = new HashMap<>();
     private MainViewModel viewModel;
+    private RideTrackingViewModel rideTrackingViewModel;
     private RouteEstimationViewModel routeEstimationViewModel;
     private UserRideHistoryViewModel userRideHistoryViewModel;
-    private FusedLocationProviderClient fusedLocationClient;
-
+    private BottomSheetBehavior<View> bottomSheetBehavior;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
         Configuration.getInstance().setUserAgentValue(getPackageName());
-
         setContentView(R.layout.activity_main);
 
         map = findViewById(R.id.map);
@@ -75,164 +71,84 @@ public class MainActivity extends BaseActivity {
         routePolyline.getOutlinePaint().setStrokeWidth(10f);
         map.getOverlays().add(routePolyline);
 
-        // first we register all view models we will need to observe
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        rideTrackingViewModel = new ViewModelProvider(this).get(RideTrackingViewModel.class);
         routeEstimationViewModel = new ViewModelProvider(this).get(RouteEstimationViewModel.class);
         userRideHistoryViewModel = new ViewModelProvider(this).get(UserRideHistoryViewModel.class);
 
-        // setting up observers and what should they do
         setupObservers();
-
-        // if first time creating activity
-        // if needed to draw data
         handleIncomingIntent(getIntent());
         viewModel.subscribeToLocationUpdates();
         checkAndStartDriverTracking();
+
+        View bottomSheet = findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
-    private void checkAndStartDriverTracking() {
-        String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
-        if ("DRIVER".equals(userType)){
-            checkLocationPermissions();
-        }
-    }
-
-    private void checkLocationPermissions(){
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
-        }else{
-            startLocationTracking();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
-        super.onRequestPermissionResult(requestCode, permissions, grantResults);
-        if (requestCode == 1001 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startLocationTracking();
-        }
-    }
-
-    private void startLocationTracking(){
-        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
-        viewModel.startTracking(client);
-    }
-
-    @Override
-    public void onLogoButtonClicked(){
-    }
-  
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        handleIncomingIntent(intent);
-    }
-
-    private void handleIncomingIntent(Intent intent){
-        if(intent == null) return;
-
-        // if it has data for drawing route
-        if(intent.hasExtra("ROUTE_DATA")){
-            String json = intent.getStringExtra("ROUTE_DATA");
-            RideResponseDTO ride = new Gson().fromJson(json, RideResponseDTO.class);
-
-            userRideHistoryViewModel.sendRideData(ride);
-        }
-    }
-
-    private void setupObservers(){
-        viewModel.getDriverUpdate().observe(this, driverPositionDTO -> {
-            if (driverPositionDTO != null && driverPositionDTO.getPoint() != null) {
-                updateDriverMarker(driverPositionDTO.getDriverId(), driverPositionDTO.getStatus(),
-                        new GeoPoint(
-                        driverPositionDTO.getPoint().getLat(),
-                        driverPositionDTO.getPoint().getLng()
-                ));
+    private void setupObservers() {
+        viewModel.getDriverUpdate().observe(this, dto -> {
+            if (dto != null && dto.getPoint() != null) {
+                updateDriverMarker(dto.getDriverId(), dto.getStatus(), new GeoPoint(dto.getPoint().getLat(), dto.getPoint().getLng()));
             }
         });
 
-        // used for drawing OSRM routes
+        rideTrackingViewModel.getRideUpdate().observe(this, update -> {
+            if (update != null && update.getCurrentLocation() != null) {
+                updateDriverMarker(update.getDriverID(), DriverStatus.UNAVAILABLE,
+                        new GeoPoint(update.getCurrentLocation().getLat(), update.getCurrentLocation().getLng()), true);
+            }
+        });
+
+        rideTrackingViewModel.getActiveRoute().observe(this, route -> {
+            if (route != null) {
+                MapRouteDTO mapRoute = new MapRouteDTO();
+
+                PointResponseDTO start = new PointResponseDTO(
+                        route.getStartLocationLat(),
+                        route.getStartLocationLng()
+                );
+                PointResponseDTO end = new PointResponseDTO(
+                        route.getEndLocationLat(),
+                        route.getEndLocationLng()
+                );
+
+                mapRoute.setStart(start);
+                mapRoute.setEnd(end);
+                mapRoute.setStops(route.getStops());
+
+                drawRoute(mapRoute, true);
+            }
+        });
+
         viewModel.getRouteResult().observe(this, osrmRoute -> {
             if (osrmRoute != null && osrmRoute.geometry != null) {
-
                 ArrayList<GeoPoint> roadPoints = new ArrayList<>();
                 for (List<Double> coord : osrmRoute.geometry.coordinates) {
                     roadPoints.add(new GeoPoint(coord.get(1), coord.get(0)));
                 }
-                routePolyline.setPoints(roadPoints);
-
-                map.post(() -> {
+                runOnUiThread(() -> {
+                    routePolyline.setPoints(roadPoints);
                     if (roadPoints.size() > 1) {
-                        map.zoomToBoundingBox(BoundingBox.fromGeoPoints(roadPoints), true, 100);
+                        map.postDelayed(() -> {
+                            try {
+                                map.zoomToBoundingBox(BoundingBox.fromGeoPoints(roadPoints), true, 100);
+                            } catch (Exception e) {
+                                map.getController().setCenter(roadPoints.get(0));
+                            }
+                        }, 200);
                     }
+                    map.invalidate();
                 });
-                map.invalidate();
             }
         });
 
-        // observers for errors
-        viewModel.getErrorMessage().observe(this, error -> {
-            Toast.makeText(this, error, Toast.LENGTH_LONG).show();
-        });
-
-        // mimics action type on web, case MapActionType.DRAW_ROUTE
-        routeEstimationViewModel.getRoute().observe(this, mapRouteDTO -> {
-            if (mapRouteDTO != null) {
-                drawRoute(mapRouteDTO, true);
-            }
-        });
-
-        userRideHistoryViewModel.getRoute().observe(this, mapRouteDTO -> {
-            if (mapRouteDTO != null) {
-                drawRoute(mapRouteDTO, true);
-            }
-        });
+        routeEstimationViewModel.getRoute().observe(this, payload -> drawRoute(payload, true));
+        userRideHistoryViewModel.getRoute().observe(this, payload -> drawRoute(payload, true));
+        viewModel.getErrorMessage().observe(this, error -> Toast.makeText(this, error, Toast.LENGTH_LONG).show());
     }
 
-    // draw functions are used to draw on map, they can be combined or used seperately
-    // draw functions should call main view model functions to get route, vehicle position, etc.
-    public void drawVehicles(){
-
-    }
-    public void drawRide(MapRouteDTO payload, boolean clear){
-        if(clear)
-            clearMap();
-
-        // draw one vehicle
-
-        // draw route
-        drawRoute(payload, false);
-    }
-
-    public void clearMap(){
-        // removes line
-        if (routePolyline != null) {
-            routePolyline.setPoints(new ArrayList<>());
-        }
-        // removes markers
-        map.getOverlays().removeIf(overlay -> overlay instanceof Marker);
-        driverMarkers.clear();
-        map.invalidate();
-    }
-
-    public void drawRoute(MapRouteDTO payload, boolean clear) {
-        if (clear) {
-            this.clearMap();
-        }
-
-        addRouteMarkers(payload);
-
-        viewModel.getRouteCoordinates(payload);
-
-        map.invalidate();
-    }
-
-
-    // add markers are used to draw icons on map,
-    // they are wrappers around add one marker which actually adds marker
-    private void updateDriverMarker(Long driverID, DriverStatus status, GeoPoint position){
+    public void updateDriverMarker(Long driverID, DriverStatus status, GeoPoint position, boolean activeRide) {
         Marker m = driverMarkers.get(driverID);
         if (m == null) {
             m = new Marker(map);
@@ -243,7 +159,26 @@ public class MainActivity extends BaseActivity {
         }
         m.setPosition(position);
         int res = (status == DriverStatus.AVAILABLE) ? R.drawable.ic_available_taxi : R.drawable.ic_unavailable_taxi;
+        if (activeRide) res = R.drawable.ic_designated_taxi;
         m.setIcon(ContextCompat.getDrawable(this, res));
+        map.invalidate();
+    }
+
+    private void updateDriverMarker(Long driverID, DriverStatus status, GeoPoint position) {
+        updateDriverMarker(driverID, status, position, false);
+    }
+
+    public void drawRoute(MapRouteDTO payload, boolean clear) {
+        if (clear) clearMap();
+        addRouteMarkers(payload);
+        viewModel.getRouteCoordinates(payload);
+        map.invalidate();
+    }
+
+    public void clearMap() {
+        if (routePolyline != null) routePolyline.setPoints(new ArrayList<>());
+        map.getOverlays().removeIf(overlay -> overlay instanceof Marker);
+        driverMarkers.clear();
         map.invalidate();
     }
 
@@ -257,21 +192,54 @@ public class MainActivity extends BaseActivity {
                 addMarker(payload.getStops().get(i), "Stop " + (i+1), R.drawable.ic_ride_stop);
             }
         }
-
-        if (payload.getEnd() != null) {
-            addMarker(payload.getEnd(), "End", R.drawable.ic_ride_end);
-        }
+        if (payload.getEnd() != null) addMarker(payload.getEnd(), "End", R.drawable.ic_ride_end);
     }
 
-    // adds marker on map
     private void addMarker(PointResponseDTO p, String title, int iconRes) {
         Marker m = new Marker(map);
-
         m.setPosition(new GeoPoint(p.getLat(), p.getLng()));
         m.setTitle(title);
         m.setIcon(ContextCompat.getDrawable(this, iconRes));
-
         map.getOverlays().add(m);
+    }
+
+    private void checkAndStartDriverTracking() {
+        String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
+        if ("DRIVER".equals(userType)) checkLocationPermissions();
+    }
+
+    private void checkLocationPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
+        } else {
+            startLocationTracking();
+        }
+    }
+
+    private void startLocationTracking() {
+        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
+        viewModel.startTracking(client);
+    }
+
+    private void handleIncomingIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("ROUTE_DATA")) {
+            RideResponseDTO ride = new Gson().fromJson(intent.getStringExtra("ROUTE_DATA"), RideResponseDTO.class);
+            userRideHistoryViewModel.sendRideData(ride);
+        }
+    }
+
+    public void updateUIForRideState(Long rideId) {
+        String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
+
+        viewModel.setRideTrackingActive(true);
+
+        rideTrackingViewModel.subscribeToRideUpdates(rideId);
+
+        Fragment fragment = RideTrackingFragment.newInstance(rideId, userType);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.sheet_content_container, fragment)
+                .commit();
     }
 
     @Override
@@ -279,7 +247,6 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         map.onResume();
         viewModel.subscribeToLocationUpdates();
-        checkAndStartDriverTracking();
     }
 
     @Override
@@ -290,9 +257,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onDestroy() {
-        viewModel.stopTracking(fusedLocationClient);
         SocketProvider.getInstance().disconnect();
         super.onDestroy();
     }
-
 }

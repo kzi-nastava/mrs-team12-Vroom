@@ -1,6 +1,6 @@
 package com.example.vroom.DTOs.map;
 
-import com.example.vroom.DTOs.ride.responses.PointResponseDTO;
+import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.enums.DriverStatus;
 
 public class DriverPositionDTO {
