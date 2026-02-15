@@ -2,6 +2,7 @@ package com.example.vroom.fragments;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,9 +16,11 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.vroom.R;
+import com.example.vroom.activities.MainActivity;
 import com.example.vroom.adapters.PanicAdapter;
 import com.example.vroom.databinding.FragmentPanicFeedBinding;
 import com.example.vroom.viewmodels.PanicFeedViewModel;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -100,9 +103,14 @@ public class PanicFeedFragment extends Fragment implements PanicAdapter.OnPanicC
 
     @Override
     public void onMapClick(Long rideId) {
-        // map redirect here
-        // get data and redirect to map
         Toast.makeText(getContext(), "Showing ride #" + rideId + " on map", Toast.LENGTH_SHORT).show();
+
+        String jsonRideId = new Gson().toJson(rideId);
+
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.putExtra("TRACK_RIDE_DATA", jsonRideId);
+
+        startActivity(intent);
     }
 
     @Override

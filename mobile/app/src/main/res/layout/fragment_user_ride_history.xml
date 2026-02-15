@@ -42,7 +42,7 @@
                     app:cardCornerRadius="12dp"
                     app:cardElevation="3dp">
                     <Button
-                        android:id="@+id/btnStartDate"
+                        android:id="@+id/btn_start_date"
                         style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
                     app:cardCornerRadius="12dp"
                     app:cardElevation="3dp">
                     <Button
-                        android:id="@+id/btnEndDate"
+                        android:id="@+id/btn_end_date"
                         style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
             app:cardElevation="3dp"
             android:layout_marginBottom="10dp">
             <Spinner
-                android:id="@+id/spinnerSort"
+                android:id="@+id/spinner_sort"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:background="@drawable/spinner_rounded_bg"
@@ -93,7 +93,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <EditText
-            android:id="@+id/etUserEmail"
+            android:id="@+id/user_email_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="User's Email"
@@ -104,7 +104,7 @@
             android:layout_marginBottom="8dp"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSearch"
+            android:id="@+id/btn_search"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Search Rides"
@@ -115,7 +115,7 @@
             android:layout_marginBottom="24dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvRideHistory"
+            android:id="@+id/ride_history_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
@@ -134,7 +134,7 @@
                 app:cardCornerRadius="8dp"
                 app:cardElevation="2dp">
                 <Button
-                    android:id="@+id/btnPrevPage"
+                    android:id="@+id/btn_prev_page"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -158,7 +158,7 @@
                 app:cardCornerRadius="8dp"
                 app:cardElevation="2dp">
                 <Button
-                    android:id="@+id/btnNextPage"
+                    android:id="@+id/btn_next_page"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

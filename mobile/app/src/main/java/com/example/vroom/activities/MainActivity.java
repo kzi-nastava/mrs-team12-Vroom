@@ -20,6 +20,7 @@ import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
 import com.example.vroom.fragments.RideTrackingFragment;
+import com.example.vroom.fragments.RouteEstimationFragment;
 import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RideTrackingViewModel;
@@ -222,9 +223,20 @@ public class MainActivity extends BaseActivity {
     }
 
     private void handleIncomingIntent(Intent intent) {
-        if (intent != null && intent.hasExtra("ROUTE_DATA")) {
+        if (intent == null) return;
+
+        if (intent.hasExtra("ROUTE_DATA")) {
             RideResponseDTO ride = new Gson().fromJson(intent.getStringExtra("ROUTE_DATA"), RideResponseDTO.class);
             userRideHistoryViewModel.sendRideData(ride);
+        } else if (intent.hasExtra("TRACK_RIDE_DATA")){
+            // should be used for admin to track ride both for track ride & panic ride
+            Long rideId = new Gson().fromJson(intent.getStringExtra("TRACK_RIDE_DATA"), Long.class);
+
+            rideTrackingViewModel.loadRoute(rideId);
+            rideTrackingViewModel.subscribeToRideUpdates(rideId);
+        } else if (intent.hasExtra("OPEN_ESTIMATION")){
+            RouteEstimationFragment fragment = RouteEstimationFragment.newInstance();
+            fragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
         }
     }
 
@@ -259,5 +271,12 @@ public class MainActivity extends BaseActivity {
     public void onDestroy() {
         SocketProvider.getInstance().disconnect();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingIntent(intent);
     }
 }

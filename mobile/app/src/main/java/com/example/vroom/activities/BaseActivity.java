@@ -166,7 +166,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         boolean isLoggedIn = (token != null && !token.isEmpty());
 
         menu.findItem(R.id.nav_logout).setVisible(isLoggedIn);
-        menu.findItem(R.id.driver_ride_history_item).setVisible(isLoggedIn);
+        menu.findItem(R.id.driver_ride_history_item).setVisible(isLoggedIn && userType.equals("DRIVER"));
         menu.findItem(R.id.nav_status_switch).setVisible(isLoggedIn && userType.equals("DRIVER"));
 
         menu.findItem(R.id.nav_panic_feed).setVisible(isLoggedIn && userType.equals("ADMIN"));
@@ -218,10 +218,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         }else if (id == R.id.nav_logout && StorageManager.getData("jwt", null) != null){
             viewModel.logout();
         }else if(id == R.id.nav_route_estimation){
-            if(routeEstimationFragment == null)
-                routeEstimationFragment = RouteEstimationFragment.newInstance();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-            routeEstimationFragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
+            intent.putExtra("OPEN_ESTIMATION", true);
+            startActivity(intent);
         }else if(id == R.id.nav_panic_feed){
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_frame, new PanicFeedFragment())

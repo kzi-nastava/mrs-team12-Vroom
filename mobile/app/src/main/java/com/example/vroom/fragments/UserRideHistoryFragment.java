@@ -78,15 +78,15 @@ public class UserRideHistoryFragment extends Fragment
 
         sensorManager = (SensorManager) requireActivity().getSystemService(android.content.Context.SENSOR_SERVICE);
 
-        recyclerView = view.findViewById(R.id.rvRideHistory);
-        etUserEmail = view.findViewById(R.id.etUserEmail);
-        btnStartDate = view.findViewById(R.id.btnStartDate);
-        btnEndDate = view.findViewById(R.id.btnEndDate);
-        btnSearch = view.findViewById(R.id.btnSearch);
-        btnNextPage = view.findViewById(R.id.btnNextPage);
-        btnPrevPage = view.findViewById(R.id.btnPrevPage);
+        recyclerView = view.findViewById(R.id.ride_history_rv);
+        etUserEmail = view.findViewById(R.id.user_email_input);
+        btnStartDate = view.findViewById(R.id.btn_start_date);
+        btnEndDate = view.findViewById(R.id.btn_end_date);
+        btnSearch = view.findViewById(R.id.btn_search);
+        btnNextPage = view.findViewById(R.id.btn_next_page);
+        btnPrevPage = view.findViewById(R.id.btn_prev_page);
         tvPageIndicator = view.findViewById(R.id.tvPageIndicator);
-        spinnerSort = view.findViewById(R.id.spinnerSort);
+        spinnerSort = view.findViewById(R.id.spinner_sort);
 
         String userRole = StorageManager.getData("user_type", "");
         etUserEmail.setVisibility("ADMIN".equals(userRole) ? View.VISIBLE : View.GONE);
