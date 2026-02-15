@@ -9,6 +9,5 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CancelRideRequestDTO {
-    @Nullable
     private String reason;
 }

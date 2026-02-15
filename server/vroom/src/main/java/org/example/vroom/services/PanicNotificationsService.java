@@ -35,6 +35,8 @@ public class PanicNotificationsService {
     private PanicNotificationMapper panicNotificationMapper;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private FcmService fcmService;
 
     private PanicNotification checkPanicExisting(Long panicID){
         Optional<PanicNotification> notificationOptional = notificationRepository.findById(panicID);
@@ -94,6 +96,10 @@ public class PanicNotificationsService {
         ride.setPanicNotification(panic);
 
         messagingTemplate.convertAndSend("/socket-publisher/panic-notifications", data);
+        fcmService.sendPanicNotification(
+                "PANIC",
+                "There is PANIC on ride " + data.getRideId() + ", activated by " + user.get().getEmail()
+        );
 
         notificationRepository.save(panic);
         rideRepository.save(ride);

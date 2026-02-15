@@ -20,3 +20,5 @@ server/vroom/data/*.mv.db
 *.trace.db
 server/vroom/pom.xml
 server/vroom/src/main/resources/application.properties
+server/vroom/src/main/resources/vroom-2c656-firebase-adminsdk-fbsvc-02a0d2b49e.json
+mobile/app/google-services.json

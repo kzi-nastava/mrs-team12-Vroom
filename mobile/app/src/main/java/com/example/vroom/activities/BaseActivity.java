@@ -1,6 +1,8 @@
 package com.example.vroom.activities;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -84,6 +86,19 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         observeViewModel();
 
         initToggleStatus(navigationView);
+
+        askPermission();
+    }
+
+    private void askPermission(){
+        // enavble notification permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
     }
 
     private void observeViewModel() {
@@ -205,10 +220,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         }else if (id == R.id.nav_logout && StorageManager.getData("jwt", null) != null){
             viewModel.logout();
         }else if(id == R.id.nav_route_estimation){
-            if(routeEstimationFragment == null)
-                routeEstimationFragment = RouteEstimationFragment.newInstance();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-            routeEstimationFragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
+            intent.putExtra("OPEN_ESTIMATION", true);
+            startActivity(intent);
         }else if(id == R.id.nav_panic_feed){
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_frame, new PanicFeedFragment())

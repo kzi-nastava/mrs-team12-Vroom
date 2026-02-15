@@ -173,11 +173,12 @@ public class RideController {
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('DRIVER','REGISTERED_USER')")
     @PutMapping(path = "/{rideID}/cancel", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> cancelRide(
             @AuthenticationPrincipal User user,
-            @PathVariable Long rideID,
-            @RequestBody CancelRideRequestDTO data
+            @PathVariable @NotNull Long rideID,
+            @Valid @RequestBody CancelRideRequestDTO data
     ){
         if(data==null)
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
@@ -201,7 +202,7 @@ public class RideController {
     @PreAuthorize("hasRole('DRIVER')")
     @PutMapping(path="/{rideID}/stop",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StoppedRideResponseDTO> stopRide(
-            @PathVariable Long rideID,
+            @PathVariable @NotNull Long rideID,
             @Valid @RequestBody StopRideRequestDTO data
     ){
         if(data == null)

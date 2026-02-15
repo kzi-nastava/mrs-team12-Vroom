@@ -1,6 +1,8 @@
 package org.example.vroom.controllers;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.example.vroom.DTOs.requests.auth.*;
 import org.example.vroom.DTOs.requests.driver.DriverRegisterRequestDTO;
 import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
@@ -27,6 +29,7 @@ import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +37,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/auth")
+@Validated
 public class AuthController {
     @Autowired
     private AuthService authService;
@@ -53,7 +57,7 @@ public class AuthController {
             path="/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO data, HttpServletResponse response) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO data) {
         if(data==null)
             return new ResponseEntity<LoginResponseDTO>(HttpStatus.NO_CONTENT);
 
@@ -64,7 +68,7 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            LoginResponseDTO res = authService.login((User) authentication.getPrincipal(), response);
+            LoginResponseDTO res = authService.login((User) authentication.getPrincipal());
 
             return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
 
@@ -82,7 +86,7 @@ public class AuthController {
             path="/forgot-password",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponseDTO> forgotPassword(@RequestBody ForgotPasswordRequestDTO data) {
+    public ResponseEntity<MessageResponseDTO> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO data) {
         if(data==null)
             return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
 
@@ -131,7 +135,7 @@ public class AuthController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> register(
-            @ModelAttribute RegisterRequestDTO data,
+            @Valid @ModelAttribute RegisterRequestDTO data,
             @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto
     ){
         if(data == null)
@@ -155,7 +159,7 @@ public class AuthController {
     }
 
     @GetMapping(path = "/activate-account/{userID}")
-    public ResponseEntity<Void> activateAccount(@PathVariable Long userID){
+    public ResponseEntity<Void> activateAccount(@PathVariable @Positive Long userID){
         String targetUrl;
 
         try {

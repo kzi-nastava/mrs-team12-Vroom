@@ -1,5 +1,8 @@
 package org.example.vroom.DTOs.requests.auth;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.example.vroom.enums.Gender;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,14 +13,29 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @Builder
 public class RegisterRequestDTO {
+    @NotBlank
     private String firstName;
+
+    @NotBlank
     private String lastName;
+
+    @NotBlank
+    @Email
     private String email;
+
+    @NotBlank
     private String phoneNumber;
+
+    @NotBlank
     private String address;
+
+    @NotNull
     private Gender gender;
     //private MultipartFile profilePhoto;
+    @NotBlank
     private String password;
+
+    @NotBlank
     private String confirmPassword;
 
 

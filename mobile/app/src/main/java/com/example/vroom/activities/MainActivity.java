@@ -20,6 +20,8 @@ import com.example.vroom.enums.DriverStatus;
 import com.example.vroom.fragments.ActiveRidesFragment;
 import com.example.vroom.fragments.ReviewRideFragment;
 import com.example.vroom.fragments.RideTrackingFragment;
+import com.example.vroom.fragments.RouteEstimationFragment;
+import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RideTrackingViewModel;
 import com.example.vroom.viewmodels.RouteEstimationViewModel;
@@ -192,9 +194,19 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
 
     private void handleIncomingIntent(Intent intent) {
         if (intent == null) return;
+
         if (intent.hasExtra("ROUTE_DATA")) {
             RideResponseDTO ride = new Gson().fromJson(intent.getStringExtra("ROUTE_DATA"), RideResponseDTO.class);
             userRideHistoryViewModel.sendRideData(ride);
+        } else if (intent.hasExtra("TRACK_RIDE_DATA")){
+            // should be used for admin to track ride both for track ride & panic ride
+            Long rideId = new Gson().fromJson(intent.getStringExtra("TRACK_RIDE_DATA"), Long.class);
+
+            rideTrackingViewModel.loadRoute(rideId);
+            rideTrackingViewModel.subscribeToRideUpdates(rideId);
+        } else if (intent.hasExtra("OPEN_ESTIMATION")){
+            RouteEstimationFragment fragment = RouteEstimationFragment.newInstance();
+            fragment.show(getSupportFragmentManager(), "RouteEstimationBottomSheet");
         }
         if (intent.hasExtra("RIDE_ID")) {
             long rideId = intent.getLongExtra("RIDE_ID", -1);
@@ -237,6 +249,12 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingIntent(intent);
+    }
+  
     public void onRideFinished(Long rideID, String userRole) {
         rideTrackingViewModel.unsubscribeFromRideUpdates();
 

@@ -440,12 +440,6 @@ public class RideService {
         rideRepository.save(ride);
     }
 
-    public double calculatePrice(String startLocation, String endLocation){
-        RouteQuoteResponseDTO data = routeService.routeEstimation(startLocation, endLocation);
-
-        return data.getPrice();
-    }
-
     public StoppedRideResponseDTO stopRide(Long rideID, StopRideRequestDTO data){
         if (data.getStopLat() < -90 || data.getStopLat() > 90 || data.getStopLng() < -180 || data.getStopLng() > 180) {
             throw new StopRideException("Invalid coordinates");
@@ -474,7 +468,7 @@ public class RideService {
 
         String startAddress = String.valueOf(route.getStartLocationLat())+","+String.valueOf(route.getStartLocationLng());
         String stopAddress = String.valueOf(data.getStopLat())+","+String.valueOf(data.getStopLng());
-        double price = this.calculatePrice(startAddress, stopAddress);
+        double price = routeService.routeEstimation(startAddress, stopAddress).getPrice();
 
         if (ride.getDriver() != null) {
             Driver driver = ride.getDriver();
