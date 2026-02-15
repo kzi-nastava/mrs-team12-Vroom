@@ -25,6 +25,7 @@ import com.example.vroom.DTOs.ride.responses.UserActiveRideDTO;
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
+import com.example.vroom.fragments.ActiveRidesFragment;
 import com.example.vroom.fragments.PanicFeedFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
@@ -153,9 +154,9 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         boolean isLoggedIn = (token != null && !token.isEmpty());
 
         menu.findItem(R.id.nav_logout).setVisible(isLoggedIn);
-        menu.findItem(R.id.driver_ride_history_item).setVisible(isLoggedIn);
+        menu.findItem(R.id.driver_ride_history_item).setVisible(isLoggedIn && userType.equals("DRIVER"));
         menu.findItem(R.id.nav_status_switch).setVisible(isLoggedIn && userType.equals("DRIVER"));
-
+        menu.findItem(R.id.driver_active_ride).setVisible(isLoggedIn && userType.equals("DRIVER"));
         menu.findItem(R.id.nav_panic_feed).setVisible(isLoggedIn && userType.equals("ADMIN"));
         menu.findItem(R.id.ride_history).setVisible(isLoggedIn &&
                 (userType.equals("ADMIN") || userType.equals("REGISTERED_USER")));
@@ -184,7 +185,6 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         } else {
             intent = new Intent(this, ProfileActivity.class);
         }
-
         startActivity(intent);
     }
 
@@ -222,6 +222,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         }else if (id == R.id.user_active_rides){
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_frame, new UserActiveRideFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if (id == R.id.driver_active_ride){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new ActiveRidesFragment())
                     .addToBackStack(null)
                     .commit();
         }
