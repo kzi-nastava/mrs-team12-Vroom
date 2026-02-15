@@ -1,5 +1,7 @@
 package org.example.vroom.controllers;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import javassist.NotFoundException;
 import org.example.vroom.DTOs.requests.ride.CreateFavoriteRouteRequestDTO;
 import org.example.vroom.DTOs.requests.ride.FavoriteRouteResponseDTO;
@@ -15,15 +17,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/api/registered-user")
 @PreAuthorize("hasRole('REGISTERED_USER')")
+@Validated
 public class RegisteredUserController {
 
     @Autowired
@@ -38,8 +42,8 @@ public class RegisteredUserController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam(required = false, defaultValue = "0") int pageNumber,
-            @RequestParam(required = false, defaultValue = "10") int pageSize
+            @RequestParam(required = false, defaultValue = "0") @Min(value = 0) int pageNumber,
+            @RequestParam(required = false, defaultValue = "10") @Min(value = 1) int pageSize
     ){
         List<RideResponseDTO> rides = registeredUserService.getUserRideHistory(
                 user, sort, startDate, endDate, pageNumber, pageSize

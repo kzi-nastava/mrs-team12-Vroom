@@ -1,5 +1,6 @@
 package org.example.vroom.controllers;
 
+import jakarta.validation.Valid;
 import org.example.vroom.DTOs.requests.panic.PanicRequestDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.panic.PanicNotificationResponseDTO;
@@ -9,11 +10,13 @@ import org.example.vroom.exceptions.panic.PanicNotificationNotFound;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.services.PanicNotificationsService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/panics")
+@Validated
 public class PanicNotificationsController {
     @Autowired
     private PanicNotificationsService panicNotificationsService;
@@ -57,7 +61,7 @@ public class PanicNotificationsController {
     @PostMapping
     public ResponseEntity<MessageResponseDTO> createPanic(
             @AuthenticationPrincipal User user,
-            @RequestBody PanicRequestDTO data
+            @Valid @RequestBody PanicRequestDTO data
     ){
         if(data == null || data.getRideId() == null)
             return new ResponseEntity<MessageResponseDTO> (

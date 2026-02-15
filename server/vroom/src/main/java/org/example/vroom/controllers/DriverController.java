@@ -1,5 +1,6 @@
 package org.example.vroom.controllers;
 
+import jakarta.validation.Valid;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverChangeStatusRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
@@ -26,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.Path;
@@ -35,6 +37,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/drivers")
+@Validated
 public class DriverController {
 
     private final DriverService driverService;
@@ -112,11 +115,11 @@ public class DriverController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('DRIVER')")
     @PutMapping(path = "/status")
     public ResponseEntity<MessageResponseDTO> changeStatus(
             @AuthenticationPrincipal User user,
-            @RequestBody DriverChangeStatusRequestDTO data
+            @Valid @RequestBody DriverChangeStatusRequestDTO data
     ){
         if(data == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         try {

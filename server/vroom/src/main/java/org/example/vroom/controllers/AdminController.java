@@ -1,6 +1,8 @@
 package org.example.vroom.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import org.example.vroom.DTOs.BlockUserRequestDTO;
 import org.example.vroom.DTOs.requests.PricelistDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
@@ -16,6 +18,8 @@ import org.example.vroom.services.PriceListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,7 +28,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admins")
-//@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
+@Validated
 public class AdminController {
 
     @Autowired
@@ -38,12 +43,12 @@ public class AdminController {
 
     @GetMapping(path = "/users/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<RideResponseDTO>> getRides(
-            @RequestParam(required = false) String userEmail,
+            @RequestParam(required = false) @Email String userEmail,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam(required = false, defaultValue = "0") int pageNumber,
-            @RequestParam(required = false, defaultValue = "10") int pageSize
+            @RequestParam(required = false, defaultValue = "0") @Min(value = 0) int pageNumber,
+            @RequestParam(required = false, defaultValue = "10") @Min(value = 1) int pageSize
     ) {
         try{
             List<RideResponseDTO> rides;
