@@ -18,7 +18,8 @@
         android:textColor="@color/brown_black"
         android:textSize="18sp" />
 
-    <FrameLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -46,6 +47,6 @@
             android:textColor="#5A5C54"
             android:visibility="gone" />
 
-    </FrameLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>

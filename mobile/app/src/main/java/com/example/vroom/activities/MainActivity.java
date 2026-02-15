@@ -19,6 +19,8 @@ import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
+import com.example.vroom.fragments.ActiveRidesFragment;
+import com.example.vroom.fragments.ReviewRideFragment;
 import com.example.vroom.fragments.RideTrackingFragment;
 import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.MainViewModel;
@@ -41,7 +43,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements RideNavigationListener {
     private MapView map = null;
     private Polyline routePolyline;
     private final Map<Long, Marker> driverMarkers = new HashMap<>();
@@ -143,6 +145,17 @@ public class MainActivity extends BaseActivity {
             }
         });
 
+        rideTrackingViewModel.getIsRideFinished().observe(this, finished -> {
+            if (finished != null && finished) {
+                String role = StorageManager.getSharedPreferences(this).getString("user_type", "");
+                Long currentId = rideTrackingViewModel.getRideID().getValue();
+
+                if (currentId != null) {
+                    onRideFinished(currentId, role);
+                }
+            }
+        });
+
         routeEstimationViewModel.getRoute().observe(this, payload -> drawRoute(payload, true));
         userRideHistoryViewModel.getRoute().observe(this, payload -> drawRoute(payload, true));
         viewModel.getErrorMessage().observe(this, error -> Toast.makeText(this, error, Toast.LENGTH_LONG).show());
@@ -230,13 +243,15 @@ public class MainActivity extends BaseActivity {
 
     public void updateUIForRideState(Long rideId) {
         String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
+        clearMap();
 
         viewModel.setRideTrackingActive(true);
-
         rideTrackingViewModel.subscribeToRideUpdates(rideId);
-
         Fragment fragment = RideTrackingFragment.newInstance(rideId, userType);
+
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomSheetBehavior.setHideable(false);
+
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.sheet_content_container, fragment)
                 .commit();
@@ -246,7 +261,7 @@ public class MainActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         map.onResume();
-        viewModel.subscribeToLocationUpdates();
+        viewModel.setRideTrackingActive(false);
     }
 
     @Override
@@ -259,5 +274,48 @@ public class MainActivity extends BaseActivity {
     public void onDestroy() {
         SocketProvider.getInstance().disconnect();
         super.onDestroy();
+    }
+
+    @Override
+    public void onRideFinished(Long rideID, String userRole) {
+        rideTrackingViewModel.unsubscribeFromRideUpdates();
+
+        rideTrackingViewModel.resetState();
+        viewModel.setRideTrackingActive(false);
+
+        clearMap();
+
+        Fragment nextFragment;
+        if ("REGISTERED_USER".equals(userRole)) {
+            nextFragment = ReviewRideFragment.newInstance(rideID);
+        } else {
+            bottomSheetBehavior.setHideable(true);
+            resetToHomeState();
+            if ("DRIVER".equals(userRole)) {
+                startLocationTracking();
+            }
+            return;
+        }
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.sheet_content_container, nextFragment)
+                .commitAllowingStateLoss();
+
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    public void resetToHomeState() {
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.sheet_content_container);
+        if (currentFragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(currentFragment).commit();
+        }
+
+        clearMap();
+        viewModel.setRideTrackingActive(false);
+        viewModel.subscribeToLocationUpdates();
+
+        checkAndStartDriverTracking();
     }
 }
