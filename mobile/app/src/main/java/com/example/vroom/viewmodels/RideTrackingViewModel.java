@@ -36,6 +36,7 @@ public class RideTrackingViewModel extends ViewModel {
     private Long currentRideId;
     private final Gson gson = new Gson();
     private LocationCallback locationCallback;
+    private Disposable rideSubscription;
     private boolean isTracking = false;
 
     public LiveData<GetRouteResponseDTO> getActiveRoute() { return activeRoute; }
@@ -77,14 +78,14 @@ public class RideTrackingViewModel extends ViewModel {
     }
 
     @SuppressLint("MissingPermission")
-    public void startTracking(FusedLocationProviderClient client, Long rideID) {
+    public void startTracking(FusedLocationProviderClient client, Long id) {
         if (isTracking) return;
         LocationRequest request = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build();
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult result) {
                 if (result != null && result.getLastLocation() != null && isTracking) {
-                    sendCurrentLocation(rideID, result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
+                    sendLocation(id, result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
                 }
             }
         };

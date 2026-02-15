@@ -17,6 +17,8 @@ import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.enums.DriverStatus;
+import com.example.vroom.fragments.ActiveRidesFragment;
+import com.example.vroom.fragments.ReviewRideFragment;
 import com.example.vroom.fragments.RideTrackingFragment;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RideTrackingViewModel;
@@ -37,7 +39,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements RideNavigationListener {
     private MapView map = null;
     private Polyline routePolyline;
     private final Map<Long, Marker> driverMarkers = new HashMap<>();
@@ -205,7 +207,10 @@ public class MainActivity extends BaseActivity {
         String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
         viewModel.setRideTrackingActive(true, userType);
         Fragment fragment = RideTrackingFragment.newInstance(rideId, userType);
+
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomSheetBehavior.setHideable(false);
+
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.sheet_content_container, fragment)
                 .commit();
@@ -229,5 +234,48 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    public void onRideFinished(Long rideID, String userRole) {
+        rideTrackingViewModel.unsubscribeFromRideUpdates();
+
+        rideTrackingViewModel.resetState();
+        viewModel.setRideTrackingActive(false);
+
+        clearMap();
+
+        Fragment nextFragment;
+        if ("REGISTERED_USER".equals(userRole)) {
+            nextFragment = ReviewRideFragment.newInstance(rideID);
+        } else {
+            bottomSheetBehavior.setHideable(true);
+            resetToHomeState();
+            if ("DRIVER".equals(userRole)) {
+                startLocationTracking();
+            }
+            return;
+        }
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.sheet_content_container, nextFragment)
+                .commitAllowingStateLoss();
+
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    public void resetToHomeState() {
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.sheet_content_container);
+        if (currentFragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(currentFragment).commit();
+        }
+
+        clearMap();
+        viewModel.setRideTrackingActive(false);
+        viewModel.subscribeToLocationUpdates();
+
+        checkAndStartDriverTracking();
     }
 }

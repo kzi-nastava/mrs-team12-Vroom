@@ -3,6 +3,7 @@ package com.example.vroom.services;
 import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.ride.requests.CancelRideRequestDTO;
 import com.example.vroom.DTOs.ride.requests.FavoriteRouteDTO;
+import com.example.vroom.DTOs.ride.requests.LeaveReviewRequestDTO;
 import com.example.vroom.DTOs.ride.requests.OrderFromFavoriteRequestDTO;
 import com.example.vroom.DTOs.ride.requests.RideRequestDTO;
 import com.example.vroom.DTOs.ride.requests.ComplaintRequestDTO;
@@ -77,4 +78,10 @@ public interface RideService {
 
     @GET("api/rides/active-rides")
     Call<List<GetActiveRideInfoDTO>> getAllActiveRides();
+  
+    @POST("api/rides/{rideID}/review")
+    Call<MessageResponseDTO> leaveReview(
+            @Path("rideID") Long rideID,
+            @Body LeaveReviewRequestDTO body
+    );
 }

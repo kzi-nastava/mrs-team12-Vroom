@@ -32,6 +32,7 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<OSRMEnvelope.MapOSRMRoute> routeResult = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<DriverPositionDTO> driverUpdate = new MutableLiveData<>();
+    public LiveData<DriverPositionDTO> getDriverUpdate() { return driverUpdate; }
     private final CompositeDisposable disposables = new CompositeDisposable();
     private Disposable locationDisposable;
     private final Gson gson = new Gson();

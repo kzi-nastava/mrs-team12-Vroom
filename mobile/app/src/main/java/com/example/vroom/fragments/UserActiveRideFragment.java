@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.example.vroom.R;
 import com.example.vroom.activities.MainActivity;
 import com.example.vroom.adapters.UserActiveRidesAdapter;
@@ -20,6 +22,7 @@ public class UserActiveRideFragment extends Fragment implements UserActiveRidesA
     private UserActiveRideViewModel viewModel;
     private UserActiveRidesAdapter adapter;
     private RecyclerView recyclerView;
+    private SwipeRefreshLayout swipeRefresh;
     private TextView emptyStateMsg;
     private View loadingView;
 
@@ -34,7 +37,9 @@ public class UserActiveRideFragment extends Fragment implements UserActiveRidesA
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
         viewModel = new ViewModelProvider(this).get(UserActiveRideViewModel.class);
+        swipeRefresh = view.findViewById(R.id.swipeRefresh);
         setupObservers();
+
         viewModel.loadActiveRides();
         return view;
     }
@@ -44,7 +49,11 @@ public class UserActiveRideFragment extends Fragment implements UserActiveRidesA
             adapter.submitList(rides);
             emptyStateMsg.setVisibility((rides == null || rides.isEmpty()) ? View.VISIBLE : View.GONE);
         });
-        viewModel.getIsLoading().observe(getViewLifecycleOwner(), loading -> loadingView.setVisibility(loading ? View.VISIBLE : View.GONE));
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(), loading -> {
+            loadingView.setVisibility(loading ? View.VISIBLE : View.GONE);
+            swipeRefresh.setRefreshing(loading != null && loading);
+        });
+        swipeRefresh.setOnRefreshListener(() -> viewModel.loadActiveRides());
     }
 
     @Override

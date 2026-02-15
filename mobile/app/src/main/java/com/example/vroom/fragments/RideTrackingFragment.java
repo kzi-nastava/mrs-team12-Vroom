@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.vroom.DTOs.route.responses.GetRouteResponseDTO;
 import com.example.vroom.R;
+import com.example.vroom.activities.RideNavigationListener;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RideTrackingViewModel;
 import com.google.android.gms.location.LocationServices;
