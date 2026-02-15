@@ -32,6 +32,10 @@
     <item
         android:id="@+id/user_active_rides"
         android:title="Active rides"/>
+    <item
+        android:title="Active ride"
+        android:id="@+id/driver_active_ride"
+    />
 
     <group android:id="@+id/nav_footer" android:checkableBehavior="none">
         <item
