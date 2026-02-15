@@ -7,6 +7,7 @@ import com.example.vroom.DTOs.ride.requests.OrderFromFavoriteRequestDTO;
 import com.example.vroom.DTOs.ride.requests.RideRequestDTO;
 import com.example.vroom.DTOs.ride.requests.ComplaintRequestDTO;
 import com.example.vroom.DTOs.ride.requests.StopRideRequestDTO;
+import com.example.vroom.DTOs.ride.responses.GetActiveRideInfoDTO;
 import com.example.vroom.DTOs.ride.responses.GetRideResponseDTO;
 import com.example.vroom.DTOs.ride.responses.RideHistoryResponseDTO;
 import com.example.vroom.DTOs.ride.responses.StoppedRideResponseDTO;
@@ -73,4 +74,7 @@ public interface RideService {
     Call<MessageResponseDTO> finishRide(
             @Path("rideID") Long rideID
     );
+
+    @GET("api/rides/active-rides")
+    Call<List<GetActiveRideInfoDTO>> getAllActiveRides();
 }

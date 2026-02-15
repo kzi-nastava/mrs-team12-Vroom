@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -24,13 +25,13 @@ public class DriverLocationService {
 
     public void updateLocation(Long driverId, double lat, double lng) {
 
-        Driver driver = driverRepo.findById(driverId)
-                .orElseThrow();
+        Optional<Driver> driver = driverRepo.findById(driverId);
+        if (driver.isEmpty()) return;
 
         DriverLocation location = locationRepo
                 .findByDriverId(driverId)
                 .orElse(DriverLocation.builder()
-                        .driver(driver)
+                        .driver(driver.get())
                         .build());
 
         location.setLatitude(lat);
