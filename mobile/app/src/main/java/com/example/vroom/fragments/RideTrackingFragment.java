@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.vroom.DTOs.route.responses.GetRouteResponseDTO;
 import com.example.vroom.R;
+import com.example.vroom.activities.RideNavigationListener;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RideTrackingViewModel;
 import com.google.android.gms.location.LocationServices;
@@ -26,11 +27,10 @@ public class RideTrackingFragment extends Fragment {
     private Long rideId;
     private String userRole;
     private TextView etaText;
-    private Button btnFinishRide;
-    private Button btnSubmitComplaint;
-    private EditText editComplaint;
     private TextView startAddress;
     private TextView endAddress;
+    private EditText editComplaint;
+    private Button btnFinishRide;
     private LinearLayout userActions;
     private LinearLayout driverActions;
 
@@ -64,10 +64,10 @@ public class RideTrackingFragment extends Fragment {
         userActions = view.findViewById(R.id.section_user_actions);
         driverActions = view.findViewById(R.id.section_driver_actions);
         btnFinishRide = view.findViewById(R.id.btn_finish_ride);
-        btnSubmitComplaint = view.findViewById(R.id.btn_submit_complaint);
         editComplaint = view.findViewById(R.id.edit_complaint);
+        Button btnSubmitComplaint = view.findViewById(R.id.btn_submit_complaint);
 
-        setupUI();
+        setupUI(btnSubmitComplaint);
         setupObservers();
 
         viewModel.loadRoute(rideId);
@@ -79,26 +79,19 @@ public class RideTrackingFragment extends Fragment {
         return view;
     }
 
-    private void setupUI() {
-        if ("DRIVER".equals(userRole)) {
-            driverActions.setVisibility(View.VISIBLE);
-            userActions.setVisibility(View.GONE);
-        } else {
-            userActions.setVisibility(View.VISIBLE);
-            driverActions.setVisibility(View.GONE);
-        }
+    private void setupUI(Button btnSubmitComplaint) {
+        boolean isDriver = "DRIVER".equals(userRole);
+        driverActions.setVisibility(isDriver ? View.VISIBLE : View.GONE);
+        userActions.setVisibility(isDriver ? View.GONE : View.VISIBLE);
 
         btnFinishRide.setOnClickListener(v -> {
-            if ("DRIVER".equals(userRole)) {
-                viewModel.stopTracking(LocationServices.getFusedLocationProviderClient(requireActivity()));
-                viewModel.finishRide(rideId);
-            }
+            viewModel.finishRide(rideId);
         });
 
         btnSubmitComplaint.setOnClickListener(v -> {
-            String complaint = editComplaint.getText().toString();
-            if (!complaint.isEmpty()) {
-                viewModel.sendComplaint(rideId, complaint);
+            String text = editComplaint.getText().toString().trim();
+            if (!text.isEmpty()) {
+                viewModel.sendComplaint(rideId, text);
                 editComplaint.setText("");
             }
         });
@@ -107,22 +100,13 @@ public class RideTrackingFragment extends Fragment {
     private void setupObservers() {
         viewModel.getActiveRoute().observe(getViewLifecycleOwner(), this::updateRouteUI);
         viewModel.getRideUpdate().observe(getViewLifecycleOwner(), update -> {
-            if (update != null) {
-                etaText.setText("ETA : " + update.getTimeLeft().intValue() + " minutes");
-            }
+            if (update != null) etaText.setText(String.format("ETA : %d minutes", update.getTimeLeft().intValue()));
         });
-
         viewModel.getIsRideFinished().observe(getViewLifecycleOwner(), finished -> {
-            if (finished) {
-                navigateToMain();
+            if (finished && getActivity() instanceof RideNavigationListener) {
+                ((RideNavigationListener) getActivity()).onRideFinished(rideId, userRole);
             }
         });
-    }
-
-    private void navigateToMain(){
-        if (isAdded()) {
-            requireActivity().getSupportFragmentManager().popBackStack();
-        }
     }
 
     private void updateRouteUI(GetRouteResponseDTO route) {
@@ -134,7 +118,5 @@ public class RideTrackingFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mainViewModel.setRideTrackingActive(false);
-        mainViewModel.subscribeToLocationUpdates();
     }
 }

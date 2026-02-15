@@ -1,10 +1,12 @@
 package com.example.vroom.services;
 
+import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.admin.AdminUserDTO;
 import com.example.vroom.DTOs.admin.BlockUserRequestDTO;
 import com.example.vroom.DTOs.admin.DriverRegistrationRequestDTO;
 import com.example.vroom.DTOs.admin.DriverUpdateDTO;
 import com.example.vroom.DTOs.admin.DriverUpdateRequestAdminDTO;
+import com.example.vroom.DTOs.admin.PricelistDTO;
 import com.example.vroom.DTOs.admin.RejectRequestDTO;
 import com.example.vroom.DTOs.driver.requests.DriverDTO;
 
@@ -70,5 +72,12 @@ public interface AdminService {
             @Query("endDate") String endDate,
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
+    );
+    @GET("api/admins/get-pricelist")
+    Call<PricelistDTO> getActivePricelist();
+
+    @POST("api/admins/new-pricelist")
+    Call<Void> setPricelist(
+            @Body PricelistDTO body
     );
 }

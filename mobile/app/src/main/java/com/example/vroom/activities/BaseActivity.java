@@ -27,6 +27,7 @@ import com.example.vroom.DTOs.ride.responses.UserActiveRideDTO;
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
+import com.example.vroom.fragments.ActiveRidesFragment;
 import com.example.vroom.fragments.PanicFeedFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
@@ -35,6 +36,8 @@ import com.example.vroom.fragments.UserRideHistoryFragment;
 import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
+
+import ua.naiksoftware.stomp.StompClient;
 
 public class BaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -168,7 +171,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         menu.findItem(R.id.nav_logout).setVisible(isLoggedIn);
         menu.findItem(R.id.driver_ride_history_item).setVisible(isLoggedIn && userType.equals("DRIVER"));
         menu.findItem(R.id.nav_status_switch).setVisible(isLoggedIn && userType.equals("DRIVER"));
-
+        menu.findItem(R.id.driver_active_ride).setVisible(isLoggedIn && userType.equals("DRIVER"));
         menu.findItem(R.id.nav_panic_feed).setVisible(isLoggedIn && userType.equals("ADMIN"));
         menu.findItem(R.id.ride_history).setVisible(isLoggedIn &&
                 (userType.equals("ADMIN") || userType.equals("REGISTERED_USER")));
@@ -197,7 +200,6 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         } else {
             intent = new Intent(this, ProfileActivity.class);
         }
-
         startActivity(intent);
     }
 
@@ -238,6 +240,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                     .replace(R.id.content_frame, new UserActiveRideFragment())
                     .addToBackStack(null)
                     .commit();
+        }else if (id == R.id.driver_active_ride){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new ActiveRidesFragment())
+                    .addToBackStack(null)
+                    .commit();
         }
 
         drawer.closeDrawer(GravityCompat.START);
@@ -245,6 +252,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void finalizeLogout(){
+        SocketProvider.getInstance().getClient().disconnect();
         StorageManager.getSharedPreferences(this).edit().clear().apply();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -85,6 +85,12 @@ public class ActiveRidesFragment extends Fragment implements ActiveRidesAdapter.
     @Override
     public void onStartRide(GetRideResponseDTO ride) {
         viewModel.startRide(ride.getRideID());
+
+        if (getActivity() instanceof com.example.vroom.activities.MainActivity) {
+            com.example.vroom.activities.MainActivity mainActivity = (com.example.vroom.activities.MainActivity) getActivity();
+            mainActivity.updateUIForRideState(ride.getRideID());
+            getParentFragmentManager().popBackStack();
+        }
     }
 
     @Override

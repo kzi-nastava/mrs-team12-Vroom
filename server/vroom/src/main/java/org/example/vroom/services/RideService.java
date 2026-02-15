@@ -381,7 +381,9 @@ public class RideService {
                 .orElse(Collections.emptyList());
         for (String email : passengers) {
             try {
-                emailService.sendRideEndMail(email);
+                if (email.contains("@")) {
+                    emailService.sendRideEndMail(email);
+                }
             }catch (MessagingException | IOException e) {
                 throw new RuntimeException(e);
             }

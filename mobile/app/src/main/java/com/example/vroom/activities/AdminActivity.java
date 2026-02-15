@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.fragments.BlockUserFragment;
+import com.example.vroom.fragments.DefinePricelistFragment;
 import com.example.vroom.fragments.PanicFeedFragment;
 import com.example.vroom.fragments.ProfileRequestsFragment;
 import com.example.vroom.fragments.RegisterDriverFragment;
@@ -192,7 +193,11 @@ public class AdminActivity extends BaseActivity {
 
         if (findViewById(R.id.cardPricelist) != null) {
             findViewById(R.id.cardPricelist).setOnClickListener(v ->
-                    startActivity(new Intent(this, MockActivity.class)));
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_frame, new DefinePricelistFragment())
+                        .addToBackStack(null)
+                        .commit());
         }
 
         if (findViewById(R.id.cardChat) != null) {
