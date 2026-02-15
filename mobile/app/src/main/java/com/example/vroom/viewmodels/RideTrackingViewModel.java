@@ -1,8 +1,12 @@
 package com.example.vroom.viewmodels;
 
+import static java.security.AccessController.getContext;
+
 import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -11,6 +15,7 @@ import com.example.vroom.DTOs.ride.requests.ComplaintRequestDTO;
 import com.example.vroom.DTOs.ride.responses.RideUpdateResponseDTO;
 import com.example.vroom.DTOs.route.responses.GetRouteResponseDTO;
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
+import com.example.vroom.enums.RideStatus;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.network.SocketProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -33,15 +38,21 @@ public class RideTrackingViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isRideFinished = new MutableLiveData<>(false);
     private final CompositeDisposable disposables = new CompositeDisposable();
     private Disposable rideDisposable;
-    private Long currentRideId;
+    private final MutableLiveData<Long> currentRideId = new MutableLiveData<>();
+
     private final Gson gson = new Gson();
     private LocationCallback locationCallback;
-    private Disposable rideSubscription;
     private boolean isTracking = false;
+    private final MutableLiveData<String> message = new MutableLiveData<>();
+    public LiveData<String> getMessage(){return message;}
+    private final MutableLiveData<Boolean> complaintSent = new MutableLiveData<>();
+    public LiveData<Boolean> getComplaintSent(){return complaintSent;}
+    public void setComplaintSent(Boolean isSent) {complaintSent.postValue(isSent);}
 
     public LiveData<GetRouteResponseDTO> getActiveRoute() { return activeRoute; }
     public LiveData<RideUpdateResponseDTO> getRideUpdate() { return rideUpdate; }
     public LiveData<Boolean> getIsRideFinished() { return isRideFinished; }
+    public LiveData<Long> getCurrentRideId(){return currentRideId;}
 
     public void loadRoute(Long rideID) {
         RetrofitClient.getRideService().getRoute(rideID).enqueue(new Callback<GetRouteResponseDTO>() {
@@ -55,9 +66,9 @@ public class RideTrackingViewModel extends ViewModel {
     }
 
     public void subscribeToRideUpdates(Long rideID) {
-        if (rideDisposable != null && !rideDisposable.isDisposed() && rideID.equals(currentRideId)) return;
+        if (rideDisposable != null && !rideDisposable.isDisposed() && rideID.equals(currentRideId.getValue())) return;
         if (rideDisposable != null) rideDisposable.dispose();
-        currentRideId = rideID;
+        currentRideId.postValue(rideID);
         rideDisposable = SocketProvider.getInstance().getClient()
                 .topic("/socket-publisher/ride-duration-update/" + rideID)
                 .subscribeOn(Schedulers.io())
@@ -65,6 +76,9 @@ public class RideTrackingViewModel extends ViewModel {
                 .subscribe(message -> {
                     RideUpdateResponseDTO update = gson.fromJson(message.getPayload(), RideUpdateResponseDTO.class);
                     rideUpdate.postValue(update);
+                    if (RideStatus.FINISHED.equals(update.getStatus())) {
+                        isRideFinished.postValue(true);
+                    }
                 }, throwable -> Log.e("STOMP", "Error", throwable));
         disposables.add(rideDisposable);
     }
@@ -74,7 +88,7 @@ public class RideTrackingViewModel extends ViewModel {
             rideDisposable.dispose();
             rideDisposable = null;
         }
-        currentRideId = null;
+        currentRideId.postValue(null);
     }
 
     @SuppressLint("MissingPermission")
@@ -85,7 +99,7 @@ public class RideTrackingViewModel extends ViewModel {
             @Override
             public void onLocationResult(LocationResult result) {
                 if (result != null && result.getLastLocation() != null && isTracking) {
-                    sendLocation(id, result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
+                    sendCurrentLocation(id, result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
                 }
             }
         };
@@ -114,9 +128,27 @@ public class RideTrackingViewModel extends ViewModel {
             @Override
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful()) isRideFinished.postValue(true);
+                message.postValue("Ride successfully finished");
             }
             @Override
-            public void onFailure(Call<MessageResponseDTO> call, Throwable t) {}
+            public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
+                message.postValue("There has been an error");
+            }
+        });
+    }
+
+    public void sendComplaint(Long id, String text) {
+        RetrofitClient.getRideService().sendComplaint(id, new ComplaintRequestDTO(text)).enqueue(new Callback<MessageResponseDTO>() {
+            @Override
+            public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
+                message.postValue("Complaint successfully sent");
+                complaintSent.postValue(true);
+            }
+            @Override
+            public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
+                message.postValue("There has been an error");
+                complaintSent.postValue(true);
+            }
         });
     }
 

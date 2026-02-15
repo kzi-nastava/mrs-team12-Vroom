@@ -8,13 +8,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.route.responses.GetRouteResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.activities.RideNavigationListener;
+import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RideTrackingViewModel;
 import com.google.android.gms.location.LocationServices;
@@ -94,8 +99,17 @@ public class RideTrackingFragment extends Fragment {
             btnPanic.setVisibility(View.GONE);
         }
         btnFinishRide.setOnClickListener(v -> {
-            viewModel.stopTracking(LocationServices.getFusedLocationProviderClient(requireActivity()));
-            viewModel.finishRide(rideId);
+            if ("DRIVER".equals(userRole)) {
+                viewModel.finishRide(rideId);
+            }
+        });
+
+        btnSubmitComplaint.setOnClickListener(v -> {
+            String complaint = editComplaint.getText().toString();
+            if (!complaint.isEmpty()) {
+                viewModel.sendComplaint(rideId, complaint);
+                editComplaint.setText("");
+            }
         });
     }
 
@@ -104,8 +118,11 @@ public class RideTrackingFragment extends Fragment {
         viewModel.getRideUpdate().observe(getViewLifecycleOwner(), update -> {
             if (update != null) etaText.setText("ETA : " + update.getTimeLeft().intValue() + " minutes");
         });
-        viewModel.getIsRideFinished().observe(getViewLifecycleOwner(), finished -> {
-            if (finished) navigateToMain();
+        viewModel.getComplaintSent().observe(getViewLifecycleOwner(), isSent -> {
+            if (isSent){
+                Toast.makeText(getContext(), viewModel.getMessage().getValue(), Toast.LENGTH_SHORT).show();
+                viewModel.setComplaintSent(false);
+            }
         });
     }
 

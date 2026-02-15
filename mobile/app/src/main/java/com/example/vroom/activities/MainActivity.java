@@ -122,6 +122,16 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
                 });
             }
         });
+        rideTrackingViewModel.getIsRideFinished().observe(this, finished -> {
+            if (finished != null && finished) {
+                String role = StorageManager.getSharedPreferences(this).getString("user_type", "");
+                Long currentId = rideTrackingViewModel.getCurrentRideId().getValue();
+
+                if (currentId != null) {
+                    onRideFinished(currentId, role);
+                }
+            }
+        });
         routeEstimationViewModel.getRoute().observe(this, payload -> drawRoute(payload, true));
         userRideHistoryViewModel.getRoute().observe(this, payload -> drawRoute(payload, true));
         viewModel.getErrorMessage().observe(this, error -> Toast.makeText(this, error, Toast.LENGTH_LONG).show());
@@ -254,12 +264,11 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
         setIntent(intent);
         handleIncomingIntent(intent);
     }
-  
+
     public void onRideFinished(Long rideID, String userRole) {
         rideTrackingViewModel.unsubscribeFromRideUpdates();
 
-        rideTrackingViewModel.resetState();
-        viewModel.setRideTrackingActive(false);
+        viewModel.setRideTrackingActive(false, userRole);
 
         clearMap();
 
@@ -270,7 +279,7 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
             bottomSheetBehavior.setHideable(true);
             resetToHomeState();
             if ("DRIVER".equals(userRole)) {
-                startLocationTracking();
+                viewModel.setRideTrackingActive(true, "DRIVER");
             }
             return;
         }
@@ -283,15 +292,16 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
     }
 
     public void resetToHomeState() {
+        bottomSheetBehavior.setHideable(true);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.sheet_content_container);
         if (currentFragment != null) {
             getSupportFragmentManager().beginTransaction().remove(currentFragment).commit();
         }
-
+        String userRole = StorageManager.getSharedPreferences(this).getString("user_type", "");
         clearMap();
-        viewModel.setRideTrackingActive(false);
+        viewModel.setRideTrackingActive(false, userRole);
         viewModel.subscribeToLocationUpdates();
 
         checkAndStartDriverTracking();
