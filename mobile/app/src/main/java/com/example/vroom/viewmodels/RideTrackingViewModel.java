@@ -11,7 +11,6 @@ import com.example.vroom.DTOs.ride.requests.ComplaintRequestDTO;
 import com.example.vroom.DTOs.ride.responses.RideUpdateResponseDTO;
 import com.example.vroom.DTOs.route.responses.GetRouteResponseDTO;
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
-import com.example.vroom.enums.RideStatus;
 import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.network.SocketProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -32,8 +31,9 @@ public class RideTrackingViewModel extends ViewModel {
     private final MutableLiveData<GetRouteResponseDTO> activeRoute = new MutableLiveData<>();
     private final MutableLiveData<RideUpdateResponseDTO> rideUpdate = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isRideFinished = new MutableLiveData<>(false);
-    private final MutableLiveData<Long> rideID = new MutableLiveData<>();
     private final CompositeDisposable disposables = new CompositeDisposable();
+    private Disposable rideDisposable;
+    private Long currentRideId;
     private final Gson gson = new Gson();
     private LocationCallback locationCallback;
     private Disposable rideSubscription;
@@ -42,11 +42,9 @@ public class RideTrackingViewModel extends ViewModel {
     public LiveData<GetRouteResponseDTO> getActiveRoute() { return activeRoute; }
     public LiveData<RideUpdateResponseDTO> getRideUpdate() { return rideUpdate; }
     public LiveData<Boolean> getIsRideFinished() { return isRideFinished; }
-    public LiveData<Long> getRideID() { return rideID; }
 
-    public void loadRoute(Long id) {
-        this.rideID.setValue(id);
-        RetrofitClient.getRideService().getRoute(id).enqueue(new Callback<GetRouteResponseDTO>() {
+    public void loadRoute(Long rideID) {
+        RetrofitClient.getRideService().getRoute(rideID).enqueue(new Callback<GetRouteResponseDTO>() {
             @Override
             public void onResponse(Call<GetRouteResponseDTO> call, Response<GetRouteResponseDTO> response) {
                 if (response.isSuccessful()) activeRoute.setValue(response.body());
@@ -56,33 +54,33 @@ public class RideTrackingViewModel extends ViewModel {
         });
     }
 
-    public void subscribeToRideUpdates(Long id) {
-        if (rideSubscription != null && !rideSubscription.isDisposed()) return;
-        rideSubscription = SocketProvider.getInstance().getClient()
-                .topic("/socket-publisher/ride-duration-update/" + id)
+    public void subscribeToRideUpdates(Long rideID) {
+        if (rideDisposable != null && !rideDisposable.isDisposed() && rideID.equals(currentRideId)) return;
+        if (rideDisposable != null) rideDisposable.dispose();
+        currentRideId = rideID;
+        rideDisposable = SocketProvider.getInstance().getClient()
+                .topic("/socket-publisher/ride-duration-update/" + rideID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(message -> {
-                    RideUpdateResponseDTO dto = gson.fromJson(message.getPayload(), RideUpdateResponseDTO.class);
-                    rideUpdate.postValue(dto);
-                    if (dto.getStatus() == RideStatus.FINISHED) isRideFinished.postValue(true);
-                }, t -> Log.e("SOCKET", "Subscription failed", t));
-        disposables.add(rideSubscription);
+                    RideUpdateResponseDTO update = gson.fromJson(message.getPayload(), RideUpdateResponseDTO.class);
+                    rideUpdate.postValue(update);
+                }, throwable -> Log.e("STOMP", "Error", throwable));
+        disposables.add(rideDisposable);
     }
 
     public void unsubscribeFromRideUpdates() {
-        if (rideSubscription != null && !rideSubscription.isDisposed()) {
-            rideSubscription.dispose();
-            rideSubscription = null;
+        if (rideDisposable != null) {
+            rideDisposable.dispose();
+            rideDisposable = null;
         }
+        currentRideId = null;
     }
 
     @SuppressLint("MissingPermission")
     public void startTracking(FusedLocationProviderClient client, Long id) {
         if (isTracking) return;
-        LocationRequest request = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
-                .setMinUpdateIntervalMillis(2000)
-                .build();
+        LocationRequest request = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build();
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult result) {
@@ -103,41 +101,28 @@ public class RideTrackingViewModel extends ViewModel {
         }
     }
 
-    private void sendLocation(Long id, double lat, double lng) {
-        String json = gson.toJson(new PointResponseDTO(lat, lng));
+    public void sendCurrentLocation(Long rideID, double lat, double lng) {
+        if (!isTracking) return;
+        PointResponseDTO location = new PointResponseDTO(lat, lng);
         disposables.add(SocketProvider.getInstance().getClient()
-                .send("/socket-subscriber/ride-duration-update/" + id, json)
-                .subscribe(() -> {}, t -> Log.e("SOCKET", "Send failed", t)));
+                .send("/socket-subscriber/ride-duration-update/" + rideID, gson.toJson(location))
+                .subscribe(() -> {}, t -> {}));
     }
 
-    public void finishRide(Long id) {
-        RetrofitClient.getRideService().finishRide(id).enqueue(new Callback<MessageResponseDTO>() {
+    public void finishRide(Long rideID) {
+        RetrofitClient.getRideService().finishRide(rideID).enqueue(new Callback<MessageResponseDTO>() {
             @Override
-            public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {}
+            public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
+                if (response.isSuccessful()) isRideFinished.postValue(true);
+            }
             @Override
             public void onFailure(Call<MessageResponseDTO> call, Throwable t) {}
         });
-    }
-
-    public void sendComplaint(Long id, String text) {
-        RetrofitClient.getRideService().sendComplaint(id, new ComplaintRequestDTO(text)).enqueue(new Callback<MessageResponseDTO>() {
-            @Override
-            public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {}
-            @Override
-            public void onFailure(Call<MessageResponseDTO> call, Throwable t) {}
-        });
-    }
-
-    public void resetState() {
-        isRideFinished.setValue(false);
-        rideUpdate.setValue(null);
-        activeRoute.setValue(null);
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        unsubscribeFromRideUpdates();
         disposables.clear();
     }
 }

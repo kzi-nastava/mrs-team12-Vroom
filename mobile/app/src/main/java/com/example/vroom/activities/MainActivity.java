@@ -7,14 +7,12 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.vroom.DTOs.map.MapRouteDTO;
 import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
-import com.example.vroom.DTOs.ride.responses.UserActiveRideDTO;
 import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
@@ -22,12 +20,10 @@ import com.example.vroom.enums.DriverStatus;
 import com.example.vroom.fragments.ActiveRidesFragment;
 import com.example.vroom.fragments.ReviewRideFragment;
 import com.example.vroom.fragments.RideTrackingFragment;
-import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RideTrackingViewModel;
 import com.example.vroom.viewmodels.RouteEstimationViewModel;
 import com.example.vroom.viewmodels.UserRideHistoryViewModel;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.Gson;
@@ -59,33 +55,27 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
         Configuration.getInstance().setUserAgentValue(getPackageName());
         setContentView(R.layout.activity_main);
-
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setMultiTouchControls(true);
-
         GeoPoint startPoint = new GeoPoint(45.2455, 19.8227);
         map.getController().setZoom(16.0);
         map.getController().setCenter(startPoint);
-
         routePolyline = new Polyline();
         routePolyline.getOutlinePaint().setColor(android.graphics.Color.parseColor("#2A2C24"));
         routePolyline.getOutlinePaint().setStrokeWidth(10f);
         map.getOverlays().add(routePolyline);
-
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         rideTrackingViewModel = new ViewModelProvider(this).get(RideTrackingViewModel.class);
         routeEstimationViewModel = new ViewModelProvider(this).get(RouteEstimationViewModel.class);
         userRideHistoryViewModel = new ViewModelProvider(this).get(UserRideHistoryViewModel.class);
-
         setupObservers();
-        handleIncomingIntent(getIntent());
         viewModel.subscribeToLocationUpdates();
         checkAndStartDriverTracking();
-
         View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        handleIncomingIntent(getIntent());
     }
 
     private void setupObservers() {
@@ -94,35 +84,21 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
                 updateDriverMarker(dto.getDriverId(), dto.getStatus(), new GeoPoint(dto.getPoint().getLat(), dto.getPoint().getLng()));
             }
         });
-
         rideTrackingViewModel.getRideUpdate().observe(this, update -> {
             if (update != null && update.getCurrentLocation() != null) {
                 updateDriverMarker(update.getDriverID(), DriverStatus.UNAVAILABLE,
                         new GeoPoint(update.getCurrentLocation().getLat(), update.getCurrentLocation().getLng()), true);
             }
         });
-
         rideTrackingViewModel.getActiveRoute().observe(this, route -> {
             if (route != null) {
                 MapRouteDTO mapRoute = new MapRouteDTO();
-
-                PointResponseDTO start = new PointResponseDTO(
-                        route.getStartLocationLat(),
-                        route.getStartLocationLng()
-                );
-                PointResponseDTO end = new PointResponseDTO(
-                        route.getEndLocationLat(),
-                        route.getEndLocationLng()
-                );
-
-                mapRoute.setStart(start);
-                mapRoute.setEnd(end);
+                mapRoute.setStart(new PointResponseDTO(route.getStartLocationLat(), route.getStartLocationLng()));
+                mapRoute.setEnd(new PointResponseDTO(route.getEndLocationLat(), route.getEndLocationLng()));
                 mapRoute.setStops(route.getStops());
-
                 drawRoute(mapRoute, true);
             }
         });
-
         viewModel.getRouteResult().observe(this, osrmRoute -> {
             if (osrmRoute != null && osrmRoute.geometry != null) {
                 ArrayList<GeoPoint> roadPoints = new ArrayList<>();
@@ -144,18 +120,6 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
                 });
             }
         });
-
-        rideTrackingViewModel.getIsRideFinished().observe(this, finished -> {
-            if (finished != null && finished) {
-                String role = StorageManager.getSharedPreferences(this).getString("user_type", "");
-                Long currentId = rideTrackingViewModel.getRideID().getValue();
-
-                if (currentId != null) {
-                    onRideFinished(currentId, role);
-                }
-            }
-        });
-
         routeEstimationViewModel.getRoute().observe(this, payload -> drawRoute(payload, true));
         userRideHistoryViewModel.getRoute().observe(this, payload -> drawRoute(payload, true));
         viewModel.getErrorMessage().observe(this, error -> Toast.makeText(this, error, Toast.LENGTH_LONG).show());
@@ -196,13 +160,10 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
     }
 
     private void addRouteMarkers(MapRouteDTO payload) {
-        if (payload.getStart() != null) {
-            addMarker(payload.getStart(), "Start", R.drawable.ic_ride_start);
-        }
-
+        if (payload.getStart() != null) addMarker(payload.getStart(), "Start", R.drawable.ic_ride_start);
         if (payload.getStops() != null) {
             for (int i = 0; i < payload.getStops().size(); i++) {
-                addMarker(payload.getStops().get(i), "Stop " + (i+1), R.drawable.ic_ride_stop);
+                addMarker(payload.getStops().get(i), "Stop " + (i + 1), R.drawable.ic_ride_stop);
             }
         }
         if (payload.getEnd() != null) addMarker(payload.getEnd(), "End", R.drawable.ic_ride_end);
@@ -225,28 +186,26 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
         } else {
-            startLocationTracking();
+            viewModel.startTracking(LocationServices.getFusedLocationProviderClient(this));
         }
     }
 
-    private void startLocationTracking() {
-        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
-        viewModel.startTracking(client);
-    }
-
     private void handleIncomingIntent(Intent intent) {
-        if (intent != null && intent.hasExtra("ROUTE_DATA")) {
+        if (intent == null) return;
+        if (intent.hasExtra("ROUTE_DATA")) {
             RideResponseDTO ride = new Gson().fromJson(intent.getStringExtra("ROUTE_DATA"), RideResponseDTO.class);
             userRideHistoryViewModel.sendRideData(ride);
+        }
+        if (intent.hasExtra("RIDE_ID")) {
+            long rideId = intent.getLongExtra("RIDE_ID", -1);
+            if (rideId != -1) updateUIForRideState(rideId);
         }
     }
 
     public void updateUIForRideState(Long rideId) {
-        String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
-        clearMap();
-
-        viewModel.setRideTrackingActive(true);
         rideTrackingViewModel.subscribeToRideUpdates(rideId);
+        String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
+        viewModel.setRideTrackingActive(true, userType);
         Fragment fragment = RideTrackingFragment.newInstance(rideId, userType);
 
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -261,7 +220,9 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
     public void onResume() {
         super.onResume();
         map.onResume();
-        viewModel.setRideTrackingActive(false);
+        if (!viewModel.getIsRideTrackingActive()) {
+            viewModel.subscribeToLocationUpdates();
+        }
     }
 
     @Override
@@ -272,7 +233,6 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
 
     @Override
     public void onDestroy() {
-        SocketProvider.getInstance().disconnect();
         super.onDestroy();
     }
 
