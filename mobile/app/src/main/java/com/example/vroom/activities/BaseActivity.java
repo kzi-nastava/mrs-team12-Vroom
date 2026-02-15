@@ -34,6 +34,8 @@ import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
 
+import ua.naiksoftware.stomp.StompClient;
+
 public class BaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     Toolbar toolbar;
@@ -229,6 +231,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void finalizeLogout(){
+        SocketProvider.getInstance().getClient().disconnect();
         StorageManager.getSharedPreferences(this).edit().clear().apply();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
