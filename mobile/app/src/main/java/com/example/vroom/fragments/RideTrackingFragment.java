@@ -26,13 +26,10 @@ public class RideTrackingFragment extends Fragment {
     private MainViewModel mainViewModel;
     private Long rideId;
     private String userRole;
-    private TextView etaText;
-    private TextView startAddress;
-    private TextView endAddress;
+    private TextView etaText, startAddress, endAddress;
+    private Button btnFinishRide, btnSubmitComplaint, btnPanic;
     private EditText editComplaint;
-    private Button btnFinishRide;
-    private LinearLayout userActions;
-    private LinearLayout driverActions;
+    private LinearLayout userActions, driverActions;
 
     public static RideTrackingFragment newInstance(Long rideId, String userType) {
         RideTrackingFragment fragment = new RideTrackingFragment();
@@ -58,20 +55,13 @@ public class RideTrackingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ride_tracking, container, false);
-        etaText = view.findViewById(R.id.text_eta);
-        startAddress = view.findViewById(R.id.text_start_address);
-        endAddress = view.findViewById(R.id.text_end_address);
-        userActions = view.findViewById(R.id.section_user_actions);
-        driverActions = view.findViewById(R.id.section_driver_actions);
-        btnFinishRide = view.findViewById(R.id.btn_finish_ride);
-        editComplaint = view.findViewById(R.id.edit_complaint);
-        Button btnSubmitComplaint = view.findViewById(R.id.btn_submit_complaint);
-
-        setupUI(btnSubmitComplaint);
+        initViews(view);
+        setupUI();
         setupObservers();
 
+        mainViewModel.setRideTrackingActive(true, userRole);
         viewModel.loadRoute(rideId);
-        mainViewModel.setRideTrackingActive(true);
+        viewModel.subscribeToRideUpdates(rideId);
 
         if ("DRIVER".equals(userRole)) {
             viewModel.startTracking(LocationServices.getFusedLocationProviderClient(requireActivity()), rideId);
@@ -79,44 +69,60 @@ public class RideTrackingFragment extends Fragment {
         return view;
     }
 
-    private void setupUI(Button btnSubmitComplaint) {
-        boolean isDriver = "DRIVER".equals(userRole);
-        driverActions.setVisibility(isDriver ? View.VISIBLE : View.GONE);
-        userActions.setVisibility(isDriver ? View.GONE : View.VISIBLE);
+    private void initViews(View view) {
+        etaText = view.findViewById(R.id.text_eta);
+        startAddress = view.findViewById(R.id.text_start_address);
+        endAddress = view.findViewById(R.id.text_end_address);
+        userActions = view.findViewById(R.id.section_user_actions);
+        driverActions = view.findViewById(R.id.section_driver_actions);
+        btnFinishRide = view.findViewById(R.id.btn_finish_ride);
+        btnSubmitComplaint = view.findViewById(R.id.btn_submit_complaint);
+        editComplaint = view.findViewById(R.id.edit_complaint);
+        btnPanic = view.findViewById(R.id.btn_panic);
+    }
 
+    private void setupUI() {
+        if ("DRIVER".equals(userRole)) {
+            driverActions.setVisibility(View.VISIBLE);
+            userActions.setVisibility(View.GONE);
+        } else if ("REGISTERED_USER".equals(userRole)) {
+            userActions.setVisibility(View.VISIBLE);
+            driverActions.setVisibility(View.GONE);
+        } else {
+            userActions.setVisibility(View.GONE);
+            driverActions.setVisibility(View.GONE);
+            btnPanic.setVisibility(View.GONE);
+        }
         btnFinishRide.setOnClickListener(v -> {
+            viewModel.stopTracking(LocationServices.getFusedLocationProviderClient(requireActivity()));
             viewModel.finishRide(rideId);
-        });
-
-        btnSubmitComplaint.setOnClickListener(v -> {
-            String text = editComplaint.getText().toString().trim();
-            if (!text.isEmpty()) {
-                viewModel.sendComplaint(rideId, text);
-                editComplaint.setText("");
-            }
         });
     }
 
     private void setupObservers() {
         viewModel.getActiveRoute().observe(getViewLifecycleOwner(), this::updateRouteUI);
         viewModel.getRideUpdate().observe(getViewLifecycleOwner(), update -> {
-            if (update != null) etaText.setText(String.format("ETA : %d minutes", update.getTimeLeft().intValue()));
+            if (update != null) etaText.setText("ETA : " + update.getTimeLeft().intValue() + " minutes");
         });
         viewModel.getIsRideFinished().observe(getViewLifecycleOwner(), finished -> {
-            if (finished && getActivity() instanceof RideNavigationListener) {
-                ((RideNavigationListener) getActivity()).onRideFinished(rideId, userRole);
-            }
+            if (finished) navigateToMain();
         });
+    }
+
+    private void navigateToMain() {
+        if (isAdded()) requireActivity().getSupportFragmentManager().popBackStack();
     }
 
     private void updateRouteUI(GetRouteResponseDTO route) {
         if (route == null) return;
-        if (route.getStartAddress() != null) startAddress.setText(route.getStartAddress());
-        if (route.getEndAddress() != null) endAddress.setText(route.getEndAddress());
+        startAddress.setText(route.getStartAddress());
+        endAddress.setText(route.getEndAddress());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        viewModel.unsubscribeFromRideUpdates();
+        mainViewModel.setRideTrackingActive(false, userRole);
     }
 }

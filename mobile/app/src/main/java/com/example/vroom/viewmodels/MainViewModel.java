@@ -30,47 +30,50 @@ import retrofit2.Response;
 
 public class MainViewModel extends ViewModel {
     private final MutableLiveData<OSRMEnvelope.MapOSRMRoute> routeResult = new MutableLiveData<>();
-    public LiveData<OSRMEnvelope.MapOSRMRoute> getRouteResult() { return routeResult; }
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    public LiveData<String> getErrorMessage() { return errorMessage; }
     private final MutableLiveData<DriverPositionDTO> driverUpdate = new MutableLiveData<>();
     public LiveData<DriverPositionDTO> getDriverUpdate() { return driverUpdate; }
     private final CompositeDisposable disposables = new CompositeDisposable();
-    private Disposable locationSubscription;
+    private Disposable locationDisposable;
     private final Gson gson = new Gson();
     private LocationCallback locationCallback;
     private boolean isTracking = false;
     private boolean isRideTrackingActive = false;
 
-    public void setRideTrackingActive(boolean active) {
-        this.isRideTrackingActive = active;
+    public LiveData<OSRMEnvelope.MapOSRMRoute> getRouteResult() { return routeResult; }
+    public LiveData<String> getErrorMessage() { return errorMessage; }
+    public LiveData<DriverPositionDTO> getDriverUpdate() { return driverUpdate; }
+    public boolean getIsRideTrackingActive() { return isRideTrackingActive; }
+
+    public void setRideTrackingActive(boolean active, String userRole) {
+        isRideTrackingActive = active;
         if (active) {
             unsubscribeFromLocationUpdates();
         } else {
-            subscribeToLocationUpdates();
+            if (!"ADMIN".equals(userRole)) {
+                subscribeToLocationUpdates();
+            }
         }
     }
 
     public void subscribeToLocationUpdates() {
         if (isRideTrackingActive) return;
-        if (locationSubscription != null && !locationSubscription.isDisposed()) return;
-
-        locationSubscription = SocketProvider.getInstance().getClient()
+        if (locationDisposable != null && !locationDisposable.isDisposed()) return;
+        locationDisposable = SocketProvider.getInstance().getClient()
                 .topic("/socket-publisher/location-updates")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(message -> {
                     DriverPositionDTO dto = gson.fromJson(message.getPayload(), DriverPositionDTO.class);
                     driverUpdate.postValue(dto);
-                }, throwable -> Log.e("SOCKET", "Subscription failed", throwable));
-
-        disposables.add(locationSubscription);
+                }, throwable -> {});
+        disposables.add(locationDisposable);
     }
 
     public void unsubscribeFromLocationUpdates() {
-        if (locationSubscription != null && !locationSubscription.isDisposed()) {
-            locationSubscription.dispose();
-            locationSubscription = null;
+        if (locationDisposable != null && !locationDisposable.isDisposed()) {
+            locationDisposable.dispose();
+            locationDisposable = null;
         }
     }
 
@@ -108,26 +111,6 @@ public class MainViewModel extends ViewModel {
                 .subscribe(() -> {}, t -> Log.e("SOCKET", "Global update failed", t)));
     }
 
-    public void getRouteCoordinates(MapRouteDTO payload) {
-        String coordString = getStringCoords(payload);
-        if (coordString.isEmpty()) {
-            errorMessage.setValue("Invalid route coordinates");
-            return;
-        }
-        RetrofitClient.getRouteService().getOSRMRoute(coordString).enqueue(new Callback<OSRMEnvelope>() {
-            @Override
-            public void onResponse(Call<OSRMEnvelope> call, Response<OSRMEnvelope> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    routeResult.postValue(response.body().routes.get(0));
-                }
-            }
-            @Override
-            public void onFailure(Call<OSRMEnvelope> call, Throwable t) {
-                errorMessage.postValue("Network error: " + t.getMessage());
-            }
-        });
-    }
-
     private String getStringCoords(MapRouteDTO payload) {
         List<String> coords = new ArrayList<>();
         if (payload.getStart() != null) coords.add(payload.getStart().getLng() + "," + payload.getStart().getLat());
@@ -136,6 +119,21 @@ public class MainViewModel extends ViewModel {
         }
         if (payload.getEnd() != null) coords.add(payload.getEnd().getLng() + "," + payload.getEnd().getLat());
         return android.text.TextUtils.join(";", coords);
+    }
+
+    public void getRouteCoordinates(MapRouteDTO payload) {
+        String coordString = getStringCoords(payload);
+        if (coordString.isEmpty()) return;
+        RetrofitClient.getRouteService().getOSRMRoute(coordString).enqueue(new Callback<OSRMEnvelope>() {
+            @Override
+            public void onResponse(Call<OSRMEnvelope> call, Response<OSRMEnvelope> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    routeResult.postValue(response.body().routes.get(0));
+                }
+            }
+            @Override
+            public void onFailure(Call<OSRMEnvelope> call, Throwable t) {}
+        });
     }
 
     @Override

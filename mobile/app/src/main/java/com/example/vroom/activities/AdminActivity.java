@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
+import com.example.vroom.fragments.AdminActiveRidesFragment;
 import com.example.vroom.fragments.BlockUserFragment;
 import com.example.vroom.fragments.DefinePricelistFragment;
 import com.example.vroom.fragments.PanicFeedFragment;
@@ -169,8 +170,13 @@ public class AdminActivity extends BaseActivity {
         }
 
         if (findViewById(R.id.cardActiveRides) != null) {
-            findViewById(R.id.cardActiveRides).setOnClickListener(v ->
-                    startActivity(new Intent(this, MockActivity.class)));
+            findViewById(R.id.cardActiveRides).setOnClickListener(v ->{
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_frame, new AdminActiveRidesFragment())
+                        .addToBackStack(null)
+                        .commit();
+            });
         }
 
         if (findViewById(R.id.cardPastRides) != null) {
