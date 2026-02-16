@@ -32,6 +32,7 @@ import com.example.vroom.fragments.PanicFeedFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
 import com.example.vroom.fragments.UserActiveRideFragment;
+import com.example.vroom.fragments.UserChatFragment;
 import com.example.vroom.fragments.UserRideHistoryFragment;
 import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.NavigationViewModel;
@@ -179,6 +180,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         menu.findItem(R.id.login_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.register_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.nav_route_estimation).setVisible(!isLoggedIn);
+        menu.findItem(R.id.live_support).setVisible(isLoggedIn && !userType.equals("ADMIN"));
     }
 
     public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
@@ -243,6 +245,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         }else if (id == R.id.driver_active_ride){
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_frame, new ActiveRidesFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if (id == R.id.live_support){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new UserChatFragment())
                     .addToBackStack(null)
                     .commit();
         }

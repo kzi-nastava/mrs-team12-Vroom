@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.auth.requests.ForgotPasswordRequestDTO;
@@ -88,17 +90,10 @@ public class LoginViewModel extends ViewModel {
                 @Override
                 public void onResponse(Call<LoginResponseDTO> call, Response<LoginResponseDTO> response) {
                     if(response.isSuccessful() && response.body() != null){
-                        LoginResponseDTO body = response.body();
 
                         StorageManager.saveData("user_type", response.body().getType());
                         StorageManager.saveData("jwt", response.body().getToken());
-                        Long expiresTime = body.getExpires();
-                        if (expiresTime == null || expiresTime <= 0) {
-                            expiresTime = System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000);
-                        } else {
-                        }
-
-                        StorageManager.saveLong("expires", expiresTime);
+                        StorageManager.saveData("user_id", response.body().getUserId().toString());
                         SocketProvider.getInstance().init();
                         loginMessage.postValue("Login successful");
                         loginStatus.postValue(true);

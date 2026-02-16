@@ -30,7 +30,7 @@ public class LocationSocketController {
     @Autowired
     DriverLocationService driverLocationService;
 
-    @PreAuthorize("hasRole('DRIVER')")
+//    @PreAuthorize("hasRole('DRIVER')")
     @MessageMapping("update-location")
     @SendTo("/socket-publisher/location-updates")
     public DriverPositionDTO handleLocationUpdate(SimpMessageHeaderAccessor headerAccessor, @Payload PointResponseDTO location) {

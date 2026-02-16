@@ -21,11 +21,12 @@ public class ChatMapper {
                 .build();
     };
 
-    public ChatResponseDTO chatToDTO(Chat chat) {
+    public ChatResponseDTO chatToDTO(Chat chat, byte[] picture) {
         return ChatResponseDTO.builder()
                 .chatId(chat.getId())
                 .userName(chat.getUser().getFirstName() + " " + chat.getUser().getLastName())
                 .lastMessageTime(chat.getLastMessageTime())
+                .profilePicture(picture)
                 .build();
     }
 

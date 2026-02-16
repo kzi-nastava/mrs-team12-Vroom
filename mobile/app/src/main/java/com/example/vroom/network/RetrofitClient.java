@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.example.vroom.services.AdminService;
 import com.example.vroom.services.AuthService;
+import com.example.vroom.services.ChatService;
 import com.example.vroom.services.DriverProfileService;
 import com.example.vroom.services.DriverService;
 import com.example.vroom.services.GeoLocationService;
@@ -29,7 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
     private static Context mContext;
-    private static final String BASE_URL = "http://192.168.0.20:8080/";
+    private static final String BASE_URL = "http://192.168.0.110:8080/";
     //private static final String BASE_URL = "http://10.0.2.2:8080/";
     private static Retrofit retrofit = null;
 
@@ -66,6 +67,8 @@ public class RetrofitClient {
         }
         return retrofit;
     }
+
+    public static ChatService getChatService() {return getClient().create(ChatService.class);}
 
     public static AuthService getAuthService(){
         return getClient().create(AuthService.class);
