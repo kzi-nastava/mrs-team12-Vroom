@@ -55,46 +55,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvDriverLabel">
 
-            <ImageView
-                android:id="@+id/starD1"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
-            <ImageView
-                android:id="@+id/starD2"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
-            <ImageView
-                android:id="@+id/starD3"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
-            <ImageView
-                android:id="@+id/starD4"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
-            <ImageView
-                android:id="@+id/starD5"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
+            <RatingBar
+                android:id="@+id/driverRatingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:stepSize="1"
+                android:theme="@style/RatingBar"/>
         </LinearLayout>
 
         <TextView
@@ -117,46 +83,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvCarLabel">
 
-            <ImageView
-                android:id="@+id/starC1"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
-            <ImageView
-                android:id="@+id/starC2"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
-            <ImageView
-                android:id="@+id/starC3"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
-            <ImageView
-                android:id="@+id/starC4"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
-            <ImageView
-                android:id="@+id/starC5"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/btn_star_big_off" />
+            <RatingBar
+                android:id="@+id/carRatingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:stepSize="1"
+                android:theme="@style/RatingBar"/>
         </LinearLayout>
 
         <EditText

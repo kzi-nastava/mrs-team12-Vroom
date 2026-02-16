@@ -226,6 +226,11 @@ public class UserRideHistoryFragment extends Fragment
             btnLeaveReview.setVisibility(View.VISIBLE);
         else
             btnLeaveReview.setVisibility(View.GONE);
+
+        btnLeaveReview.setOnClickListener(v -> {
+            ReviewRideFragment reviewFragment = ReviewRideFragment.newInstance(info.getRideId());
+            reviewFragment.show(getParentFragmentManager(), "review_dialog");
+        });
     }
 
     private String getStars(Integer rating) {

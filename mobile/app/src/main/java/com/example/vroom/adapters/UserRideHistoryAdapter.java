@@ -67,7 +67,7 @@ public class UserRideHistoryAdapter extends RecyclerView.Adapter<UserRideHistory
             holder.tvDate.setText("N/A");
         }
 
-        holder.tvPrice.setText(String.format("%.2f EUR", ride.getPrice()));
+        holder.tvPrice.setText(String.format("%.2f RSD", ride.getPrice()));
 
         String status = ride.getStatus() != null ? ride.getStatus().toString() : "UNKNOWN";
         holder.tvStatus.setText(status);
