@@ -6,6 +6,7 @@ import org.example.vroom.E2E.utils.DbUtils;
 import org.example.vroom.entities.Admin;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.RegisteredUser;
+import org.example.vroom.E2E.utils.TestUserData;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -15,32 +16,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
+import java.sql.*;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@Rollback
 public class BaseTest {
     protected WebDriver driver;
 
-    @Autowired
-    private EntityManager em;
+    protected TestUserData testUser;
+
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         WebDriverManager.firefoxdriver().setup();
 
         FirefoxOptions options = new FirefoxOptions();
-
         options.addPreference("geo.enabled", true);
         options.addPreference("geo.provider.use_corelocation", true);
         options.addPreference("geo.prompt.testing", true);
         options.addPreference("geo.prompt.testing.allow", true);
 
         driver = new FirefoxDriver(options);
-
         driver.manage().window().maximize();
         driver.manage().deleteAllCookies();
-
 
         Long vehicleId = DbUtils.insertVehicle("Toyota", "Camry", "NS-123-AA");
 
@@ -51,7 +50,16 @@ public class BaseTest {
         Long routeId = DbUtils.insertRoute(45.2396, 19.8227, 45.2491, 19.8550, "Start Street 1", "End Avenue 2");
 
         DbUtils.insertFinishedRide(driverId, userId, routeId);
+      
+       DbUtils.insertFinishedRide(6L, 7L, 1L);
+        testUser = DbUtils.insertFavoriteRouteScenario(
+                100L,
+                200L,
+                300L,
+                400L,
+                500L);
     }
+
 
 
     @AfterEach
