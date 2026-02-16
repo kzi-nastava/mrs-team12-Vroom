@@ -13,11 +13,14 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 import java.util.Optional;
+
+import static org.springframework.security.authorization.AuthorityReactiveAuthorizationManager.hasRole;
 
 @Controller
 public class LocationSocketController {
@@ -27,6 +30,7 @@ public class LocationSocketController {
     @Autowired
     DriverLocationService driverLocationService;
 
+    @PreAuthorize("hasRole('DRIVER')")
     @MessageMapping("update-location")
     @SendTo("/socket-publisher/location-updates")
     public DriverPositionDTO handleLocationUpdate(SimpMessageHeaderAccessor headerAccessor, @Payload PointResponseDTO location) {

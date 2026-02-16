@@ -71,6 +71,7 @@ public class DriverController {
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'REGISTERED_USER', 'DRIVER')")
     @GetMapping(path="/more-info/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RideHistoryMoreInfoResponseDTO> getRideMoreInfo(
             @AuthenticationPrincipal User user,

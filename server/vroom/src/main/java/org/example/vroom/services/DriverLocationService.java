@@ -24,7 +24,6 @@ public class DriverLocationService {
     private DriverRepository driverRepo;
 
     public void updateLocation(Long driverId, double lat, double lng) {
-
         Optional<Driver> driver = driverRepo.findById(driverId);
         if (driver.isEmpty()) return;
 
