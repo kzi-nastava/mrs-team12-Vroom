@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class StopRideRequestDTO {
+    @NotNull
     @PastOrPresent
     private LocalDateTime endTime;
 

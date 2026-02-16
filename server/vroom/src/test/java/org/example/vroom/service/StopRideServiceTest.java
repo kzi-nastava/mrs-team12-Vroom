@@ -15,18 +15,15 @@ import org.example.vroom.exceptions.ride.StopRideException;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.DriverRepository;
 import org.example.vroom.repositories.RideRepository;
-import org.example.vroom.repositories.RouteRepository;
 import org.example.vroom.services.RideService;
 import org.example.vroom.services.RouteService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,7 +36,7 @@ import static org.mockito.Mockito.*;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
-public class RideServiceTest {
+public class StopRideServiceTest {
     @Mock
     private RideRepository rideRepository;
     @Mock
