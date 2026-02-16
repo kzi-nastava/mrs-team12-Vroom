@@ -33,4 +33,10 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#1A1A1A</item>
-    </style></resources>
+    </style>
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/brown_black</item>
+        <item name="colorControlActivated">@color/accent_green</item>
+    </style>
+</resources>
+

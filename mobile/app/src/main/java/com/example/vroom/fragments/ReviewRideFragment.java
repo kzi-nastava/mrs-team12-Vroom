@@ -8,11 +8,14 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.ride.requests.LeaveReviewRequestDTO;
@@ -24,8 +27,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ReviewRideFragment extends Fragment {
+public class ReviewRideFragment extends DialogFragment {
     private Long rideId;
+    private RatingBar driverRatingBar;
+    private RatingBar carRatingBar;
 
     public static ReviewRideFragment newInstance(Long rideId) {
         ReviewRideFragment fragment = new ReviewRideFragment();
@@ -41,6 +46,15 @@ public class ReviewRideFragment extends Fragment {
         if (getArguments() != null) rideId = getArguments().getLong("ride_id");
     }
 
+    @Override
+    public void onStart(){
+        super.onStart();
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.90);
+            getDialog().getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+    }
+
     private int driverRating = 0;
     private int carRating = 0;
 
@@ -49,8 +63,26 @@ public class ReviewRideFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.popup_review, container, false);
 
-        setupStarGroup(view.findViewById(R.id.driverStars), true);
-        setupStarGroup(view.findViewById(R.id.carStars), false);
+        driverRatingBar = view.findViewById(R.id.driverRatingBar);
+        carRatingBar = view.findViewById(R.id.carRatingBar);
+
+        driverRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
+                if (b) {
+                    driverRating = (int) v;
+                }
+            }
+        });
+
+        carRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
+                if (b) {
+                    carRating = (int) v;
+                }
+            }
+        });
 
         view.findViewById(R.id.btnClose).setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
 
@@ -60,29 +92,6 @@ public class ReviewRideFragment extends Fragment {
         });
 
         return view;
-    }
-
-    private void setupStarGroup(LinearLayout layout, boolean isDriver) {
-        for (int i = 0; i < layout.getChildCount(); i++) {
-            final int rating = i + 1;
-            View star = layout.getChildAt(i);
-            star.setOnClickListener(v -> updateStarRating(layout, rating, isDriver));
-        }
-    }
-
-    private void updateStarRating(LinearLayout layout, int rating, boolean isDriver) {
-        if (isDriver) driverRating = rating; else carRating = rating;
-
-        for (int i = 0; i < layout.getChildCount(); i++) {
-            ImageView star = (ImageView) layout.getChildAt(i);
-            if (i < rating) {
-                star.setImageResource(android.R.drawable.btn_star_big_on);
-                star.setColorFilter(Color.parseColor("#99C2A2"));
-            } else {
-                star.setImageResource(android.R.drawable.btn_star_big_off);
-                star.setColorFilter(Color.parseColor("#D1D5DB"));
-            }
-        }
     }
 
     private void submitReview(String comment) {
@@ -97,7 +106,10 @@ public class ReviewRideFragment extends Fragment {
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Thank you for your review!", Toast.LENGTH_SHORT).show();
-                    returnToHomeState();
+                    dismiss();
+                    if (getActivity() instanceof MainActivity){
+                        ((MainActivity) getActivity()).resetToHomeState();
+                    }
                 }
             }
             @Override
@@ -107,9 +119,4 @@ public class ReviewRideFragment extends Fragment {
         });
     }
 
-    private void returnToHomeState() {
-        if (isAdded() && getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).resetToHomeState();
-        }
-    }
 }
