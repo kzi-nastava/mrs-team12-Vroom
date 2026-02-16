@@ -113,7 +113,7 @@ public class FinishRideControllerTest {
 
     @Test
     @WithMockUser(roles = "DRIVER")
-    @DisplayName("POST /api/rides/{rideId}/finish - Success")
+    @DisplayName("Success")
     void finishRide_integrationSuccess() throws Exception {
         mockMvc.perform(post("/api/rides/{rideId}/finish", ongoingRideId)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -132,7 +132,7 @@ public class FinishRideControllerTest {
 
     @Test
     @WithMockUser(roles = "DRIVER")
-    @DisplayName("POST /api/rides/{rideId}/finish - Ride not found")
+    @DisplayName("Ride not found")
     void finishRide_rideNotFound() throws Exception {
         mockMvc.perform(post("/api/rides/{rideId}/finish", -1L)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -141,20 +141,20 @@ public class FinishRideControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "PASSENGER")
-    @DisplayName("POST /api/rides/{rideId}/finish - Forbidden Role")
+    @WithMockUser(roles = "REGISTERED_USER")
+    @DisplayName("Forbidden Role")
     void finishRide_forbidden_passenger() throws Exception {
         mockMvc.perform(post("/api/rides/{rideId}/finish", ongoingRideId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                        .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("POST /api/rides/{rideId}/finish - Unauthorized")
+    @DisplayName("Unauthorized")
     void finishRide_unauthorized() throws Exception {
         mockMvc.perform(post("/api/rides/{rideId}/finish", ongoingRideId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
+                        .andExpect(status().isUnauthorized());
     }
 
     @Test
