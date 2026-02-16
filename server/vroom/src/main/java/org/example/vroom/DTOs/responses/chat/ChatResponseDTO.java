@@ -14,4 +14,5 @@ public class ChatResponseDTO {
     private Long chatId;
     private String userName;
     private LocalDateTime lastMessageTime;
+    private byte[] profilePicture;
 }

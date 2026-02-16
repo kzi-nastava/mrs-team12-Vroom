@@ -22,6 +22,7 @@ import com.example.vroom.fragments.ReviewRideFragment;
 import com.example.vroom.fragments.RideTrackingFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
 import com.example.vroom.network.SocketProvider;
+import com.example.vroom.viewmodels.ChatViewModel;
 import com.example.vroom.viewmodels.MainViewModel;
 import com.example.vroom.viewmodels.RideTrackingViewModel;
 import com.example.vroom.viewmodels.RouteEstimationViewModel;
@@ -49,35 +50,54 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
     private RideTrackingViewModel rideTrackingViewModel;
     private RouteEstimationViewModel routeEstimationViewModel;
     private UserRideHistoryViewModel userRideHistoryViewModel;
+    private ChatViewModel chatViewModel;
     private BottomSheetBehavior<View> bottomSheetBehavior;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
         Configuration.getInstance().setUserAgentValue(getPackageName());
         setContentView(R.layout.activity_main);
+
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setMultiTouchControls(true);
         GeoPoint startPoint = new GeoPoint(45.2455, 19.8227);
         map.getController().setZoom(16.0);
         map.getController().setCenter(startPoint);
+
         routePolyline = new Polyline();
         routePolyline.getOutlinePaint().setColor(android.graphics.Color.parseColor("#2A2C24"));
         routePolyline.getOutlinePaint().setStrokeWidth(10f);
         map.getOverlays().add(routePolyline);
+
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         rideTrackingViewModel = new ViewModelProvider(this).get(RideTrackingViewModel.class);
         routeEstimationViewModel = new ViewModelProvider(this).get(RouteEstimationViewModel.class);
         userRideHistoryViewModel = new ViewModelProvider(this).get(UserRideHistoryViewModel.class);
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+
         setupObservers();
+
         viewModel.subscribeToLocationUpdates();
+        subscribeToChat();
         checkAndStartDriverTracking();
+
         View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         handleIncomingIntent(getIntent());
+    }
+
+    private void subscribeToChat(){
+        String userType = StorageManager.getSharedPreferences(this).getString("user_type", null);
+        String userID = StorageManager.getSharedPreferences(this).getString("user_id", "");
+        if (userType != null && !"ADMIN".equals(userType) && !userID.isEmpty()){
+            long userIDLong = Long.parseLong(userID);
+            chatViewModel.userSubscribeToMessages(userIDLong);
+        }
     }
 
     private void setupObservers() {

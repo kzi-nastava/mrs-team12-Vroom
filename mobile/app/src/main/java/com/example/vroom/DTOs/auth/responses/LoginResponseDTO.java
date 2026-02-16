@@ -3,12 +3,12 @@ package com.example.vroom.DTOs.auth.responses;
 public class LoginResponseDTO {
     private String type;
     private String token;
-    private Long expires;
+    private Long userId;
 
-    public LoginResponseDTO(String type, String token, Long expires) {
+    public LoginResponseDTO(String type, String token, Long userID) {
         this.type = type;
         this.token = token;
-        this.expires = expires;
+        this.userId = userID;
     }
 
     public LoginResponseDTO() {
@@ -31,11 +31,11 @@ public class LoginResponseDTO {
         this.token = token;
     }
 
-    public Long getExpires() {
-        return expires;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setExpires(Long expires) {
-        this.expires = expires;
+    public void setUserId(Long userID) {
+        this.userId = userID;
     }
 }

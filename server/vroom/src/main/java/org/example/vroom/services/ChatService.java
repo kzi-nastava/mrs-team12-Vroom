@@ -125,7 +125,12 @@ public class ChatService {
         List<Chat> chats = chatRepository.findAll();
         List<ChatResponseDTO> responseDTOs = new ArrayList<>();
         for (Chat chat : chats) {
-            responseDTOs.add(chatMapper.chatToDTO(chat));
+            Optional<User> user = userRepository.findById(chat.getId());
+            if (user.isEmpty()){
+                continue;
+            }
+            byte[] picture = user.get().getProfilePhoto();
+            responseDTOs.add(chatMapper.chatToDTO(chat, picture));
         }
         return responseDTOs;
     }

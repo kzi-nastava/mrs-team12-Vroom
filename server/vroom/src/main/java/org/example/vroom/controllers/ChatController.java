@@ -31,7 +31,7 @@ public class ChatController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/get-admin-chat/{chatID}")
     public ResponseEntity<Collection<ChatMessageResponseDTO>> getAdminChat(
             @PathVariable Long chatID
@@ -43,7 +43,7 @@ public class ChatController {
         return new ResponseEntity<>(messages, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER')")
+//    @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER')")
     @GetMapping(path="/get-user-chat")
     public ResponseEntity<UserChatResponseDTO> getUserChat(
             @AuthenticationPrincipal User user
@@ -58,7 +58,7 @@ public class ChatController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path="/get-all-chats")
     public ResponseEntity<Collection<ChatResponseDTO>> getAllChats(
     ) {
@@ -72,7 +72,7 @@ public class ChatController {
         return new ResponseEntity<>(chats, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER')")
+//    @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER')")
     @MessageMapping("user-send-message")
     @SendTo("/socket-publisher/user-messages")
     public ChatMessageResponseDTO userSendMessage(
@@ -87,7 +87,7 @@ public class ChatController {
         return chatService.userSendMessage(user.getId(), messageRequestDTO);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @MessageMapping("admin-send-message/{chatID}")
     public void adminSendMessage(
             @DestinationVariable Long chatID,

@@ -95,7 +95,7 @@ public class RideController {
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('DRIVER')")
+//    @PreAuthorize("hasRole('DRIVER')")
     @MessageMapping("ride-duration-update/{rideID}")
     public void updateRideDuration(@DestinationVariable String rideID,
                                    SimpMessageHeaderAccessor headerAccessor, PointResponseDTO location) {

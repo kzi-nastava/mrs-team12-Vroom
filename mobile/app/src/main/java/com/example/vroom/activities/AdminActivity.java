@@ -16,10 +16,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.fragments.AdminActiveRidesFragment;
+import com.example.vroom.fragments.AdminAllChatsFragment;
 import com.example.vroom.fragments.BlockUserFragment;
 import com.example.vroom.fragments.DefinePricelistFragment;
 import com.example.vroom.fragments.PanicFeedFragment;
@@ -27,6 +29,8 @@ import com.example.vroom.fragments.ProfileRequestsFragment;
 import com.example.vroom.fragments.RegisterDriverFragment;
 import com.example.vroom.fragments.RideStatisticsFragment;
 import com.example.vroom.fragments.UserRideHistoryFragment;
+import com.example.vroom.network.SocketProvider;
+import com.example.vroom.viewmodels.ChatViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -35,16 +39,19 @@ public class AdminActivity extends BaseActivity {
     private DrawerLayout drawer;
     private ImageButton logoButton;
     private ImageButton profileButton;
+    private ChatViewModel chatViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
 
         setupToolbar();
         setupDrawer();
         loadDashboard();
         setupClickListeners();
+        subscribeToChat();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -58,6 +65,13 @@ public class AdminActivity extends BaseActivity {
                 }
             }
         });
+    }
+
+    private void subscribeToChat(){
+        String userType = StorageManager.getSharedPreferences(this).getString("user_type", "");
+        if ("ADMIN".equals(userType)) {
+            chatViewModel.adminSubscribeToMessages();
+        }
     }
 
     private void setupToolbar() {
@@ -208,7 +222,11 @@ public class AdminActivity extends BaseActivity {
 
         if (findViewById(R.id.cardChat) != null) {
             findViewById(R.id.cardChat).setOnClickListener(v ->
-                    startActivity(new Intent(this, MockActivity.class)));
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.content_frame, new AdminAllChatsFragment())
+                            .addToBackStack(null)
+                            .commit());
         }
     }
 
@@ -216,10 +234,10 @@ public class AdminActivity extends BaseActivity {
         StorageManager.getSharedPreferences(this);
         StorageManager.saveData("jwt", null);
         StorageManager.saveData("user_type", null);
-        StorageManager.saveLong("expires", -1L);
+        StorageManager.saveData("user_id", null);
 
         Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
-
+        SocketProvider.getInstance().getClient().disconnect();
         Intent intent = new Intent(AdminActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

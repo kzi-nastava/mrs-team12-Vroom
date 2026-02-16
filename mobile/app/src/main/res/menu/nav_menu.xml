@@ -36,6 +36,10 @@
         android:title="Active ride"
         android:id="@+id/driver_active_ride"
     />
+    <item
+        android:title="Live Support"
+        android:id="@+id/live_support"
+        />
 
     <group android:id="@+id/nav_footer" android:checkableBehavior="none">
         <item
