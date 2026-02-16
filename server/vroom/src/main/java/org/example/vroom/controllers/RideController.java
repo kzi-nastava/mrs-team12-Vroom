@@ -61,6 +61,7 @@ public class RideController {
 
     private static final Logger log = LoggerFactory.getLogger(RideService.class);
 
+    @PreAuthorize("hasAnyRole('DRIVER', 'REGISTERED_USER', 'ADMIN')")
     @GetMapping(path="/route/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GetRouteResponseDTO> getRoute(@PathVariable Long rideID){
         GetRouteResponseDTO route = this.rideService.getRoute(rideID);
@@ -94,6 +95,7 @@ public class RideController {
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('DRIVER')")
     @MessageMapping("ride-duration-update/{rideID}")
     public void updateRideDuration(@DestinationVariable String rideID,
                                    SimpMessageHeaderAccessor headerAccessor, PointResponseDTO location) {
@@ -162,6 +164,7 @@ public class RideController {
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('REGISTERED_USER')")
     @GetMapping(path="/user-active-ride")
     public ResponseEntity<Collection<UserActiveRideDTO>> getUserActiveRide(
             @AuthenticationPrincipal UserDetails user

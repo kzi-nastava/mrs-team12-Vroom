@@ -119,8 +119,9 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/new-pricelist")
-    //@Pre-Authorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponseDTO> setPricelist(
             @RequestBody PricelistDTO newPricelistDTO
     ){
@@ -128,6 +129,7 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/get-pricelist")
     public ResponseEntity<PricelistDTO> getActivePricelist() {
         PricelistDTO pricelistDTO = priceListService.getPriceList();
