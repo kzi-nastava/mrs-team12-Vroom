@@ -34,4 +34,13 @@ public class UserHomePage {
             return false;
         }
     }
+
+
+    @FindBy(xpath = "//button[@routerLink='/order-from-favorites']")
+    private WebElement orderFromFavoritesButton;
+
+    public void clickOrderFromFavorites() {
+        wait.until(ExpectedConditions.elementToBeClickable(orderFromFavoritesButton));
+        orderFromFavoritesButton.click();
+    }
 }
