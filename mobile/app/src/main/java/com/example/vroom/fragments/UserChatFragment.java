@@ -74,8 +74,10 @@ public class UserChatFragment extends Fragment {
 
         chatViewModel.getIncomingMessage().observe(getViewLifecycleOwner(), message -> {
             if (message != null && chatAdapter != null) {
-                chatAdapter.addMessage(message);
-                recyclerView.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
+                if (targetChatId == -1L || targetChatId == message.getChatID()){
+                    chatAdapter.addMessage(message);
+                    recyclerView.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
+                }
             }
         });
     }
