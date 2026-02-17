@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RegisterDriver } from '../register-driver/register-driver';
-import { RegisterDriverService } from '../register-driver/register-driver.service';
+import { RegisterDriver } from './register-driver';
+import { RegisterDriverService } from './register-driver.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
