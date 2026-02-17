@@ -75,7 +75,9 @@ public class RideService {
     public GetRideResponseDTO orderRide(String userEmail, RideRequestDTO request) {
         RegisteredUser user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-
+        if (user.getBlockedReason() != null) {
+            throw new UserBlockedException("Your account has been blocked: " + user.getBlockedReason());
+        }
         LocalDateTime scheduledTime = null;
         boolean isScheduled = request.getScheduled() != null && request.getScheduled() && request.getScheduledTime() != null;
 
@@ -142,21 +144,6 @@ public class RideService {
                     "Vehicle capacity exceeded: max " + vehicleCapacity + ", requested " + totalPassengers
             );
         }
-//        if (!driverHasWorkingTime(driver)) {
-//            throw new NoAvailableDriverException("Driver exceeded 8 working hours in last 24h");
-//        }
-//        String startAddress = geoService.reverseGeocode(
-//                route.getStartLocationLat(),
-//                route.getStartLocationLng()
-//        );
-//
-//        String endAddress = geoService.reverseGeocode(
-//                route.getEndLocationLat(),
-//                route.getEndLocationLng()
-//        );
-//
-//        route.setStartAddress(startAddress);
-//        route.setEndAddress(endAddress);
         // Start / End
         String startLocation = route.getStartLocationLat() + "," + route.getStartLocationLng();
         String endLocation = route.getEndLocationLat() + "," + route.getEndLocationLng();

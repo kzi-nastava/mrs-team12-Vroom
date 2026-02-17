@@ -265,7 +265,11 @@ public class RideController {
                    .status(HttpStatus.CONFLICT)
                    .body(Map.of("message", e.getMessage()));
 
-       } catch (DriverNotAvailableException e) {
+       } catch (UserBlockedException e) {
+           return ResponseEntity
+                   .status(HttpStatus.FORBIDDEN)
+                   .body(Map.of("message", e.getMessage()));
+       }catch (DriverNotAvailableException e) {
            return ResponseEntity
                    .status(HttpStatus.CONFLICT)
                    .body(Map.of("message", e.getMessage()));

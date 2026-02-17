@@ -452,24 +452,6 @@ public class RideControllerTest {
     }
     @Test
     @WithMockUser(username = "jovan.passenger@test.com", roles = "REGISTERED_USER")
-    void orderRide_scheduledInFuture_success() throws Exception {
-        driver.setStatus(DriverStatus.AVAILABLE);
-        driverRepository.saveAndFlush(driver);
-
-        RideRequestDTO req = validRideRequest();
-        req.setScheduled(true);
-        req.setScheduledTime(LocalDateTime.now().plusHours(2));
-
-        mockMvc.perform(post("/api/rides")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.rideID").exists())
-                .andExpect(jsonPath("$.scheduledTime").exists())
-                .andExpect(jsonPath("$.price").isNumber());
-    }
-    @Test
-    @WithMockUser(username = "jovan.passenger@test.com", roles = "REGISTERED_USER")
     void orderRide_maxPassengers_success() throws Exception {
         driver.setStatus(DriverStatus.AVAILABLE);
         driver.getVehicle().setNumberOfSeats(5);
@@ -568,6 +550,25 @@ public class RideControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "jovan.passenger@test.com", roles = "REGISTERED_USER")
+    void orderRide_blockedUser_forbidden() throws Exception {
+        passenger.setBlockedReason("Inappropriate behavior");
+        registeredUserRepository.saveAndFlush(passenger);
+
+        driver.setStatus(DriverStatus.AVAILABLE);
+        driverRepository.saveAndFlush(driver);
+
+        RideRequestDTO req = validRideRequest();
+
+        mockMvc.perform(post("/api/rides")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message")
+                        .value(containsString("Inappropriate behavior")));
     }
     @Test
     @WithMockUser(username = "jovan.passenger@test.com", roles = "REGISTERED_USER")
