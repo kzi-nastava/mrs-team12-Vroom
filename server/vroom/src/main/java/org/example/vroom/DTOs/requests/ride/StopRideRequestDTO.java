@@ -25,7 +25,7 @@ public class StopRideRequestDTO {
 
 
     @NotNull
-    @DecimalMin(value = "-90.0")
-    @DecimalMax(value = "90.0")
+    @DecimalMin(value = "-180.0")
+    @DecimalMax(value = "180.0")
     private double stopLng;
 }

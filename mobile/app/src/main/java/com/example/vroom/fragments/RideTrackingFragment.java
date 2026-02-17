@@ -32,7 +32,7 @@ public class RideTrackingFragment extends Fragment {
     private Long rideId;
     private String userRole;
     private TextView etaText, startAddress, endAddress;
-    private Button btnFinishRide, btnSubmitComplaint, btnPanic;
+    private Button btnFinishRide, btnSubmitComplaint, btnPanic, btnStopRide;
     private EditText editComplaint;
     private LinearLayout userActions, driverActions;
 
@@ -84,15 +84,18 @@ public class RideTrackingFragment extends Fragment {
         btnSubmitComplaint = view.findViewById(R.id.btn_submit_complaint);
         editComplaint = view.findViewById(R.id.edit_complaint);
         btnPanic = view.findViewById(R.id.btn_panic);
+        btnStopRide = view.findViewById(R.id.btn_stop_ride);
     }
 
     private void setupUI() {
         if ("DRIVER".equals(userRole)) {
             driverActions.setVisibility(View.VISIBLE);
             userActions.setVisibility(View.GONE);
+            btnStopRide.setVisibility(View.VISIBLE);
         } else if ("REGISTERED_USER".equals(userRole)) {
             userActions.setVisibility(View.VISIBLE);
             driverActions.setVisibility(View.GONE);
+            btnStopRide.setVisibility(View.GONE);
         } else {
             userActions.setVisibility(View.GONE);
             driverActions.setVisibility(View.GONE);
@@ -110,6 +113,24 @@ public class RideTrackingFragment extends Fragment {
                 viewModel.sendComplaint(rideId, complaint);
                 editComplaint.setText("");
             }
+        });
+
+        btnPanic.setOnClickListener(v -> {
+            PanicFragment frag = PanicFragment.newInstance(rideId);
+
+            frag.show(
+                    requireActivity().getSupportFragmentManager(),
+                    "PanicFragment"
+            );
+        });
+
+        btnStopRide.setOnClickListener(v -> {
+            StopRideFragment frag = StopRideFragment.newInstance(rideId);
+            frag.show(
+                    requireActivity().getSupportFragmentManager(),
+                    "StopRideFragment"
+            );
+
         });
     }
 

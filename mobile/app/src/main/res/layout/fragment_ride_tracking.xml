@@ -121,6 +121,15 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/btn_stop_ride"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/accent_green"
+            android:text="Stop Ride"
+            android:textColor="@color/brown_black" />
+
+        <Button
             android:id="@+id/btn_panic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -66,5 +66,12 @@ public class UserActiveRideFragment extends Fragment implements UserActiveRidesA
     }
 
     @Override
-    public void onCancelRide(Long rideId) {}
+    public void onCancelRide(Long rideId) {
+        CancelRideFragment frag = CancelRideFragment.newInstance(rideId);
+
+        frag.show(
+                requireActivity().getSupportFragmentManager(),
+                "CancelRideFragment"
+        );
+    }
 }

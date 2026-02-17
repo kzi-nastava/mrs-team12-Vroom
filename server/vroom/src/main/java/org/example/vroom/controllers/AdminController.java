@@ -67,7 +67,6 @@ public class AdminController {
     }
 
     @PostMapping("/driver-update-requests/{id}/reject")
-    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> reject(
             @PathVariable Long id,
             @RequestBody RejectRequestDTO dto
@@ -77,14 +76,12 @@ public class AdminController {
     }
 
     @GetMapping("/driver-update-requests")
-    //@PreAuthorize("hasRole('ADMIN')")
     public List<DriverUpdateRequestAdminDTO> getPendingRequests()
             throws JsonProcessingException {
         return adminService.getPendingDriverRequests();
     }
 
     @PostMapping("/driver-update-requests/{id}/approve")
-    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> approve(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(adminService.approveRequest(id));
@@ -96,14 +93,12 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminUserDTO>> getAllUsers() {
         return ResponseEntity.ok(adminService.getAllUsers());
     }
 
 
     @PutMapping("/users/{id}/block")
-    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> blockUser(
             @PathVariable Long id,
             @RequestBody BlockUserRequestDTO dto
@@ -113,7 +108,6 @@ public class AdminController {
     }
 
     @PutMapping("/users/{id}/unblock")
-    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> unblockUser(@PathVariable Long id) {
         adminService.unblockUser(id);
         return ResponseEntity.noContent().build();
