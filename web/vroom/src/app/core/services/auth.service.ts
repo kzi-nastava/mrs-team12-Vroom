@@ -47,16 +47,7 @@ export class AuthService{
     }
 
 
-    get isTokenExpired(): boolean{
-        const expiresAt = localStorage.getItem('expires')
-        if (!expiresAt) return true
-
-        const expirationTime = Number(expiresAt)*1000
-        const currentTime = Date.now()
-        
-        return currentTime > expirationTime
-    }
-
+    
     get getCurrentUserType(): string | null{
         return localStorage.getItem('user_type')
     }
@@ -69,11 +60,6 @@ export class AuthService{
         const token = localStorage.getItem('jwt');
         if (!token) return false;
 
-        if (this.isTokenExpired) {
-            this.logout(); 
-            return false;
-        }
-        
         return true;
     }
 

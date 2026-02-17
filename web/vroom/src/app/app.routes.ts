@@ -44,19 +44,19 @@ export const routes: Routes = [
     {path: 'admin-users', component: AdminUsersComponent},
     {path: 'active', component: UserActiveRide},
     {path: "ride-statistics", component: RideStatisticsComponent},
-    {path: 'admin', component: AdminHomePage},
-    {path: 'pricelist', component: AdminDefinePricelist},
-    {path: 'active-rides', component: AdminActiveRides},
+    {path: 'admin', component: AdminHomePage, canActivate: [authGuard], data: { roles: ['ADMIN'] } },
+    {path: 'pricelist', component: AdminDefinePricelist, canActivate: [authGuard], data: { roles: ['ADMIN'] }},
+    {path: 'active-rides', component: AdminActiveRides, canActivate: [authGuard], data: { roles: ['ADMIN'] }},
     {path: 'chat', component: ChatUser},
-    {path: 'admin-chat', component: ChatAdmin},
+    {path: 'admin-chat', component: ChatAdmin, canActivate: [authGuard], data: { roles: ['ADMIN'] }},
     {path: '', component: MainView, 
         children: [ 
             {path: 'route-estimation', component: RouteEstimation },
             {path: 'order-a-ride', component: OrderARide}, 
             {path: 'ride-duration', component: RideDuration},
             {path: 'review', component: RideEnd},
-            {path: 'panic-feed', component: PanicFeed},
-            {path: 'ride-history', component: RideHistory}
+            {path: 'panic-feed', component: PanicFeed, canActivate: [authGuard], data: { roles: ['ADMIN'] }},
+            {path: 'ride-history', component: RideHistory, canActivate: [authGuard], data: { roles: ['REGISTERED_USER', 'ADMIN'] }}
         ]
     }
 ];

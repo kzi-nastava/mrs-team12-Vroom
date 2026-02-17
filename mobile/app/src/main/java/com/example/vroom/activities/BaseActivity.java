@@ -1,6 +1,7 @@
 package com.example.vroom.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import com.example.vroom.fragments.UserRideHistoryFragment;
 import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import ua.naiksoftware.stomp.StompClient;
 
@@ -91,6 +93,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         initToggleStatus(navigationView);
 
         askPermission();
+
     }
 
     private void askPermission(){

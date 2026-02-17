@@ -95,6 +95,11 @@ public class ActiveRidesFragment extends Fragment implements ActiveRidesAdapter.
 
     @Override
     public void onCancelRide(GetRideResponseDTO ride) {
-        Toast.makeText(getContext(), "Cancel functionality not implemented yet", Toast.LENGTH_SHORT).show();
+        CancelRideFragment frag = CancelRideFragment.newInstance(ride.getRideID());
+
+        frag.show(
+                requireActivity().getSupportFragmentManager(),
+                "CancelRideFragment"
+        );
     }
 }
