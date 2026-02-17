@@ -4,7 +4,6 @@ import { RegisterDriverService } from '../register-driver/register-driver.servic
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
-import { vi } from 'vitest'; 
 
 describe('RegisterDriver - Registration without vehicle', () => {
   let component: RegisterDriver;
@@ -52,7 +51,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
 
     it('should pass validation with only personal info filled', async () => {
       fillPersonalInfo(component);
-      vi.spyOn(service, 'createRequest').mockReturnValue(
+      spyOn(service, 'createRequest').and.returnValue(
         of({ message: 'Success' } as MessageResponseDTO)
       );
       
@@ -101,7 +100,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
     it('should send correct data structure without vehicle fields', async () => {
       fillPersonalInfo(component);
       
-      const createRequestSpy = vi.spyOn(service, 'createRequest').mockReturnValue(
+      const createRequestSpy = spyOn(service, 'createRequest').and.returnValue(
         of({ message: 'Driver registered successfully' } as MessageResponseDTO)
       );
       
@@ -109,7 +108,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
       
       expect(createRequestSpy).toHaveBeenCalledTimes(1);
       
-      const sentData = createRequestSpy.mock.calls[0][0];
+      const sentData = createRequestSpy.calls.argsFor(0)[0];
       
       expect(sentData.firstName).toBe('John');
       expect(sentData.lastName).toBe('Doe');
@@ -130,7 +129,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
     it('should handle successful registration response', async () => {
       fillPersonalInfo(component);
       
-      vi.spyOn(service, 'createRequest').mockReturnValue(
+      spyOn(service, 'createRequest').and.returnValue(
         of({ message: 'Driver registered! Activation mail sent.' } as MessageResponseDTO)
       );
       
@@ -145,7 +144,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
       fillPersonalInfo(component);
       component.profilePic = new File([''], 'test.jpg');
       
-      vi.spyOn(service, 'createRequest').mockReturnValue(
+      spyOn(service, 'createRequest').and.returnValue(
         of({ message: 'Success' } as MessageResponseDTO)
       );
       
@@ -169,7 +168,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
       error: { message: 'Driver with this email already exists' }
     };
     
-    vi.spyOn(service, 'createRequest').mockReturnValue(
+    spyOn(service, 'createRequest').and.returnValue(
       throwError(() => errorResponse)
     );
     
@@ -187,7 +186,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
       error: { message: 'Service unavailable' }
     };
     
-    vi.spyOn(service, 'createRequest').mockReturnValue(
+    spyOn(service, 'createRequest').and.returnValue(
       throwError(() => errorResponse)
     );
     
@@ -204,7 +203,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
       error: { message: 'Internal error' }
     };
     
-    vi.spyOn(service, 'createRequest').mockReturnValue(
+    spyOn(service, 'createRequest').and.returnValue(
       throwError(() => errorResponse)
     );
     
@@ -221,7 +220,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
       error: {}
     };
     
-    vi.spyOn(service, 'createRequest').mockReturnValue(
+   spyOn(service, 'createRequest').and.returnValue(
       throwError(() => errorResponse)
     );
     
@@ -238,7 +237,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
       error: {}
     };
     
-    vi.spyOn(service, 'createRequest').mockReturnValue(
+    spyOn(service, 'createRequest').and.returnValue(
       throwError(() => errorResponse)
     );
     
@@ -255,7 +254,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
       error: {}
     };
     
-    vi.spyOn(service, 'createRequest').mockReturnValue(
+    spyOn(service, 'createRequest').and.returnValue(
       throwError(() => errorResponse)
     );
     
@@ -267,7 +266,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
   it('should handle network error', async () => {
     fillPersonalInfo(component);
     
-    vi.spyOn(service, 'createRequest').mockReturnValue(
+    spyOn(service, 'createRequest').and.returnValue(
       throwError(() => new Error('Network error'))
     );
     
@@ -285,9 +284,9 @@ describe('RegisterDriver - Registration without vehicle', () => {
       const mockFile = new File(['fake-image-content'], 'profile.jpg', { type: 'image/jpeg' });
       component.profilePic = mockFile;
       
-      const base64Spy = vi.spyOn(service, 'fileToBase64').mockResolvedValue('base64encodedstring');
+      const base64Spy = spyOn(service, 'fileToBase64').and.returnValue(Promise.reject(new Error('Conversion failed')));
       
-      vi.spyOn(service, 'createRequest').mockReturnValue(
+      spyOn(service, 'createRequest').and.returnValue(
         of({ message: 'Success' } as MessageResponseDTO)
       );
       
@@ -302,7 +301,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
       const mockFile = new File([''], 'profile.jpg');
       component.profilePic = mockFile;
       
-      vi.spyOn(service, 'fileToBase64').mockRejectedValue(new Error('Conversion failed'));
+      spyOn(service, 'fileToBase64').and.returnValue(Promise.reject(new Error('Conversion failed')));
       
       await component.onSubmit();
       
@@ -314,13 +313,13 @@ describe('RegisterDriver - Registration without vehicle', () => {
       fillPersonalInfo(component);
       component.profilePic = null;
       
-      const createRequestSpy = vi.spyOn(service, 'createRequest').mockReturnValue(
+      const createRequestSpy = spyOn(service, 'createRequest').and.returnValue(
         of({ message: 'Success' } as MessageResponseDTO)
       );
       
       await component.onSubmit();
       
-      const sentData = createRequestSpy.mock.calls[0][0];
+      const sentData = createRequestSpy.calls.argsFor(0)[0];
       expect(sentData.profilePhoto).toBeUndefined();
     });
   });
@@ -330,7 +329,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
     it('should set loading to true when submitting', async () => {
       fillPersonalInfo(component);
       
-      vi.spyOn(service, 'createRequest').mockReturnValue(
+     spyOn(service, 'createRequest').and.returnValue(
         of({ message: 'Success' } as MessageResponseDTO)
       );
       
@@ -344,7 +343,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
     it('should set loading to false after successful submit', async () => {
       fillPersonalInfo(component);
       
-      vi.spyOn(service, 'createRequest').mockReturnValue(
+      spyOn(service, 'createRequest').and.returnValue(
         of({ message: 'Success' } as MessageResponseDTO)
       );
       
@@ -356,7 +355,7 @@ describe('RegisterDriver - Registration without vehicle', () => {
     it('should set loading to false after failed submit', async () => {
       fillPersonalInfo(component);
       
-      vi.spyOn(service, 'createRequest').mockReturnValue(
+      spyOn(service, 'createRequest').and.returnValue(
         throwError(() => ({ status: 500 }))
       );
       

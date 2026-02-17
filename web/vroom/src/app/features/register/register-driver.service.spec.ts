@@ -2,19 +2,20 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RegisterDriverService } from '../register-driver/register-driver.service';
 import { MessageResponseDTO } from '../../core/models/message-response.dto';
-import { vi } from 'vitest'; 
+import { SocketProviderService } from '../../core/services/socket-provider.service';
+
 
 describe('RegisterDriverService', () => {
   let service: RegisterDriverService;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue('fake-jwt-token');
+    spyOn(Storage.prototype, 'getItem').and.returnValue('fake-jwt-token');
     
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [RegisterDriverService]
-    });
+    providers: [RegisterDriverService]
+  }).compileComponents();
     
     service = TestBed.inject(RegisterDriverService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -22,7 +23,6 @@ describe('RegisterDriverService', () => {
 
   afterEach(() => {
     httpMock.verify();
-    vi.restoreAllMocks();
   });
 
   describe('validateDriverPreferences', () => {
