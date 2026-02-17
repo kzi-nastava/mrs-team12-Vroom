@@ -29,6 +29,8 @@ import com.example.vroom.R;
 import com.example.vroom.adapters.SuggestionAdapter;
 import com.example.vroom.enums.VehicleType;
 import com.example.vroom.viewmodels.OrderRideViewModel;
+import com.example.vroom.viewmodels.RouteEstimationViewModel;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class OrderRideFragment extends Fragment {
+public class OrderRideFragment extends BottomSheetDialogFragment {
 
     private OrderRideViewModel viewModel;
     private CheckBox checkboxScheduleRide;
@@ -48,6 +50,8 @@ public class OrderRideFragment extends Fragment {
     private LinearLayout stopsContainer, estimatesContainer;
     private TextView textEstTime, textEstPrice;
     private Button btnCalculate, btnOrder;
+
+    private RouteEstimationViewModel sharedRouteVM;
 
     private int stopCount = 0;
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
@@ -67,8 +71,10 @@ public class OrderRideFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         checkboxScheduleRide = view.findViewById(R.id.checkbox_schedule_ride);
         timePicker = view.findViewById(R.id.time_picker_schedule);
-        viewModel = new ViewModelProvider(this).get(OrderRideViewModel.class);
-
+        sharedRouteVM = new ViewModelProvider(requireActivity())
+                .get(RouteEstimationViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity())
+                .get(OrderRideViewModel.class);
         initViews(view);
         setupVehicleTypeSpinner();
         setupSuggestions();
@@ -258,7 +264,7 @@ public class OrderRideFragment extends Fragment {
             }
         });
 
-        viewModel.getRouteQuote().observe(getViewLifecycleOwner(), quote -> {
+        sharedRouteVM.getRouteQuote().observe(getViewLifecycleOwner(), quote -> {
             if (quote != null) {
                 estimatesContainer.setVisibility(View.VISIBLE);
                 textEstTime.setText(String.format("~%.0f min", quote.getTime()));
@@ -342,7 +348,7 @@ public class OrderRideFragment extends Fragment {
 
         List<String> stopsTexts = getStopsFromContainer();
 
-        viewModel.calculateRoute(startText, endText, stopsTexts);
+        sharedRouteVM.getResults(startText, endText, stopsTexts);
     }
 
     private void orderRide() {

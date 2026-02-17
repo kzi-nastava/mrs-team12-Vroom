@@ -9,6 +9,17 @@
         android:title="@string/register_title"
         android:id="@+id/register_navbar_item"
         android:icon="@drawable/ic_user_profile" />
+
+    <!-- USER -->
+    <item
+        android:id="@+id/nav_order_ride"
+        android:title="Order Ride"
+         />
+
+    <item
+        android:id="@+id/nav_order_from_favorites"
+        android:title="Order From Favorites"
+        />
     <item
         android:title="@string/drivers_ride_history"
         android:icon="@drawable/ic_calendar"
