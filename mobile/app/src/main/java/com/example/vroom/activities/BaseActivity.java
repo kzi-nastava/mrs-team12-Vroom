@@ -28,6 +28,8 @@ import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.fragments.ActiveRidesFragment;
+import com.example.vroom.fragments.OrderFromFavoritesFragment;
+import com.example.vroom.fragments.OrderRideFragment;
 import com.example.vroom.fragments.PanicFeedFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
@@ -168,7 +170,9 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         String token = StorageManager.getData("jwt", null);
         String userType = StorageManager.getData("user_type", null);
         boolean isLoggedIn = (token != null && !token.isEmpty());
-
+        Log.d("MENU_DEBUG", "Token: " + token);
+        Log.d("MENU_DEBUG", "UserType: " + userType);
+        Log.d("MENU_DEBUG", "IsLoggedIn: " + isLoggedIn);
         menu.findItem(R.id.nav_logout).setVisible(isLoggedIn);
         menu.findItem(R.id.driver_ride_history_item).setVisible(isLoggedIn && userType.equals("DRIVER"));
         menu.findItem(R.id.nav_status_switch).setVisible(isLoggedIn && userType.equals("DRIVER"));
@@ -181,6 +185,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         menu.findItem(R.id.register_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.nav_route_estimation).setVisible(!isLoggedIn);
         menu.findItem(R.id.live_support).setVisible(isLoggedIn && !userType.equals("ADMIN"));
+        menu.findItem(R.id.nav_order_ride)
+                .setVisible(isLoggedIn && userType.equals("REGISTERED_USER"));
+
+        menu.findItem(R.id.nav_order_from_favorites)
+                .setVisible(isLoggedIn && userType.equals("REGISTERED_USER"));
     }
 
     public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
@@ -252,8 +261,16 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                     .replace(R.id.content_frame, new UserChatFragment())
                     .addToBackStack(null)
                     .commit();
+        }else if (id == R.id.nav_order_ride){
+            OrderRideFragment fragment = new OrderRideFragment();
+            fragment.show(getSupportFragmentManager(), "OrderRide");
         }
-
+        else if (id == R.id.nav_order_from_favorites){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new OrderFromFavoritesFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
