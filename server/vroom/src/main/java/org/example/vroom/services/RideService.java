@@ -46,6 +46,8 @@ public class RideService {
     @Autowired
     private VehicleRepository vehicleRepository;
     @Autowired
+    private RegisteredUserRepository registeredUserRepository;
+    @Autowired
     private RideMapper rideMapper;
     @Autowired
     private RouteMapper routeMapper;
@@ -57,6 +59,8 @@ public class RideService {
     private GeoService geoService;
     @Autowired
     private RouteRepository routeRepository;
+    @Autowired
+    private FcmService fcmService;
 
 
     @Autowired
@@ -360,8 +364,8 @@ public class RideService {
         vehicleRepository.save(vehicle);
     }
 
-    public void finishRide(Long RideID){
-        Optional<Ride> rideOptional = rideRepository.findById(RideID);
+    public void finishRide(Long rideID){
+        Optional<Ride> rideOptional = rideRepository.findById(rideID);
         if (rideOptional.isEmpty()) {
             throw new RideNotFoundException("Ride not found");
         }
@@ -372,6 +376,13 @@ public class RideService {
         driver.setStatus(DriverStatus.AVAILABLE);
         rideRepository.save(ride);
         driverRepository.save(driver);
+        sendFinishRideNotification(ride.getPassenger().getId());
+        for (String passenger : ride.getPassengers()){
+            Long userID = isRegisteredUser(passenger);
+            if (userID != -1L){
+                sendStartRideNotification(userID, ride.getId());
+            }
+        }
         try {
             emailService.sendRideEndMail(ride.getPassenger().getEmail());
         } catch (MessagingException | IOException e) {
@@ -388,6 +399,10 @@ public class RideService {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void sendFinishRideNotification(Long userID){
+        fcmService.sendFinishRideNotification("Vroom", "Ride Finished", userID);
     }
 
     public void sendComplaint(Long rideID, ComplaintRequestDTO complaint){
@@ -492,7 +507,13 @@ public class RideService {
         ride.setStartTime(LocalDateTime.now());
         ride.setStatus(RideStatus.ONGOING);
         ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
-
+        sendStartRideNotification(ride.getPassenger().getId(), ride.getId());
+        for (String passenger : ride.getPassengers()){
+            Long userID = isRegisteredUser(passenger);
+            if (userID != -1L){
+                sendStartRideNotification(userID, ride.getId());
+            }
+        }
         try{
             emailService.sendRideStartedMail(ride.getPassenger().getEmail(), rideID.toString());
         }catch(IOException | MessagingException e){
@@ -500,6 +521,18 @@ public class RideService {
         }
         rideRepository.save(ride);
         return rideMapper.getRideDTO(ride);
+    }
+
+    private Long isRegisteredUser(String email){
+        Optional<RegisteredUser> user = registeredUserRepository.findByEmail(email);
+        if (user.isEmpty()){
+            return -1L;
+        }
+        return user.get().getId();
+    }
+
+    private void sendStartRideNotification(Long userID, Long rideID){
+        fcmService.sendStartRideNotification("RIDE STARTED", "Click to track ride", userID, rideID);
     }
 
     public RideResponseDTO getRide(long rideID){

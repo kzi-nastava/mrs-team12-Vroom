@@ -18,6 +18,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.vroom.DTOs.ride.responses.RideResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.fragments.AdminActiveRidesFragment;
@@ -28,11 +29,14 @@ import com.example.vroom.fragments.PanicFeedFragment;
 import com.example.vroom.fragments.ProfileRequestsFragment;
 import com.example.vroom.fragments.RegisterDriverFragment;
 import com.example.vroom.fragments.RideStatisticsFragment;
+import com.example.vroom.fragments.RouteEstimationFragment;
+import com.example.vroom.fragments.UserChatFragment;
 import com.example.vroom.fragments.UserRideHistoryFragment;
 import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.ChatViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 
 public class AdminActivity extends BaseActivity {
 
@@ -43,6 +47,12 @@ public class AdminActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        FirebaseMessaging.getInstance().subscribeToTopic("admin")
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("FCM", "Subscribed to start_ride topic");
+                    }
+                });
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
@@ -65,6 +75,31 @@ public class AdminActivity extends BaseActivity {
                 }
             }
         });
+        handleIncomingIntent(getIntent());
+    }
+
+    private void handleIncomingIntent(Intent intent) {
+        if (intent == null) return;
+
+        if (intent.hasExtra("CHAT_ID")) {
+            long chatId = intent.getLongExtra("CHAT_ID", -1L);
+            if (chatId != -1L){
+                Bundle bundle = new Bundle();
+                bundle.putLong("chatId", chatId);
+                UserChatFragment chatFragment = new UserChatFragment();
+                chatFragment.setArguments(bundle);
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_frame, chatFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }
+    }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIncomingIntent(intent);
     }
 
     private void subscribeToChat(){

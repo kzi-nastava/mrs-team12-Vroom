@@ -32,6 +32,8 @@ public class ChatService {
     private ChatMapper chatMapper;
     @Autowired
     private AuthService authService;
+    @Autowired
+    private FcmService fcmService;
 
     public UserChatResponseDTO getMessagesByUserId(Long userId) {
         Optional<Chat> chatOptional = chatRepository.findByUserId(userId);
@@ -92,6 +94,7 @@ public class ChatService {
         chatRepository.saveAndFlush(chat);
         ChatMessageResponseDTO responseDTO = chatMapper.mapToDTO(message, chat.getId());
         responseDTO.setProfilePicture(userOptional.get().getProfilePhoto());
+        fcmService.sendAdminChatNotification("New message from " + message.getSenderName(), message.getContent(), userId);
         return responseDTO;
     }
 
@@ -110,6 +113,7 @@ public class ChatService {
         chatRepository.saveAndFlush(chat);
         ChatMessageResponseDTO responseDTO = chatMapper.mapToDTO(message, chatID);
         responseDTO.setProfilePicture(admin.getProfilePhoto());
+        fcmService.sendUserChatNotification("New message from " + message.getSenderName(), message.getContent(), chatID);
         return responseDTO;
     }
 

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
@@ -21,6 +22,7 @@ import com.example.vroom.fragments.ActiveRidesFragment;
 import com.example.vroom.fragments.ReviewRideFragment;
 import com.example.vroom.fragments.RideTrackingFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
+import com.example.vroom.fragments.UserChatFragment;
 import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.ChatViewModel;
 import com.example.vroom.viewmodels.MainViewModel;
@@ -29,6 +31,7 @@ import com.example.vroom.viewmodels.RouteEstimationViewModel;
 import com.example.vroom.viewmodels.UserRideHistoryViewModel;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +58,12 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        FirebaseMessaging.getInstance().subscribeToTopic("user")
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("FCM", "Subscribed to start_ride topic");
+                    }
+                });
         super.onCreate(savedInstanceState);
 
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
@@ -241,6 +250,12 @@ public class MainActivity extends BaseActivity implements RideNavigationListener
         if (intent.hasExtra("RIDE_ID")) {
             long rideId = intent.getLongExtra("RIDE_ID", -1);
             if (rideId != -1) updateUIForRideState(rideId);
+        }
+        if (intent.hasExtra("USER_CHAT") && intent.getBooleanExtra("USER_CHAT", false)) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new UserChatFragment())
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
