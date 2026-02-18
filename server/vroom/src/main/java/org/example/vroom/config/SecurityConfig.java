@@ -96,6 +96,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/reports/**").authenticated()
                         .requestMatchers("/api/profile/user").authenticated()
                         .requestMatchers(
+                                "/v3/api-docs/**",
                                 "/api/chat/**",
                                 "/api/drivers/**",
                                 "/api/auth/**",
