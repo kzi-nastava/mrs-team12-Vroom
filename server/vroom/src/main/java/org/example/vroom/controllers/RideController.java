@@ -33,6 +33,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.example.vroom.services.RideService;
@@ -95,16 +96,19 @@ public class RideController {
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
-//    @PreAuthorize("hasRole('DRIVER')")
     @MessageMapping("ride-duration-update/{rideID}")
     public void updateRideDuration(@DestinationVariable String rideID,
-                                   SimpMessageHeaderAccessor headerAccessor, PointResponseDTO location) {
+                                   SimpMessageHeaderAccessor headerAccessor,
+                                   PointResponseDTO location) {
 
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
         if(auth == null || auth.getPrincipal() == null ){
             return;
         }
         User user = (User) auth.getPrincipal();
+        if (!"DRIVER".equals(user.getRoleName())){
+            return;
+        }
         String start = this.routeService.coordinatesToString(location);
         String end = this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLat() + ","
                 + this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLng();
@@ -119,8 +123,12 @@ public class RideController {
     @PostMapping(path = "/complaint/{rideID}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> sendComplaint(
             @PathVariable Long rideID,
-            @RequestBody ComplaintRequestDTO complaint
+            @Valid @RequestBody ComplaintRequestDTO complaint,
+            BindingResult result
     ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try {
             this.rideService.sendComplaint(rideID, complaint);
         } catch (EmptyBodyException e) {
@@ -135,8 +143,12 @@ public class RideController {
     @PostMapping(path = "/{rideID}/review", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> leaveReview(
             @PathVariable Long rideID,
-            @RequestBody LeaveReviewRequestDTO review
+            @RequestBody LeaveReviewRequestDTO review,
+            BindingResult result
     ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         System.out.println(rideID);
         if (review == null){
             return new ResponseEntity<>(new MessageResponseDTO("No content sent"), HttpStatus.NO_CONTENT);

@@ -18,6 +18,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -30,8 +33,10 @@ public class ChatController {
     private ChatService chatService;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private Validator validator;
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/get-admin-chat/{chatID}")
     public ResponseEntity<Collection<ChatMessageResponseDTO>> getAdminChat(
             @PathVariable Long chatID
@@ -43,7 +48,7 @@ public class ChatController {
         return new ResponseEntity<>(messages, HttpStatus.OK);
     }
 
-//    @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER')")
+    @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER')")
     @GetMapping(path="/get-user-chat")
     public ResponseEntity<UserChatResponseDTO> getUserChat(
             @AuthenticationPrincipal User user
@@ -58,7 +63,7 @@ public class ChatController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path="/get-all-chats")
     public ResponseEntity<Collection<ChatResponseDTO>> getAllChats(
     ) {
@@ -72,33 +77,48 @@ public class ChatController {
         return new ResponseEntity<>(chats, HttpStatus.OK);
     }
 
-//    @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER')")
     @MessageMapping("user-send-message")
     @SendTo("/socket-publisher/user-messages")
     public ChatMessageResponseDTO userSendMessage(
             SimpMessageHeaderAccessor headerAccessor,
             ChatMessageRequestDTO messageRequestDTO
     ) {
+        Errors errors = new BeanPropertyBindingResult(messageRequestDTO, "messageRequestDTO");
+        validator.validate(messageRequestDTO, errors);
+        if (errors.hasErrors()) {
+            return null;
+        }
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
         if(auth == null || auth.getPrincipal() == null) {
             return null;
         }
         User user = (User) auth.getPrincipal();
+        if (!"DRIVER".equals(user.getRoleName()) && !"REGISTERED_USER".equals(user.getRoleName())) {
+            return null;
+        }
         return chatService.userSendMessage(user.getId(), messageRequestDTO);
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
     @MessageMapping("admin-send-message/{chatID}")
     public void adminSendMessage(
             @DestinationVariable Long chatID,
             SimpMessageHeaderAccessor headerAccessor,
             ChatMessageRequestDTO messageRequestDTO
     ){
+        Errors errors = new BeanPropertyBindingResult(messageRequestDTO, "messageRequestDTO");
+        validator.validate(messageRequestDTO, errors);
+
+        if (errors.hasErrors()) {
+            return;
+        }
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
         if(auth == null || auth.getPrincipal() == null) {
             return;
         }
         User admin = (User) auth.getPrincipal();
+        if (!"ADMIN".equals(admin.getRoleName())){
+            return;
+        }
         Long userID = chatService.getUserId(chatID);
         ChatMessageResponseDTO messageResponseDTO = chatService.adminSendMessage(admin, chatID, messageRequestDTO);
         messagingTemplate.convertAndSend("/socket-publisher/admin-messages/" + userID, messageResponseDTO);

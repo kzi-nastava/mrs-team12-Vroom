@@ -18,6 +18,7 @@ import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.services.DriverService;
 import org.example.vroom.services.RideService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -40,12 +41,10 @@ import java.util.Map;
 @Validated
 public class DriverController {
 
-    private final DriverService driverService;
+    @Autowired
+    private DriverService driverService;
 
-
-    public DriverController(DriverService driverService, RideService rideService, RideMapper rideMapper) {
-        this.driverService = driverService;
-    }
+    public DriverController() {}
 
     @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
     @GetMapping(path = "/rides", produces = MediaType.APPLICATION_JSON_VALUE)
