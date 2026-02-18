@@ -78,6 +78,16 @@
             android:backgroundTint="@color/main_green"
             android:textColor="@color/brown_black"/>
 
+        <Button
+            android:id="@+id/btnAddFavorite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Add to Favorites"
+            android:visibility="gone"
+            android:backgroundTint="@color/brown_black"
+            android:textColor="@color/lime_white"/>
+
     </LinearLayout>
 
 

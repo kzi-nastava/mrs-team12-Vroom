@@ -62,6 +62,7 @@ public class UserRideHistoryFragment extends Fragment
     private static final float SHAKE_THRESHOLD = 2.7f;
     private String userType;
 
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_user_ride_history, container, false);
@@ -102,7 +103,13 @@ public class UserRideHistoryFragment extends Fragment
         mViewModel.getRideHistoryLiveData().observe(getViewLifecycleOwner(), rides -> {
             adapter.setRides(rides != null ? rides : new ArrayList<>());
         });
+        mViewModel.getFavoriteSuccess().observe(getViewLifecycleOwner(), msg -> {
+            if (msg != null) Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+        });
 
+        mViewModel.getErrorMessage().observe(getViewLifecycleOwner(), msg -> {
+            if (msg != null) Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+        });
         setupListeners();
         applyFilters();
     }
@@ -231,6 +238,15 @@ public class UserRideHistoryFragment extends Fragment
             ReviewRideFragment reviewFragment = ReviewRideFragment.newInstance(info.getRideId());
             reviewFragment.show(getParentFragmentManager(), "review_dialog");
         });
+        Button btnFavorite = view.findViewById(R.id.btnAddFavorite);
+        Log.d("FAVORITE_BTN", "Status: " + info.getStatus() + " | isUser: " + "REGISTERED_USER".equals(StorageManager.getData("user_type", "")));
+        if ("REGISTERED_USER".equals(StorageManager.getData("user_type", ""))
+                && RideStatus.FINISHED.equals(info.getStatus())) {
+            btnFavorite.setVisibility(View.VISIBLE);
+            btnFavorite.setOnClickListener(v -> showAddFavoriteDialog(info.getRideId()));
+        } else {
+            btnFavorite.setVisibility(View.GONE);
+        }
     }
 
     private String getStars(Integer rating) {
@@ -382,5 +398,19 @@ public class UserRideHistoryFragment extends Fragment
         if (sensorManager != null) {
             sensorManager.unregisterListener(this);
         }
+    }
+    private void showAddFavoriteDialog(Long rideId) {
+        EditText input = new EditText(getContext());
+        input.setHint("Route name (optional)");
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Add to Favorites")
+                .setView(input)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String name = input.getText().toString().trim();
+                    mViewModel.addFavoriteRoute(rideId, name.isEmpty() ? null : name);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }
