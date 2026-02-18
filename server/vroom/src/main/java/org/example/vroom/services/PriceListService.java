@@ -38,9 +38,9 @@ public class PriceListService {
             Pricelist pricelist = pricelistOptional.get();
             return priceListMapper.toDTO(pricelist);
         }return PricelistDTO.builder()
-                .priceStandard(0)
-                .priceLuxury(0)
-                .priceMinivan(0)
+                .priceStandard(0.0)
+                .priceLuxury(0.0)
+                .priceMinivan(0.0)
                 .build();
     }
 

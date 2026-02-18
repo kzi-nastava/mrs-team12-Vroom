@@ -18,6 +18,7 @@ import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.services.DriverService;
 import org.example.vroom.services.RideService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,12 +42,10 @@ import java.util.Map;
 @Validated
 public class DriverController {
 
-    private final DriverService driverService;
+    @Autowired
+    private DriverService driverService;
 
-
-    public DriverController(DriverService driverService, RideService rideService, RideMapper rideMapper) {
-        this.driverService = driverService;
-    }
+    public DriverController() {}
 
     @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
     @GetMapping(path = "/rides", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -120,9 +120,12 @@ public class DriverController {
     @PutMapping(path = "/status")
     public ResponseEntity<MessageResponseDTO> changeStatus(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody DriverChangeStatusRequestDTO data
+            @Valid @RequestBody DriverChangeStatusRequestDTO data,
+            BindingResult result
     ){
-        if(data == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try {
             driverService.changeStatus(user.getId(), data.getStatus());
 

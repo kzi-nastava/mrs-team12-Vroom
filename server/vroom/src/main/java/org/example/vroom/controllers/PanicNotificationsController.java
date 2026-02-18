@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,12 +63,16 @@ public class PanicNotificationsController {
     @PreAuthorize("hasAnyRole('DRIVER', 'REGISTERED_USER')")
     public ResponseEntity<MessageResponseDTO> createPanic(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody PanicRequestDTO data
+            @Valid @RequestBody PanicRequestDTO data,
+            BindingResult result
     ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         if(data == null || data.getRideId() == null)
             return new ResponseEntity<MessageResponseDTO> (
                 new MessageResponseDTO("Invalid panic request data"),
-                HttpStatus.NO_CONTENT
+                HttpStatus.BAD_REQUEST
             );
 
         try{

@@ -159,13 +159,18 @@ public class RideHistoryFragment extends Fragment implements RideHistoryAdapter.
             layoutCancel.setVisibility(View.VISIBLE);
             ((TextView)view.findViewById(R.id.tvPopupCancelReason)).setText(info.getCancelReason());
         }
-        if (info.getComplaints() != null) {
+        if (info.getComplaints() != null && !info.getComplaints().isEmpty()) {
             layoutComplaints.setVisibility(View.VISIBLE);
             ((TextView)view.findViewById(R.id.tvPopupComplaints)).setText(String.join("\n", info.getComplaints()));
+        }else{
+            layoutComplaints.setVisibility(View.GONE);
         }
 
         if (info.getDriverRating() != null || info.getComment() != null) {
             view.findViewById(R.id.layoutRatingsFeedback).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.tvDriverRating).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.tvVehicleRating).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.tvPopupComment).setVisibility(View.VISIBLE);
             ((TextView)view.findViewById(R.id.tvDriverRating)).setText("Driver: " + getStars(info.getDriverRating()));
             ((TextView)view.findViewById(R.id.tvVehicleRating)).setText("Vehicle: " + getStars(info.getVehicleRating()));
             ((TextView)view.findViewById(R.id.tvPopupComment)).setText("\"" + info.getComment() + "\"");

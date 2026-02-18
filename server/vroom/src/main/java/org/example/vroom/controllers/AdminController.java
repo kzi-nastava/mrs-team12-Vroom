@@ -1,6 +1,8 @@
 package org.example.vroom.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.api.Http;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import org.example.vroom.DTOs.BlockUserRequestDTO;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -113,12 +116,15 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/new-pricelist")
     public ResponseEntity<MessageResponseDTO> setPricelist(
-            @RequestBody PricelistDTO newPricelistDTO
+            @Valid @RequestBody PricelistDTO newPricelistDTO,
+            BindingResult result
     ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         priceListService.setNewPriceList(newPricelistDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -132,5 +138,4 @@ public class AdminController {
         }
         return new ResponseEntity<>(pricelistDTO, HttpStatus.OK);
     }
-
 }

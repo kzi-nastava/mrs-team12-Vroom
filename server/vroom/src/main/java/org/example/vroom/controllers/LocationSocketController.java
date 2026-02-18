@@ -30,16 +30,20 @@ public class LocationSocketController {
     @Autowired
     DriverLocationService driverLocationService;
 
-//    @PreAuthorize("hasRole('DRIVER')")
     @MessageMapping("update-location")
     @SendTo("/socket-publisher/location-updates")
-    public DriverPositionDTO handleLocationUpdate(SimpMessageHeaderAccessor headerAccessor, @Payload PointResponseDTO location) {
+    public DriverPositionDTO handleLocationUpdate(
+            SimpMessageHeaderAccessor headerAccessor,
+            @Payload PointResponseDTO location
+    ) {
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
         if(auth == null || auth.getPrincipal() == null ){
             return null;
         }
         User user = (User) auth.getPrincipal();
-
+        if (!"DRIVER".equals(user.getRoleName())){
+            return null;
+        }
         driverLocationService.updateLocation(user.getId(), location.getLat(), location.getLng());
 
         Optional<DriverStatus> statusOpt = this.driverService.getDriverStatus(user.getId());
