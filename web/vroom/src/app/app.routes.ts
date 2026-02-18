@@ -20,9 +20,19 @@ import { PanicFeed } from './features/panic-feed/panic-feed';
 import { StopRide } from './features/stop-ride/stop-ride';
 import { AdminDriverRequestsComponent } from './features/admin-driver-requests/admin-driver-requests.component';
 import {UserActiveRide} from './features/user-active-ride/user-active-ride';
+import { AdminUsersComponent } from './features/admin-users/admin-users.component';
+import { RideStatisticsComponent } from './features/ride-statistics/ride-statistics.model';
+import { RideHistory } from './features/ride-history/ride-history';
+import { AdminHomePage } from './features/admin-home-page/admin-home-page';
+import { AdminDefinePricelist } from './features/admin-define-pricelist/admin-define-pricelist'
+import { AdminActiveRides } from './features/admin-active-rides/admin-active-rides';
+import { ChatUser } from './features/chat-user/chat-user';
+import { ChatAdmin } from './features/chat-admin/chat-admin';
+import { DriverSetPasswordComponent } from './features/driver-set-password/driver-set-password.component';
 
 export const routes: Routes = [
     {path: 'login', component: Login},
+    {path: 'driver/set-password/:driverId', component: DriverSetPasswordComponent},
     {path:'forgot-password', component: ForgotPassword},
     { path: 'profile', component: Profile },
     {path: 'register', component: Register},
@@ -30,18 +40,23 @@ export const routes: Routes = [
     {path: 'driver-active-ride', component: DriverActiveRide},
     {path: 'order-from-favorites', component: OrderFromFavorites},
     {path: 'register-driver', component: RegisterDriver},
-    {path: 'panic', component: PanicButton},
-    { path: 'admin-driver-requests', component: AdminDriverRequestsComponent },
+    {path: 'admin-driver-requests', component: AdminDriverRequestsComponent },
+    {path: 'admin-users', component: AdminUsersComponent},
     {path: 'active', component: UserActiveRide},
+    {path: "ride-statistics", component: RideStatisticsComponent},
+    {path: 'admin', component: AdminHomePage, canActivate: [authGuard], data: { roles: ['ADMIN'] } },
+    {path: 'pricelist', component: AdminDefinePricelist, canActivate: [authGuard], data: { roles: ['ADMIN'] }},
+    {path: 'active-rides', component: AdminActiveRides, canActivate: [authGuard], data: { roles: ['ADMIN'] }},
+    {path: 'chat', component: ChatUser},
+    {path: 'admin-chat', component: ChatAdmin, canActivate: [authGuard], data: { roles: ['ADMIN'] }},
     {path: '', component: MainView, 
         children: [ 
             {path: 'route-estimation', component: RouteEstimation },
             {path: 'order-a-ride', component: OrderARide}, 
             {path: 'ride-duration', component: RideDuration},
             {path: 'review', component: RideEnd},
-            {path: 'panic-feed', component: PanicFeed}
+            {path: 'panic-feed', component: PanicFeed, canActivate: [authGuard], data: { roles: ['ADMIN'] }},
+            {path: 'ride-history', component: RideHistory, canActivate: [authGuard], data: { roles: ['REGISTERED_USER', 'ADMIN'] }}
         ]
-    },
-    {path: 'cancel-ride', component:CancelRide},
-    {path: 'stop', component:StopRide}
+    }
 ];

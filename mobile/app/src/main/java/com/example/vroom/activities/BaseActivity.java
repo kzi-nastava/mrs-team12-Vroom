@@ -1,11 +1,14 @@
 package com.example.vroom.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Switch;
@@ -20,19 +23,26 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.vroom.DTOs.MessageResponseDTO;
-import com.example.vroom.DTOs.auth.requests.LogoutRequestDTO;
-import com.example.vroom.DTOs.driver.requests.DriverChangeStatusRequestDTO;
+import com.example.vroom.DTOs.map.MapRouteDTO;
+import com.example.vroom.DTOs.ride.responses.UserActiveRideDTO;
+import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
-import com.example.vroom.enums.DriverStatus;
-import com.example.vroom.network.RetrofitClient;
+import com.example.vroom.fragments.ActiveRidesFragment;
+import com.example.vroom.fragments.OrderFromFavoritesFragment;
+import com.example.vroom.fragments.OrderRideFragment;
+import com.example.vroom.fragments.PanicFeedFragment;
+import com.example.vroom.fragments.RideHistoryFragment;
+import com.example.vroom.fragments.RouteEstimationFragment;
+import com.example.vroom.fragments.UserActiveRideFragment;
+import com.example.vroom.fragments.UserChatFragment;
+import com.example.vroom.fragments.UserRideHistoryFragment;
+import com.example.vroom.network.SocketProvider;
 import com.example.vroom.viewmodels.NavigationViewModel;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.messaging.FirebaseMessaging;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import ua.naiksoftware.stomp.StompClient;
 
 public class BaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -42,6 +52,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     private FrameLayout contentFrame;
     private DrawerLayout drawer;
     private NavigationViewModel viewModel;
+    private RouteEstimationFragment routeEstimationFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +91,20 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         observeViewModel();
 
         initToggleStatus(navigationView);
+
+        askPermission();
+
+    }
+
+    private void askPermission(){
+        // enavble notification permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
     }
 
     private void observeViewModel() {
@@ -148,13 +173,30 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         String token = StorageManager.getData("jwt", null);
         String userType = StorageManager.getData("user_type", null);
         boolean isLoggedIn = (token != null && !token.isEmpty());
-
+        Log.d("MENU_DEBUG", "Token: " + token);
+        Log.d("MENU_DEBUG", "UserType: " + userType);
+        Log.d("MENU_DEBUG", "IsLoggedIn: " + isLoggedIn);
         menu.findItem(R.id.nav_logout).setVisible(isLoggedIn);
-        menu.findItem(R.id.driver_ride_history_item).setVisible(isLoggedIn);
+        menu.findItem(R.id.driver_ride_history_item).setVisible(isLoggedIn && userType.equals("DRIVER"));
         menu.findItem(R.id.nav_status_switch).setVisible(isLoggedIn && userType.equals("DRIVER"));
-
+        menu.findItem(R.id.driver_active_ride).setVisible(isLoggedIn && userType.equals("DRIVER"));
+        menu.findItem(R.id.nav_panic_feed).setVisible(isLoggedIn && userType.equals("ADMIN"));
+        menu.findItem(R.id.ride_history).setVisible(isLoggedIn &&
+                (userType.equals("ADMIN") || userType.equals("REGISTERED_USER")));
+        menu.findItem(R.id.user_active_rides).setVisible(isLoggedIn && userType.equals("REGISTERED_USER"));
         menu.findItem(R.id.login_navbar_item).setVisible(!isLoggedIn);
         menu.findItem(R.id.register_navbar_item).setVisible(!isLoggedIn);
+        menu.findItem(R.id.nav_route_estimation).setVisible(!isLoggedIn);
+        menu.findItem(R.id.live_support).setVisible(isLoggedIn && !userType.equals("ADMIN"));
+        menu.findItem(R.id.nav_order_ride)
+                .setVisible(isLoggedIn && userType.equals("REGISTERED_USER"));
+
+        menu.findItem(R.id.nav_order_from_favorites)
+                .setVisible(isLoggedIn && userType.equals("REGISTERED_USER"));
+    }
+
+    public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     public void onLogoButtonClicked(){
@@ -163,7 +205,15 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void onProfileButtonClicked(){
-        Intent intent = new Intent(this, ProfileActivity.class);
+        StorageManager.getSharedPreferences(this);
+        String userType = StorageManager.getData("user_type", null);
+
+        Intent intent;
+        if ("DRIVER".equals(userType)) {
+            intent = new Intent(this, DriverProfileActivity.class);
+        } else {
+            intent = new Intent(this, ProfileActivity.class);
+        }
         startActivity(intent);
     }
 
@@ -177,20 +227,60 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             Intent intent = new Intent(this, RegisterActivity.class);
             startActivity(intent);
         }else if (id == R.id.driver_ride_history_item){
-            Intent intent = new Intent(this, DriverRideHistoryActivity.class);
-            startActivity(intent);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new RideHistoryFragment())
+                    .addToBackStack(null)
+                    .commit();
         }else if (id == R.id.nav_logout && StorageManager.getData("jwt", null) != null){
             viewModel.logout();
-        }
+        }else if(id == R.id.nav_route_estimation){
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
+            intent.putExtra("OPEN_ESTIMATION", true);
+            startActivity(intent);
+        }else if(id == R.id.nav_panic_feed){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new PanicFeedFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if(id == R.id.ride_history){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new UserRideHistoryFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if (id == R.id.user_active_rides){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new UserActiveRideFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if (id == R.id.driver_active_ride){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new ActiveRidesFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if (id == R.id.live_support){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new UserChatFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if (id == R.id.nav_order_ride){
+            OrderRideFragment fragment = new OrderRideFragment();
+            fragment.show(getSupportFragmentManager(), "OrderRide");
+        }
+        else if (id == R.id.nav_order_from_favorites){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new OrderFromFavoritesFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
     private void finalizeLogout(){
-        StorageManager.getSharedPreferences(this);
-        StorageManager.clearAll();
-
+        SocketProvider.getInstance().getClient().disconnect();
+        StorageManager.getSharedPreferences(this).edit().clear().apply();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

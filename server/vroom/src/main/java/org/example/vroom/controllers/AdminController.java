@@ -1,31 +1,38 @@
 package org.example.vroom.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.SneakyThrows;
+import com.google.api.Http;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import org.example.vroom.DTOs.BlockUserRequestDTO;
+import org.example.vroom.DTOs.requests.PricelistDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
 import org.example.vroom.DTOs.requests.driver.RejectRequestDTO;
-import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
-import org.example.vroom.entities.DriverProfileUpdateRequest;
-import org.example.vroom.enums.RequestStatus;
-import org.example.vroom.enums.RideStatus;
+import org.example.vroom.DTOs.responses.AdminUserDTO;
+import org.example.vroom.DTOs.responses.MessageResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
+import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.repositories.DriverProfileUpdateRequestRepository;
 import org.example.vroom.services.AdminService;
+import org.example.vroom.services.PriceListService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/api/admins")
-//@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
+@Validated
 public class AdminController {
 
     @Autowired
@@ -34,39 +41,35 @@ public class AdminController {
     private AdminService adminService;
     @Autowired
     private DriverMapper driverMapper;
+    @Autowired
+    private PriceListService priceListService;
 
-    @GetMapping(path = "/users/{userID}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RideHistoryResponseDTO>> getRides(
-            @PathVariable Long userID,
-            @RequestParam(required = false) LocalDateTime startDate,
-            @RequestParam(required = false) LocalDateTime endDate,
-            @RequestParam(required = false) String sort
+    @GetMapping(path = "/users/rides", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<RideResponseDTO>> getRides(
+            @RequestParam(required = false) @Email String userEmail,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false, defaultValue = "0") @Min(value = 0) int pageNumber,
+            @RequestParam(required = false, defaultValue = "10") @Min(value = 1) int pageSize
     ) {
-        Collection<RideHistoryResponseDTO> rides = new ArrayList<RideHistoryResponseDTO>();
-        GetRouteResponseDTO route1 = GetRouteResponseDTO
-                .builder()
-                .startLocationLat(44.7866)
-                .startLocationLng(20.4489)
-                .endLocationLat(44.8125)
-                .endLocationLng(20.4612)
-                .stops(List.of())
-                .build();
+        try{
+            List<RideResponseDTO> rides;
 
-        RideHistoryResponseDTO ride1 = RideHistoryResponseDTO
-                .builder()
-                .startTime(LocalDateTime.of(2025, 1, 10, 14, 32))
-                .status(RideStatus.FINISHED)
-                .price(980.50)
-                .panicActivated(false)
-                .build();
+            if(userEmail != null && !userEmail.isEmpty())
+                rides = adminService.getUserRideHistory(userEmail, sort, startDate, endDate, pageNumber, pageSize);
+            else
+                rides = adminService.getUserRideHistory(sort, startDate, endDate, pageNumber, pageSize);
 
-        rides.add(ride1);
-
-        return new ResponseEntity<Collection<RideHistoryResponseDTO>>(rides, HttpStatus.OK);
+            return new ResponseEntity<List<RideResponseDTO>>(rides, HttpStatus.OK);
+        }catch(UserNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/driver-update-requests/{id}/reject")
-    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> reject(
             @PathVariable Long id,
             @RequestBody RejectRequestDTO dto
@@ -76,14 +79,12 @@ public class AdminController {
     }
 
     @GetMapping("/driver-update-requests")
-    //@PreAuthorize("hasRole('ADMIN')")
     public List<DriverUpdateRequestAdminDTO> getPendingRequests()
             throws JsonProcessingException {
         return adminService.getPendingDriverRequests();
     }
 
     @PostMapping("/driver-update-requests/{id}/approve")
-    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> approve(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(adminService.approveRequest(id));
@@ -94,4 +95,47 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/users")
+    public ResponseEntity<List<AdminUserDTO>> getAllUsers() {
+        return ResponseEntity.ok(adminService.getAllUsers());
+    }
+
+
+    @PutMapping("/users/{id}/block")
+    public ResponseEntity<Void> blockUser(
+            @PathVariable Long id,
+            @RequestBody BlockUserRequestDTO dto
+    ) {
+        adminService.blockUser(id, dto.getReason());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/users/{id}/unblock")
+    public ResponseEntity<Void> unblockUser(@PathVariable Long id) {
+        adminService.unblockUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/new-pricelist")
+    public ResponseEntity<MessageResponseDTO> setPricelist(
+            @Valid @RequestBody PricelistDTO newPricelistDTO,
+            BindingResult result
+    ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        priceListService.setNewPriceList(newPricelistDTO);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/get-pricelist")
+    public ResponseEntity<PricelistDTO> getActivePricelist() {
+        PricelistDTO pricelistDTO = priceListService.getPriceList();
+        if (pricelistDTO == null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(pricelistDTO, HttpStatus.OK);
+    }
 }

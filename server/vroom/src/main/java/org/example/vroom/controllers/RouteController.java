@@ -1,5 +1,6 @@
 package org.example.vroom.controllers;
 
+import jakarta.validation.constraints.NotBlank;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.services.RouteService;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/routes")
+@Validated
 public class RouteController {
     @Autowired
     private RouteService routeService;
@@ -24,8 +27,8 @@ public class RouteController {
             key = "#startLocation + '-' + #endLocation + '-' + (#stops != null ? #stops.toString() : 'no-stops')"
     )
     public ResponseEntity<RouteQuoteResponseDTO> getQuote(
-            @RequestParam String startLocation,
-            @RequestParam String endLocation,
+            @RequestParam @NotBlank String startLocation,
+            @RequestParam @NotBlank String endLocation,
             @RequestParam(required = false) String stops
             ) {
         // call geoapify routing API in service layer to get km and time in order to calculate price
@@ -46,7 +49,7 @@ public class RouteController {
     }
 
     @GetMapping("/osrm-route")
-    public ResponseEntity<Object> getOsrmRoute(@RequestParam String coords) {
+    public ResponseEntity<Object> getOsrmRoute(@RequestParam @NotBlank String coords) {
         String url = "https://router.project-osrm.org/route/v1/driving/"
                 + coords + "?overview=full&geometries=geojson";
 

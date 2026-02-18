@@ -14,7 +14,8 @@ import { FormsModule } from '@angular/forms';
 })
 export class OrderFromFavorites implements OnInit {
 
-  favoriteRoutes$!: Observable<FavoriteRoute[]>;
+  private favoriteRoutesSubject = new BehaviorSubject<FavoriteRoute[]>([]);
+favoriteRoutes$ = this.favoriteRoutesSubject.asObservable();
 
 
   private errorMessageSubject = new BehaviorSubject<string | null>(null);
@@ -26,17 +27,18 @@ export class OrderFromFavorites implements OnInit {
   constructor(private favoritesService: FavoriteRoutesService) {}
 
   ngOnInit(): void {
-    this.favoriteRoutes$ = this.favoritesService.getFavorites();
-    this.favoriteRoutes$.subscribe(favs => {
-      favs.forEach(fav => {
-        this.routeOptions[fav.id] = {
-          vehicleType: 'STANDARD',
-          babiesAllowed: false,
-          petsAllowed: false,
-           scheduledTime: null
-        };
-      });
-    });
+this.favoritesService.getFavorites().subscribe(favs => {
+  this.favoriteRoutesSubject.next(favs);
+
+  favs.forEach(fav => {
+    this.routeOptions[fav.id] = {
+      vehicleType: 'STANDARD',
+      babiesAllowed: false,
+      petsAllowed: false,
+      scheduledTime: null
+    };
+  });
+});
   }
 
   useRoute(route: FavoriteRoute) {
@@ -88,9 +90,7 @@ export class OrderFromFavorites implements OnInit {
       });
   }
 
-  removeFromFavorites(route: FavoriteRoute) {
-    console.log('TODO remove', route.id);
-  }
+
 
   getMinTime(): string {
   const now = new Date();
@@ -102,6 +102,26 @@ getMaxTime(): string {
   max.setHours(max.getHours() + 5);
   return max.toISOString().substring(11, 16);
 }
+removeFromFavorites(route: FavoriteRoute) {
 
+  if (!confirm('Are you sure you want to remove this favorite route?')) {
+    return;
+  }
+
+  this.favoritesService.removeFromFavorites(route.id)
+    .subscribe({
+      next: () => {
+        const current = this.favoriteRoutesSubject.value;
+        const updated = current.filter(r => r.id !== route.id);
+        this.favoriteRoutesSubject.next(updated);
+
+      },
+      error: err => {
+        const message = err.error?.message || err.message || 'Delete failed';
+        this.errorMessageSubject.next(message);
+        console.error('Delete failed', err);
+      }
+    });
+}
   
 }

@@ -2,6 +2,7 @@ package org.example.vroom.repositories;
 
 import jakarta.transaction.Transactional;
 import org.example.vroom.entities.Driver;
+import org.example.vroom.enums.UserStatus;
 import org.example.vroom.entities.RegisteredUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -19,4 +21,8 @@ public interface RegisteredUserRepository extends JpaRepository<RegisteredUser, 
     int activateUserById(@Param("id") Long id);
     Optional<RegisteredUser> findByEmail(String email);
 
+
+    @Modifying(clearAutomatically = true)
+    @Query("delete from RegisteredUser u where u.createdAt < :expiresAt and u.userStatus = org.example.vroom.enums.UserStatus.INACTIVE")
+    void deleteRegisteredUsersByCreatedAt(@Param("expiresAt") LocalDateTime expiresAt);
 }

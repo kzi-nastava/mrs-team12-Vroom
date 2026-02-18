@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#DCEED3">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/text_eta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/ibm_plex_sans_bold"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="ETA : 0 minutes"
+            android:textColor="@color/brown_black"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_start_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/ibm_plex_sans"
+                android:gravity="center"
+                android:textColor="@color/brown_black"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:id="@+id/container_route"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/ibm_plex_sans"
+                    android:padding="10dp"
+                    android:text="↓"
+                    android:textColor="@color/brown_black"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_end_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/ibm_plex_sans"
+                android:gravity="center"
+                android:textColor="@color/brown_black"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="24dp"
+            android:background="#40000000" />
+
+        <LinearLayout
+            android:id="@+id/section_user_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/edit_complaint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@android:color/white"
+                android:fontFamily="@font/ibm_plex_sans"
+                android:textSize="16sp"
+                android:gravity="top"
+                android:hint="Leave a complaint..."
+                android:padding="12dp" />
+
+            <Button
+                android:id="@+id/btn_submit_complaint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_gravity="end"
+                android:backgroundTint="#99C2A2"
+                android:text="Send"
+                android:textAllCaps="false"
+                android:textColor="#1F2937" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/section_driver_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btn_finish_ride"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#99C2A2"
+                android:text="Finish Ride"
+                android:textAllCaps="false"
+                android:textColor="#1F2937" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_stop_ride"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/accent_green"
+            android:text="Stop Ride"
+            android:textColor="@color/brown_black" />
+
+        <Button
+            android:id="@+id/btn_panic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#FF5252"
+            android:text="PANIC"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

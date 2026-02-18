@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ride_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#DCEED3"
+    android:padding="20dp"
+    android:layout_marginBottom="20dp"
+    android:elevation="6dp"
+    android:clipToPadding="false">
+
+    <!-- ROUTE -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/start_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#EEF4EA"
+            android:padding="8dp"
+            android:text="Start Address"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  →  "
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/end_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#EEF4EA"
+            android:padding="8dp"
+            android:text="End Address"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+    <!-- ROUTE NAME -->
+    <TextView
+        android:id="@+id/route_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Route name"
+        android:textSize="22sp"
+        android:layout_marginBottom="20dp"
+        android:textColor="#5A5C54"/>
+
+    <!-- VEHICLE TYPE -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vehicle type"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <RadioGroup
+        android:id="@+id/vehicle_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <RadioButton
+            android:id="@+id/radio_standard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Standard"/>
+
+        <RadioButton
+            android:id="@+id/radio_luxury"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Luxury"
+            android:layout_marginStart="16dp"/>
+
+        <RadioButton
+            android:id="@+id/radio_minivan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Minivan"
+            android:layout_marginStart="16dp"/>
+    </RadioGroup>
+
+    <!-- EXTRAS -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Extras"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <CheckBox
+            android:id="@+id/checkbox_kids"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kids allowed"/>
+
+        <CheckBox
+            android:id="@+id/checkbox_pets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pets allowed"
+            android:layout_marginStart="16dp"/>
+    </LinearLayout>
+
+    <!-- SCHEDULE -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Schedule time (optional)"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <TimePicker
+        android:id="@+id/time_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:timePickerMode="spinner"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You can schedule between now and 5 hours ahead"
+        android:textSize="12sp"
+        android:textColor="#5A5C54"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- ACTION BUTTONS -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btn_use_route"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Use this route"
+            android:backgroundTint="#5F7572"
+            android:textColor="#FFFFFF"/>
+
+        <Button
+            android:id="@+id/btn_delete_route"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:layout_marginStart="12dp"
+            android:backgroundTint="#9B1C2B"
+            android:textColor="#FFFFFF"/>
+    </LinearLayout>
+
+</LinearLayout>

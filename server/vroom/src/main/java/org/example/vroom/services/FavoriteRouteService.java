@@ -1,18 +1,19 @@
 package org.example.vroom.services;
 
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
+import org.example.vroom.DTOs.requests.ride.CreateFavoriteRouteRequestDTO;
+import org.example.vroom.DTOs.requests.ride.FavoriteRouteResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
+import org.example.vroom.mappers.FavoriteRouteMapper;
 import org.example.vroom.mappers.RideMapper;
-import org.example.vroom.repositories.DriverRepository;
-import org.example.vroom.repositories.FavoriteRouteRepository;
-import org.example.vroom.repositories.RegisteredUserRepository;
-import org.example.vroom.repositories.RideRepository;
+import org.example.vroom.repositories.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,9 @@ public class FavoriteRouteService {
     private final RideRepository rideRepository;
     private final RideMapper rideMapper;
     private final RouteService routeService;
+    private final RouteRepository routeRepository;
+    private final FavoriteRouteMapper favoriteRouteMapper;
+
 
     public List<FavoriteRoute> getCurrentUserFavorites(String email) {
         RegisteredUser user = registeredUserRepository
@@ -79,10 +83,12 @@ public class FavoriteRouteService {
         Driver driver = driverRepository.findFirstAvailableDriver(
                 request.getVehicleType(),
                 request.getBabiesAllowed(),
-                request.getPetsAllowed()
-        ).orElseThrow(() -> new NoAvailableDriverException("No available driver"));
+                request.getPetsAllowed(),
+                route.getStartLocationLat(),
+                route.getStartLocationLng()
+        ).orElseThrow(() -> new NoAvailableDriverException("No available drivers"));
 
-        // --- Provera radnog vremena vozača ---
+
         if (!driverHasWorkingTime(driver)) {
             throw new RuntimeException("Driver exceeded 8 working hours in last 24h");
         }
@@ -94,7 +100,7 @@ public class FavoriteRouteService {
         if (route.getStops() != null && !route.getStops().isEmpty()) {
             stops = route.getStops().stream()
                     .filter(p -> p != null && p.getLat() != null && p.getLng() != null)
-                    .map(p -> p.getLat() + "," + p.getLng()) // ovde lat pa lon
+                    .map(p -> p.getLat() + "," + p.getLng())
                     .collect(Collectors.joining(";"));
         }
         RouteQuoteResponseDTO quote = !StringUtils.hasText(stops)
@@ -104,12 +110,23 @@ public class FavoriteRouteService {
         if (quote == null) {
             throw new RuntimeException("Failed to calculate route quote");
         }
+        Route originalRoute = favorite.getRoute();
 
+        Route newRoute = Route.builder()
+                .startAddress(originalRoute.getStartAddress())
+                .endAddress(originalRoute.getEndAddress())
+                .startLocationLat(originalRoute.getStartLocationLat())
+                .startLocationLng(originalRoute.getStartLocationLng())
+                .endLocationLat(originalRoute.getEndLocationLat())
+                .endLocationLng(originalRoute.getEndLocationLng())
+                .build();
+
+        newRoute = routeRepository.save(newRoute);
         Ride ride = Ride.builder()
                 .passenger(user)
                 .passengers(convertToPassengerNames(passengers))
                 .driver(driver)
-                .route(route)
+                .route(newRoute)
                 .startTime(request.getScheduledTime() != null ? request.getScheduledTime() : LocalDateTime.now())
                 .status(RideStatus.ACCEPTED)
                 .price(quote.getPrice())
@@ -137,7 +154,6 @@ public class FavoriteRouteService {
                     if (r.getEndTime() != null) {
                         return java.time.Duration.between(r.getStartTime(), r.getEndTime()).toMinutes() / 60.0;
                     } else {
-                        // ako je ongoing voznja uzmi razliku od pocetka do sad
                         return java.time.Duration.between(r.getStartTime(), LocalDateTime.now()).toMinutes() / 60.0;
                     }
                 })
@@ -151,5 +167,49 @@ public class FavoriteRouteService {
             names.add(p.getFirstName() + " " + p.getLastName());
         }
         return names;
+    }
+
+    @Transactional
+    public void removeFromFavorites(String userEmail, Long favoriteId) {
+
+        RegisteredUser user = registeredUserRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        FavoriteRoute favorite = favoriteRouteRepository.findById(favoriteId)
+                .orElseThrow(() -> new RuntimeException("Favorite route not found"));
+
+        if (!favorite.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You cannot delete another user's favorite route");
+        }
+
+        favoriteRouteRepository.delete(favorite);
+    }
+  
+    public FavoriteRouteResponseDTO createFavoriteFromRide(
+            CreateFavoriteRouteRequestDTO request,
+            RegisteredUser user) throws NotFoundException {
+
+
+        Ride ride = rideRepository.findById(request.getRideId())
+                .orElseThrow(() -> new NotFoundException("Ride not found"));
+
+
+
+        if (favoriteRouteRepository.existsByUserIdAndRouteId(user.getId(), ride.getRoute().getId())) {
+            throw new IllegalArgumentException("This route is already in your favorites");
+        }
+
+
+        FavoriteRoute favoriteRoute = FavoriteRoute.builder()
+                .user(user)
+                .route(ride.getRoute())
+                .name(request.getName())
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(ride.getRoute().getEndAddress())
+                .build();
+
+        FavoriteRoute saved = favoriteRouteRepository.save(favoriteRoute);
+
+        return favoriteRouteMapper.toResponseDTO(saved);
     }
 }

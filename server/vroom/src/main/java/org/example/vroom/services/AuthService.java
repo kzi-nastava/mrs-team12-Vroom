@@ -45,10 +45,9 @@ public class AuthService {
     @Autowired
     private PasswordUtils passwordUtils;
 
-    public LoginResponseDTO login(User user, HttpServletResponse response) {
+    public LoginResponseDTO login(User user) {
         if(user instanceof RegisteredUser && (
-                ((RegisteredUser) user).getUserStatus().equals(UserStatus.INACTIVE) ||
-                        ((RegisteredUser) user).getUserStatus().equals(UserStatus.BLOCKED))
+                ((RegisteredUser) user).getUserStatus().equals(UserStatus.INACTIVE))
         )
             throw new AccountStatusException("This account is inactive or blocked");
 
@@ -67,6 +66,7 @@ public class AuthService {
             driverRepository.save(d);
         }
         return LoginResponseDTO.builder()
+                .userId(user.getId())
                 .type(type)
                 .token(token)
                 .build();

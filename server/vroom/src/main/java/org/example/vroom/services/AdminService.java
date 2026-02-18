@@ -5,19 +5,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverUpdateRequestAdminDTO;
+import org.example.vroom.DTOs.responses.AdminUserDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.Driver;
 import org.example.vroom.entities.DriverProfileUpdateRequest;
+import org.example.vroom.entities.Ride;
+import org.example.vroom.entities.User;
 import org.example.vroom.enums.RequestStatus;
+import org.example.vroom.exceptions.user.UserNotFoundException;
+import org.example.vroom.mappers.AdminMapper;
 import org.example.vroom.mappers.DriverMapper;
 import org.example.vroom.mappers.DriverProfileMapper;
+import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.DriverProfileUpdateRequestRepository;
 import org.example.vroom.repositories.DriverRepository;
+import org.example.vroom.repositories.RideRepository;
+import org.example.vroom.repositories.UserRepository;
+import org.example.vroom.utils.SortPaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class AdminService {
@@ -31,6 +44,17 @@ public class AdminService {
     private DriverProfileMapper driverProfileMapper;
     @Autowired
     private DriverMapper driverMapper;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private RideRepository rideRepository;
+    @Autowired
+    private SortPaginationUtils sortPaginationUtils;
+    @Autowired
+    private RideMapper rideMapper;
+    @Autowired
+    private AdminMapper adminMapper;
+
 
     @Transactional
     public DriverDTO approveRequest(Long requestId) throws JsonProcessingException {
@@ -77,5 +101,57 @@ public class AdminService {
                 .filter(r -> r.getStatus() == RequestStatus.PENDING)
                 .map(driverMapper::toAdminDTO)
                 .toList();
+    }
+
+    public List<RideResponseDTO> getUserRideHistory(String userEmail, String sort, LocalDateTime startDate,
+                                                    LocalDateTime endDate, int pageNum, int pageSize){
+        Optional<User> userOptional = userRepository.findByEmail(userEmail);
+        if(userOptional.isEmpty())
+            throw new UserNotFoundException("This user isn't registered in system");
+
+        Long userId = userOptional.get().getId();
+        Pageable page = sortPaginationUtils.getPageable(pageNum, pageSize, sort);
+        List<Ride> rides = rideRepository.userRideHistory(userId, startDate, endDate, page);
+
+        Stream<RideResponseDTO> rideHistory = rides.stream().map(ride -> {
+            return rideMapper.createUserRideHistoryDTO(ride);
+        });
+
+        return rideHistory.toList();
+    }
+
+    public List<RideResponseDTO> getUserRideHistory(String sort, LocalDateTime startDate,
+                                                    LocalDateTime endDate, int pageNum, int pageSize){
+        Pageable page = sortPaginationUtils.getPageable(pageNum, pageSize, sort);
+        List<Ride> rides = rideRepository.userRideHistory(startDate, endDate, page);
+
+        Stream<RideResponseDTO> rideHistory = rides.stream().map(ride -> {
+            return rideMapper.createUserRideHistoryDTO(ride);
+        });
+
+        return rideHistory.toList();
+    }
+
+    public List<AdminUserDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(adminMapper::toAdminDTO)
+                .toList();
+    }
+
+    @Transactional
+    public void blockUser(Long userId, String reason) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setBlockedReason(reason);
+    }
+
+    @Transactional
+    public void unblockUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setBlockedReason(null);
     }
 }

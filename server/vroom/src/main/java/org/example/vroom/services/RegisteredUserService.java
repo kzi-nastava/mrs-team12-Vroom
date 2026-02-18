@@ -3,7 +3,10 @@ package org.example.vroom.services;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.RegisteredUserDTO;
 import org.example.vroom.DTOs.requests.auth.RegisterRequestDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.RegisteredUser;
+import org.example.vroom.entities.Ride;
+import org.example.vroom.entities.User;
 import org.example.vroom.enums.UserStatus;
 import org.example.vroom.exceptions.auth.InvalidPasswordException;
 import org.example.vroom.exceptions.registered_user.ActivationExpiredException;
@@ -11,18 +14,26 @@ import org.example.vroom.exceptions.user.UserAlreadyExistsException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RegisteredUserMapper;
 import org.example.vroom.mappers.RegisteredUserProfileMapper;
+import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.repositories.RegisteredUserRepository;
+import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.repositories.UserRepository;
 import org.example.vroom.utils.EmailService;
 import org.example.vroom.utils.PasswordUtils;
+import org.example.vroom.utils.SortPaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class RegisteredUserService {
@@ -31,6 +42,8 @@ public class RegisteredUserService {
     private RegisteredUserRepository registeredUserRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RideRepository rideRepository;
     @Autowired
     private RegisteredUserMapper registeredUserMapper;
     @Autowired
@@ -41,6 +54,10 @@ public class RegisteredUserService {
     private RegisteredUserProfileMapper registeredUserProfileMapper;
     @Autowired
     private PasswordUtils passwordUtils;
+    @Autowired
+    private RideMapper rideMapper;
+    @Autowired
+    private SortPaginationUtils sortPaginationUtils;
 
 
     @Transactional
@@ -51,9 +68,14 @@ public class RegisteredUserService {
         if(!passwordUtils.isPasswordValid(req.getPassword()) || !req.getPassword().equals(req.getConfirmPassword()))
             throw new InvalidPasswordException("Password doesn't match criteria");
 
+        byte[] photoData = null;
+        if (profilePhoto != null && !profilePhoto.isEmpty()) {
+            photoData = profilePhoto.getBytes();
+        }
+
         RegisteredUser user = registeredUserMapper.createUser(
                 req,
-                profilePhoto,
+                photoData,
                 passwordEncoder.encode(req.getPassword())
         );
         user.setUserStatus(UserStatus.INACTIVE);
@@ -119,5 +141,53 @@ public class RegisteredUserService {
             return;
 
         registeredUserRepository.delete(user.get());
+    }
+
+
+    public List<RideResponseDTO> getUserRideHistory(User user, String sort, LocalDateTime startDate,
+                                                    LocalDateTime endDate, int pageNum, int pageSize){
+
+        Pageable page = sortPaginationUtils.getPageable(pageNum, pageSize, sort);
+        List<Ride> rides = rideRepository.userRideHistory(user.getId(), startDate, endDate, page);
+
+        Stream<RideResponseDTO> rideHistory = rides.stream().map(ride -> {
+            return rideMapper.createUserRideHistoryDTO(ride);
+        });
+
+        return rideHistory.toList();
+    }
+
+    @Transactional
+    public void deleteExpiredAccounts(LocalDateTime threshold){
+        registeredUserRepository.deleteRegisteredUsersByCreatedAt(threshold);
+    }
+
+    @Transactional
+    public void changePassword(String email, String oldPassword, String newPassword, String confirmNewPassword) {
+
+        RegisteredUser user = registeredUserRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new InvalidPasswordException("Old password is incorrect");
+        }
+
+
+        if (!passwordUtils.isPasswordValid(newPassword)) {
+            throw new InvalidPasswordException("New password doesn't match criteria");
+        }
+
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new InvalidPasswordException("New passwords do not match");
+        }
+
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new InvalidPasswordException("New password must be different from the old password");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        registeredUserRepository.save(user);
     }
 }

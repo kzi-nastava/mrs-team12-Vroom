@@ -26,6 +26,9 @@ public interface AuthService {
     @PUT("api/auth/reset-password")
     Call<MessageResponseDTO> resetPassword(@Body ResetPasswordRequestDTO data);
 
+    @POST("api/auth/logout")
+    Call<MessageResponseDTO> logout(@Body LogoutRequestDTO data);
+
     @Multipart
     @POST("api/auth/register")
     Call<MessageResponseDTO> registerUser(
@@ -36,8 +39,7 @@ public interface AuthService {
             @Part("address") RequestBody address,
             @Part("gender") RequestBody gender,
             @Part("password") RequestBody password,
+            @Part("confirmPassword") RequestBody confirmPassword,
             @Part MultipartBody.Part profilePhoto
     );
-    @POST("api/auth/logout")
-    Call<MessageResponseDTO> logout(@Body LogoutRequestDTO data);
 }

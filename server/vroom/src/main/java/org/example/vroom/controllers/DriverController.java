@@ -1,8 +1,10 @@
 package org.example.vroom.controllers;
 
+import jakarta.validation.Valid;
 import org.example.vroom.DTOs.DriverDTO;
 import org.example.vroom.DTOs.requests.driver.DriverChangeStatusRequestDTO;
 import org.example.vroom.DTOs.requests.driver.DriverRegistrationRequestDTO;
+import org.example.vroom.DTOs.requests.driver.SetPasswordRequestDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
 import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
@@ -16,6 +18,7 @@ import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.services.DriverService;
 import org.example.vroom.services.RideService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.Path;
@@ -34,14 +39,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/drivers")
+@Validated
 public class DriverController {
 
-    private final DriverService driverService;
+    @Autowired
+    private DriverService driverService;
 
-
-    public DriverController(DriverService driverService, RideService rideService, RideMapper rideMapper) {
-        this.driverService = driverService;
-    }
+    public DriverController() {}
 
     @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
     @GetMapping(path = "/rides", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,6 +71,7 @@ public class DriverController {
         return new ResponseEntity<>(rides, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'REGISTERED_USER', 'DRIVER')")
     @GetMapping(path="/more-info/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RideHistoryMoreInfoResponseDTO> getRideMoreInfo(
             @AuthenticationPrincipal User user,
@@ -97,13 +102,30 @@ public class DriverController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
+    @PostMapping("/driver/set-password/{driverId}")
+    public ResponseEntity<?> setDriverPassword(
+            @PathVariable Long driverId,
+            @RequestBody SetPasswordRequestDTO request) {
+
+        try {
+            driverService.setDriverPassword(driverId, request);
+            return ResponseEntity.ok(Map.of("message", "Password set successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('DRIVER')")
     @PutMapping(path = "/status")
     public ResponseEntity<MessageResponseDTO> changeStatus(
             @AuthenticationPrincipal User user,
-            @RequestBody DriverChangeStatusRequestDTO data
+            @Valid @RequestBody DriverChangeStatusRequestDTO data,
+            BindingResult result
     ){
-        if(data == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try {
             driverService.changeStatus(user.getId(), data.getStatus());
 

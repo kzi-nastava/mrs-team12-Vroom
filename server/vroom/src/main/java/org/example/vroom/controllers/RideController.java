@@ -1,22 +1,17 @@
 package org.example.vroom.controllers;
 
+import jakarta.validation.Valid;
 import org.example.vroom.DTOs.FavoriteRouteDTO;
 import org.example.vroom.DTOs.OrderFromFavoriteRequestDTO;
-import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideUpdateResponseDTO;
-import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
-import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
-import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.FavoriteRoute;
 import org.example.vroom.entities.Ride;
-import org.example.vroom.entities.Route;
 import org.example.vroom.entities.User;
-import org.example.vroom.enums.Gender;
 import org.example.vroom.enums.RideStatus;
 import org.example.vroom.exceptions.ride.*;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
@@ -24,33 +19,36 @@ import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.RideRepository;
 import org.example.vroom.services.FavoriteRouteService;
 import org.example.vroom.services.RouteService;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.example.vroom.services.RideService;
-import java.time.LocalDateTime;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
 @RequestMapping("/api/rides")
+@Validated
 public class RideController {
     @Autowired
     private RideService rideService;
-    @Autowired
-    private RideRepository rideRepository;
     @Autowired
     private RouteMapper routeMapper;
     @Autowired
@@ -62,7 +60,8 @@ public class RideController {
 
     private static final Logger log = LoggerFactory.getLogger(RideService.class);
 
-    @GetMapping(path="/{rideID}/route", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('DRIVER', 'REGISTERED_USER', 'ADMIN')")
+    @GetMapping(path="/route/{rideID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GetRouteResponseDTO> getRoute(@PathVariable Long rideID){
         GetRouteResponseDTO route = this.rideService.getRoute(rideID);
         if (route == null){
@@ -71,26 +70,63 @@ public class RideController {
         return new ResponseEntity<>(route, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(path = "/{rideID}/active-ride-info", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GetActiveRideInfoDTO> getActiveRideInfo(@PathVariable Long rideID){
+        try{
+            GetActiveRideInfoDTO dto = rideService.getActiveRideInfo(rideID);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        }catch(RideNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(path = "/active-rides", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<GetActiveRideInfoDTO>> getActiveRides(){
+        List<GetActiveRideInfoDTO> rides = rideService.getAllActiveRides();
+        if (rides == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (rides.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(rides, HttpStatus.OK);
+    }
+
     @MessageMapping("ride-duration-update/{rideID}")
     public void updateRideDuration(@DestinationVariable String rideID,
-                                                    PointResponseDTO location) {
+                                   SimpMessageHeaderAccessor headerAccessor,
+                                   PointResponseDTO location) {
 
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) headerAccessor.getUser();
+        if(auth == null || auth.getPrincipal() == null ){
+            return;
+        }
+        User user = (User) auth.getPrincipal();
+        if (!"DRIVER".equals(user.getRoleName())){
+            return;
+        }
         String start = this.routeService.coordinatesToString(location);
         String end = this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLat() + ","
                 + this.rideService.getRoute(Long.valueOf(rideID)).getEndLocationLng();
         RouteQuoteResponseDTO quoteResponseDTO = this.routeService.routeEstimation(start, end);
         Double estTime = quoteResponseDTO.getTime();
         RideStatus status = this.rideService.getRideStatus(rideID);
-        RideUpdateResponseDTO updateResponseDTO = new RideUpdateResponseDTO(location, estTime, status);
+        RideUpdateResponseDTO updateResponseDTO = new RideUpdateResponseDTO(user.getId(), location, estTime, status);
         messagingTemplate.convertAndSend("/socket-publisher/ride-duration-update/" + rideID, updateResponseDTO);
     }
 
     @PreAuthorize("hasRole('REGISTERED_USER')")
-    @PostMapping(path = "/{rideID}/complaint", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/complaint/{rideID}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> sendComplaint(
             @PathVariable Long rideID,
-            @RequestBody ComplaintRequestDTO complaint
+            @Valid @RequestBody ComplaintRequestDTO complaint,
+            BindingResult result
     ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try {
             this.rideService.sendComplaint(rideID, complaint);
         } catch (EmptyBodyException e) {
@@ -105,8 +141,12 @@ public class RideController {
     @PostMapping(path = "/{rideID}/review", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> leaveReview(
             @PathVariable Long rideID,
-            @RequestBody LeaveReviewRequestDTO review
+            @RequestBody LeaveReviewRequestDTO review,
+            BindingResult result
     ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         System.out.println(rideID);
         if (review == null){
             return new ResponseEntity<>(new MessageResponseDTO("No content sent"), HttpStatus.NO_CONTENT);
@@ -134,26 +174,29 @@ public class RideController {
         return new ResponseEntity<>(new MessageResponseDTO("Success"), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('REGISTERED_USER')")
     @GetMapping(path="/user-active-ride")
-    public ResponseEntity<GetRideResponseDTO> getUserActiveRide(
+    public ResponseEntity<Collection<UserActiveRideDTO>> getUserActiveRide(
             @AuthenticationPrincipal UserDetails user
     ){
-        GetRideResponseDTO dto = this.rideService.getUserRide(user.getUsername());
-        if (dto == null){
+        Collection<UserActiveRideDTO> dtos = this.rideService.getUserRides(user.getUsername());
+        if (dtos == null){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(dto, HttpStatus.OK);
-
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('DRIVER','REGISTERED_USER')")
     @PutMapping(path = "/{rideID}/cancel", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> cancelRide(
             @AuthenticationPrincipal User user,
-            @PathVariable Long rideID,
-            @RequestBody CancelRideRequestDTO data
+            @PathVariable @NotNull Long rideID,
+            @Valid @RequestBody CancelRideRequestDTO data,
+            BindingResult result
     ){
-        if(data==null)
-            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         try{
             rideService.cancelRide(rideID, data.getReason(), user.getRoleName());
@@ -174,11 +217,15 @@ public class RideController {
     @PreAuthorize("hasRole('DRIVER')")
     @PutMapping(path="/{rideID}/stop",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StoppedRideResponseDTO> stopRide(
-            @PathVariable Long rideID,
-            @RequestBody StopRideRequestDTO data
+            @PathVariable @NotNull Long rideID,
+            @Valid @RequestBody StopRideRequestDTO data,
+            BindingResult result
     ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         if(data == null)
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         try{
             StoppedRideResponseDTO responseDTO = rideService.stopRide(rideID, data);
@@ -201,23 +248,63 @@ public class RideController {
            consumes = MediaType.APPLICATION_JSON_VALUE,
            produces = MediaType.APPLICATION_JSON_VALUE
    )
-   public ResponseEntity<GetRideResponseDTO> orderRide(
+   public ResponseEntity<?> orderRide(
            @AuthenticationPrincipal UserDetails userDetails,
            @RequestBody RideRequestDTO request
    ) {
-       GetRideResponseDTO response = null;
        try {
-           response = rideService.orderRide(userDetails.getUsername(), request);
+           if (request == null ||
+                   request.getRoute() == null ||
+                   request.getVehicleType() == null ||
+                   request.getBabiesAllowed() == null ||
+                   request.getPetsAllowed() == null ||
+
+                   request.getRoute().getStartLocationLat() == null ||
+                   request.getRoute().getStartLocationLng() == null ||
+                   request.getRoute().getEndLocationLat() == null ||
+                   request.getRoute().getEndLocationLng() == null
+           ) {
+               return ResponseEntity
+                       .badRequest()
+                       .body(Map.of("message", "Invalid ride request"));
+           }
+
+           GetRideResponseDTO response =
+                   rideService.orderRide(userDetails.getUsername(), request);
+
+           return ResponseEntity
+                   .status(HttpStatus.CREATED)
+                   .body(response);
+
+       } catch (NoAvailableDriverException e) {
+           return ResponseEntity
+                   .status(HttpStatus.CONFLICT)
+                   .body(Map.of("message", e.getMessage()));
+
+       } catch (UserBlockedException e) {
+           return ResponseEntity
+                   .status(HttpStatus.FORBIDDEN)
+                   .body(Map.of("message", e.getMessage()));
+       }catch (DriverNotAvailableException e) {
+           return ResponseEntity
+                   .status(HttpStatus.CONFLICT)
+                   .body(Map.of("message", e.getMessage()));
+
+       }catch (TooManyPassengersException e) {
+           return ResponseEntity
+                   .status(HttpStatus.CONFLICT)
+                   .body(Map.of("message", e.getMessage()));
+       }catch (RuntimeException e) {
+           return ResponseEntity
+                   .badRequest()
+                   .body(Map.of("message", e.getMessage()));
        } catch (Exception e) {
-           log.error("Exception u rideService.orderRide: ", e);
-           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+           log.error("Unexpected exception in orderRide", e);
+           return ResponseEntity
+                   .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                   .build();
        }
-
-       return ResponseEntity
-               .status(HttpStatus.CREATED)
-               .body(response);
    }
-
     @ExceptionHandler(NoAvailableDriverException.class)
     public ResponseEntity<MessageResponseDTO> handleNoDriver(NoAvailableDriverException ex) {
         return ResponseEntity
@@ -231,15 +318,18 @@ public class RideController {
             @PathVariable Long rideID
     ) {
         try{
-             GetRideResponseDTO dto = rideService.startRide(rideID);
-             return new ResponseEntity<>(dto, HttpStatus.OK);
+            GetRideResponseDTO dto = rideService.startRide(rideID);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         }catch (RideNotFoundException e){
+            System.err.println("Ride not found: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }catch (RuntimeException e){
+            System.err.println("ERROR starting ride: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
     @GetMapping(
             path = "/favorites",
@@ -276,22 +366,66 @@ public class RideController {
         return ResponseEntity.ok(rideResponse);
     }
 
-    @GetMapping("/active")
-    public ResponseEntity<GetRideResponseDTO> getActiveRide(
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @DeleteMapping("/favorites/{favoriteId}")
+    public ResponseEntity<MessageResponseDTO> removeFavorite(
+            @PathVariable Long favoriteId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        if(userDetails == null) {
-            System.out.println("UserDetails je null!");
+        try {
+            favoriteRouteService.removeFromFavorites(
+                    userDetails.getUsername(),
+                    favoriteId
+            );
+
+            return ResponseEntity.ok(
+                    new MessageResponseDTO("Favorite route removed successfully")
+            );
+
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponseDTO(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<GetRideResponseDTO>> getActiveRides(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         String driverEmail = userDetails.getUsername();
-        System.out.println("Driver email: " + driverEmail);
 
-        Ride ride = rideService.getActiveRideForDriver(driverEmail);
-        if (ride == null) {
+        List<Ride> rides = rideService.getActiveRidesForDriver(driverEmail);
+
+        if (rides.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(rideService.mapToDTO(ride));
+
+        List<GetRideResponseDTO> dtos =
+                rides.stream()
+                        .map(rideService::mapToDTO)
+                        .toList();
+
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/{rideId}")
+    @PreAuthorize("hasAnyRole('REGISTERED_USER', 'DRIVER', 'ADMIN')")
+    public ResponseEntity<RideResponseDTO> getRide(
+            @PathVariable Long rideId
+    ){
+        try{
+            RideResponseDTO ride = rideService.getRide(rideId);
+
+            return new ResponseEntity<>(ride, HttpStatus.OK);
+        }catch(RideNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

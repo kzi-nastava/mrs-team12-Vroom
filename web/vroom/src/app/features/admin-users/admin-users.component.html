@@ -1,0 +1,82 @@
+<div class="container">
+
+  <h1>User Management</h1>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="success" class="success">{{ success }}</div>
+
+  <ng-container *ngIf="users$ | async as users; else loading">
+
+    <table *ngIf="users.length > 0; else empty">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Block reason</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let u of users">
+          <td>{{ u.id }}</td>
+          <td>{{ u.email }}</td>
+
+          <td>
+            <strong *ngIf="!u.blocked" style="color:#1b5e20">
+              Active
+            </strong>
+            <strong *ngIf="u.blocked" style="color:#b71c1c">
+              Blocked
+            </strong>
+          </td>
+
+          <td class="payload">
+            <span *ngIf="u.blocked">
+              {{ u.blockedReason }}
+            </span>
+
+            <textarea
+              *ngIf="!u.blocked"
+              placeholder="Block reason"
+              [(ngModel)]="blockReason[u.id]"
+            ></textarea>
+          </td>
+
+          <td class="actions">
+            <button
+              *ngIf="!u.blocked"
+              class="reject"
+              (click)="block(u)"
+            >
+              Block
+            </button>
+
+            <button
+              *ngIf="u.blocked"
+              class="approve"
+              (click)="unblock(u)"
+            >
+              Unblock
+            </button>
+
+            <button (click)="redirectToUserHistory(u)">
+              See ride history
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="info">Loading users...</div>
+  </ng-template>
+
+  <ng-template #empty>
+    <div class="info">No users found.</div>
+  </ng-template>
+
+</div>

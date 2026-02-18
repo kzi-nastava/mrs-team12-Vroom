@@ -2,64 +2,44 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { MessageResponseDTO } from "../models/message-response.dto";
 import { LoginResponseDTO } from "../models/auth/responses/login-response.dto";
-import { Observable } from "rxjs";
+import { first, Observable, ReplaySubject, tap } from "rxjs";
 import * as Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 import { LocationUpdate } from "../models/driver/location-update-response.dto";
 import { Subject } from "rxjs";
 import { RideUpdateResponseDTO } from "../models/ride/responses/ride-update-response.dto";
 import { PointResponseDTO } from "../models/driver/point-response.dto";
+import { SocketProviderService } from "./socket-provider.service";
 
 @Injectable({
     providedIn: "root"
 })
 export class RideUpdatesService{
-    private serverUrl = 'http://localhost:8080/socket';
-    public stompClient: any;
 
     private rideUpdateSubject = new Subject<RideUpdateResponseDTO>();
 
-    constructor() {}
+    constructor(private socketProvider : SocketProviderService) {}
 
     getRideUpdates(): Observable<RideUpdateResponseDTO> {
         return this.rideUpdateSubject.asObservable();
     }
 
-    initRideUpdatesWebSocket(rideID: string) {
-        const token = localStorage.getItem('jwt');
-        if (this.stompClient && this.stompClient.connected) {
-            this.stompClient.disconnect();
-        }
-        const ws = new SockJS(this.serverUrl);
-        this.stompClient = Stomp.over(ws);
-        this.stompClient.connect({
-            Authorization: `Bearer ${token}`
-        }, () => {
-            this.stompClient.subscribe(`/socket-publisher/ride-duration-update/${rideID}`, (message: any) => {
-                if (message.body) {
-                    this.rideUpdateSubject.next(JSON.parse(message.body));
-                } 
-            });
-        }, (error: any) => {
-            console.error('WebSocket connection error:', error);
-        });
-    }   
-
-    sendCoordinates(rideID: string, point: PointResponseDTO) {
-        console.log('Sending coordinates:', point);
-        if (this.stompClient && this.stompClient.connected) {
-            this.stompClient.send(
-                `/socket-subscriber/ride-duration-update/${rideID}`,
-                {},
-                JSON.stringify(point)
-            );
-        }
+    initRideUpdatesWebSocket(rideID: string) : Observable<void> {
+      return this.socketProvider.onConnected.pipe(
+        first(),
+        tap(() => {
+          this.socketProvider.stompClient.subscribe(`/socket-publisher/ride-duration-update/${rideID}`, (message: any) => {
+            if (message.body) {
+                this.rideUpdateSubject.next(JSON.parse(message.body));
+            } 
+          });
+        })
+      );
     }
 
-    disconnectRideUpdatesWebSocket() {
-        if (this.stompClient) {
-            this.stompClient.disconnect();
-        }
+    sendCoordinates(rideID: string, point: PointResponseDTO) {
+      console.log('Sending coordinates:', point);
+      this.socketProvider.send(`/socket-subscriber/ride-duration-update/${rideID}`, point);
     }
 
 }

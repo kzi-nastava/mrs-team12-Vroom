@@ -1,5 +1,6 @@
 package org.example.vroom.controllers;
 
+import jakarta.validation.Valid;
 import org.example.vroom.DTOs.requests.panic.PanicRequestDTO;
 import org.example.vroom.DTOs.responses.MessageResponseDTO;
 import org.example.vroom.DTOs.responses.panic.PanicNotificationResponseDTO;
@@ -9,11 +10,14 @@ import org.example.vroom.exceptions.panic.PanicNotificationNotFound;
 import org.example.vroom.exceptions.ride.RideNotFoundException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.services.PanicNotificationsService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,11 +25,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/panics")
+@Validated
 public class PanicNotificationsController {
     @Autowired
     private PanicNotificationsService panicNotificationsService;
 
-   // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<List<PanicNotificationResponseDTO>> getPanicNotifications(
             @RequestParam boolean active
@@ -39,7 +44,7 @@ public class PanicNotificationsController {
         }
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{panicID}")
     public ResponseEntity<PanicNotificationResponseDTO> getPanicNotifications(@PathVariable Long panicID) {
         try{
@@ -55,14 +60,19 @@ public class PanicNotificationsController {
 
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('DRIVER', 'REGISTERED_USER')")
     public ResponseEntity<MessageResponseDTO> createPanic(
             @AuthenticationPrincipal User user,
-            @RequestBody PanicRequestDTO data
+            @Valid @RequestBody PanicRequestDTO data,
+            BindingResult result
     ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         if(data == null || data.getRideId() == null)
             return new ResponseEntity<MessageResponseDTO> (
                 new MessageResponseDTO("Invalid panic request data"),
-                HttpStatus.NO_CONTENT
+                HttpStatus.BAD_REQUEST
             );
 
         try{

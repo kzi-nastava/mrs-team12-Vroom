@@ -9,10 +9,48 @@
         android:title="@string/register_title"
         android:id="@+id/register_navbar_item"
         android:icon="@drawable/ic_user_profile" />
+
+    <!-- USER -->
+    <item
+        android:id="@+id/nav_order_ride"
+        android:title="Order Ride"
+         />
+
+    <item
+        android:id="@+id/nav_order_from_favorites"
+        android:title="Order From Favorites"
+        />
     <item
         android:title="@string/drivers_ride_history"
         android:icon="@drawable/ic_calendar"
         android:id="@+id/driver_ride_history_item"/>
+
+    <item
+        android:id="@+id/nav_route_estimation"
+        android:icon="@drawable/ic_route"
+        android:title="Estimate Route" />
+
+    <item
+        android:id="@+id/nav_panic_feed"
+        android:title="Panic Feed"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/ride_history"
+        android:title="Ride History"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/user_active_rides"
+        android:title="Active rides"/>
+    <item
+        android:title="Active ride"
+        android:id="@+id/driver_active_ride"
+    />
+    <item
+        android:title="Live Support"
+        android:id="@+id/live_support"
+        />
 
     <group android:id="@+id/nav_footer" android:checkableBehavior="none">
         <item

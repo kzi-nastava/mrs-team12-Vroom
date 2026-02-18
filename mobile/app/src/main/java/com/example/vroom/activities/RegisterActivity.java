@@ -60,12 +60,12 @@ public class RegisterActivity extends BaseActivity {
             return insets;
         });
 
-        firstNameInput = findViewById(R.id.firstNameInput);
-        lastNameInput = findViewById(R.id.lastNameInput);
-        emailInput = findViewById(R.id.emailInput);
-        phoneNumInput = findViewById(R.id.phoneNumInput);
+        firstNameInput = findViewById(R.id.first_name_input);
+        lastNameInput = findViewById(R.id.last_name_input);
+        emailInput = findViewById(R.id.email_input);
+        phoneNumInput = findViewById(R.id.phone_num_input);
 
-        countrySpinner = findViewById(R.id.countrySpinner);
+        countrySpinner = findViewById(R.id.country_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.countries_array,
@@ -74,10 +74,10 @@ public class RegisterActivity extends BaseActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         countrySpinner.setAdapter(adapter);
 
-        cityInput = findViewById(R.id.cityInput);
-        streetInput = findViewById(R.id.streetInput);
+        cityInput = findViewById(R.id.city_input);
+        streetInput = findViewById(R.id.street_input);
 
-        genderRadioGroup = findViewById(R.id.genderRadioGroup);
+        genderRadioGroup = findViewById(R.id.gender_radio_group);
         genderRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             RadioButton selected = findViewById(checkedId);
             if (selected != null) {
@@ -85,14 +85,14 @@ public class RegisterActivity extends BaseActivity {
             }
         });
 
-        passInput = findViewById(R.id.passwordInput);
-        rePassInput = findViewById(R.id.confirmPasswordInput);
+        passInput = findViewById(R.id.password_input);
+        rePassInput = findViewById(R.id.confirm_password_input);
 
-        registerBtn = findViewById(R.id.registerButton);
+        registerBtn = findViewById(R.id.register_button);
         registerBtn.setOnClickListener(v -> register());
 
-        profileImageView = findViewById(R.id.profileImage);
-        uploadImageBtn = findViewById(R.id.uploadImageBtn);
+        profileImageView = findViewById(R.id.profile_image);
+        uploadImageBtn = findViewById(R.id.upload_image_btn);
         uploadImageBtn.setOnClickListener(v -> getContent.launch("image/*"));
 
         viewModel = new ViewModelProvider(this).get(RegisterViewModel.class);

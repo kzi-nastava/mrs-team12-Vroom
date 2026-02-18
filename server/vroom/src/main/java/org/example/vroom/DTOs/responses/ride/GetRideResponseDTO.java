@@ -1,9 +1,11 @@
 package org.example.vroom.DTOs.responses.ride;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
 import org.example.vroom.DTOs.responses.driver.DriverRideResponseDTO;
 import org.example.vroom.enums.RideStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import java.util.List;
 public class GetRideResponseDTO {
     private Long rideID;
     private DriverRideResponseDTO driver;
+    @NotNull
     private GetRouteResponseDTO route;
 
     private List<String> passengers;
@@ -30,6 +33,7 @@ public class GetRideResponseDTO {
     private boolean panicActivated;
     private Integer driverRating;
     private Integer vehicleRating;
-
+    @JsonProperty("isScheduled")
+    private boolean isScheduled;
     private LocalDateTime scheduledTime;
 }

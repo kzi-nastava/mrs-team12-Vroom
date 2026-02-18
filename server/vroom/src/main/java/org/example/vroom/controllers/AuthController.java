@@ -1,6 +1,8 @@
 package org.example.vroom.controllers;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.example.vroom.DTOs.requests.auth.*;
 import org.example.vroom.DTOs.requests.driver.DriverRegisterRequestDTO;
 import org.example.vroom.DTOs.responses.auth.LoginResponseDTO;
@@ -27,13 +29,17 @@ import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.naming.Binding;
 import java.net.URI;
 
 @RestController
 @RequestMapping("/api/auth")
+@Validated
 public class AuthController {
     @Autowired
     private AuthService authService;
@@ -53,10 +59,10 @@ public class AuthController {
             path="/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO data, HttpServletResponse response) {
-        if(data==null)
-            return new ResponseEntity<LoginResponseDTO>(HttpStatus.NO_CONTENT);
-
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO data, BindingResult result) {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try{
             Authentication authentication = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword())
@@ -64,7 +70,7 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            LoginResponseDTO res = authService.login((User) authentication.getPrincipal(), response);
+            LoginResponseDTO res = authService.login((User) authentication.getPrincipal());
 
             return new ResponseEntity<LoginResponseDTO>(res, HttpStatus.OK);
 
@@ -82,10 +88,10 @@ public class AuthController {
             path="/forgot-password",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponseDTO> forgotPassword(@RequestBody ForgotPasswordRequestDTO data) {
-        if(data==null)
-            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
-
+    public ResponseEntity<MessageResponseDTO> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO data, BindingResult result) {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try{
             authService.forgotPassword(data.getEmail());
             return new ResponseEntity<MessageResponseDTO>(
@@ -108,9 +114,10 @@ public class AuthController {
             path = "/reset-password",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageResponseDTO> forgotPassword(@RequestBody ResetPasswordRequestDTO data){
-        if(data==null)
-            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<MessageResponseDTO> forgotPassword(@RequestBody ResetPasswordRequestDTO data, BindingResult result){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         try{
             authService.resetPassword(data.getEmail(), data.getCode(), data.getPassword(), data.getConfirmPassword());
@@ -131,11 +138,13 @@ public class AuthController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponseDTO> register(
-            @ModelAttribute RegisterRequestDTO data,
-            @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto
+            @Valid @ModelAttribute RegisterRequestDTO data,
+            @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto,
+            BindingResult result
     ){
-        if(data == null)
-            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         try{
             registeredUserService.createUser(data, profilePhoto);
@@ -155,12 +164,11 @@ public class AuthController {
     }
 
     @GetMapping(path = "/activate-account/{userID}")
-    public ResponseEntity<Void> activateAccount(@PathVariable Long userID){
+    public ResponseEntity<Void> activateAccount(@PathVariable @Positive Long userID){
         String targetUrl;
 
         try {
             registeredUserService.activateUser(userID);
-
             targetUrl = "http://localhost:4200/login?status=activated";
         } catch (ActivationExpiredException e) {
             registeredUserService.deleteAccount(userID);

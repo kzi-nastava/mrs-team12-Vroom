@@ -29,18 +29,29 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     List<Driver> findAvailableDrivers(@Param("status") DriverStatus status);
 
     @Query("""
-        SELECT d FROM Driver d
-        WHERE d.status = 'AVAILABLE'
-          AND d.vehicle.type = :vehicleType
-          AND (:babiesAllowed IS NULL OR d.vehicle.babiesAllowed = :babiesAllowed)
-          AND (:petsAllowed IS NULL OR d.vehicle.petsAllowed = :petsAllowed)
-        ORDER BY d.id ASC
-        LIMIT 1
+    SELECT d FROM Driver d
+    JOIN DriverLocation dl ON dl.driver.id = d.id
+    WHERE d.status = 'AVAILABLE'
+      AND d.vehicle.type = :vehicleType
+      AND (:babiesAllowed IS NULL OR d.vehicle.babiesAllowed = :babiesAllowed)
+      AND (:petsAllowed IS NULL OR d.vehicle.petsAllowed = :petsAllowed)
+    ORDER BY (
+        6371 * acos(
+            cos(radians(:pickupLat)) *
+            cos(radians(dl.latitude)) *
+            cos(radians(dl.longitude) - radians(:pickupLon)) +
+            sin(radians(:pickupLat)) *
+            sin(radians(dl.latitude))
+        )
+    ) ASC
+    LIMIT 1
     """)
     Optional<Driver> findFirstAvailableDriver(
             @Param("vehicleType") VehicleType vehicleType,
             @Param("babiesAllowed") Boolean babiesAllowed,
-            @Param("petsAllowed") Boolean petsAllowed
+            @Param("petsAllowed") Boolean petsAllowed,
+            @Param("pickupLat") Double pickupLatitude,
+            @Param("pickupLon") Double pickupLongitude
     );
 
     @Query("SELECT d.status FROM Driver d WHERE d.id = :id")

@@ -1,10 +1,15 @@
 package com.example.vroom.viewmodels;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.vroom.DTOs.MessageResponseDTO;
 import com.example.vroom.DTOs.auth.requests.ForgotPasswordRequestDTO;
@@ -15,6 +20,7 @@ import com.example.vroom.activities.LoginActivity;
 import com.example.vroom.activities.MainActivity;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.network.RetrofitClient;
+import com.example.vroom.network.SocketProvider;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -58,7 +64,6 @@ public class LoginViewModel extends ViewModel {
                         forgotPasswordStatus.postValue(false);
                     }
                 }
-
                 @Override
                 public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
                     forgotPasswordMessage.postValue("Network error: " + t.getMessage());
@@ -85,10 +90,11 @@ public class LoginViewModel extends ViewModel {
                 @Override
                 public void onResponse(Call<LoginResponseDTO> call, Response<LoginResponseDTO> response) {
                     if(response.isSuccessful() && response.body() != null){
+
                         StorageManager.saveData("user_type", response.body().getType());
                         StorageManager.saveData("jwt", response.body().getToken());
-                        StorageManager.saveLong("expires", response.body().getExpires());
-
+                        StorageManager.saveData("user_id", response.body().getUserId().toString());
+                        SocketProvider.getInstance().init();
                         loginMessage.postValue("Login successful");
                         loginStatus.postValue(true);
                     }else{

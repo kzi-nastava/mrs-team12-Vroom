@@ -73,6 +73,20 @@
         {{ editMode ? 'Save' : 'Change' }}
       </button>
 
+      <button
+        class="change-button"
+        style="margin-top: 12px; background: #7da47d;"
+        (click)="showPasswordModal = true">
+        Change Password
+      </button>
+
+        <button
+    class="change-button"
+    style="margin-top: 12px; background: #4a6fa5;"
+    (click)="goToReports()">
+    Reports
+  </button>
+
       <div *ngIf="successMessage" class="message success">{{ successMessage }}</div>
       <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
 
@@ -116,5 +130,62 @@
   <ng-template #loading>
     <p>Loading profile...</p>
   </ng-template>
+
+  <!-- CHANGE PASSWORD MODAL -->
+  <div class="modal-overlay" *ngIf="showPasswordModal" (click)="showPasswordModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      
+      <div class="profile-section" style="margin-bottom: 0;">
+        <h2 class="section-title">Change Password</h2>
+
+        <form class="profile-form" (submit)="onChangePassword()">
+
+          <label>Old Password</label>
+          <div class="input-wrapper">
+            <input type="password"
+                   placeholder="Enter old password"
+                   [(ngModel)]="passwordData.oldPassword"
+                   name="oldPassword">
+          </div>
+
+          <label>New Password</label>
+          <div class="input-wrapper">
+            <input type="password"
+                   placeholder="Enter new password"
+                   [(ngModel)]="passwordData.newPassword"
+                   name="newPassword">
+          </div>
+
+          <label>Confirm New Password</label>
+          <div class="input-wrapper">
+            <input type="password"
+                   placeholder="Confirm new password"
+                   [(ngModel)]="passwordData.confirmNewPassword"
+                   name="confirmNewPassword">
+          </div>
+
+          <button type="submit" class="change-button">
+            Change Password
+          </button>
+
+          <button type="button" 
+                  class="change-button" 
+                  style="margin-top: 12px; background: #b0b0b0;"
+                  (click)="showPasswordModal = false">
+            Cancel
+          </button>
+
+          <div *ngIf="passwordSuccessMessage" class="message success">
+            {{ passwordSuccessMessage }}
+          </div>
+          <div *ngIf="passwordErrorMessage" class="message error">
+            {{ passwordErrorMessage }}
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
 
 </div>

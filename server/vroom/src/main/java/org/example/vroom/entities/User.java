@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.example.vroom.enums.Gender;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +15,9 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name="users")
+@Table(name="users", indexes = {
+        @Index(name = "index_unactivated_user_cleanup", columnList = "created_at, userStatus")
+})
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 @Getter
@@ -85,12 +88,14 @@ public abstract class User implements UserDetails {
         return true;
     }
 
-    @Override
-    public boolean isEnabled(){
-        return this.blockedReason == null;
-    }
+
+//    @Override
+//    public boolean isEnabled(){
+//        return this.blockedReason == null;
+//    }
+
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @org.hibernate.annotations.CreationTimestamp
+    @CreationTimestamp
     private LocalDateTime createdAt;
 }

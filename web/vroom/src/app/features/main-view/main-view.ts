@@ -68,6 +68,10 @@ export class MainView implements AfterViewInit {
 
     this.routeLayer.addTo(this.map);
     this.vehiclesLayer.addTo(this.map);
+    
+    if (localStorage.getItem('user_type') === 'DRIVER'){
+      this.driverService.startTracking();
+    }
 
     // setup route listener to clear things from the map when changing route
     this.setupRouteListener();
@@ -109,7 +113,8 @@ export class MainView implements AfterViewInit {
           this.resetMap();
           this.setupRealTimeLocationListener();
           this.map.setView(this.centroid, 16); 
-        }else*/ if (this.routesWithMap.some(route => currentUrl.includes(route))) {
+        }else*/ 
+        if (this.routesWithMap.some(route => currentUrl.includes(route))) {
           this.resetMap();
           this.map.setView(this.centroid, 14); 
         }
@@ -123,41 +128,26 @@ export class MainView implements AfterViewInit {
         filter((action): action is MapAction => action !== null)
       )
       .subscribe(action => {
+        this.resetMap();
         switch (action.type) {
           case MapActionType.DRAW_ROUTE:
-            this.driverService.disconnectWebSocket()
-            this.resetMap();
             this.handleDrawRoute(action.payload);
-            
             //this.routeLayer.clearLayers();
             break;
           case MapActionType.CLEAR_MAP:
             //this.routeLayer.clearLayers();
-            this.resetMap()
             break;
           case MapActionType.SHOW_VEHICLES:
-            this.driverService.disconnectWebSocket()
             //this.routeLayer.clearLayers();
-            this.resetMap();
-            this.setupRealTimeLocationListener();
-            if (localStorage.getItem('user_type') === 'DRIVER'){
-              this.driverService.startTracking();
-            }
-            
+
             break;
           case MapActionType.RIDE_DURATION:
-            this.driverService.disconnectWebSocket()
             //this.routeLayer.clearLayers();
-            this.resetMap();
             this.setUpRideTracking(action.payload.rideID, "In Ride");
-            
             break;
           case MapActionType.PANIC_RIDE:
             console.log('PANIC_RIDE action triggered with rideID:', action.payload.rideID);
-            this.driverService.disconnectWebSocket()
-            this.resetMap();
             this.setUpRideTracking(action.payload.rideID, "PANIC")
-
             break;
         }
       });
@@ -170,12 +160,12 @@ export class MainView implements AfterViewInit {
   }
 
   private setUpRideTracking(rideID: string, type: string): void {
-    this.routeLayer.clearLayers();
 
     this.rideUpdatesService.getRideUpdates().pipe(
       takeUntil(this.destroy$)
     ).subscribe(update => {
-      this.updateSingleVehicleOnMap( -1,
+      this.updateSingleVehicleOnMap(
+        update.driverID,
         update.currentLocation.lat,
         update.currentLocation.lng,
         type
@@ -195,26 +185,12 @@ export class MainView implements AfterViewInit {
 
 
   private setupRealTimeLocationListener(): void {
+    this.driverService.initializeWebSocket().subscribe();
     this.driverService.locationUpdates$
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-          next: () => {
-              this.driverService.locationUpdates$
-                  .pipe(takeUntil(this.destroy$))
-                  .subscribe((location: LocationUpdate) => {
-                      this.updateSingleVehicleOnMap(
-                          location.driverId,
-                          location.point.lat,
-                          location.point.lng,
-                          location.status
-                      );
-                  });
-          },
-          error: (err) => {
-              console.error('WebSocket connection failed', err);
-          }
+      .subscribe(location => {
+        this.updateSingleVehicleOnMap(location.driverId, location.point.lat, location.point.lng, location.status);
       });
-    this.driverService.initializeWebSocket().subscribe();
   }
 
 
@@ -354,7 +330,6 @@ export class MainView implements AfterViewInit {
     this.destroy$.next();
     this.destroy$.complete();
     this.mapService.clearMap();
-    this.driverService.disconnectWebSocket();
   }
 
 

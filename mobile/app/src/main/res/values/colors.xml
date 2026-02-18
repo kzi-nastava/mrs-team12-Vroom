@@ -13,4 +13,6 @@
     <color name="safe_background">#C8E6C9</color>
     <color name="panic_text">#E64A19</color>
     <color name="panic_background">#FFCCBC</color>
+    <color name="red">#FF3333</color>
+    <color name="light_grey">#D1D1D1</color>
 </resources>

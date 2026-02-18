@@ -7,27 +7,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.vroom.DTOs.MessageResponseDTO;
-import com.example.vroom.DTOs.auth.requests.ForgotPasswordRequestDTO;
-import com.example.vroom.DTOs.auth.requests.LoginRequestDTO;
-import com.example.vroom.DTOs.auth.responses.LoginResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
-import com.example.vroom.network.RetrofitClient;
 import com.example.vroom.viewmodels.LoginViewModel;
-import com.example.vroom.viewmodels.NavigationViewModel;
-
-import java.time.LocalDateTime;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginActivity extends BaseActivity {
     private EditText emailInput;
@@ -49,29 +36,46 @@ public class LoginActivity extends BaseActivity {
             return insets;
         });
 
-        emailInput = findViewById(R.id.emailInput);
-        passInput = findViewById(R.id.passwordInput);
+        emailInput = findViewById(R.id.email_input);
+        passInput = findViewById(R.id.password_input);
 
-        forgotPassBtn = findViewById(R.id.forgotPasswordButton);
+        forgotPassBtn = findViewById(R.id.forgot_password_button);
         forgotPassBtn.setOnClickListener(v -> this.forgotPassReq());
 
-        loginBtn = findViewById(R.id.loginButton);
+        loginBtn = findViewById(R.id.login_button);
         loginBtn.setOnClickListener(v -> this.loginReq());
 
         StorageManager.getSharedPreferences(this);
 
-        String token = StorageManager.getData("jwt", null);
-        long expires = StorageManager.getLong("expires", -1L);
+       // String token = StorageManager.getData("jwt", null);
+        //long expires = StorageManager.getLong("expires", -1L);
+
 
         // check this for milis if correct
-        if(token != null && System.currentTimeMillis() < expires){
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
+        //if(token != null && System.currentTimeMillis() < expires){
+            //Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            //startActivity(intent);
+            //finish();
+        //    navigateByRole();
+        //}
 
         viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
         observeViewModel();
+    }
+
+    private void navigateByRole() {
+        String role = StorageManager.getData("user_type", null);
+        Intent intent;
+
+        if ("ADMIN".equals(role)) {
+            intent = new Intent(LoginActivity.this, AdminActivity.class);
+        } else {
+            intent = new Intent(LoginActivity.this, MainActivity.class);
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        startActivity(intent);
+        finish();
     }
     private void observeViewModel(){
         viewModel.getLoginMessage().observe(this, message -> {
@@ -80,9 +84,10 @@ public class LoginActivity extends BaseActivity {
 
         viewModel.getLoginStatus().observe(this, success -> {
             if (success != null && success) {
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                //Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+               // startActivity(intent);
+                //finish();
+                navigateByRole();
             }
         });
 

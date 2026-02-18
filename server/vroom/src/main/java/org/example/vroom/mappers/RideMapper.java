@@ -2,15 +2,16 @@ package org.example.vroom.mappers;
 
 import org.example.vroom.DTOs.RideDTO;
 import org.example.vroom.DTOs.requests.ride.StopRideRequestDTO;
-import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideHistoryMoreInfoResponseDTO;
-import org.example.vroom.DTOs.responses.ride.RideHistoryResponseDTO;
-import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
+import org.example.vroom.DTOs.responses.ride.RideResponseDTO;
 import org.example.vroom.entities.Ride;
 import org.example.vroom.enums.RideStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class RideMapper {
@@ -55,11 +56,36 @@ public class RideMapper {
                 .build();
     }
 
-    public RideHistoryMoreInfoResponseDTO getRideHistoryMoreInfo(Ride ride) {
-        return RideHistoryMoreInfoResponseDTO
+    public GetActiveRideInfoDTO getActiveRideInfo(Ride ride) {
+        return GetActiveRideInfoDTO
                 .builder()
+                .rideId(ride.getId())
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(ride.getRoute().getEndAddress())
+                .startTime(ride.getStartTime())
+                .creatorName(ride.getPassenger().getFirstName() + " " + ride.getPassenger().getLastName())
+                .driverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName())
+                .profilePicture(ride.getDriver().getProfilePhoto())
+                .build();
+    }
+
+    public RideHistoryMoreInfoResponseDTO getRideHistoryMoreInfo(Ride ride) {
+        List<String> allPassengers = new ArrayList<>();
+
+        if (ride.getPassengers() != null) {
+            allPassengers.addAll(ride.getPassengers());
+        }
+
+        if (ride.getPassenger() != null && ride.getPassenger().getEmail() != null) {
+            String creatorEmail = ride.getPassenger().getEmail();
+            if (!allPassengers.contains(creatorEmail)) {
+                allPassengers.add(creatorEmail);
+            }
+        }
+
+        return RideHistoryMoreInfoResponseDTO.builder()
                 .rideID(ride.getId())
-                .passengers(ride.getPassengers())
+                .passengers(allPassengers)
                 .status(ride.getStatus())
                 .cancelReason(ride.getCancelReason())
                 .complaints(ride.getComplaints())
@@ -69,21 +95,68 @@ public class RideMapper {
                 .build();
     }
 
+
+ //   public GetRideResponseDTO getRideDTO(Ride ride){
+ //       return GetRideResponseDTO
+ //               .builder()
+ //               .rideID(ride.getId())
+ //               .route(routeMapper.getRouteDTO(ride.getRoute()))
+ //               .driver(driverMapper.toDriverRideDTO(ride.getDriver()))
+ //               .startTime(ride.getStartTime())
+ //               .endTime(ride.getEndTime())
+ //               .status(ride.getStatus())
+ //               .price(ride.getPrice())
+ //               .panicActivated(ride.getPanicActivated())
+ //               .passengers(ride.getPassengers())
+ //               .complaints(ride.getComplaints())
+ //               .driverRating(ride.getDriverRating())
+ //               .vehicleRating(ride.getVehicleRating())
+ //               .build();
+ //   }
+
+
+    public UserActiveRideDTO getUserActiveRideDTO(Ride ride){
+        return UserActiveRideDTO
+                .builder()
+                .rideID(ride.getId())
+                .driverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName())
+                .vehicleInfo(ride.getDriver().getVehicle().getBrand() + " " + ride.getDriver().getVehicle().getModel())
+                .route(routeMapper.getRouteDTO(ride.getRoute()))
+                .passengers(ride.getPassengers())
+                .scheduledTime(ride.getStartTime())
+                .status(ride.getStatus())
+                .price(ride.getPrice())
+                .isScheduled(ride.getIsScheduled())
+                .build();
+    }
+
     public GetRideResponseDTO getRideDTO(Ride ride){
         return GetRideResponseDTO
                 .builder()
                 .rideID(ride.getId())
                 .route(routeMapper.getRouteDTO(ride.getRoute()))
                 .driver(driverMapper.toDriverRideDTO(ride.getDriver()))
+                .passengers(ride.getPassengers())
+                .complaints(ride.getComplaints())
                 .startTime(ride.getStartTime())
                 .endTime(ride.getEndTime())
                 .status(ride.getStatus())
                 .price(ride.getPrice())
                 .panicActivated(ride.getPanicActivated())
-                .passengers(ride.getPassengers())
-                .complaints(ride.getComplaints())
                 .driverRating(ride.getDriverRating())
                 .vehicleRating(ride.getVehicleRating())
+                .isScheduled(ride.getIsScheduled())
+                .scheduledTime(ride.getIsScheduled() ? ride.getStartTime() : null)
+                .build();
+    }
+
+    public AcceptedRideDTO acceptedRide(Ride ride) {
+        return AcceptedRideDTO.builder()
+                .startAddress(ride.getRoute().getStartAddress())
+                .endAddress(ride.getRoute().getEndAddress())
+                .driverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName())
+                .vehicleInfo(ride.getDriver().getVehicle().getBrand() + " " + ride.getDriver().getVehicle().getModel())
+                .licensePlate(ride.getDriver().getVehicle().getLicenceNumber())
                 .build();
     }
 
@@ -102,5 +175,26 @@ public class RideMapper {
                 .build();
     }
 
+    public RideResponseDTO createUserRideHistoryDTO(Ride ride){
+        if(ride == null) return null;
+
+        return RideResponseDTO.builder()
+                .rideId(ride.getId())
+                .driverFirstName(ride.getDriver().getFirstName())
+                .driverLastName(ride.getDriver().getLastName())
+                .startTime(ride.getStartTime())
+                .endTime(ride.getEndTime())
+                .passengers(ride.getPassengers())
+                .price(ride.getPrice())
+                .status(ride.getStatus())
+                .complaints(ride.getComplaints())
+                .panicActivated(ride.getPanicActivated())
+                .driverRating(ride.getDriverRating())
+                .vehicleRating(ride.getVehicleRating())
+                .comment(ride.getComment())
+                .cancelReason(ride.getCancelReason())
+                .route(routeMapper.getRouteDTO(ride.getRoute()))
+                .build();
+    }
 
 }

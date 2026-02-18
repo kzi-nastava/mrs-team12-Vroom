@@ -1,0 +1,59 @@
+<div class="admin-dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>Chats</h2>
+    </div>
+    <div class="chat-list">
+      @for (chat of chats; track chat.chatId) {
+        <div class="chat-item" 
+            [class.active]="selectedChatId === chat.chatId" 
+            (click)="selectChat(chat.chatId)">
+          <div class="chat-info">
+            <span class="username">{{chat.userName}}</span>
+            <span class="last-time">{{chat.lastMessageTime | date:'HH:mm'}}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </aside>
+
+  <main class="chat-main">
+    @if (selectedChatId) {
+      <div class="chat-container">
+        <div class="messages" #scrollContainer>
+          @for (msg of currentMessages; track $index) {
+            <div class="message-container" [ngClass]="msg.sentByAdmin ? 'sent' : 'received'">
+              @if (msg.profilePicture) {
+                <img [src]="'data:image/jpeg;base64,' + msg.profilePicture" class="profile-photo">
+              } @else {
+                <img src="assets/icons/profile-photo.jpeg" class="profile-photo">
+              }
+              <div class="message-bubble">
+                <div class="message-content" [ngClass]="msg.sentByAdmin ? 'sent' : 'received'">
+                  {{msg.content}}
+                </div>
+                <div class="message-meta">
+                  <span *ngIf="!msg.sentByAdmin" class="sender-name">{{msg.senderName}}</span>
+                  <span *ngIf="!msg.sentByAdmin" class="sender-name">•</span>
+                  <span class="timestamp">
+                    {{isToday(msg.timestamp) ? (msg.timestamp | date:'HH:mm') : (msg.timestamp | date:'dd.MM.yyyy. • HH:mm')}}
+                  </span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        
+        <div class="footer">
+          <input class="input" type="text" [(ngModel)]="newMessage" 
+                (keyup.enter)="sendMessage()" placeholder="Message...">
+          <button class="button" (click)="sendMessage()">Send</button>
+        </div>
+      </div>
+    } @else {
+      <div class="placeholder">
+        <p>Select a user to start messaging</p>
+      </div>
+    }
+  </main>
+</div>

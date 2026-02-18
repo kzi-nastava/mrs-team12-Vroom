@@ -1,5 +1,8 @@
 package org.example.vroom.DTOs.requests.panic;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +15,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PanicRequestDTO {
+    @NotNull
+    @Positive
     private Long rideId;
+
+    @PastOrPresent
     private LocalDateTime activatedAt;
 }

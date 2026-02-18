@@ -6,15 +6,12 @@ import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.example.vroom.DTOs.requests.ride.*;
 import org.example.vroom.DTOs.RideDTO;
-import org.example.vroom.DTOs.responses.ride.GetRideResponseDTO;
-import org.example.vroom.DTOs.responses.ride.StoppedRideResponseDTO;
+import org.example.vroom.DTOs.responses.ride.*;
 import org.example.vroom.DTOs.responses.route.GetRouteResponseDTO;
-import org.example.vroom.DTOs.responses.route.PointResponseDTO;
 import org.example.vroom.DTOs.responses.route.RouteQuoteResponseDTO;
 import org.example.vroom.entities.*;
 import org.example.vroom.enums.DriverStatus;
 import org.example.vroom.enums.RideStatus;
-import org.example.vroom.enums.VehicleType;
 import org.example.vroom.exceptions.ride.*;
 import org.example.vroom.exceptions.user.NoAvailableDriverException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
@@ -23,21 +20,17 @@ import org.example.vroom.mappers.RouteMapper;
 import org.example.vroom.repositories.*;
 import org.example.vroom.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +46,8 @@ public class RideService {
     @Autowired
     private VehicleRepository vehicleRepository;
     @Autowired
+    private RegisteredUserRepository registeredUserRepository;
+    @Autowired
     private RideMapper rideMapper;
     @Autowired
     private RouteMapper routeMapper;
@@ -62,6 +57,10 @@ public class RideService {
     private EmailService emailService;
     @Autowired
     private GeoService geoService;
+    @Autowired
+    private RouteRepository routeRepository;
+    @Autowired
+    private FcmService fcmService;
 
 
     @Autowired
@@ -76,8 +75,9 @@ public class RideService {
     public GetRideResponseDTO orderRide(String userEmail, RideRequestDTO request) {
         RegisteredUser user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        // Validacija zakazanog vremena
+        if (user.getBlockedReason() != null) {
+            throw new UserBlockedException("Your account has been blocked: " + user.getBlockedReason());
+        }
         LocalDateTime scheduledTime = null;
         boolean isScheduled = request.getScheduled() != null && request.getScheduled() && request.getScheduledTime() != null;
 
@@ -96,41 +96,54 @@ public class RideService {
             scheduledTime = request.getScheduledTime();
         }
 
-        // Konvertovanje rute iz DTO
-        Route route = routeMapper.fromDTO(request.getRoute());
 
-        // Putnici
-        List<String> passengers = new ArrayList<>();
+        Route route = routeMapper.fromDTO(request.getRoute());
+        route = routeRepository.save(route);
+
+        Set<String> uniquePassengers = new LinkedHashSet<>();
         if (request.getPassengersEmails() != null) {
             for (String email : request.getPassengersEmails()) {
-                if (email == null || email.isBlank()) continue;
-                passengers.add(email);
+                if (email != null && !email.isBlank()) {
+                    uniquePassengers.add(email);
+                }
             }
         }
+        List<String> passengers = new ArrayList<>(uniquePassengers);
         List<String> complaints = new ArrayList<>();
 
-        // Driver
         Driver driver = driverRepository.findFirstAvailableDriver(
                 request.getVehicleType(),
                 request.getBabiesAllowed(),
-                request.getPetsAllowed()
+                request.getPetsAllowed(),
+                route.getStartLocationLat(),
+                route.getStartLocationLng()
         ).orElseThrow(() -> new NoAvailableDriverException("No available drivers"));
 
-//        if (!driverHasWorkingTime(driver)) {
-//            throw new NoAvailableDriverException("Driver exceeded 8 working hours in last 24h");
-//        }
-//        String startAddress = geoService.reverseGeocode(
-//                route.getStartLocationLat(),
-//                route.getStartLocationLng()
-//        );
-//
-//        String endAddress = geoService.reverseGeocode(
-//                route.getEndLocationLat(),
-//                route.getEndLocationLng()
-//        );
-//
-//        route.setStartAddress(startAddress);
-//        route.setEndAddress(endAddress);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime checkUntil = now.plusMinutes(15);
+
+        List<Ride> conflictingRides = rideRepository.findScheduledRidesForDriverInTimeRange(
+                driver,
+                now,
+                checkUntil
+        );
+
+        if (!conflictingRides.isEmpty()) {
+            Ride conflictingRide = conflictingRides.get(0);
+            throw new DriverNotAvailableException(
+                    "Driver has a scheduled ride at " +
+                            conflictingRide.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) +
+                            ". Please try again later or choose another driver."
+            );
+        }
+        int vehicleCapacity = driver.getVehicle().getNumberOfSeats();
+        int totalPassengers = 1 + passengers.size();
+
+        if (totalPassengers > vehicleCapacity) {
+            throw new TooManyPassengersException(
+                    "Vehicle capacity exceeded: max " + vehicleCapacity + ", requested " + totalPassengers
+            );
+        }
         // Start / End
         String startLocation = route.getStartLocationLat() + "," + route.getStartLocationLng();
         String endLocation = route.getEndLocationLat() + "," + route.getEndLocationLng();
@@ -146,8 +159,11 @@ public class RideService {
         RouteQuoteResponseDTO quote = routeService.routeEstimation(startLocation, endLocation, stops);
 
         RideStatus status = RideStatus.ACCEPTED;
-        driver.setStatus(DriverStatus.UNAVAILABLE);
 
+        if (route.getStartLocationLat().equals(route.getEndLocationLat()) &&
+                route.getStartLocationLng().equals(route.getEndLocationLng())) {
+            throw new IllegalArgumentException("Start and end locations cannot be the same");
+        }
         Ride ride = Ride.builder()
                 .passenger(user)
                 .passengers(passengers)
@@ -158,38 +174,74 @@ public class RideService {
                 .price(quote.getPrice())
                 .panicActivated(false)
                 .isScheduled(isScheduled)
+                .startTime(scheduledTime)
                 .build();
+
+        if (isScheduled) {
+            ride.setStartTime(scheduledTime);
+        }
+
+        ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
 
         String startAddress = decodeAddress(ride.getRoute().getStartLocationLat(), ride.getRoute().getStartLocationLng());
         String endAddress = decodeAddress(ride.getRoute().getEndLocationLat(), ride.getRoute().getEndLocationLng());
         ride.getRoute().setStartAddress(startAddress);
         ride.getRoute().setEndAddress(endAddress);
 
-        ride = rideRepository.save(ride);
+        rideRepository.saveAndFlush(ride);
 
-        // DTO
         GetRideResponseDTO dto = rideMapper.getRideDTO(ride);
         dto.setScheduledTime(scheduledTime);
 
+        AcceptedRideDTO emailContent = rideMapper.acceptedRide(ride);
+        try{
+            emailService.sendRideAcceptedMail(ride.getPassenger().getEmail(), emailContent);
+        }catch(IOException | MessagingException e){
+            throw new RuntimeException(e);
+        }
+        for(String passengerEmail : uniquePassengers) {
+            try{
+                emailService.sendRideAcceptedMail(passengerEmail, emailContent);
+            } catch (IOException | MessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return dto;
     }
 
-    public GetRideResponseDTO getUserRide(String userEmail) {
-        // Check if they are the person
+    public GetActiveRideInfoDTO getActiveRideInfo(Long rideId) {
+        Optional<Ride> rideOpt = rideRepository.findById(rideId);
+        if (rideOpt.isPresent()) {
+            Ride ride = rideOpt.get();
+            GetActiveRideInfoDTO dto = rideMapper.getActiveRideInfo(ride);
+            return dto;
+        }
+        throw new RideNotFoundException("Ride not found");
+    }
+
+    public List<GetActiveRideInfoDTO> getAllActiveRides() {
+        List<Ride> rides = rideRepository.findByStatus(RideStatus.ONGOING);
+        List<GetActiveRideInfoDTO> dtos = new ArrayList<>();
+        for (Ride ride : rides) {
+            dtos.add(rideMapper.getActiveRideInfo(ride));
+        }
+        return dtos;
+    }
+
+    public Collection<UserActiveRideDTO> getUserRides(String userEmail) {
         Collection<RideStatus> statuses = new ArrayList<>();
         statuses.add(RideStatus.ACCEPTED);
         statuses.add(RideStatus.ONGOING);
-        Optional<Ride> creatorRide = this.rideRepository.findByPassengerEmailAndStatusIn(userEmail, statuses);
-        if (creatorRide.isPresent()) {
-            Ride ride = creatorRide.get();
-            return rideMapper.getRideDTO(ride);
+        List<UserActiveRideDTO> activeRides = new ArrayList<>();
+        List<Ride> creatorRides = this.rideRepository.findAllByPassengerEmailAndStatusIn(userEmail, statuses);
+        for (Ride ride : creatorRides){
+            activeRides.add(rideMapper.getUserActiveRideDTO(ride));
         }
-        Optional<Ride> passengerRide = this.rideRepository.findByPassengersContainingAndStatusIn(userEmail, statuses);
-        if (passengerRide.isPresent()) {
-            Ride ride = passengerRide.get();
-            return rideMapper.getRideDTO(ride);
+        List<Ride> passengerRides = this.rideRepository.findAllByPassengersContainingAndStatusIn(userEmail, statuses);
+        for (Ride ride : passengerRides){
+            activeRides.add(rideMapper.getUserActiveRideDTO(ride));
         }
-        return null;
+        return activeRides;
     }
 
     public RideStatus getRideStatus(String rideId) {
@@ -235,31 +287,13 @@ public class RideService {
         return null;
     }
 
-    public Ride getActiveRideForDriver(String driverEmail) {
-        System.out.println("Driver email u metodi: " + driverEmail);
+    public List<Ride> getActiveRidesForDriver(String driverEmail) {
 
-        Optional<Driver> driverOpt = driverRepository.findByEmail(driverEmail);
+        Driver driver = driverRepository.findByEmail(driverEmail)
+                .orElseThrow(() -> new UserNotFoundException("Driver not found"));
 
-        if (driverOpt.isEmpty()) {
-            System.out.println("Nije pronađen driver za email: " + driverEmail);
-        } else {
-            Driver driver = driverOpt.get();
-            System.out.println("Pronađen driver: " + driver.getFirstName() + " " + driver.getLastName());
-        }
-
-        Driver driver = driverOpt.orElseThrow(() -> new UserNotFoundException("Driver not found"));
-
-        Optional<Ride> rideOpt = rideRepository.findByDriverAndStatus(driver, RideStatus.ACCEPTED);
-
-        if (rideOpt.isEmpty()) {
-            System.out.println("Nema aktivne vožnje za drivera: " + driverEmail);
-        } else {
-            System.out.println("Pronađena aktivna vožnja: rideId=" + rideOpt.get().getId());
-        }
-
-        return rideOpt.orElse(null);
+        return rideRepository.findAcceptedRidesForDriver(driver);
     }
-
     public GetRideResponseDTO mapToDTO(Ride ride) {
         return rideMapper.getRideDTO(ride);
     }
@@ -317,8 +351,8 @@ public class RideService {
         vehicleRepository.save(vehicle);
     }
 
-    public void finishRide(Long RideID){
-        Optional<Ride> rideOptional = rideRepository.findById(RideID);
+    public void finishRide(Long rideID){
+        Optional<Ride> rideOptional = rideRepository.findById(rideID);
         if (rideOptional.isEmpty()) {
             throw new RideNotFoundException("Ride not found");
         }
@@ -329,18 +363,33 @@ public class RideService {
         driver.setStatus(DriverStatus.AVAILABLE);
         rideRepository.save(ride);
         driverRepository.save(driver);
+        sendFinishRideNotification(ride.getPassenger().getId());
+        for (String passenger : ride.getPassengers()){
+            Long userID = isRegisteredUser(passenger);
+            if (userID != -1L){
+                sendStartRideNotification(userID, ride.getId());
+            }
+        }
         try {
             emailService.sendRideEndMail(ride.getPassenger().getEmail());
         } catch (MessagingException | IOException e) {
             throw new RuntimeException(e);
         }
-        for (String email : ride.getPassengers()) {
+        List<String> passengers = Optional.ofNullable(ride.getPassengers())
+                .orElse(Collections.emptyList());
+        for (String email : passengers) {
             try {
-                emailService.sendRideEndMail(email);
+                if (email.contains("@")) {
+                    emailService.sendRideEndMail(email);
+                }
             }catch (MessagingException | IOException e) {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void sendFinishRideNotification(Long userID){
+        fcmService.sendFinishRideNotification("Vroom", "Ride Finished", userID);
     }
 
     public void sendComplaint(Long rideID, ComplaintRequestDTO complaint){
@@ -393,13 +442,11 @@ public class RideService {
         rideRepository.save(ride);
     }
 
-    public double calculatePrice(String startLocation, String endLocation){
-        RouteQuoteResponseDTO data = routeService.routeEstimation(startLocation, endLocation);
-
-        return data.getPrice();
-    }
-
     public StoppedRideResponseDTO stopRide(Long rideID, StopRideRequestDTO data){
+        if (data.getStopLat() < -90 || data.getStopLat() > 90 || data.getStopLng() < -180 || data.getStopLng() > 180) {
+            throw new StopRideException("Invalid coordinates");
+        }
+
         Optional<Ride> rideOptional = rideRepository.findById(rideID);
         if(rideOptional.isEmpty())
             throw new RideNotFoundException("Ride not found");
@@ -423,7 +470,7 @@ public class RideService {
 
         String startAddress = String.valueOf(route.getStartLocationLat())+","+String.valueOf(route.getStartLocationLng());
         String stopAddress = String.valueOf(data.getStopLat())+","+String.valueOf(data.getStopLng());
-        double price = this.calculatePrice(startAddress, stopAddress);
+        double price = routeService.routeEstimation(startAddress, stopAddress).getPrice();
 
         if (ride.getDriver() != null) {
             Driver driver = ride.getDriver();
@@ -437,7 +484,6 @@ public class RideService {
         return rideMapper.stopRide(ride, data, price, endAddress);
     }
 
-
     public GetRideResponseDTO startRide(Long rideID) {
 
         Optional<Ride> rideOpt = rideRepository.findById(rideID);
@@ -448,9 +494,41 @@ public class RideService {
         ride.setStartTime(LocalDateTime.now());
         ride.setStatus(RideStatus.ONGOING);
         ride.getDriver().setStatus(DriverStatus.UNAVAILABLE);
+        sendStartRideNotification(ride.getPassenger().getId(), ride.getId());
+        for (String passenger : ride.getPassengers()){
+            Long userID = isRegisteredUser(passenger);
+            if (userID != -1L){
+                sendStartRideNotification(userID, ride.getId());
+            }
+        }
+        try{
+            emailService.sendRideStartedMail(ride.getPassenger().getEmail(), rideID.toString());
+        }catch(IOException | MessagingException e){
+            System.err.println("Failed to send email: " + e.getMessage());
+        }
         rideRepository.save(ride);
-
         return rideMapper.getRideDTO(ride);
+    }
+
+    private Long isRegisteredUser(String email){
+        Optional<RegisteredUser> user = registeredUserRepository.findByEmail(email);
+        if (user.isEmpty()){
+            return -1L;
+        }
+        return user.get().getId();
+    }
+
+    private void sendStartRideNotification(Long userID, Long rideID){
+        fcmService.sendStartRideNotification("RIDE STARTED", "Click to track ride", userID, rideID);
+    }
+
+    public RideResponseDTO getRide(long rideID){
+        Optional<Ride> rideOpt = rideRepository.findById(rideID);
+        if (rideOpt.isEmpty()) {
+            throw new RideNotFoundException("Ride not found");
+        }
+
+        return rideMapper.createUserRideHistoryDTO(rideOpt.get());
     }
 
 }

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Grid</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background">
+        <div class="page-title">
+            <span class="title">Administrator Dashboard</span>
+        </div>
+        <div class="cards-grid">
+            <div class="card-container"  (click)="activeRides()">
+                <div class="card-content">
+                    <img src="../../../assets/icons/admin-icons/active-rides.png">
+                </div>
+                <div class="footer">
+                    <span class="card-title">Active Rides</span>
+                </div>
+            </div>
+
+            <div class="card-container" (click)="rideHistory()">
+                <div class="card-content">
+                    <img src="../../../assets/icons/admin-icons/past-rides.png">
+                </div>
+                <div class="footer">
+                    <span class="card-title">Past Rides</span>
+                </div>
+            </div>
+
+            <div class="card-container" (click)="panicFeed()">
+                <div class="card-content">
+                    <img src="../../../assets/icons/admin-icons/panic.png">
+                </div>
+                <div class="footer">
+                    <span class="card-title">Panic Feed</span>
+                </div>
+            </div>
+
+            <div class="card-container" (click)="addDriver()">
+                <div class="card-content">
+                    <img src="../../../assets/icons/admin-icons/add-driver.svg">
+                </div>
+                <div class="footer">
+                    <span class="card-title">Add Driver</span>
+                </div>
+            </div>
+
+            <div class="card-container" (click)="manageUsers()">
+                <div class="card-content">
+                    <img src="../../../assets/icons/admin-icons/manage-users.png">
+                </div>
+                <div class="footer">
+                    <span class="card-title">Manage Users</span>
+                </div>
+            </div>
+
+            <div class="card-container" (click)="profileRequests()">
+                <div class="card-content">
+                    <img src="../../../assets/icons/admin-icons/update-info.png">
+                </div>
+                <div class="footer">
+                    <span class="card-title">Profile Change Requests</span>
+                </div>
+            </div>
+
+            <div class="card-container" (click)="pricelist()">
+                <div class="card-content">
+                    <img src="../../../assets/icons/admin-icons/pricelist.png">
+                </div>
+                <div class="footer">
+                    <span class="card-title">Define New Pricelist</span>
+                </div>
+            </div>
+
+            <div class="card-container" (click)="chat()">
+                <div class="card-content">
+                    <img src="../../../assets/icons/admin-icons/chat.png">
+                </div>
+                <div class="footer">
+                    <span class="card-title">Customer Support</span>
+                </div>
+            </div>
+
+            <div class="card-container" (click)="reports()">
+                <div class="card-content">
+                    <img src="../../../assets/icons/admin-icons/report.png">
+                </div>
+                <div class="footer">
+                    <span class="card-title">Generate Reports</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

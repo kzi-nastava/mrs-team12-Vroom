@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { CancelRideRequestDTO } from "../models/ride/requests/cancel-ride-req.dto";
 import { MessageResponseDTO } from "../models/message-response.dto";
@@ -11,6 +11,9 @@ import { GetRouteResponseDTO } from "../models/ride/responses/get-route-response
 import { map } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
 import { GetRideResponseDTO } from '../models/ride/responses/get-ride-response.dto'
+import { RideResponseDTO } from "../models/ride/responses/ride-respose.dto";
+import { GetActiveRideInfoDTO } from "../models/admin/get-active-ride-info.dto";
+import { UserActiveRideResponseDTO } from "../models/ride/responses/user-active-ride-response.dto";
 
 @Injectable({
     providedIn: "root"
@@ -20,8 +23,8 @@ export class RideService{
 
     constructor(private http: HttpClient) {}
 
-    getUserRide(): Observable<GetRideResponseDTO> {
-        return this.http.get<GetRideResponseDTO>(this.rideUrl+"/user-active-ride")
+    getUserRide(): Observable<UserActiveRideResponseDTO[]> {
+        return this.http.get<UserActiveRideResponseDTO[]>(this.rideUrl+"/user-active-ride")
     }
 
     cancelRideRequest(rideID: string, data: CancelRideRequestDTO): Observable<MessageResponseDTO>{
@@ -42,12 +45,12 @@ export class RideService{
     }
 
     sendComplaintRequest(rideID: string, data: ComplaintRequestDTO): Observable<MessageResponseDTO>{
-        return this.http.post<MessageResponseDTO>(this.rideUrl+`/${rideID}`+'/complaint', data)
+        return this.http.post<MessageResponseDTO>(this.rideUrl+'/complaint'+`/${rideID}`, data)
     }
 
     getRouteDetails(rideID: string): Observable<GetRouteResponseDTO>{
         console.log('Fetching route details for rideID:', this.rideUrl+`/${rideID}`+'/route');
-        return this.http.get<GetRouteResponseDTO>(this.rideUrl+`/${rideID}`+'/route')
+        return this.http.get<GetRouteResponseDTO>(this.rideUrl+'/route'+`/${rideID}`)
     }
 
     getAddress(lat: number, lng: number): Observable<string> {
@@ -62,5 +65,12 @@ export class RideService{
         );
     }
 
-    
+    getRide(rideId: string | number | undefined): Observable<RideResponseDTO>{
+        //let params = new HttpParams().set('rideId', rideId!);
+        return this.http.get<RideResponseDTO>(`${this.rideUrl}/${rideId}`)
+    }
+
+    getActiveRides() : Observable<GetActiveRideInfoDTO[]> {
+        return this.http.get<GetActiveRideInfoDTO[]>(`${this.rideUrl}/active-rides`)
+    }
 }

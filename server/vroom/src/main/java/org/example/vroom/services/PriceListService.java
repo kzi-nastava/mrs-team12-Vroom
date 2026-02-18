@@ -1,0 +1,68 @@
+package org.example.vroom.services;
+
+import org.example.vroom.DTOs.requests.PricelistDTO;
+import org.example.vroom.entities.Pricelist;
+import org.example.vroom.enums.VehicleType;
+import org.example.vroom.exceptions.pricelist.InvalidVehicleTypeException;
+import org.example.vroom.exceptions.pricelist.NoValidPricelistException;
+import org.example.vroom.mappers.PricelistMapper;
+import org.example.vroom.repositories.PriceListRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class PriceListService {
+
+    @Autowired
+    private PriceListRepository priceListRepository;
+
+    @Autowired
+    private PricelistMapper priceListMapper;
+
+    public void setNewPriceList(PricelistDTO pricelistDTO) {
+        Optional<Pricelist> pricelistOptional = priceListRepository.findFirstByValidTrue();
+        if (pricelistOptional.isPresent()) {
+            Pricelist pricelist = pricelistOptional.get();
+            pricelist.setValid(false);
+            priceListRepository.saveAndFlush(pricelist);
+        }
+        Pricelist newPricelist = priceListMapper.newPricelist(pricelistDTO);
+        priceListRepository.saveAndFlush(newPricelist);
+    }
+
+    public PricelistDTO getPriceList() {
+        Optional<Pricelist> pricelistOptional = priceListRepository.findFirstByValidTrue();
+        if (pricelistOptional.isPresent()) {
+            Pricelist pricelist = pricelistOptional.get();
+            return priceListMapper.toDTO(pricelist);
+        }return PricelistDTO.builder()
+                .priceStandard(0.0)
+                .priceLuxury(0.0)
+                .priceMinivan(0.0)
+                .build();
+    }
+
+    public double getPricePerType(VehicleType type){
+        Optional<Pricelist> pricelistOptional = priceListRepository.findFirstByValidTrue();
+        if (pricelistOptional.isEmpty()) {
+            throw new NoValidPricelistException("Admin hasn't defined a valid pricelist");
+        }
+        Pricelist pricelist = pricelistOptional.get();
+        switch (type){
+            case STANDARD -> {
+                return pricelist.getPriceStandard();
+            }
+            case LUXURY -> {
+                return pricelist.getPriceLuxury();
+            }
+            case MINIVAN -> {
+                return pricelist.getPriceMinivan();
+            }
+            case null, default -> {
+                throw new InvalidVehicleTypeException("Invalid vehicle type");
+            }
+        }
+    }
+}

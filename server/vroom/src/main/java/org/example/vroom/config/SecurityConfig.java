@@ -60,7 +60,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://10.0.2.2", "http://192.168.0.20"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowedHeaders(List.of("*"));
@@ -79,18 +79,25 @@ public class SecurityConfig {
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        //.requestMatchers("/api/drivers/**").authenticated()
+                        .requestMatchers("/error").permitAll()
+//                        .requestMatchers("/api/drivers/**").authenticated()
+                        .requestMatchers("/api/registered-user/**").authenticated()
+                        .requestMatchers("/api/rides/complaint/**").permitAll()
+                        .requestMatchers("/api/rides/ride-duration-update/**").permitAll()
+                        .requestMatchers("/api/rides/route/**").permitAll()
                         .requestMatchers("/api/rides/**").authenticated()
                         .requestMatchers("/api/auth/logout").authenticated()
-                        //.requestMatchers("/api/admins/**").permitAll()
-                        //.requestMatchers("/api/panics/**").authenticated()
+                        .requestMatchers("/api/admins/**").authenticated()
+                        .requestMatchers("/api/panics/**").authenticated()
                         .requestMatchers("/api/profile/driver").authenticated()
                         .requestMatchers("/api/profile/user").authenticated()
                         .requestMatchers("/api/panics/**").authenticated()
                         .requestMatchers("/api/profile/driver").authenticated()
+                        .requestMatchers("/api/reports/**").authenticated()
                         .requestMatchers("/api/profile/user").authenticated()
                         .requestMatchers(
-                                "/api/admins/**",
+                                "/v3/api-docs/**",
+                                "/api/chat/**",
                                 "/api/drivers/**",
                                 "/api/auth/**",
                                 "/api/routes/**",
