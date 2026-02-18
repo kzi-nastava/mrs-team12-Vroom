@@ -257,6 +257,8 @@ public class OrderRideViewModel extends ViewModel {
                     error.setValue("No available drivers or scheduling conflict");
                 } else if (response.code() == 400) {
                     error.setValue("Invalid ride request");
+                } else if (response.code() == 403) {
+                    error.setValue("Your account has been blocked. Please contact support.");
                 } else {
                     error.setValue("Failed to order ride: " + response.code());
                 }

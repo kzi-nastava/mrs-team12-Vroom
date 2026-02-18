@@ -15,6 +15,7 @@ import org.example.vroom.enums.VehicleType;
 import org.example.vroom.exceptions.ride.DriverNotAvailableException;
 import org.example.vroom.exceptions.ride.NoAvailableDriverException;
 import org.example.vroom.exceptions.ride.TooManyPassengersException;
+import org.example.vroom.exceptions.ride.UserBlockedException;
 import org.example.vroom.exceptions.user.UserNotFoundException;
 import org.example.vroom.mappers.RideMapper;
 import org.example.vroom.mappers.RouteMapper;
@@ -194,13 +195,10 @@ public class RideServiceOrderRideTest {
     @Test
     @DisplayName("Order ride fails - user not found")
     void orderRide_userNotFound() {
-        // arrange
         RideRequestDTO req = createValidRideRequest();
 
         when(userRepository.findByEmail("missing@test.com"))
                 .thenReturn(Optional.empty());
-
-        // act and assert
         UserNotFoundException ex = assertThrows(
                 UserNotFoundException.class,
                 () -> rideService.orderRide("missing@test.com", req)
@@ -210,6 +208,37 @@ public class RideServiceOrderRideTest {
 
         verify(driverRepository, never()).findFirstAvailableDriver(any(), any(), any(), any(), any());
         verify(rideRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Order ride fails - user is blocked")
+    void orderRide_userBlocked() {
+        RegisteredUser blockedPassenger = RegisteredUser.builder()
+                .firstName("Jovan").lastName("Jovic")
+                .email("jovan@vroom.com")
+                .blockedReason("Inappropriate behavior")
+                .build();
+
+        RideRequestDTO req = RideRequestDTO.builder()
+                .vehicleType(VehicleType.STANDARD)
+                .babiesAllowed(false)
+                .petsAllowed(false)
+                .scheduled(false)
+                .route(createRoute(45, 19, 46, 20))
+                .build();
+
+        when(userRepository.findByEmail(anyString()))
+                .thenReturn(Optional.of(blockedPassenger));
+
+        UserBlockedException ex = assertThrows(
+                UserBlockedException.class,
+                () -> rideService.orderRide(blockedPassenger.getEmail(), req)
+        );
+
+        assertEquals("Your account has been blocked: Inappropriate behavior", ex.getMessage());
+
+        verify(driverRepository, never()).findFirstAvailableDriver(any(), any(), any(), any(), any());
+        verify(rideRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -290,7 +319,7 @@ public class RideServiceOrderRideTest {
     @DisplayName("Order ride - valid scheduled time succeeds")
     void orderRide_validScheduledTime() {
         GetRouteResponseDTO routeDTO = createRoute(45, 19, 46, 20);
-        LocalDateTime validScheduledTime = LocalDateTime.now().plusHours(2); // 2 hours ahead (valid)
+        LocalDateTime validScheduledTime = LocalDateTime.now().plusHours(2);
 
         RideRequestDTO req = RideRequestDTO.builder()
                 .vehicleType(VehicleType.STANDARD)
