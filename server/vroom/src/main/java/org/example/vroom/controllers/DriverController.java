@@ -28,6 +28,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -119,9 +120,12 @@ public class DriverController {
     @PutMapping(path = "/status")
     public ResponseEntity<MessageResponseDTO> changeStatus(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody DriverChangeStatusRequestDTO data
+            @Valid @RequestBody DriverChangeStatusRequestDTO data,
+            BindingResult result
     ){
-        if(data == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try {
             driverService.changeStatus(user.getId(), data.getStatus());
 

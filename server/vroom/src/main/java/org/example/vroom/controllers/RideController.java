@@ -50,8 +50,6 @@ public class RideController {
     @Autowired
     private RideService rideService;
     @Autowired
-    private RideRepository rideRepository;
-    @Autowired
     private RouteMapper routeMapper;
     @Autowired
     private FavoriteRouteService favoriteRouteService;
@@ -193,10 +191,12 @@ public class RideController {
     public ResponseEntity<MessageResponseDTO> cancelRide(
             @AuthenticationPrincipal User user,
             @PathVariable @NotNull Long rideID,
-            @Valid @RequestBody CancelRideRequestDTO data
+            @Valid @RequestBody CancelRideRequestDTO data,
+            BindingResult result
     ){
-        if(data==null)
-            return new ResponseEntity<MessageResponseDTO>(HttpStatus.NO_CONTENT);
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         try{
             rideService.cancelRide(rideID, data.getReason(), user.getRoleName());
@@ -218,8 +218,12 @@ public class RideController {
     @PutMapping(path="/{rideID}/stop",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StoppedRideResponseDTO> stopRide(
             @PathVariable @NotNull Long rideID,
-            @Valid @RequestBody StopRideRequestDTO data
+            @Valid @RequestBody StopRideRequestDTO data,
+            BindingResult result
     ){
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         if(data == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
