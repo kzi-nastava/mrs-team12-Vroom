@@ -31,16 +31,6 @@
         android:title="Estimate Route" />
 
     <item
-        android:id="@+id/nav_panic_feed"
-        android:title="Panic Feed"
-        android:visible="false" />
-
-    <item
-        android:id="@+id/ride_history"
-        android:title="Ride History"
-        android:visible="false" />
-
-    <item
         android:id="@+id/user_active_rides"
         android:title="Active rides"/>
     <item
@@ -51,6 +41,57 @@
         android:title="Live Support"
         android:id="@+id/live_support"
         />
+
+    <item
+        android:title="Admin Feed"
+        android:id="@+id/admin_feed"
+        />
+
+    <item
+        android:title="Manage Users"
+        android:id="@+id/admin_manage_users"
+        />
+
+    <item
+        android:title="Active Rides"
+        android:id="@+id/admin_active_rides"
+        />
+
+    <item
+        android:id="@+id/nav_panic_feed"
+        android:title="Panic Feed"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/ride_history"
+        android:title="Ride History"
+        android:visible="false" />
+
+    <item
+        android:title="Add Driver"
+        android:id="@+id/admin_add_driver"
+        />
+
+    <item
+        android:title="Profile Requests"
+        android:id="@+id/admin_profile_requests"
+        />
+
+    <item
+        android:title="Pricelist"
+        android:id="@+id/admin_pricelist"
+        />
+
+    <item
+        android:title="Chat"
+        android:id="@+id/admin_chat"
+        />
+
+    <item
+        android:title="Reports"
+        android:id="@+id/admin_reports"
+        />
+
 
     <group android:id="@+id/nav_footer" android:checkableBehavior="none">
         <item

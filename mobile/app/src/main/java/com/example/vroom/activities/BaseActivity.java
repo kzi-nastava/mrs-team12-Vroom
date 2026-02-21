@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ReportFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.vroom.DTOs.map.MapRouteDTO;
@@ -29,10 +30,17 @@ import com.example.vroom.DTOs.route.responses.PointResponseDTO;
 import com.example.vroom.R;
 import com.example.vroom.data.local.StorageManager;
 import com.example.vroom.fragments.ActiveRidesFragment;
+import com.example.vroom.fragments.AdminActiveRidesFragment;
+import com.example.vroom.fragments.AdminAllChatsFragment;
+import com.example.vroom.fragments.BlockUserFragment;
+import com.example.vroom.fragments.DefinePricelistFragment;
 import com.example.vroom.fragments.OrderFromFavoritesFragment;
 import com.example.vroom.fragments.OrderRideFragment;
 import com.example.vroom.fragments.PanicFeedFragment;
+import com.example.vroom.fragments.ProfileRequestsFragment;
+import com.example.vroom.fragments.RegisterDriverFragment;
 import com.example.vroom.fragments.RideHistoryFragment;
+import com.example.vroom.fragments.RideStatisticsFragment;
 import com.example.vroom.fragments.RouteEstimationFragment;
 import com.example.vroom.fragments.UserActiveRideFragment;
 import com.example.vroom.fragments.UserChatFragment;
@@ -193,6 +201,15 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         menu.findItem(R.id.nav_order_from_favorites)
                 .setVisible(isLoggedIn && userType.equals("REGISTERED_USER"));
+
+        menu.findItem(R.id.admin_feed).setVisible(isLoggedIn && userType.equals("ADMIN"));
+        menu.findItem(R.id.admin_manage_users).setVisible(isLoggedIn && userType.equals("ADMIN"));
+        menu.findItem(R.id.admin_active_rides).setVisible(isLoggedIn && userType.equals("ADMIN"));
+        menu.findItem(R.id.admin_add_driver).setVisible(isLoggedIn && userType.equals("ADMIN"));
+        menu.findItem(R.id.admin_profile_requests).setVisible(isLoggedIn && userType.equals("ADMIN"));
+        menu.findItem(R.id.admin_pricelist).setVisible(isLoggedIn && userType.equals("ADMIN"));
+        menu.findItem(R.id.admin_chat).setVisible(isLoggedIn && userType.equals("ADMIN"));
+        menu.findItem(R.id.admin_reports).setVisible(isLoggedIn && userType.equals("ADMIN"));
     }
 
     public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
@@ -267,16 +284,55 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         }else if (id == R.id.nav_order_ride){
             OrderRideFragment fragment = new OrderRideFragment();
             fragment.show(getSupportFragmentManager(), "OrderRide");
-        }
-        else if (id == R.id.nav_order_from_favorites){
+        } else if (id == R.id.nav_order_from_favorites){
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_frame, new OrderFromFavoritesFragment())
                     .addToBackStack(null)
                     .commit();
+        }else if(id == R.id.admin_feed){
+            Intent intent = new Intent(this, AdminActivity.class);
+            startActivity(intent);
+        } else if(id == R.id.admin_manage_users){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new BlockUserFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if(id == R.id.admin_active_rides){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new AdminActiveRidesFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if(id == R.id.admin_add_driver){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new RegisterDriverFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if(id == R.id.admin_profile_requests){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new ProfileRequestsFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if(id == R.id.admin_pricelist){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new DefinePricelistFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if(id == R.id.admin_chat){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new AdminAllChatsFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }else if(id == R.id.admin_reports){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new RideStatisticsFragment())
+                    .addToBackStack(null)
+                    .commit();
         }
+
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 
     private void finalizeLogout(){
         SocketProvider.getInstance().getClient().disconnect();
