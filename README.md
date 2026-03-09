@@ -25,7 +25,7 @@
 
 ## Overview
 
-RideShare minimizes friction in urban transport by automating driver assignment, providing real-time vehicle tracking, and enabling structured communication between passengers, drivers, and administrators — all in one platform.
+Vroom minimizes friction in urban transport by automating driver assignment, providing real-time vehicle tracking, and enabling structured communication between passengers, drivers, and administrators — all in one platform.
 
 ---
 
